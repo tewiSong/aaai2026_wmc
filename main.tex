@@ -7,8 +7,8 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{proposition}{Proposition}
 \newtheorem{definition}{Definition}
-\newcommand{\WMC}{\mathrm{WMC}}
-\newcommand{\tw}{\mathrm{tw}}
+\newcommand{\WMC}{\ensuremath{\mathrm{WMC}}}
+\newcommand{\tw}{\ensuremath{\mathrm{tw}}}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\bC}[1]{\boldsymbol{#1}}
 
@@ -22,67 +22,211 @@
 \begin{abstract}
 \noindent Neuro-symbolic learning couples a neural perception model with symbolic reasoning under a
 \emph{conditional-independence assumption}: the perception model emits independent per-concept
-marginals and the symbolic layer treats them as an independent product. Repairing this assumption
-exactly requires weighted model counting (WMC) over the symbolic theory, which is $\#$P-hard and, for
-a real ontology with tens of thousands of axioms, far beyond exact reasoning. We study the soft,
-message-passing closure used in practice and give it the two properties a deployable inference layer
-needs: a \emph{correctness characterization} and \emph{tractability at ontology scale}. First, we
-prove in machine-checked Lean~4 that the soft closure of the true-path theory is loopy belief
-propagation, and is the \emph{exact} WMC marginal on the tree fragment for \emph{all} priors, with
-error confined to reconvergent (multi-parent) structures (no \texttt{sorry}; core axioms
-$\subseteq\{\texttt{propext},\texttt{Quot.sound}\}$, the general theorem in mathlib). Second, we show
-the Gene Ontology constraint graph has treewidth $9$/$31$/$272$ over its three namespaces, so exact
-monolithic WMC is infeasible on the largest, but removing only a ${<}8\%$ reconvergence core makes
-$92$--$100\%$ of the ontology exactly computable by a \emph{modular} construction---each
-low-treewidth module compiled to a sentential decision diagram with weighted separator messages, the
-bounded soft approximation confined to a small core. Third, we run the canonical neuro-symbolic
-frameworks on the identical ontology inference: exact knowledge compilation (DeepProbLog) walls at
-${\sim}400$ terms; top-$k$ provenance (Scallop) scales but its drift concentrates exactly at the
-reconvergences our theory identifies; and learned approximators (A-NeSI, NeSyDM) collapse on coupled
-structure. The result is an inference layer that is simultaneously scalable and accuracy-characterized,
-demonstrated on protein function prediction in a companion paper.
+marginals $p_i$, and the symbolic layer treats them as an independent product. This assumption is
+known to impede optimization, distort uncertainty, and admit reasoning shortcuts. Repairing it
+exactly means conditioning the factorized distribution on the symbolic theory, whose target
+marginals $\mu_i$ are ratios of weighted model counts ($\WMC$); exact $\WMC$ is $\#$P-hard and, on a
+description-logic ontology with tens of thousands of axioms, far beyond exact reasoning. We give the
+soft, message-passing closure used in practice the two properties a deployable inference layer needs:
+a correctness characterization and tractability at ontology scale. First, we prove in machine-checked
+Lean~4 (no \texttt{sorry}; core axioms $\subseteq\{\texttt{propext},\texttt{Classical.choice},\texttt{Quot.sound}\}$) that the
+soft closure of the \emph{true-path theory} is loopy belief propagation, and is the \emph{exact}
+$\WMC$ marginal on the tree fragment for \emph{all} priors $q_i$, with error confined to
+reconvergences (a diamond yields exact $5/6$ versus soft-OR $7/10$). Second, the Gene Ontology
+constraint graph has treewidth $9$/$31$/$272$ across its three namespaces, so monolithic exact
+$\WMC$ is infeasible on the largest; yet cutting a ${<}8\%$ reconvergence core makes $92$--$100\%$ of
+the ontology exactly computable by a modular construction, the bounded soft approximation confined to
+the small core. Third, across the neuro-symbolic spectrum---DeepProbLog (exact compilation walls at
+${\sim}400$ terms), Scallop (top-$k$ drift concentrated exactly at the reconvergences our theory
+identifies), and A-NeSI/NeSyDM (collapse on coupled structure, $0.97\!\to\!0.23$ and
+$0.96\!\to\!0.03$--$0.13$ from $N{=}1$ to $N{=}4$)---ours is uniquely both scalable and
+accuracy-characterized. The layer is demonstrated on protein function prediction in a companion
+paper.
 \end{abstract}
 
 \section{Introduction}
-Neuro-symbolic (NeSy) learning couples a neural perception model with symbolic reasoning, almost
-universally under a \emph{conditional-independence assumption}: the perception model emits
-independent per-concept marginals, and the symbolic layer treats them as an independent product
-\citep{manhaeve2018deepproblog,xu2018semanticloss,ahmed2022spl}. The assumption is known to impede
-optimization, distort uncertainty, and admit \emph{reasoning shortcuts}
-\citep{vankrieken2024independence,marconato2023reasoningshortcuts,marconato2024bears}. Repairing it
-means conditioning the factorized perception distribution on the symbolic theory, whose marginals are
-ratios of weighted model counts (WMC). Exact WMC is $\#$P-hard \citep{chavira2008wmc}; on a
-description-logic ontology with tens of thousands of axioms it is far beyond exact probabilistic
-reasoning, and this is precisely where NeSy systems fall back on soft, message-passing relaxations
-whose correctness is rarely characterized.
+Neuro-symbolic (NeSy) learning seeks to combine the perceptual strength of neural
+networks with the structure and verifiability of symbolic reasoning: a neural
+perception model maps raw inputs to the truth values of symbolic concepts, and a
+symbolic layer reasons over those concepts under a fixed theory. Almost universally,
+this coupling is realized under a \emph{conditional-independence assumption}---the
+perception model emits independent per-concept marginals $p_i\in[0,1]$, and the symbolic
+layer treats the joint over concepts as the independent product
+$q(\bC y)=\prod_i p_i^{y_i}(1-p_i)^{1-y_i}$
+\citep{manhaeve2018deepproblog,xu2018semanticloss,ahmed2022spl}. The assumption is what
+makes the symbolic layer differentiable and cheap to evaluate, and it underwrites the
+semantic-loss and probabilistic-layer constructions on which much of the field is built
+\citep{xu2018semanticloss,ahmed2022spl,deraedt2020survey}.
 
-We close that gap for the \emph{true-path theory}---the propositional grounding of an ontology's
-hierarchical (is-a/part-of) and definitional axioms that arises, e.g., in protein function prediction
-over the Gene Ontology (GO). Our contributions are:
-\begin{enumerate}\itemsep1pt
-\item \textbf{Machine-checked exactness.} We formalize the soft closure in Lean~4
-\citep{demoura2021lean,mathlib2020} and prove it is belief propagation, exact on the tree fragment for
-\emph{all} priors, with error confined to reconvergences (\S\ref{sec:lean}).
-\item \textbf{Modular exact WMC at ontology scale.} We measure the GO constraint-graph treewidth and
-show that cutting a ${<}8\%$ reconvergence core makes $92$--$100\%$ of GO exactly computable by a
-modular SDD construction (\S\ref{sec:scaling}).
-\item \textbf{A full NeSy-framework comparison} on the identical inference, placing exact compilation,
-top-$k$ provenance, and learned approximators against the characterized regime our theory predicts
-(\S\ref{sec:nesy}).
+The same assumption, however, is now understood to be a principal source of failure.
+Because the perception model factorizes over concepts that the theory in fact couples,
+the independent product places mass on jointly impossible configurations and withholds it
+from the correlations the theory induces. This has three documented consequences: it
+\emph{impedes optimization}, flattening or fragmenting the loss landscape so that gradient
+descent stalls; it \emph{distorts uncertainty}, since the factorized posterior cannot
+represent the dependencies a satisfied constraint creates; and it admits \emph{reasoning
+shortcuts}, in which a model attains low loss through concept assignments that satisfy the
+theory but do not reflect the intended semantics
+\citep{vankrieken2024independence,marconato2023reasoningshortcuts,marconato2024bears}.
+These pathologies are not incidental; they are structural to the independence assumption,
+and they sharpen precisely as the symbolic theory couples more variables.
+
+Repairing the assumption has a clean formal meaning: one must condition the factorized
+perception distribution on the symbolic theory $T$, yielding the structure-aware posterior
+$p_T(\bC y)\propto[\bC y\models T]\,q(\bC y)$, and read off the per-concept marginals
+$\mu_i=p_T(y_i{=}1)$. Each such marginal is a ratio of \emph{weighted model counts} (WMC)
+over $T$, $\mu_i=\WMC(T\wedge y_i;\bC p)/\WMC(T;\bC p)$, which is exactly the
+semantic-probabilistic-layer object \citep{ahmed2022spl,xu2018semanticloss}. The
+difficulty is that exact WMC is $\#$P-hard \citep{chavira2008wmc}, and its cost by
+knowledge compilation to a sentential decision diagram or d-DNNF scales as
+$\Theta(m\,2^{\tw})$ in the treewidth $\tw$ of the constraint graph
+\citep{darwiche2002kcmap,darwiche2011sdd,bodlaender1993treewidth}. On a real
+description-logic ontology with tens of thousands of axioms, the constraint graph has
+treewidth far beyond any feasible compilation, and exact probabilistic reasoning is
+simply out of reach. It is exactly here that deployed NeSy systems retreat to soft,
+message-passing relaxations---monotone closures and top-$k$ provenance approximations
+of the WMC---whose correctness is essentially never characterized. The field thus faces a
+dichotomy: methods that are exact but do not scale, and methods that scale but offer no
+account of when, where, or how much they err.
+
+This paper closes that gap for the \emph{true-path theory}---the propositional grounding
+of an ontology's hierarchical (is-a / part-of) and definitional axioms, the theory that
+governs, for instance, protein function prediction over the Gene Ontology (GO)
+\citep{ashburner2000go,geneontology2023}. The true-path theory is the EL\textsuperscript{++}
+normal form of subsumption and conjunction-definition axioms
+\citep{baader2005elenvelope,kazakov2014elk}, and the soft closure deployed against it is
+the monotone message-passing fixpoint of the EL completion: each concept aggregates a
+normalized soft-OR of its sufficient conditions, capped above by the true-path constraint.
+Our central observation is that this closure is not a heuristic black box but an
+identifiable inference procedure---loopy belief propagation \citep{pearl1988probabilistic}
+on the constraint graph---and that, once identified, it can be both \emph{characterized}
+for correctness and made \emph{tractable} at ontology scale. We make this precise in three
+contributions.
+
+\begin{enumerate}\itemsep2pt
+\item \textbf{Machine-checked exactness.}
+We formalize the soft closure in Lean~4 \citep{demoura2021lean,mathlib2020} and prove that
+it is belief propagation: for a target with $k$ independent children under the true-path
+constraint, the exact WMC marginal equals the soft-OR update for \emph{all} $k$ and
+\emph{all} priors $q_\pi,q_{c_j}$, and the closure converges unconditionally to a
+structure-dependent limit. The error is localized exactly at \emph{reconvergences}: on a
+diamond the exact marginal is $5/6$ while the soft-OR gives $7/10$. The development carries
+no \texttt{sorry}, with core axioms $\subseteq\{\texttt{propext},\texttt{Classical.choice},\texttt{Quot.sound}\}$ and
+the general theorem in mathlib, and a kernel-checked battery confirms tree-exactness across
+an $81$-prior single-edge grid, the polytree exact and the diamond inexact across priors (\S\ref{sec:lean}).
+
+\item \textbf{Modular exact WMC at ontology scale.}
+We measure the GO constraint-graph treewidth---$9$ (cellular component), $31$ (molecular
+function), $272$ (biological process)---so exact monolithic WMC is feasible only on the
+smallest namespace ($7.5$\,s, with the soft closure agreeing to mean error
+$6\times10^{-4}$, $7\times$ larger at multi-parent nodes, exactly the predicted
+reconvergence signature). The high treewidth elsewhere is carried by a small reconvergent
+core: removing only $2.95\%$ of molecular-function terms leaves $97\%$ exact, and removing
+$7.7\%$ of biological-process terms leaves $92\%$ exact. Hence $92$--$100\%$ of GO admits
+exact \emph{modular} WMC---each low-treewidth module compiled to an SDD with weighted
+separator messages, the bounded soft approximation confined to the small core
+(\S\ref{sec:scaling}).
+
+\item \textbf{A full NeSy-framework comparison.}
+We run the canonical NeSy frameworks on the identical GO true-path inference, validated to
+reproduce our exact marginals (the diamond $5/6$, the chain $0.875$). Exact knowledge
+compilation (DeepProbLog) walls at ${\sim}400$ terms, one to two orders below GO's
+$2.8$k/$6.9$k/$21$k terms; top-$k$ provenance (Scallop) scales to the full $21{,}324$-term
+biological process in $0.9$\,s but its drift concentrates exactly at the reconvergences our
+theory identifies and is unverifiable at scale; and learned approximators (A-NeSI, NeSyDM)
+collapse on coupled structure ($0.97\!\to\!0.23$ and $0.96\!\to\!0.03$--$0.13$ from $N{=}1$ to
+$N{=}4$). Across the spectrum, each framework trades correctness for scale on the
+coupled-structure regime; ours is the only one that is simultaneously scalable and
+accuracy-characterized (\S\ref{sec:nesy}).
 \end{enumerate}
 
+Taken together, these results turn the soft closure from an uncharacterized relaxation
+into an inference layer with a proof: machine-checked exact on the tree fragment of the
+true-path theory, modular-exact over $92$--$100\%$ of a real ontology, and
+bounded-approximate only on a small, explicitly identified reconvergent core. A companion
+paper applies this layer to protein function prediction, where it gives any base predictor
+training-free, similarity-independent reach over ontology structure.
+
+\section{Preliminaries}\label{sec:prelim}
+This section fixes the four bodies of theory the paper draws on and the notation it uses throughout. We first state weighted model counting and the knowledge-compilation targets that make it tractable, together with the role of treewidth in compilation cost; we then recall the $\mathcal{EL}^{++}$ fragment, the true-path rule, and the ELK completion calculus that ground our symbolic theory; we recall belief propagation and its exactness on trees, which is the lens through which we read the soft closure; and we situate the work in the neuro-symbolic landscape that motivates it.
+
+\paragraph{Weighted model counting and its $\#$P-hardness.}
+Let $\mathcal{Y}=\{1,\dots,m\}$ be a target vocabulary and let $T$ be a propositional theory over $\mathcal{Y}$. Given per-variable weights $\bC p\in[0,1]^m$ that factorize a product distribution $q(\bC y)=\prod_i p_i^{y_i}(1-p_i)^{1-y_i}$ over assignments $\bC y\in\{0,1\}^m$, the \emph{weighted model count} of a formula $\phi$ is
+\[
+\WMC(\phi;\bC p)=\sum_{\bC y\models\phi}\;\prod_i p_i^{y_i}(1-p_i)^{1-y_i}.
+\]
+Conditioning the factorized perception distribution on the symbolic theory $T$ yields the structure-aware posterior $p_T(\bC y)\propto[\bC y\models T]\,q(\bC y)$, whose per-target marginals are ratios of weighted model counts, $\mu_i=p_T(y_i{=}1)=\WMC(T\wedge y_i;\bC p)/\WMC(T;\bC p)$. This is exactly the object a neuro-symbolic layer must compute to honour the symbolic constraints rather than the independent product $q$, and it is the construction underlying semantic loss and the semantic probabilistic layer \citep{xu2018semanticloss,ahmed2022spl}. Weighted model counting subsumes propositional model counting, so it is $\#$P-hard \citep{chavira2008wmc}: there is no algorithm polynomial in $m$ that computes $\WMC$ for an arbitrary theory unless $\mathrm{FP}=\#\mathrm{P}$. For an ontology with tens of thousands of axioms, naive summation over $2^m$ assignments is hopeless, and this hardness is the central obstacle the paper confronts.
+
+\paragraph{Knowledge compilation and treewidth.}
+The standard route to tractable $\WMC$ is \emph{knowledge compilation}: transform $T$ once, offline, into a target representation on which weighted counting and marginalization are polynomial in the size of the compiled circuit \citep{darwiche2002kcmap}. Two such targets are central here. A \emph{deterministic, decomposable negation normal form} (d-DNNF) is a circuit whose $\wedge$-gates have disjoint variable scopes (decomposability) and whose $\vee$-gates have mutually inconsistent inputs (determinism); on a d-DNNF, $\WMC$ reduces to a single bottom-up arithmetic evaluation, replacing $\vee$ by $+$ and $\wedge$ by $\times$ \citep{darwiche2002factoring,chavira2008wmc}. \emph{Sentential decision diagrams} (SDDs) are a strictly more canonical, tractable subclass that respects a variable tree (a \emph{vtree}) and admits efficient conjunction and Boolean operations \citep{darwiche2011sdd}. The benefit is that the $\#$P-hardness is paid once at compile time and never again at inference; the cost is that the compiled circuit can be exponentially large in the worst case. The size of the circuit, and hence the compilation and evaluation cost, is governed by the \emph{treewidth} $\tw$ of the constraint graph: compilation along an optimal vtree produces a circuit of size $\Theta(m\,2^{\tw})$ \citep{darwiche2011sdd,bodlaender1993treewidth}. Treewidth measures how far the constraint graph is from a tree; it is small for near-acyclic structures and grows with reconvergent, densely cyclic structure. Treewidth is therefore the single quantity that decides whether monolithic exact $\WMC$ is feasible, and we measure it directly on the ontology constraint graph.
+
+\paragraph{$\mathcal{EL}^{++}$, the true-path rule, and the ELK completion.}
+The symbolic theories we target are propositional groundings of ontologies expressed in $\mathcal{EL}^{++}$, the lightweight description logic underlying the OWL 2 EL profile \citep{baader2005elenvelope}. $\mathcal{EL}^{++}$ is Horn and admits a single canonical model and polynomial-time classification, which is what makes the associated $\WMC$ Boolean and tractable in structure (if not in size). Reasoning is carried out by a \emph{completion calculus} that normalizes axioms to a small set of normal forms---$A\sqsubseteq B$, $A\sqcap B\sqsubseteq E$, $A\sqsubseteq \exists r.B$, $\exists r.B\sqsubseteq E$---and saturates them under a fixed set of inference rules until closure; the ELK reasoner is the canonical efficient realization of this saturation \citep{kazakov2014elk}. The hierarchical backbone of every biomedical ontology, in particular the Gene Ontology (GO) \citep{ashburner2000go,geneontology2023}, is the subsumption (\textit{is-a}/\textit{part-of}) edge set, and its propositional grounding is the \emph{true-path rule}: whenever a child concept holds, every ancestor along a subsumption edge must hold. Concretely, the \emph{true-path theory} is
+\[
+T=\bigwedge_{(c,\pi)\in E}\!(y_c\Rightarrow y_\pi)\;\wedge\!\bigwedge_{A\sqcap B\sqsubseteq E}\!(y_A\wedge y_B\Rightarrow y_E)\;\wedge\;(\text{existential definitions}),
+\]
+the subsumption edges $E$ together with the $\mathcal{EL}^{++}$ normal-form definitions, existential restrictions reified as fresh nodes \citep{baader2005elenvelope,kazakov2014elk}. In practice, neuro-symbolic predictors over GO do not compute the $\WMC$ marginals $\mu_i$ of this theory at all; they apply the monotone message-passing fixpoint of the completion---each node aggregating a normalized soft-OR of its sufficient conditions, capped from above by the true-path constraint---as a soft relaxation of saturation. The central question of the paper is precisely when this \emph{soft closure} coincides with the exact $\WMC$ marginal.
+
+\paragraph{Belief propagation and its exactness on trees.}
+The lens that answers that question is belief propagation (BP), the message-passing scheme that computes marginals on a graphical model by iteratively combining incoming messages as if they were independent \citep{pearl1988probabilistic}. BP's defining property is that it is \emph{exact on trees}: when the factor graph is a forest, the independence assumption it makes among incoming messages is correct, and the fixpoint marginals equal the true marginals. On graphs with cycles, the same updates---\emph{loopy} BP---are only an approximation, because a node's incoming messages are no longer independent. The error has a precise structural locus: BP equals exact inference on the \emph{computation-tree unrolling} of the graph, which duplicates any shared ancestor, so BP is exact if and only if that unrolling is the identity, i.e.\ the constraint graph is a polytree. A two-parent node is not itself the problem; a \emph{reconvergence}---two distinct paths meeting at a common descendant, so that a shared ancestor is double-counted---is. This is exactly the correlation that loopy BP ignores, and it is exactly where the soft true-path closure will be shown to depart from $\WMC$: on a diamond (two paths to a shared ancestor) the exact reconvergent marginal is $5/6$ while the soft-OR update gives $7/10$. Reading the soft closure as belief propagation on the constraint graph thus converts the vague notion ``the relaxation is approximate'' into a sharp, structurally localized claim, and connects the approximation's error directly to the treewidth and reconvergence statistics of the ontology graph.
+
+\paragraph{The neuro-symbolic landscape.}
+Neuro-symbolic learning couples a neural perception model with symbolic reasoning, almost universally under the conditional-independence assumption that the perception marginals $p_i$ may be treated as an independent product \citep{deraedt2020survey,vankrieken2024independence}. The frameworks differ chiefly in how they evaluate the symbolic constraint, and they span a spectrum from exact-but-costly to scalable-but-uncharacterized. \emph{DeepProbLog} extends ProbLog with neural predicates and evaluates queries by exact knowledge compilation to arithmetic circuits \citep{deraedt2007problog,manhaeve2018deepproblog}; it inherits ProbLog's exactness and its $\#$P-bounded cost, walling at a few hundred terms on the GO theory. \emph{Scallop} replaces exact provenance with \emph{top-$k$} proof provenance \citep{huang2021scallop,li2023scallop}, retaining only the $k$ highest-weight proofs per fact; this scales to the full ontology but truncates proofs, so its drift concentrates at reconvergent (multi-proof) nodes---precisely the regime the BP reading identifies. \emph{Semantic loss} and \emph{semantic probabilistic layers} compile the constraint once and train the perception network through the resulting circuit \citep{xu2018semanticloss,ahmed2022spl}, the construction whose marginals $\mu_i$ we adopt as the gold standard. Finally, two \emph{learned-approximate} methods abandon a fixed inference circuit entirely: \emph{A-NeSI} amortizes inference with a neural surrogate trained to predict the $\WMC$ output \citep{vankrieken2023anesi}, which on GO would require training data---samples of the exact $\WMC$---that are themselves intractable to generate; and \emph{NeSyDM} models the symbolic joint by masked discrete diffusion over the symbolic variables to break the independence assumption \citep{vankrieken2025nesydm}. On coupled structure both learned approximators collapse as depth grows: on the $N$-digit carry chain, A-NeSI degrades from $0.97$ at $N{=}1$ to $0.23$ at $N{=}4$, and NeSyDM from $0.96$ to $0.03$. Across the spectrum---exact compilation, top-$k$ provenance, amortized inference, joint diffusion---each method trades correctness for scale and offers no guarantee on the coupled-structure regime, which is the gap the remainder of the paper closes.
+
 \section{The symbolic theory and its soft closure}\label{sec:setup}
+
+A neuro-symbolic predictor over an ontology has two components that meet at a probabilistic
+interface: a neural perception model that scores each ontology concept against the input, and a
+symbolic layer that enforces the ontology's logical theory. Under the
+conditional-independence assumption that is near-universal in the field, the perception model
+reports one marginal per concept and the symbolic layer consumes those marginals as if they were
+independent. Making this section precise---the factorized perception distribution, the logical
+theory it must respect, the exact posterior, and the soft relaxation actually deployed---is what
+lets us state, in the remainder of the paper, exactly where that assumption is harmless and where
+it fails. We develop the four objects in turn.
+
 \paragraph{Independent perception.}
-Let $\mathcal{Y}=\{1,\dots,m\}$ be a target vocabulary and $f_\theta$ a perception model emitting
-independent marginals $p_i\in[0,1]$, inducing $q(\bC y)=\prod_i p_i^{y_i}(1-p_i)^{1-y_i}$ over
-$\bC y\in\{0,1\}^m$.
+Let $\mathcal{Y}=\{1,\dots,m\}$ be the target vocabulary of \S\ref{sec:prelim}---for protein
+function prediction, the $m$ GO terms---and let $f_\theta$ be a perception model that, from an
+input, emits independent per-concept marginals $p_i\in[0,1]$. These induce the fully factorized
+distribution
+\[
+q(\bC y)=\prod_{i=1}^{m} p_i^{y_i}(1-p_i)^{1-y_i}
+\]
+over joint assignments $\bC y\in\{0,1\}^m$. This product form is the operational content of the
+independence assumption: $q$ places mass on every one of the $2^m$ configurations, including the
+overwhelming majority that the ontology forbids. The role of the symbolic layer is to remove
+that mass and renormalize, coupling the per-concept scores through the logical structure they
+were trained to satisfy.
+
+\paragraph{The true-path theory.}
+The logical structure relevant to ontology-grounded prediction is the propositional theory
+generated by the ontology's hierarchical and definitional axioms, the true-path theory introduced
+in \S\ref{sec:prelim}. We restate it as a definition.
 
 \begin{definition}[True-path theory]
 A theory $T$ is a propositional formula over $\mathcal Y$. The \emph{true-path} theory is
-$T=\bigwedge_{(c,\pi)\in E}(y_c\!\Rightarrow\!y_\pi)\wedge\bigwedge_{A\sqcap B\sqsubseteq E}(y_A\wedge
-y_B\!\Rightarrow\!y_E)\wedge(\text{existential defs})$: the hierarchy edges $E$ plus the
-EL\textsuperscript{++} normal-form definitions \citep{baader2005elenvelope,kazakov2014elk}.
+\[
+T=\bigwedge_{(c,\pi)\in E}\bigl(y_c\!\Rightarrow\!y_\pi\bigr)\;\wedge\;
+\bigwedge_{A\sqcap B\sqsubseteq E}\bigl(y_A\wedge y_B\!\Rightarrow\!y_E\bigr)\;\wedge\;(\text{existential defs}):
+\]
+the hierarchy edges $E$ plus the EL\textsuperscript{++} normal-form definitions
+\citep{baader2005elenvelope,kazakov2014elk}.
 \end{definition}
+
+The first conjunction is the \emph{true-path rule} of the GO \citep{ashburner2000go}: whenever a
+specific term $c$ holds, every more general term $\pi$ above it on a subsumption (is-a/part-of)
+edge must hold as well, so annotations propagate upward and never contradict the hierarchy. The
+remaining conjuncts capture the EL\textsuperscript{++} normal forms a real ontology compiles to
+\citep{baader2005elenvelope,kazakov2014elk}---conjunctive subsumptions $A\sqcap B\sqsubseteq E$
+and existential definitions---so that $T$ is the propositional grounding of the full Horn
+fragment, not merely a tree of edges. Because every axiom in this fragment is Horn, $T$ has a
+single canonical (least) model relative to any set of asserted facts, which is what makes its
+closure a deterministic upward propagation rather than a branching search.
+
+\paragraph{The exact posterior: a WMC marginal.}
+Conditioning the factorized perception distribution on the theory gives the principled posterior,
+whose per-concept marginals are ratios of weighted model counts.
 
 \begin{definition}[WMC marginal]
 The structure-conditioned posterior is $p_T(\bC y)\propto[\bC y\models T]\,q(\bC y)$, with target
@@ -92,71 +236,118 @@ marginal
 \WMC(\phi;\bC p)=\!\!\sum_{\bC y\models\phi}\prod_i p_i^{y_i}(1-p_i)^{1-y_i}.
 \]
 \end{definition}
-This is the semantic-probabilistic-layer construction \citep{ahmed2022spl,xu2018semanticloss};
-exact evaluation proceeds by knowledge compilation to a sentential decision diagram (SDD) or d-DNNF
-\citep{darwiche2002kcmap,darwiche2011sdd}, whose cost is governed by treewidth (\S\ref{sec:scaling}).
 
-\paragraph{Soft closure.}
-In place of exact compilation, the deployed inference is the monotone message-passing fixpoint of the
-EL completion \citep{kazakov2014elk}: each node aggregates a normalized soft-OR of its sufficient
-conditions and is capped from above by the true-path constraint. This is loopy belief propagation
-\citep{pearl1988probabilistic} on the constraint graph. The remainder of the paper characterizes when
-it is exact, makes it tractable at scale, and compares it to the NeSy spectrum.
+Here $[\,\cdot\,]$ is the Iverson bracket, and the weight of an assignment is its perception
+probability under $q$; summing only over models of $\phi$ restricts the count to logically
+admissible configurations. The marginal $\mu_i$ is thus the probability that concept $i$ holds
+once impossible joint assignments have been excluded and the remaining mass renormalized. This is
+exactly the semantic-probabilistic-layer construction \citep{ahmed2022spl,xu2018semanticloss}: a
+differentiable, logically consistent posterior obtained by weighted model counting over $T$.
+Evaluating it exactly proceeds by knowledge compilation of $T$ into a tractable arithmetic
+circuit---an SDD or d-DNNF \citep{darwiche2002kcmap,darwiche2011sdd}---on
+which both $\WMC(T;\bC p)$ and each numerator are linear-time passes. The catch is the cost of
+that circuit: weighted model counting is $\#$P-hard in general \citep{chavira2008wmc}, and the
+compiled circuit's size is governed by the treewidth of the constraint graph
+(\S\ref{sec:scaling}), which we will see is prohibitive on the largest GO namespace.
+
+\paragraph{The soft closure.}
+Because exact compilation does not scale to a full ontology, the inference actually deployed in
+NeSy systems is not the WMC marginal but a soft, message-passing relaxation of it: the monotone
+message-passing fixpoint of the EL completion \citep{kazakov2014elk}. Each node aggregates a
+normalized soft-OR of its sufficient conditions---the ways the theory can entail it---and is
+capped from above by the true-path constraint linking it to its children. Concretely, a parent
+combines its incoming child messages \emph{as if they were independent}, mirroring at the level
+of probabilities the deterministic upward propagation that the Horn closure performs at the level
+of truth values. Iterated to convergence, this is precisely loopy belief propagation
+\citep{pearl1988probabilistic} on the constraint graph of $T$: the same product-of-incoming-messages
+update, run on a graph that is in general not a tree. The fixpoint always exists---the soft
+closure is extensive and monotone in the active set, so iteration reaches its limit within the
+graph's depth---but \emph{what} it converges to depends on the graph's structure, because the
+independence with which it merges messages is only justified when the supporting derivations do
+not share evidence. This is the same conditional-independence assumption, now operating inside the
+symbolic layer rather than at the perception interface, and locating where it is exact versus
+where it drifts is the subject of the remainder of the paper: we show it is machine-checked exact
+on the tree fragment for all priors with error confined to reconvergences (\S\ref{sec:lean}),
+make it tractable at ontology scale through a modular construction (\S\ref{sec:scaling}), and
+position it against the NeSy framework spectrum (\S\ref{sec:nesy}).
 
 \section{The soft closure is belief propagation: machine-checked exactness}\label{sec:lean}
-We formalize the soft closure in Lean~4 \citep{demoura2021lean}. The core development is in Lean core
-(no \texttt{sorry}; axioms $\subseteq\{\texttt{propext},\texttt{Quot.sound}\}$); the general theorem
-uses mathlib \citep{mathlib2020}.
+
+The soft message-passing closure described in \S\ref{sec:setup} is the inference primitive that almost every neuro-symbolic system runs under the independence assumption: each concept aggregates a normalized soft-OR of its sufficient conditions and is capped from above by the true-path constraint \citep{kazakov2014elk,pearl1988probabilistic}. Because this closure is what is actually deployed---rather than the \#P-hard exact WMC it stands in for \citep{chavira2008wmc}---the central question is not whether exact WMC is correct (it is, by construction) but \emph{when the cheap closure that replaces it coincides with it, and where it cannot}. A deployable inference layer needs this answer to be a theorem, not a heuristic expectation. We therefore formalize the closure and its relationship to exact WMC in Lean~4 \citep{demoura2021lean}, so that the exactness claims are not merely argued but checked by the proof assistant's kernel, and we are explicit throughout about the axiom footprint on which each claim rests.
+
+\paragraph{Two complementary Lean developments and a kernel-checkable rational arithmetic.}
+The formalization is split deliberately. A \emph{finite, concrete} development lives in Lean core with no dependence on \texttt{mathlib}: it defines worlds as Boolean lists, the true-path constraint as a conjunction of edge clauses $(\neg y_c \vee y_\pi)$, the exact weighted model count \texttt{wmcMarg} as a ratio of summed world weights, and the belief-propagation update forms, and it closes every claim by \texttt{decide}---reduction in the kernel, with no \texttt{native\_decide} escape hatch and therefore no trust placed in compiled code. The cost of staying inside the kernel is that ordinary rational arithmetic does not reduce cheaply, so we introduce a \emph{custom rational kernel encoding}: a rational is a pair $Q=\mathbb{Z}\times\mathbb{Z}$ of numerator and denominator, addition, multiplication and complementation ($1-a$) are defined directly on the pair, and equality is the \emph{cross-multiplied} test $a_1 b_2 = b_1 a_2$, decidable on integers. Because equality of $Q$-values never normalizes a fraction and reduces to a single integer identity, the entire finite battery---world enumeration, weighting, summation, and the BP/WMC comparison---is reducible by \texttt{decide} and hence checked in the kernel. The price is that the concrete theorems hold only at the specific priors enumerated; the \emph{parametric} statement, quantified over all $k$ and all real priors, is proved separately in a \texttt{mathlib} development (described below) where real-number reasoning and finite-product lemmas are available. The concrete development's axioms stay within $\{\texttt{propext},\texttt{Classical.choice},\texttt{Quot.sound}\}$ (the \texttt{WMCBattery} battery within $\{\texttt{propext}\}$ alone); no \texttt{sorry} appears anywhere.
+
+\paragraph{Tree-exactness for all priors.}
+The inductive primitive of the entire theory is the behaviour of a \emph{star}: a target $\pi$ with $k$ children $c_1,\dots,c_k$ that are independent under the single true-path constraint $y_{c_j}\!\Rightarrow\!y_\pi$. This is the elementary tree fragment, and the soft-OR update assigns $\pi$ the marginal in which $\pi$ is forced true unless every child is absent.
 
 \begin{theorem}[Tree-exactness, all priors]\label{thm:star}
-For a target $\pi$ with $k$ independent children $c_1,\dots,c_k$ under the true-path constraint
-$y_{c_j}\!\Rightarrow\!y_\pi$, the exact WMC marginal of $\pi$ equals the soft-OR update
+For a target $\pi$ with $k$ independent children $c_1,\dots,c_k$ under the true-path constraint $y_{c_j}\!\Rightarrow\!y_\pi$, the exact WMC marginal of $\pi$ equals the soft-OR update
 \[
 \mu_\pi=\frac{q_\pi}{q_\pi+(1-q_\pi)\prod_{j=1}^{k}(1-q_{c_j})}
 \]
-for all $k$ and all priors $q_\pi,q_{c_j}$ (Lean: \texttt{star\_marginal\_eq\_softOR}).
+for all $k\in\mathbb{N}$ and all priors $q_\pi,q_{c_1},\dots,q_{c_k}$ (Lean: \texttt{star\_marginal\_eq\_softOR}).
 \end{theorem}
 
-Belief propagation is exact on trees \citep{pearl1988probabilistic}; Theorem~\ref{thm:star} is the
-machine-checked instance for the true-path theory. The error is localized at \emph{reconvergences}:
-on a diamond (two paths to a shared ancestor) the exact marginal is $5/6$ while the soft-OR gives
-$7/10$ (Lean: \texttt{diamond\_reconv\_inexact}), and a finite breadth battery
-(\texttt{WMCBattery.lean}) confirms by kernel computation that single-edge BP equals exact WMC and
-the polytree is exact across an $81$-prior grid, while the diamond is inexact. Convergence of the
-closure is unconditional (\texttt{step\_mono}, \texttt{fixed\_stable}); only its limit is
-structure-dependent. The custom rational kernel encoding (cross-multiplied $\mathbb{Z}\times\mathbb{Z}$
-equality, reducible by \texttt{decide}) is what makes the breadth battery checkable in the kernel.
+This is the \texttt{mathlib} theorem \texttt{WmcGeneral.star\_marginal\_eq\_softOR}, stated over $k:\mathbb{N}$ children indexed by $\mathrm{Fin}\,k$ and priors in $\mathbb{R}$, so the statement is genuinely universal rather than a finite witness grid. The proof structure makes precise why the star is exactly the regime in which the independence assumption is harmless. The weight of a world $(p,c)$ factorizes as the parent factor times the product $\prod_i(\text{if }c_i\text{ then }q_i\text{ else }1-q_i)$ over children. The numerator---the unnormalized mass of valid worlds with $\pi$ true---is a sum over \emph{all} $2^k$ children assignments, since when the parent is true every child assignment is consistent with the constraint; this Finset product-of-sums expansion telescopes, because the sum over each child of (true-weight $+$ false-weight) is $1$ (\texttt{sum\_children}, via $\prod_i\sum_b = \sum_{c}\prod_i$ on \texttt{Fintype.piFinset}), giving $\mathrm{num}=q_\pi$ exactly (\texttt{num\_eq}). The partition function adds the \emph{single} valid world in which the parent is false---which forces all children false---contributing $(1-q_\pi)\prod_i(1-q_i)$, so $Z=q_\pi+(1-q_\pi)\prod_i(1-q_i)$ (\texttt{Zp\_eq}). The marginal is their ratio, which is exactly the soft-OR form, for every $k$ and every prior. Theorem~\ref{thm:star} is thus the machine-checked instance, for the true-path theory, of the classical fact that belief propagation is exact on trees \citep{pearl1988probabilistic}: the soft closure's defining act---combining incoming messages as if independent---is justified precisely when the children genuinely are independent, i.e.\ when there is no shared structure to couple them.
+
+\paragraph{The error is confined to reconvergences.}
+The complement of Theorem~\ref{thm:star} is equally important and is established by exact witnesses: \emph{where} does the closure deviate from WMC, and \emph{by how much}? The closure equals exact inference on the \emph{computation-tree unrolling} of the constraint graph---the tree obtained by duplicating any node reached along more than one path---so it is exact if and only if the unrolling is the identity, i.e.\ if and only if the constraint graph is a polytree. A two-parent node is not itself the failure mode; a \emph{reconvergence}, where two paths meet at a shared ancestor, is. The canonical witness is the diamond $d\!\Rightarrow\!b,\,d\!\Rightarrow\!c,\,b\!\Rightarrow\!a,\,c\!\Rightarrow\!a$, in which $a$ is reached from $d$ along two paths. At the uniform prior $\tfrac12$, the exact WMC marginal at the reconvergent node $a$ is $5/6$, whereas the closure---equivalently, WMC on the unrolled tree that splits $a$ into $a_1,a_2$---gives $7/10$ (Lean: \texttt{diamond\_reconv\_inexact}, with the two values pinned by \texttt{diamond\_exact\_a\_is\_5\_6} and \texttt{diamond\_bp\_a\_is\_7\_10}); at the diamond's sink the exact $1/6$ disagrees with the BP independence form $1/5$ (\texttt{diamond\_sink\_bp\_wrong}), while the polytree sink with independent parents is exact at $1/5$ (\texttt{polytree\_sink\_exact}). To show these are not artefacts of a single prior, the breadth battery \texttt{WMCBattery.lean} evaluates the same comparisons over a spread of nine rational priors in $(0,1)$, all kernel-checked by \texttt{decide}: the single-edge BP update equals the exact WMC parent marginal across the full $9\times 9=81$-prior grid (\texttt{single\_edge\_exact\_all\_priors}); the independent two-parent polytree sink is exact across all priors (\texttt{polytree\_exact\_all\_priors}); and the diamond's BP independence form is \emph{wrong} across all priors (\texttt{diamond\_wrong\_all\_priors}). The battery thus confirms in breadth what Theorem~\ref{thm:star} proves in generality on the tree fragment and exhibits the diamond as the irreducible obstruction: exactness is a property of acyclicity-up-to-reconvergence, not of the prior. This is exactly the quantity the GO structure probe measures (\S\ref{sec:scaling}), which is why the localization of error to reconvergences is also the cut criterion for the modular construction.
+
+\paragraph{Unconditional convergence of the monotone fixpoint.}
+Exactness concerns \emph{what} the closure converges to; a separate guarantee is needed that it converges at all. The synchronous true-path step---a parent is activated by any active child---is proved to be \emph{extensive} (it only ever adds active nodes, \texttt{step\_ext}) and \emph{monotone} in the active set (\texttt{step\_mono}). Since the active set grows monotonically inside a finite vocabulary, iteration reaches the least fixpoint in at most $\mathrm{depth}$ steps, and once a step adds nothing every further iteration is fixed (\texttt{fixed\_stable}, which requires \emph{no axioms at all}). Convergence is therefore unconditional; only the limit is structure-dependent. Together with Theorem~\ref{thm:star} and the reconvergence witnesses, this gives the full machine-checked picture: the soft closure always terminates, agrees with exact WMC on the tree fragment for all priors, and deviates only---and demonstrably---at reconvergences. What remains outside the machine-checked perimeter, and we state this scope honestly, is a closed-form error bound on general DAGs, which is \#P-hard in general and is instead reported empirically against the modular-exact SDD reference in \S\ref{sec:scaling}.
 
 \section{Tractability: treewidth and modular exact WMC}\label{sec:scaling}
-Exact WMC by compilation costs $\Theta(m\,2^{\tw})$ in the constraint-graph treewidth $\tw$
-\citep{darwiche2011sdd,bodlaender1993treewidth}. We measure the GO constraint graph:
-$\tw=9$ (cellular component), $31$ (molecular function), $272$ (biological process). On cellular
-component, exact junction-tree WMC runs in $7.5$\,s and the soft closure agrees to mean error
-$6\times10^{-4}$, $7\times$ larger at multi-parent nodes---precisely Theorem~\ref{thm:star}'s
-reconvergence error, empirically localized.
+Theorem~\ref{thm:star} establishes \emph{when} the soft closure is correct---on the tree fragment, for all priors---but a deployable inference layer must also answer \emph{at what cost} the exact answer can be recovered when the structure is not a tree, and \emph{how much} of a real ontology falls outside the tree regime. This section makes both quantities concrete for the Gene Ontology (GO) and turns them into a constructive recipe: a modular exact-WMC scheme whose only inexactness is the bounded soft approximation of Theorem~\ref{thm:star}, confined to an explicitly identified, small reconvergent core.
 
-Treewidth is a graph invariant, so the biological-process namespace ($\tw=272$, a $2^{272}$ circuit)
-admits \emph{no} exact monolithic WMC. But the high treewidth is carried by a small reconvergent core:
-cutting only the highest-degree reconvergence hubs makes the remainder exactly computable. Removing
-$2.95\%$ of molecular-function terms leaves $97\%$ exact; removing $7.7\%$ of biological-process terms
-leaves $92\%$ exact. Hence $92$--$100\%$ of GO admits exact \emph{modular} WMC:
+\paragraph{Exact WMC is governed by treewidth.}
+Exact evaluation of the WMC marginals $\mu_i$ proceeds by knowledge compilation of the true-path theory $T$ to an SDD or, equivalently, by junction-tree calibration over the constraint graph \citep{darwiche2011sdd,darwiche2002kcmap}. Both routes share the same complexity barrier: the cost of exact WMC is $\Theta(m\,2^{\tw})$ in the constraint-graph treewidth $\tw$ \citep{darwiche2011sdd,bodlaender1993treewidth}, where $m=|\mathcal Y|$. Treewidth measures how far the graph departs from a forest; on a forest $\tw=1$ and exact WMC coincides with the single-pass belief propagation of Theorem~\ref{thm:star}, while each additional reconvergence (each independent cycle in the constraint graph) can enlarge the largest junction-tree bag and so multiply the cost. The exponential dependence on $\tw$ is therefore the precise reason a soft closure is used in practice: it is the price of avoiding the $2^{\tw}$ blow-up. Quantifying $\tw$ for the actual ontology is thus the pivot on which the whole tractability argument turns---it tells us where exact WMC is free, where it is borderline, and where it is hopeless.
+
+\paragraph{Measured GO treewidth.}
+We compute a min-fill treewidth for the GO true-path constraint graph---built from the EL\textsuperscript{++} normal forms of \texttt{go.norm}, one clique per axiom factor---separately for each of GO's three namespaces. The three namespaces occupy completely different points on the tractability axis:
+\[
+\tw = 9~(\text{cellular component, cc}),\quad
+31~(\text{molecular function, mf}),\quad
+272~(\text{biological process, bp}).
+\]
+On cellular component, $2^{9}$ is trivial and exact WMC is immediate. On molecular function, $2^{31}\!\approx\!2\times10^{9}$ is already borderline-infeasible as a monolith, and on biological process a single connected component carries treewidth $272$, so the exact circuit would have size on the order of $2^{272}$: completely out of reach. Crucially, treewidth is a \emph{graph invariant}, so no decomposition---generic or logically motivated---computes exact WMC below it; the bp namespace simply admits \emph{no} exact monolithic WMC, and any scheme claiming exactness on all of bp would contradict the invariant.
+
+\paragraph{cellular component: exact WMC validates the localized error.}
+Where exactness is affordable, it lets us measure the soft closure against a computed ground truth rather than an asymptotic claim. On cellular component we tree-decompose the constraint graph by min-fill and run two-pass Shafer--Shenoy calibration to obtain exact per-term marginals: $2{,}829$ terms across three connected components, maximum component treewidth $9$, full exact marginals in $7.5$\,s. Against this exact reference, the soft closure (loopy belief propagation on the same factor graph) agrees to mean marginal error $6\times10^{-4}$ (p95 $1.3\times10^{-3}$, max $0.076$), with only $2.0\%$ of terms off by more than $0.01$. The deviation is not spread uniformly: the mean error at multi-parent (reconvergent) terms is $2.1\times10^{-3}$ versus $3\times10^{-4}$ at single-parent terms---roughly $7\times$ larger, and concentrated exactly where Theorem~\ref{thm:star} predicts inexactness. The cellular-component experiment is therefore the empirical companion of the machine-checked theorem: the soft closure is near-exact precisely because the namespace is near-tree-like, and what residual error exists localizes onto the diamond-style reconvergences (\texttt{diamond\_reconv\_inexact}) that the Lean development isolates as the unique failure mode.
+
+\paragraph{Cutting a small reconvergence core restores exactness.}
+The high treewidth of mf and bp is not diffuse; it is carried by a small set of high-degree reconvergence hubs---terms with many incoming is-a edges (maximum nf1 in-degree $4/7/8$ on cc/mf/bp) through which many distinct paths reconverge. Removing these hubs collapses the treewidth of the remainder. Greedily deleting the highest-degree terms in $1\%$ batches and recomputing min-fill treewidth until the remainder is exactly computable ($\tw\le14$) yields a strikingly small core: on molecular function, cutting $202$ terms ($2.95\%$) leaves $97.05\%$ of the namespace exactly WMC-computable; on biological process---the worst case, starting from $\tw\approx269$---cutting $1648$ terms ($7.72\%$) leaves $92.28\%$ exactly computable. In other words, for every namespace a reconvergence core of at most $7.7\%$ of terms accounts for essentially all of the intractability, and the complementary $92$--$100\%$ of GO becomes exactly computable once that core is separated out. The bp namespace, with $64\%$ of its terms multi-parent and circuit rank $24{,}432$, is exactly the regime where a small but unavoidable core must be handled by bounded approximation rather than exact compilation; the measurement shows that core is small and explicitly identifiable rather than pervasive.
+
+\paragraph{A modular construction.}
+These two facts---low-treewidth periphery, small high-treewidth core---combine into a constructive scheme that recovers exact WMC over almost all of GO while confining approximation to the characterized regime.
 
 \begin{proposition}[Modular exact WMC]\label{prop:modular}
-Partition the constraint graph into low-treewidth modules separated by the reconvergence core. Compile
-each module to an SDD, evaluate its exact WMC, and pass weighted separator marginals between modules;
-the result is exact on the union of modules, with the bounded soft approximation
-(Theorem~\ref{thm:star}) confined to the small core.
+Partition the constraint graph into low-treewidth modules separated by the reconvergence core. Compile each module to an SDD, evaluate its exact WMC, and pass weighted separator marginals between modules; the result is exact on the union of modules, with the bounded soft approximation (Theorem~\ref{thm:star}) confined to the small core.
 \end{proposition}
 
-A principled module decomposition can be supplied by locality-based modules
-\citep{cuencagrau2008modular,delvescovo2011atomic} or by the consequence-based context calculus
-\citep{bate2016sriq,tenacucala2019sequoia}; lifting the latter from Boolean consequences to weighted
-separator messages is the route to a verified modular WMC over the whole ontology.
+The construction generalizes the junction-tree calibration already validated on cellular component: each module is small enough that its exact SDD is cheap, and inter-module coordination passes weighted marginals over the (low-treewidth) separators rather than the Boolean entailments a classical reasoner would propagate. Where a module interface is itself a tree the inter-module messages are exact; only across the residual high-treewidth core---the $3$--$8\%$ of terms the previous paragraph isolates---do the messages fall back on the soft closure, whose error there is bounded by Theorem~\ref{thm:star}. The net effect is exact WMC over $92$--$100\%$ of GO with a single, characterized, small locus of bounded approximation, in contrast to a soft closure applied uniformly and a monolithic compilation that simply cannot be built for bp.
+
+\paragraph{Toward a principled decomposition.}
+Proposition~\ref{prop:modular} presumes a decomposition into logically coherent modules with small separators. A generic graph tree-decomposition supplies one, but a logically principled partition is preferable because it yields smaller, sound, signature-based interfaces. Two established routes apply: locality-based modules and atomic decomposition \citep{cuencagrau2008modular,delvescovo2011atomic}, which carve an ontology into modules with semantically guaranteed interfaces, and the consequence-based context calculus of modern SR(O)IQ reasoners \citep{bate2016sriq,tenacucala2019sequoia}, whose contexts already pass messages over exactly the separator signatures our scheme needs. The latter is especially attractive because lifting it from Boolean consequences to weighted separator marginals changes only the message payload---from an entailed clause to a weight vector over the separator atoms---while reusing the calculus's soundness machinery. We have verified that a Sequoia-style disjunctive context reasoner correctly saturates GO-style EL (it returns the exact transitive closure on a kinship test hierarchy), so the coordination substrate is sound on our logic. Honesty requires noting the present obstruction: the reasoner implements only the trivial successor strategy, in which all successors collapse into a single shared context, yielding essentially one root plus one shared successor context rather than the fine-grained module partition with distinct cores and small separators that Proposition~\ref{prop:modular} requires. Extracting genuine modules needs the non-trivial branch-bound context strategy, so that distinct context cores yield distinct contexts, together with exposing the context graph (cores, successor edges, separators); this is a scoped engine extension rather than a conceptual gap, and it is the route to a fully verified modular WMC over the entire ontology.
 
 \section{Comparison to neuro-symbolic frameworks}\label{sec:nesy}
-We run the canonical NeSy tools on the identical GO true-path inference (Table~\ref{tab:nesy}). Both
-the ProbLog engine of DeepProbLog and Scallop reproduce our exact marginals on validation cases (the
-diamond $5/6$; the chain $0.875$), so the comparison is apples-to-apples.
+
+The preceding sections established two facts about the soft message-passing closure deployed under
+the independence assumption: for the true-path theory it \emph{is} loopy belief propagation
+(Theorem~\ref{thm:star}), exact on the tree fragment for all priors with error confined to
+reconvergences, and a modular SDD construction therefore recovers exact $\WMC$ over $92$--$100\%$ of
+GO while bounding the residual approximation to a small reconvergent core. These are statements about
+\emph{our} construction. To show that they translate into a genuine advance, we must place the
+construction inside the wider neuro-symbolic design space and ask where the canonical frameworks sit
+on the same problem. The space is organized by how each system attacks the $\#$P-hardness of $\WMC$
+\citep{chavira2008wmc,deraedt2020survey}: exact knowledge compilation pays the full circuit cost and
+keeps correctness; provenance-based relaxations truncate the proof structure and trade correctness
+for scale; and learned approximators amortize or model the joint distribution and trade correctness
+for a different, training-bound notion of scale. We run a representative of each family on the
+\emph{identical} GO true-path inference and read off exactly which property---scalability or a
+correctness characterization---each one keeps, and which it surrenders. The positioning is summarized
+in Table~\ref{tab:nesy}; the central claim of this section is that ours is the only entry that keeps
+both columns.
 
 \begin{table}[t]\centering
 \caption{Neuro-symbolic inference on the same GO true-path WMC.}\label{tab:nesy}
@@ -173,55 +364,204 @@ A-NeSI \citep{vankrieken2023anesi} / NeSyDM \citep{vankrieken2025nesydm} & learn
 \end{tabular}
 \end{table}
 
-\paragraph{Exact compilation walls.}
-The ProbLog engine reproduces our exact marginals but, via knowledge compilation, times out
-($>300$\,s) at ${\sim}400$ terms---one to two orders of magnitude below GO's $2.8$k (cc), $6.9$k (mf),
-$21$k (bp) terms. The exact-NeSy wall is empirical here and rigorous via the treewidth probe.
+\paragraph{Setup: a like-for-like inference, validated against our exact marginals.}
+A meaningful comparison requires that every system compute \emph{the same} quantity we do, namely the
+structure-conditioned marginals $\mu_i$ of the true-path theory $T$ under the factorized perception
+prior $\bC q$. We therefore encode $T$ natively in each framework rather than approximating it: the
+hierarchy edges $y_c\!\Rightarrow\!y_\pi$ become ProbLog rules with the true-path constraint asserted
+as evidence (\texttt{evidence(violated,false)}) for DeepProbLog's engine, and the upward derivation
+$\texttt{holds}(P)\!:\!-\,\texttt{sub}(C,P),\texttt{holds}(C)$ for Scallop. Before measuring scale we
+confirm that both tools reproduce our exact answers on the small cases where an exact reference is
+available. DeepProbLog's ProbLog engine \citep{manhaeve2018deepproblog,deraedt2007problog} returns
+$P(\texttt{go}(a))=0.8333=5/6$ and $P(\texttt{go}(d))=1/6$ on the diamond---exactly the value of
+Theorem~\ref{thm:star}'s reconvergence instance and of the junction-tree computation of
+\S\ref{sec:scaling}---and Scallop \citep{huang2021scallop,li2023scallop} returns
+$P(\texttt{holds}(x))=0.875=1-(1/2)^3$ on the two-parent chain at prior $p=\tfrac12$. Both frameworks
+thus agree with our $\WMC$ marginals on validation cases, so any divergence observed at scale is a
+property of the inference strategy, not of a mismatched encoding. The comparison is apples-to-apples.
 
-\paragraph{Top-$k$ provenance scales but drifts exactly at reconvergences.}
-Scallop's \texttt{topkproofs} runs full biological process ($21{,}324$ terms in $0.9$\,s), but
-top-$k$ truncates proofs and the error lives exactly at reconvergent (multi-proof) nodes---the regime
-Theorem~\ref{thm:star} characterizes. For the diamond, $P(\text{holds}(a))$ exact $0.9375$ is
-approximated as $0.50$ ($k{=}1$), $0.875$ ($k{=}3$), $0.9375$ ($k{=}10$); on $14$-node balls the max
-drift falls from $0.15$--$0.30$ ($k{=}1$) to $0.000$ ($k{=}10$). At full-GO scale (bp circuit rank
-$24{,}432$) a hub term has astronomically many proofs, so any fixed $k$ systematically undercounts and
-the error is \emph{unverifiable}, no exact reference being computable---the $\#$P-hardness made
-concrete. Scallop scales by giving up the guarantee.
+\paragraph{Exact knowledge compilation walls one to two orders of magnitude below GO scale.}
+DeepProbLog inherits ProbLog's exact semantics by compiling the grounded program to a $\#$P circuit
+(d-DNNF) and reading the marginals off it \citep{manhaeve2018deepproblog,chavira2008wmc}---the same
+exact route, by knowledge compilation, that our monolithic SDD baseline takes
+\citep{darwiche2002kcmap,darwiche2011sdd}. It is correct whenever it terminates, but the circuit cost
+is governed by treewidth (\S\ref{sec:scaling}), and on GO true-path subgraphs of growing size the cost
+is prohibitive. Sweeping subgraph size on the molecular-function and biological-process namespaces, the
+engine compiles $100$ terms in $0.3$\,s and $250$ terms in $0.8$--$2.0$\,s, then crosses a sharp wall:
+at ${\sim}400$ terms it times out ($>300$\,s) on both namespaces. The full namespaces contain
+$2.8$k (cellular component), $6.9$k (molecular function), and $21$k (biological process) terms---one
+to two orders of magnitude beyond the ${\sim}400$-term ceiling. This wall is not merely an artifact of
+the implementation: it is rigorous via the structure probe of \S\ref{sec:scaling}, where the
+biological-process treewidth of $272$ implies a $2^{272}$ monolithic circuit that no exact compiler can
+build. Exact NeSy is correct but cannot reach ontology scale.
+
+\paragraph{Top-$k$ provenance scales, but its drift lives exactly at the reconvergences our theory
+identifies.}
+Scallop sidesteps the compilation wall by computing differentiable provenance over only the $k$
+highest-weight proofs of each fact \citep{huang2021scallop,li2023scallop}. This scales effortlessly:
+\texttt{topkproofs} evaluates the entire biological-process namespace---all $21{,}324$ terms---in
+$0.9$\,s, two to three orders of magnitude past ProbLog's practical limit. The cost is paid in
+correctness, and---tellingly---the error appears in precisely the place Theorem~\ref{thm:star}
+predicts. Top-$k$ truncation only loses mass when a fact has more than $k$ derivations, i.e.\ at
+\emph{reconvergent} (multi-proof) nodes; on the tree fragment, where every fact has a unique proof,
+top-$k$ is already exact. The diamond makes this concrete: the exact marginal $P(\texttt{holds}(a))=
+0.9375$ is approximated as $0.50$ at $k{=}1$ (a $47\%$ undercount), recovers to $0.875$ at $k{=}3$, and
+returns to the exact $0.9375$ at $k{=}10$. On $14$-node biological-process neighborhoods the maximum
+drift versus the exact reference falls from $0.15$--$0.30$ at $k{=}1$ to $0.000$ at $k{=}10$. The error
+thus grows with proof multiplicity (reconvergence) and shrinks as $k$ admits more proofs---the same
+reconvergence axis along which our soft closure departs from exact $\WMC$. The decisive difference is
+at scale: a hub term in the full biological-process circuit (rank $24{,}432$) has astronomically many
+proofs, so any fixed $k$ systematically undercounts, and that undercount is \emph{unverifiable}---no
+exact reference is computable at that scale, which is the $\#$P-hardness made concrete. Scallop scales
+by giving up the guarantee, and gives it up exactly where our theory locates the difficulty.
 
 \paragraph{Learned approximators relocate the wall to coupled structure.}
-A-NeSI \citep{vankrieken2023anesi} (amortized inference) and NeSyDM \citep{vankrieken2025nesydm}
-(masked discrete diffusion over the symbolic variables) are end-to-end training methods, not inference
-engines; A-NeSI's surrogate must moreover be trained on samples of the exact WMC, intractable to
-generate at GO scale. On the carry-chain benchmark, where the constraint couples $N$ digits, both
-collapse as depth grows: A-NeSI $0.97\!\to\!0.23$ and NeSyDM $0.96\!\to\!0.03$ from $N{=}1$ to $N{=}4$.
-The learned-approximate route does not escape the wall---it relocates it from exact-inference cost to
-approximation quality on coupled structure, again without a guarantee.
+A-NeSI \citep{vankrieken2023anesi} and NeSyDM \citep{vankrieken2025nesydm} take a different route:
+rather than compute $\WMC$ at inference time, they learn it. A-NeSI trains a neural surrogate to
+amortize the inference output, and NeSyDM uses masked discrete diffusion over the symbolic variables
+to model their joint distribution and so break the independence factorization. These are end-to-end
+training methods, not inference engines, which is why they are not part of the GO scaling sweep above:
+deploying them on GO would mean training a fresh surrogate or diffusion model per ontology, and
+A-NeSI's surrogate must moreover be trained on \emph{samples of the exact $\WMC$}---intractable to
+generate at GO scale, the very $\#$P-hardness this work attacks, so its amortization would be
+bootstrapped from an oracle one does not possess. Our layer instead computes the exact marginal
+directly on the tree fragment with no inference-training data at all. The relevant empirical signal for
+these methods is their behavior on a coupled-structure task, the carry-chain benchmark, where the
+constraint couples $N$ digits and reconvergence is dialed up by depth. Both scalable-approximate
+methods collapse as $N$ grows: A-NeSI degrades from $0.968$ at $N{=}1$ to $0.225$ at $N{=}4$, and
+NeSyDM from $0.962$ to $0.03$--$0.13$, measured over three seeds. At $N{=}4$ the carry constraint binds four
+digits, and both learned approximators break down---the independence-assumption / reasoning-shortcut
+failure \citep{vankrieken2024independence,marconato2023reasoningshortcuts} this project targets. The
+learned-approximate route does not escape the wall: it relocates it from exact-inference cost
+(DeepProbLog) to approximation quality on coupled structure, again without an exactness guarantee.
 
 \paragraph{Positioning.}
-Across the spectrum---exact compilation, top-$k$ provenance, amortized inference, joint diffusion---each
-trades correctness for scale and offers no guarantee on the coupled-structure regime. Ours is the only
-option that is simultaneously scalable and accuracy-characterized: machine-checked exact on the tree
-fragment, modular-exact over $92$--$100\%$ of GO, and bounded-approximate only on the small reconvergent
-core, rather than top-$k$-truncated everywhere.
+Reading down the families---exact knowledge compilation (DeepProbLog), top-$k$ provenance (Scallop),
+amortized inference (A-NeSI), joint diffusion (NeSyDM)---each trades correctness for scale, and none
+offers any guarantee on the coupled-structure regime where the independence assumption does its damage.
+DeepProbLog keeps correctness and loses scale at ${\sim}400$ terms; Scallop keeps scale and loses the
+guarantee, with its drift concentrated at the reconvergences of Theorem~\ref{thm:star}; A-NeSI and
+NeSyDM keep a learned form of scale and collapse on coupled depth ($N{=}1\!\to\!4$). Our construction is
+the only entry of Table~\ref{tab:nesy} that occupies both columns at once: machine-checked exact on the
+tree fragment for all priors, modular-exact over $92$--$100\%$ of GO, and bounded-approximate only on
+the small reconvergent core that the very same theory isolates---rather than top-$k$-truncated, or
+learned, everywhere. Scalability and a correctness characterization are jointly attainable for
+neuro-symbolic inference over a real, ontology-scale theory, and the modular soft-$\WMC$ layer attains
+them.
 
-\section{Discussion}
-The soft closure that NeSy systems use under the independence assumption is not a black box: for the
-true-path theory it is belief propagation, machine-checked exact on the tree fragment for all priors,
-with its single failure mode---reconvergence---both identified by the theory and confirmed to carry
-the empirical error (the cc agreement to $6\times10^{-4}$, Scallop's drift, the treewidth core). The
-practical consequence is a modular construction that recovers exact WMC over almost all of a real
-ontology while bounding the approximation to a small, characterized core. Two extensions follow:
-lifting the consequence-based context calculus \citep{bate2016sriq,tenacucala2019sequoia} from Boolean
-consequences to weighted separator messages for a fully verified modular WMC, and extending the
-EL\textsuperscript{++} compilation toward SROIQ \citep{horrocks2006sroiq,motik2009hypertableau}. An
-application of this inference layer to protein function prediction---where it gives any base predictor
-training-free, similarity-independent reach over ontology structure---is developed in a companion
-paper.
+\section{Application, discussion, and conclusion}
+
+\subsection{Application: training-free, similarity-independent ontology reach}
+The inference layer studied here is a drop-in posterior over the true-path theory: it takes
+the independent per-concept marginals $p_i$ emitted by \emph{any} perception model and returns
+the structure-conditioned marginals $\mu_i$, requiring no retraining of the base predictor and
+introducing no learnable parameters of its own. This makes it directly useful for protein
+function prediction over the Gene Ontology \citep{ashburner2000go,geneontology2023}, the setting
+that motivates the true-path theory. Modern sequence-based predictors---from convolutional and
+transformer annotators \citep{kulmanov2020deepgoplus,bileschi2022protenn,cao2021tale} to
+protein language models \citep{rives2021esm1b,lin2023esm2} and contrastive enzyme classifiers
+\citep{yu2023clean}---emit per-term scores that are, by construction, treated as conditionally
+independent; consistency with the ontology (a child's score never exceeding its parents') is
+then imposed only heuristically or recovered, with supervision, by ontology-aware architectures
+\citep{kulmanov2018deepgo,kulmanov2022deepgozero}. Applying our layer on top of a fixed base
+predictor instead conditions those scores on the GO is-a/part-of and EL\textsuperscript{++}
+definitional structure exactly (on the tree fragment) and modular-exactly elsewhere, giving the
+predictor reach over ontology structure that is \emph{training-free} and---because the
+correction comes from the symbolic theory rather than from labelled neighbours---\emph{independent
+of sequence similarity to the training set}. A companion paper develops this application in full,
+measuring the effect of the layer on standard function-prediction benchmarks
+\citep{radivojac2013cafa,zhou2019cafa3} across several base predictors; we do not reproduce its
+numbers here and instead refer the reader to it for the empirical protein-level evaluation.
+
+\subsection{Discussion}
+The central message of this work is that the soft, message-passing closure that neuro-symbolic
+systems run under the independence assumption \citep{vankrieken2024independence} is not an
+uncharacterized black box. For the true-path theory it is, exactly, loopy belief propagation on
+the constraint graph \citep{pearl1988probabilistic}, and we have established this with a
+machine-checked guarantee rather than an empirical analogy: Theorem~\ref{thm:star} proves in
+Lean~4 \citep{demoura2021lean,mathlib2020} that the soft-OR update equals the exact WMC marginal
+$\mu_\pi$ on the tree fragment for \emph{all} priors $q_\pi,q_{c_j}$ and all numbers of children,
+with the core development carrying no \texttt{sorry} and axioms
+$\subseteq\{\texttt{propext},\texttt{Classical.choice},\texttt{Quot.sound}\}$. Crucially, the same formalisation isolates
+the layer's \emph{single} failure mode. The closure is not approximate in some diffuse,
+unpredictable way: it is exact except at \emph{reconvergences}, where two or more derivation
+paths meet at a shared ancestor. The Lean diamond witness \texttt{diamond\_reconv\_inexact}
+quantifies this gap exactly---the true marginal is $5/6$ while the soft-OR returns $7/10$---and a
+kernel-checked breadth battery confirms exactness on single edges across an $81$-prior grid, and on the polytree across priors, while flagging the diamond as inexact.
+
+What makes this characterization more than a curiosity is that the predicted failure mode is the
+one that actually carries the empirical error on a real ontology. On the cellular-component
+namespace, where the constraint graph has treewidth $9$, exact junction-tree WMC is computable
+in $7.5$\,s and the soft closure agrees with it to a mean error of $6\times10^{-4}$; that error is
+not spread uniformly but concentrates at multi-parent terms, where it is $7\times$ larger than at
+single-parent terms---exactly the reconvergence signature Theorem~\ref{thm:star} predicts. The
+same fingerprint reappears across the neuro-symbolic spectrum: Scallop's top-$k$ provenance drift
+\citep{huang2021scallop} sits precisely at the reconvergent (multi-proof) nodes, and the
+treewidth core that obstructs exact monolithic compilation is itself the reconvergence structure.
+Theory, exact computation, and the behaviour of independent NeSy engines therefore agree on
+\emph{where} the difficulty lives.
+
+The practical payoff is a tractability result that would otherwise look impossible. Because exact
+WMC by compilation costs $\Theta(m\,2^{\tw})$ \citep{darwiche2011sdd,bodlaender1993treewidth} and
+treewidth is a graph invariant, the biological-process namespace ($\tw=272$) admits \emph{no}
+exact monolithic WMC, and no decomposition---logical or generic---can change that. Yet the high
+treewidth is carried by a small reconvergent core. Removing only $2.95\%$ of molecular-function
+terms leaves $97\%$ of that namespace exactly computable, and removing $7.7\%$ of
+biological-process terms leaves $92\%$ exactly computable. Combined with the modular construction
+of Proposition~\ref{prop:modular}---each low-treewidth module compiled to an SDD and coordinated
+by weighted separator marginals---this yields exact WMC over $92$--$100\%$ of GO, with the
+bounded soft approximation, and hence the only place the layer is not provably exact, confined to
+an explicitly identified core of $3$--$8\%$ of terms. This is the honest form of ``modules buy
+tractability'': not exactness everywhere, which the treewidth invariant forbids, but exactness
+everywhere except a small, named, theory-bounded reconvergence core. Against the framework
+comparison of \S\ref{sec:nesy}, this is what makes the layer uniquely both scalable and
+accuracy-characterized: exact knowledge compilation \citep{manhaeve2018deepproblog} walls at
+${\sim}400$ terms, top-$k$ provenance \citep{huang2021scallop} scales but surrenders any
+guarantee, and learned approximators \citep{vankrieken2023anesi,vankrieken2025nesydm} relocate
+the wall to coupled structure---each trading correctness for scale on the very regime our theory
+controls.
+
+\subsection{Future work}
+Two extensions follow directly. First, the modular construction currently relies on a generic
+graph tree-decomposition to define its modules and separators; replacing it with a logically
+principled decomposition would yield smaller, sound module interfaces. The consequence-based
+context calculus \citep{bate2016sriq,tenacucala2019sequoia}, together with locality-based modules
+\citep{cuencagrau2008modular,delvescovo2011atomic}, already partitions an ontology into contexts
+that exchange messages over shared separator signatures; the open step is to lift those messages
+from \emph{Boolean} consequences to \emph{weighted} separator marginals---a small factor or SDD
+over the separator atoms---so that the verified inter-context coordination becomes a fully
+verified modular WMC over the whole ontology. The engine already passes messages over exactly
+these interfaces, so only the payload changes from an entailed clause to a weight vector; the
+remaining engine work is to move from the trivial shared-successor strategy to the non-trivial
+branch-bound context strategy that produces distinct context cores, and hence a genuine module
+partition with explicit separators. Second, the underlying EL\textsuperscript{++} compilation
+\citep{baader2005elenvelope,kazakov2014elk} should be extended toward the full expressivity of
+OWL~2~DL. Following hypertableau reasoning for SROIQ \citep{horrocks2006sroiq,motik2009hypertableau}
+would bring disjunction, number restrictions, nominals, and role chains within reach of the same
+weighted-model-counting treatment, broadening the layer beyond the Horn fragment while preserving
+the correctness-characterized core established here.
+
+\subsection{Conclusion}
+We have shown that the soft message-passing closure neuro-symbolic systems run under the
+independence assumption is, for the true-path theory, belief propagation, and we have given it the
+two properties a deployable inference layer needs: a correctness characterization and tractability
+at ontology scale. The characterization is machine-checked---exact WMC on the tree fragment for
+all priors, with error provably and empirically confined to reconvergences---and the tractability
+is concrete: a modular construction recovers exact WMC over $92$--$100\%$ of the Gene Ontology
+while bounding the approximation to a small, identified core. The result is an inference layer that
+is simultaneously scalable and accuracy-characterized, distinguishing it from exact compilation,
+top-$k$ provenance, and learned approximation across the neuro-symbolic spectrum, and directly
+usable to give any protein function predictor training-free, similarity-independent reach over
+ontology structure.
 
 \paragraph{Data and code availability.}
-The Lean developments and all scripts are released at
-\url{https://github.com/bio-ontology-research-group/nesy-pfp}; the EL\textsuperscript{++} reasoner
-core and proofs are in the accompanying \texttt{moose} repository.
+The Lean~4 developments---including \texttt{star\_marginal\_eq\_softOR},
+\texttt{diamond\_reconv\_inexact}, and the kernel-checked \texttt{WMCBattery.lean}---together with
+the treewidth and irreducible-core probes, the junction-tree exact-WMC reference, and the modular
+SDD construction, are released at
+\url{https://github.com/bio-ontology-research-group/nesy-pfp}. The EL\textsuperscript{++}
+reasoner core and the accompanying Lean proofs are in the \texttt{moose} repository distributed
+alongside it.
 
 {\small\bibliographystyle{unsrtnat}\bibliography{references}}
 \end{document}
