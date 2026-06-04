@@ -36,8 +36,10 @@ the small core---whose low-rank boundary joint a rank-$r$ separator message in t
 ${\sim}400$ terms), Scallop (top-$k$ drift concentrated exactly at the reconvergences our theory
 identifies), and A-NeSI/NeSyDM (collapse on coupled structure, $0.97\!\to\!0.23$ and
 $0.96\!\to\!0.03$--$0.13$ from $N{=}1$ to $N{=}4$)---ours is uniquely both scalable and
-accuracy-characterized. The layer is demonstrated on protein function prediction in a companion
-paper.
+accuracy-characterized. We work in the EL fragment biomedical ontologies inhabit---where exactness is
+provable---and show the same modular interface is the route to the disjunctive (SROIQ) regime where
+the independence assumption bites hardest. The layer is demonstrated on protein function prediction in
+a companion paper.
 \end{abstract}
 
 \section{Introduction}
@@ -78,7 +80,9 @@ This paper closes that gap for the \emph{true-path theory}---the propositional g
 an ontology's hierarchical (is-a/part-of) and definitional axioms, the theory governing
 protein function prediction over the Gene Ontology (GO)
 \citep{ashburner2000go,geneontology2023}. It is the EL\textsuperscript{++} normal form of
-subsumption and conjunction-definition axioms \citep{baader2005elenvelope,kazakov2014elk},
+subsumption and conjunction-definition axioms \citep{baader2005elenvelope,kazakov2014elk}---the
+OWL~2~EL profile the biomedical ontologies inhabit, and exactly the Horn fragment where this
+exactness is provable (disjunction is the harder, SROIQ regime we return to in \S\ref{sec:nesy})---
 and the soft closure deployed against it is the monotone fixpoint of the EL completion: each
 concept aggregates a normalized soft-OR of its sufficient conditions, capped by the
 true-path constraint. Our observation is that this closure is not a black box but loopy
@@ -135,7 +139,7 @@ Let $\mathcal{Y}=\{1,\dots,m\}$ be a target vocabulary and $T$ a propositional t
 The standard route to tractable $\WMC$ is \emph{knowledge compilation}: transform $T$ once into a circuit (d-DNNF, or the more canonical sentential decision diagram, SDD) on which weighted counting is a single arithmetic pass \citep{darwiche2002kcmap,darwiche2002factoring,darwiche2011sdd}. The $\#$P-hardness is then paid once at compile time, but the compiled circuit's size---and so compilation and evaluation cost---is $\Theta(m\,2^{\tw})$ in the \emph{treewidth} $\tw$ of the constraint graph \citep{darwiche2011sdd,bodlaender1993treewidth}. Treewidth measures how far the graph departs from a tree; it is the single quantity deciding whether monolithic exact $\WMC$ is feasible, and we measure it directly on the ontology graph.
 
 \paragraph{$\mathcal{EL}^{++}$, the true-path rule, and the ELK completion.}
-Our symbolic theories are propositional groundings of $\mathcal{EL}^{++}$ ontologies (the OWL 2 EL profile) \citep{baader2005elenvelope}. $\mathcal{EL}^{++}$ is Horn, with a single canonical model and polynomial classification, which is what makes the associated $\WMC$ Boolean and tractable in structure. Reasoning normalizes axioms to the forms $A\sqsubseteq B$, $A\sqcap B\sqsubseteq E$, $A\sqsubseteq \exists r.B$, $\exists r.B\sqsubseteq E$ and saturates them; the ELK reasoner is the canonical realization \citep{kazakov2014elk}. The hierarchical backbone of the Gene Ontology (GO) \citep{ashburner2000go,geneontology2023} is the subsumption (\textit{is-a}/\textit{part-of}) edge set, whose grounding is the \emph{true-path rule}: when a child holds, every subsumption ancestor holds. The resulting \emph{true-path theory} (Definition~1, \S\ref{sec:setup}) is the subsumption edges plus the $\mathcal{EL}^{++}$ normal-form definitions. NeSy predictors over GO do not compute its $\WMC$ marginals $\mu_i$; they apply the monotone message-passing fixpoint of the completion---each node aggregating a normalized soft-OR of its sufficient conditions, capped by the true-path constraint---as a soft relaxation. When this \emph{soft closure} coincides with exact $\WMC$ is the paper's central question.
+Our symbolic theories are propositional groundings of $\mathcal{EL}^{++}$ ontologies---the OWL~2~EL profile \citep{baader2005elenvelope} that the biomedical ontologies we target (GO, HPO, Uberon) inhabit by construction. The choice is principled, not a restriction: $\mathcal{EL}^{++}$'s Horn structure---a single canonical model and polynomial classification---is \emph{exactly} what makes the associated $\WMC$ Boolean, the completion monotone, and the soft closure a belief-propagation fixpoint (\S\ref{sec:lean}); the disjunction of a full OWL~2~DL (SROIQ) theory destroys all three. EL is thus both the right logic for these ontologies and the fragment where exact modular WMC is provable. Reasoning normalizes axioms to the forms $A\sqsubseteq B$, $A\sqcap B\sqsubseteq E$, $A\sqsubseteq \exists r.B$, $\exists r.B\sqsubseteq E$ and saturates them; the ELK reasoner is the canonical realization \citep{kazakov2014elk}. The hierarchical backbone of the Gene Ontology (GO) \citep{ashburner2000go,geneontology2023} is the subsumption (\textit{is-a}/\textit{part-of}) edge set, whose grounding is the \emph{true-path rule}: when a child holds, every subsumption ancestor holds. The resulting \emph{true-path theory} (Definition~1, \S\ref{sec:setup}) is the subsumption edges plus the $\mathcal{EL}^{++}$ normal-form definitions. NeSy predictors over GO do not compute its $\WMC$ marginals $\mu_i$; they apply the monotone message-passing fixpoint of the completion---each node aggregating a normalized soft-OR of its sufficient conditions, capped by the true-path constraint---as a soft relaxation. When this \emph{soft closure} coincides with exact $\WMC$ is the paper's central question.
 
 \paragraph{Belief propagation and its exactness on trees.}
 Belief propagation (BP) computes marginals by combining incoming messages as if independent \citep{pearl1988probabilistic}, and is \emph{exact on trees}: on a forest that independence is correct. On cyclic graphs the same updates---\emph{loopy} BP---only approximate. The obstruction is not a two-parent node but a \emph{reconvergence}: two paths meeting at a common descendant, double-counting a shared ancestor. Reading the soft closure as BP turns ``the relaxation is approximate'' into a sharp claim: BP is exact iff the constraint graph is a polytree, tying the error directly to the treewidth and reconvergence statistics of the ontology graph.
@@ -241,8 +245,8 @@ This is the \texttt{mathlib} theorem \texttt{WmcGeneral.star\_marginal\_eq\_soft
 \paragraph{The error is confined to reconvergences.}
 \emph{Where} does the closure deviate from WMC, and \emph{by how much}? It equals exact inference on the \emph{computation-tree unrolling}---duplicating any node reached along more than one path---so it is exact iff the constraint graph is a polytree. The obstruction is a \emph{reconvergence}, two paths meeting at a shared ancestor: the canonical diamond ($d\!\Rightarrow\!b,c$; $b,c\!\Rightarrow\!a$) has exact reconvergent marginal $5/6$ versus closure $7/10$ at the uniform prior (Lean: \texttt{diamond\_reconv\_inexact}). A kernel-checked $9\times9$-prior battery (\texttt{WMCBattery.lean}) confirms the single edge and polytree sink exact and the diamond \emph{wrong} across all priors, so exactness is acyclicity-up-to-reconvergence, not a property of the prior---the quantity the GO structure probe measures (\S\ref{sec:scaling}); per-prior numbers in Appendix~\ref{app:lean}.
 
-\paragraph{Unconditional convergence of the monotone fixpoint.}
-The synchronous true-path step is \emph{extensive} (\texttt{step\_ext}) and \emph{monotone} (\texttt{step\_mono}); in a finite vocabulary the active set grows monotonically and reaches the least fixpoint in at most $\mathrm{depth}$ steps, fixed once a step adds nothing (\texttt{fixed\_stable}, requiring \emph{no axioms}). Convergence is thus unconditional; only the limit is structure-dependent. What lies outside the machine-checked perimeter is a closed-form error bound on general DAGs (\#P-hard), reported empirically against the modular-exact SDD reference in \S\ref{sec:scaling}.
+\paragraph{Unconditional convergence.}
+The synchronous true-path step is extensive and monotone (\texttt{step\_ext}, \texttt{step\_mono}), so in a finite vocabulary it reaches the least fixpoint within $\mathrm{depth}$ steps with \emph{no axioms} (\texttt{fixed\_stable}); convergence is unconditional, only the limit is structure-dependent. A closed-form error bound on general DAGs is \#P-hard and is reported empirically against the modular-exact SDD reference in \S\ref{sec:scaling}.
 
 \section{Tractability: treewidth and modular exact WMC}\label{sec:scaling}
 Theorem~\ref{thm:star} establishes \emph{when} the soft closure is correct; a deployable layer must also answer \emph{at what cost} the exact answer is recoverable off the tree, and \emph{how much} of a real ontology falls outside the tree regime. We make both concrete for the Gene Ontology (GO) and turn them into a constructive recipe: a modular exact-WMC scheme whose only inexactness is the bounded soft approximation of Theorem~\ref{thm:star}, confined to a small, identified reconvergent core.
@@ -275,9 +279,9 @@ Partition the constraint graph into low-treewidth modules separated by the recon
 The construction generalizes the cc junction-tree calibration: each module's exact SDD is cheap, and inter-module coordination passes weighted marginals over the low-treewidth separators; messages are exact where an interface is a tree, falling back on the bounded soft closure (Theorem~\ref{thm:star}) only across the residual ${\le}8\%$ core. The net effect is exact WMC over $92$--$100\%$ of GO with a single small locus of bounded approximation, unlike a monolithic compilation that cannot be built for bp.
 
 \paragraph{Two costs, one separator: a rank-$r$ dial for the residual core.}
-Scaling exact WMC fights two distinct costs. The first is the \emph{circuit size}---worst-case $2^{\tw}$---which the modular construction defeats wherever separators are small. The second is the \emph{dependence} the layer may represent: the inputs $\bC p$ are an independent product, and what the soft closure does at the residual core is exactly that independence assumption \emph{at the boundary}. At a reconvergence it merges the two incoming separator messages as a rank-$1$ product, which is precisely why BP returns $7/10$ where exact WMC is $5/6$ (Theorem~\ref{thm:star}). The error is thus not intrinsic to the core but to representing its boundary joint as independent---and that joint is non-product but \emph{low-rank}. Passing a rank-$r$ separator message (a tensor train over the separator atoms) instead of a rank-$1$ product represents it and dials the residual to zero: $r{=}1$ is the soft closure, full rank is exact WMC, and the rank is a knob set by the core's intrinsic dimension.
+Scaling exact WMC fights two distinct costs. The first is the \emph{circuit size}---worst-case $2^{\tw}$---which the modular construction defeats wherever separators are small. The second is the \emph{dependence} the layer may represent: the inputs $\bC p$ are an independent product, and what the soft closure does at the residual core is exactly that independence assumption \emph{at the boundary}. At a reconvergence it merges the two incoming separator messages as a rank-$1$ product, which is precisely why BP returns $7/10$ where exact WMC is $5/6$ (Theorem~\ref{thm:star}). The error is thus not intrinsic to the core but to representing its (non-product but \emph{low-rank}) boundary joint as independent. Passing a rank-$r$ separator message---a tensor train over the separator atoms---instead of a rank-$1$ product dials the residual to zero: $r{=}1$ is the soft closure, full rank exact WMC.
 
-We measure this on a real GO cellular-component reconvergence core ($13$ terms, $6$ multi-parent, extracted from \texttt{go.obo}; the diamond is its rank-$2$ instance, reproducing the Lean $5/6$). The exact constraint-induced boundary joint ($280$ models) is strongly non-product: the rank-$1$ (independent / soft-closure) representation discards $1.38$ nats and sits total-variation $0.62$ from exact. Yet its exact tensor-train rank is $10$, versus $2^{13}{=}8192$ dense, and a rank-$r$ boundary head closes the gap monotonically---$58\%$ of the total-variation gap at rank $4$, $92\%$ at rank $8$, exact at rank $10$ (Table~\ref{tab:rank}, App.~\ref{app:nesy})---with the per-module SDDs unchanged. The same separator interface that buys tractability (Proposition~\ref{prop:modular}) thus also bounds the cost of \emph{exact} dependence---small here because the true-path theory is monotone, and the natural lever for the disjunctive (SROIQ) extension where the boundary joint is higher-rank.
+We measure this on a real GO cellular-component reconvergence core ($13$ terms, $6$ multi-parent, from \texttt{go.obo}; the diamond is its rank-$2$ instance, reproducing the Lean $5/6$). Its exact constraint-induced boundary joint ($280$ models) is strongly non-product---the rank-$1$ soft-closure representation discards $1.38$ nats (total variation $0.62$)---yet has exact tensor-train rank $10$ (vs $2^{13}{=}8192$ dense), so a rank-$r$ boundary head dials the residual to exact at rank $10$ (full dial in Table~\ref{tab:rank}, App.~\ref{app:nesy}), the per-module SDDs unchanged. The same separator interface that buys tractability (Proposition~\ref{prop:modular}) thus also bounds the cost of \emph{exact} dependence. It is modest here because the monotone true-path theory yields a \emph{unimodal}, merely correlated joint; the qualitative break is disjunction. A SROIQ ontology's covering and disjointness axioms make the boundary joint \emph{multimodal}---which the independence assumption provably cannot represent, and where the soft closure ceases to be belief propagation---yet the separator merely carries \emph{disjunctive contexts} in place of Boolean consequences, leaving the modular interface and its rank-$r$ dial unchanged. EL is the machine-checked base case; SROIQ is the Cost-II frontier the same framework reaches (\S\ref{sec:nesy}).
 
 % rank-r dial table moved to Appendix~\ref{app:nesy} to keep the body within 10 pages.
 
@@ -288,9 +292,8 @@ ask where the canonical NeSy frameworks sit on the \emph{identical} GO true-path
 attacks the $\#$P-hardness of $\WMC$ differently---exact compilation keeps correctness at full
 circuit cost, provenance relaxations truncate proofs, learned approximators amortize or model the
 joint---and each trades correctness for scale (Table~\ref{tab:nesy}). We encode $T$ natively in each
-and validate against our exact marginals (DeepProbLog returns $5/6$ and $1/6$ on the diamond, Scallop
-$0.875$ on the two-parent chain), so any divergence at scale is the inference strategy, not the
-encoding.
+and validate against our exact marginals (App.~\ref{app:nesy}), so any divergence at scale is the
+inference strategy, not the encoding.
 
 \begin{table}[t]\centering
 \caption{Neuro-symbolic inference on the same GO true-path WMC.}\label{tab:nesy}
@@ -348,41 +351,31 @@ sequence similarity}; a companion paper develops this on standard benchmarks
 \subsection{Discussion}
 The central message is that the soft closure NeSy systems run under the independence assumption
 \citep{vankrieken2024independence} is not a black box: for the true-path theory it is loopy belief
-propagation \citep{pearl1988probabilistic}, established by a machine-checked guarantee
-(Theorem~\ref{thm:star}, no \texttt{sorry}, axioms
-$\subseteq\{\texttt{propext},\texttt{Classical.choice},\texttt{Quot.sound}\}$) rather than an
-analogy. The same formalization isolates the \emph{single} failure mode---reconvergences---and
-quantifies it (\texttt{diamond\_reconv\_inexact}: $5/6$ vs $7/10$). Crucially this predicted mode
-carries the empirical error on a real ontology: on cc the soft closure agrees with exact
-junction-tree WMC to mean error $6\times10^{-4}$, concentrated $7\times$ at multi-parent terms,
-exactly the reconvergence signature. The same fingerprint reappears across the spectrum (Scallop's
-top-$k$ drift at multi-proof nodes; the treewidth core is itself reconvergence structure), so
-theory, exact computation, and independent NeSy engines agree on \emph{where} the difficulty
-lives---and since that locus is a small, low-rank core, Proposition~\ref{prop:modular} recovers exact
-WMC over $92$--$100\%$ of GO while the rank-$r$ separator message turns even the core exact.
+propagation \citep{pearl1988probabilistic}, by a machine-checked guarantee (Theorem~\ref{thm:star}, no
+\texttt{sorry}) rather than an analogy, and the same formalization isolates and quantifies its
+\emph{single} failure mode---reconvergences ($5/6$ vs $7/10$). This predicted mode carries the
+empirical error on a real ontology: on cc the soft closure agrees with exact junction-tree WMC to mean
+error $6\times10^{-4}$, concentrated $7\times$ at multi-parent terms. Since that locus is a small,
+low-rank core, Proposition~\ref{prop:modular} recovers exact WMC over $92$--$100\%$ of GO while the
+rank-$r$ separator message turns even the core exact.
 
 \subsection{Future work}
-Two extensions follow. First, replacing the generic tree-decomposition with a logically principled
-one---the consequence-based context calculus \citep{bate2016sriq,tenacucala2019sequoia} with
-locality-based modules \citep{cuencagrau2008modular,delvescovo2011atomic}, lifting separator messages
-from \emph{Boolean} consequences to \emph{weighted} marginals---would yield a fully verified modular
-WMC. Second, extending the EL\textsuperscript{++} compilation toward OWL~2~DL via hypertableau
-reasoning for SROIQ \citep{horrocks2006sroiq,motik2009hypertableau} brings disjunction, number
-restrictions, nominals, and role chains within reach---where the boundary joint becomes higher-rank
-and the rank-$r$ separator message of \S\ref{sec:scaling} is the natural mechanism.
+The two extensions are one step. The separator interface of \S\ref{sec:scaling} is logic-agnostic: in
+EL it carries Boolean consequences; under disjunction it carries the \emph{disjunctive contexts} of a
+consequence-based SROIQ calculus \citep{bate2016sriq,tenacucala2019sequoia} with locality-based
+modules \citep{cuencagrau2008modular,delvescovo2011atomic}. Lifting the messages from Boolean to
+weighted disjunctive-context marginals yields a fully verified modular WMC for OWL~2~DL
+\citep{horrocks2006sroiq,motik2009hypertableau}. Disjunction is also where the independence assumption
+is hardest---multimodal boundary joints---so the rank-$r$ dial is not an add-on but the mechanism that
+regime demands: EL is the machine-checked base case, SROIQ the Cost-II frontier the same framework
+reaches.
 
 \subsection{Conclusion}
-For the true-path theory the soft closure is belief propagation, and we give it the two properties a
-deployable layer needs: machine-checked exactness on the tree fragment for all priors (error confined
-to reconvergences) and tractability (modular-exact over $92$--$100\%$ of GO, the residual core
-rank-$r$-dialable to exact)---uniquely both scalable and accuracy-characterized across the NeSy
-spectrum.
+For the true-path theory the soft closure is belief propagation; we make it a deployable layer---machine-checked exact on the tree fragment, modular-exact over $92$--$100\%$ of GO with the residual core rank-$r$-dialable to exact---uniquely both scalable and accuracy-characterized.
 
 \paragraph{Data and code availability.}
-The Lean~4 developments, the treewidth and core probes, the junction-tree exact-WMC reference, the
-modular SDD construction, the rank-$r$ boundary-dial experiment, and the EL\textsuperscript{++}
-reasoner core will be released publicly upon publication; an anonymized archive is provided to
-reviewers.
+Code, data, the Lean~4 developments, and the rank-$r$ boundary-dial experiment will be released
+publicly upon publication; an anonymized archive is provided to reviewers.
 
 \acks{Acknowledgements omitted for double-blind review.}
 
