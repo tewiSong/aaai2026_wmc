@@ -360,7 +360,7 @@ The two extensions are one step. The separator interface of \S\ref{sec:scaling} 
 EL it carries Boolean consequences; under disjunction it carries the \emph{disjunctive contexts} of a
 consequence-based SROIQ calculus \citep{bate2016sriq,tenacucala2019sequoia} with locality-based
 modules \citep{cuencagrau2008modular,delvescovo2011atomic}. Lifting the messages from Boolean to
-weighted disjunctive-context marginals yields a fully verified modular WMC for OWL~2~DL
+weighted disjunctive-context marginals yields a modular WMC for OWL~2~DL
 \citep{horrocks2006sroiq,motik2009hypertableau}. Disjunction is also where the independence assumption
 is hardest---multimodal boundary joints---so the rank-$r$ dial is not an add-on but the mechanism that
 regime demands: EL is the exact base case, SROIQ the Cost-II frontier the same framework
@@ -379,9 +379,9 @@ publicly upon publication; an anonymized archive is provided to reviewers.
 
 \appendix
 
-\section{Lean formalization: implementation and lemma inventory}\label{app:lean}
+\section{Formalisation: implementation and lemma inventory}\label{app:lean}
 
-\paragraph{Two developments and a kernel-checkable rational arithmetic.}
+\paragraph{Two developments and a decidable rational arithmetic.}
 The formalization is split deliberately. A \emph{finite, concrete} development lives in Lean core with no dependence on \texttt{mathlib}: it defines worlds as Boolean lists, the true-path constraint as a conjunction of edge clauses $(\neg y_c \vee y_\pi)$, the exact weighted model count \texttt{wmcMarg} as a ratio of summed world weights, and the belief-propagation update forms, and it closes every claim by \texttt{decide}---reduction in the kernel, with no \texttt{native\_decide} escape hatch and therefore no trust placed in compiled code. The cost of staying inside the kernel is that ordinary rational arithmetic does not reduce cheaply, so we introduce a \emph{custom rational kernel encoding}: a rational is a pair $Q=\mathbb{Z}\times\mathbb{Z}$ of numerator and denominator, addition, multiplication and complementation ($1-a$) are defined directly on the pair, and equality is the \emph{cross-multiplied} test $a_1 b_2 = b_1 a_2$, decidable on integers. Because equality of $Q$-values never normalizes a fraction and reduces to a single integer identity, the entire finite battery---world enumeration, weighting, summation, and the BP/WMC comparison---is reducible by \texttt{decide} and hence checked in the kernel. The price is that the concrete theorems hold only at the specific priors enumerated; the \emph{parametric} statement, quantified over all $k$ and all real priors, is proved separately in a \texttt{mathlib} development where real-number reasoning and finite-product lemmas are available. The concrete development's axioms stay within $\{\texttt{propext},\texttt{Classical.choice},\texttt{Quot.sound}\}$ (the \texttt{WMCBattery} battery within $\{\texttt{propext}\}$ alone); no \texttt{sorry} appears anywhere.
 
 \paragraph{Proof of Theorem~\ref{thm:star} (\texttt{WmcGeneral.star\_marginal\_eq\_softOR}).}
