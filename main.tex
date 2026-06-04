@@ -273,27 +273,28 @@ The low-treewidth periphery and small high-treewidth core combine into a scheme 
 Partition the constraint graph into low-treewidth modules separated by the reconvergence core. Compile each module to an SDD, evaluate its exact WMC, and pass weighted separator marginals between modules; the result is exact on the union of modules, with the bounded soft approximation (Theorem~\ref{thm:star}) confined to the small core.
 \end{proposition}
 
-The construction generalizes the cc junction-tree calibration: each module's exact SDD is cheap, and inter-module coordination passes weighted marginals over the low-treewidth separators; messages are exact where an interface is a tree, falling back on the bounded soft closure (Theorem~\ref{thm:star}) only across the residual ${\le}8\%$ core. The net effect is exact WMC over $92$--$100\%$ of GO with a single small locus of bounded approximation, unlike a monolithic compilation that cannot be built for bp.
+The construction generalizes the cc calibration---an exact SDD per module, weighted marginals over the low-treewidth separators, the bounded soft closure (Theorem~\ref{thm:star}) only across the residual ${\le}8\%$ core. We run it rather than infer it: on mf, isolating the $2.95\%$ core leaves $488$ modules (max treewidth $11$) over which exact junction-tree WMC computes all $6{,}645$ marginals---$97\%$ of mf---in $1.1$\,s, validated to $10^{-16}$ against brute force; on bp---treewidth $272$, where no monolithic circuit can be built---the $7.7\%$ cut leaves $2{,}210$ modules (max treewidth $8$) over which exact WMC computes the remaining $19{,}705$ marginals ($92\%$ of bp) in $12.8$\,s, again machine-precision exact. The net effect is exact WMC over $92$--$100\%$ of GO with a single small locus of bounded approximation.
 
 \paragraph{Two costs, one separator: a rank-$r$ dial for the residual core.}
-Scaling exact WMC fights two distinct costs. The first is the \emph{circuit size}---worst-case $2^{\tw}$---which the modular construction defeats wherever separators are small. The second is the \emph{dependence} the layer may represent: the inputs $\bC p$ are an independent product, and what the soft closure does at the residual core is exactly that independence assumption \emph{at the boundary}. At a reconvergence it merges the two incoming separator messages as a rank-$1$ product, which is precisely why BP returns $7/10$ where exact WMC is $5/6$ (Theorem~\ref{thm:star}). The error is thus not intrinsic to the core but to representing its (non-product but \emph{low-rank}) boundary joint as independent. Passing a rank-$r$ separator message---a tensor train over the separator atoms---instead of a rank-$1$ product dials the residual to zero: $r{=}1$ is the soft closure, full rank exact WMC.
+Scaling exact WMC fights two costs. The \emph{circuit size} ($2^{\tw}$) the modular construction defeats wherever separators are small. The \emph{dependence} the layer may represent is the second: at the residual core the soft closure merges the incoming separator messages as a rank-$1$ product---the independence assumption \emph{at the boundary}, precisely why BP returns $7/10$ where exact WMC is $5/6$ (Theorem~\ref{thm:star}). The error is not intrinsic to the core but to representing its (non-product, \emph{low-rank}) boundary joint as independent; a rank-$r$ separator message---a tensor train over the separator atoms---dials the residual to zero ($r{=}1$ soft closure, full rank exact).
 
-We measure this on a real GO cellular-component reconvergence core ($13$ terms, $6$ multi-parent, from \texttt{go.obo}; the diamond is its rank-$2$ instance, reproducing the Lean $5/6$). Its exact constraint-induced boundary joint ($280$ models) is strongly non-product---the rank-$1$ soft-closure representation discards $1.38$ nats (total variation $0.62$)---yet has exact tensor-train rank $10$ (vs $2^{13}{=}8192$ dense), so a rank-$r$ boundary head dials the residual to exact at rank $10$ (full dial in Table~\ref{tab:rank}, App.~\ref{app:nesy}), the per-module SDDs unchanged. The same separator interface that buys tractability (Proposition~\ref{prop:modular}) thus also bounds the cost of \emph{exact} dependence. It is modest here because the monotone true-path theory yields a \emph{unimodal}, merely correlated joint; the qualitative break is disjunction. A SROIQ ontology's covering and disjointness axioms make the boundary joint \emph{multimodal}---which the independence assumption provably cannot represent, and where the soft closure ceases to be belief propagation---yet the separator merely carries \emph{disjunctive contexts} in place of Boolean consequences, leaving the modular interface and its rank-$r$ dial unchanged. EL is the exact base case; SROIQ is the Cost-II frontier the same framework reaches (\S\ref{sec:nesy}).
+We measure this on a real GO cellular-component reconvergence core ($13$ terms, $6$ multi-parent, from \texttt{go.obo}; the diamond is its rank-$2$ instance, reproducing the Lean $5/6$). Its exact constraint-induced boundary joint ($280$ models) is strongly non-product---the rank-$1$ soft-closure representation discards $1.38$ nats (total variation $0.62$)---yet has exact tensor-train rank $10$ (vs $2^{13}{=}8192$ dense), so a rank-$r$ boundary head dials the residual to exact at rank $10$ (full dial in Table~\ref{tab:rank}, App.~\ref{app:nesy}), the per-module SDDs unchanged. Across $40$ such cc cores the effect is systematic: IA gap median $1.41$ nats ($0.93$--$2.36$), exact rank median $11$ (max $27$), always far below the $2^{13}$ dense size. The same separator interface that buys tractability (Proposition~\ref{prop:modular}) thus also bounds the cost of \emph{exact} dependence. It is modest here because the monotone true-path theory yields a \emph{unimodal}, merely correlated joint; the qualitative break is disjunction. A SROIQ ontology's covering and disjointness axioms make the boundary joint \emph{multimodal}---which the IA provably cannot represent and where the soft closure ceases to be BP; in a controlled disjunctive fragment the IA discards $2.08$ nats and is exact only at full rank (App.~\ref{app:nesy}). Yet the separator merely carries \emph{disjunctive contexts} in place of Boolean consequences, leaving the modular interface and its rank-$r$ dial unchanged. EL is the exact base case; SROIQ is the Cost-II frontier the same framework reaches (\S\ref{sec:nesy}).
 
 % rank-r dial table moved to Appendix~\ref{app:nesy} to keep the body within 10 pages.
 
 \section{Comparison to neuro-symbolic frameworks}\label{sec:nesy}
 
 Having characterized the closure (\S\ref{sec:lean}) and made it tractable (\S\ref{sec:scaling}), we
-ask where the canonical NeSy frameworks sit on the \emph{identical} GO true-path inference. Each
-attacks the $\#$P-hardness of $\WMC$ differently---exact compilation keeps correctness at full
-circuit cost, provenance relaxations truncate proofs, learned approximators amortize or model the
-joint---and each trades correctness for scale (Table~\ref{tab:nesy}). We encode $T$ natively in each
-and validate against our exact marginals (App.~\ref{app:nesy}), so any divergence at scale is the
-inference strategy, not the encoding.
+ask where the canonical NeSy frameworks sit. The compilation- and provenance-based engines run on the
+\emph{identical} GO true-path inference: we encode $T$ natively in DeepProbLog and Scallop and
+validate against our exact marginals (App.~\ref{app:nesy}), so any divergence is the inference
+strategy, not the encoding. The learned approximators (A-NeSI, NeSyDM) cannot be run on GO at
+all---they need a trained model per ontology and, for A-NeSI, samples of the exact $\WMC$ we are
+computing---so we position them by their documented collapse on coupled structure. Each trades
+correctness for scale in its own way (Table~\ref{tab:nesy}).
 
 \begin{table}[t]\centering
-\caption{Neuro-symbolic inference on the same GO true-path WMC.}\label{tab:nesy}
+\caption{Where NeSy frameworks sit on ontology-scale WMC. DeepProbLog and Scallop run on the GO true-path inference; A-NeSI/NeSyDM cannot (they need training, and A-NeSI needs exact-$\WMC$ samples), and are placed by their coupled-structure collapse.}\label{tab:nesy}
 \small
 \begin{tabular}{lcc}
 \toprule
@@ -416,6 +417,37 @@ rank-$2$ (diamond) & $0.61$ & $0.41$ & $34\%$\\
 rank-$4$ & $0.33$ & $0.26$ & $58\%$\\
 rank-$8$ & $0.05$ & $0.05$ & $92\%$\\
 rank-$10$ (= core rank) & $0.00$ & $0.00$ & exact\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{The dial is systematic across cores.}
+Over the $40$ highest-degree multi-parent cc cores (upper cones of up to $13$ terms), the
+constraint-induced boundary joint is non-product in every case: the IA gap
+$\mathrm{KL}(q^\star\Vert\text{product})$ is $1.41$ nats in the median (range $0.93$--$2.36$),
+and the joint's exact rank is $11$ in the median (range $7$--$27$), always far below the $2^{13}$
+dense size. The single core of Table~\ref{tab:rank} is representative, not cherry-picked.
+
+\paragraph{The disjunctive (SROIQ) regime: a multimodal joint.}
+The monotone true-path theory gives a unimodal, merely correlated boundary joint. Disjunction is the
+qualitative break. On a controlled fragment over $w{=}6$ boundary atoms---two entities, each typed by
+an exactly-one-of-three axiom (covering $+$ pairwise disjointness), coupled by cross-entity
+disjointness---the exact joint is \emph{multimodal} ($5$ modes), and the IA cannot represent it:
+the best product discards $2.08$ nats (total variation $0.86$, $3.8\%$ error on a composed query) and
+the rank-$r$ dial is exact only at the joint's full rank $3$ (Table~\ref{tab:disj}). This is the
+regime van Krieken's disjoint-cube result rules out for the IA, and the one the SROIQ extension
+(\S\ref{sec:nesy}) targets.
+
+\begin{table}[t]\centering
+\caption{Cost-II in the disjunctive (SROIQ) regime: covering $+$ disjointness over $w{=}6$ atoms give a $5$-mode joint the IA cannot represent; a rank-$r$ separator message is exact at the joint's rank $3$.}\label{tab:disj}
+\small
+\begin{tabular}{lccc}
+\toprule
+boundary model & $\mathrm{KL}(q^\star\Vert\cdot)$ & $\mathrm{TV}$ & WMC rel.\ err.\\
+\midrule
+IA (best product) & $2.08$ & $0.86$ & $3.8\times10^{-2}$\\
+rank-$2$ & $0.08$ & $0.09$ & $3.7\times10^{-2}$\\
+rank-$3$ (= full rank) & $0.00$ & $0.00$ & $0$\\
 \bottomrule
 \end{tabular}
 \end{table}
