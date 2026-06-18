@@ -1,0 +1,37 @@
+{
+  "diamond_mu_a": 0.8333333333333334,
+  "bp_subgraph_scaling": [
+    {
+      "n": 16,
+      "treewidth": 3,
+      "walled": false,
+      "dpl_time_s": 0.02,
+      "compile_s": 0.0
+    },
+    {
+      "n": 106,
+      "treewidth": 7,
+      "walled": false,
+      "dpl_time_s": 7.21,
+      "compile_s": 2.23
+    },
+    {
+      "n": 679,
+      "treewidth": 14,
+      "walled": true,
+      "dpl_time_s": null
+    }
+  ],
+  "namespaces": {
+    "cc": {
+      "treewidth": 12,
+      "ok": false,
+      "time_s": null
+    },
+    "mf": {
+      "treewidth": 37,
+      "ok": false,
+      "time_s": null
+    }
+  }
+}

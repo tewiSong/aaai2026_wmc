@@ -1,0 +1,69 @@
+{
+  "scaling": [
+    {
+      "n": 5,
+      "treewidth": 1,
+      "max_clique": 2,
+      "clique_entries": 4,
+      "exact_s": 0.002,
+      "walled": false
+    },
+    {
+      "n": 50,
+      "treewidth": 4,
+      "max_clique": 5,
+      "clique_entries": 32,
+      "exact_s": 0.014,
+      "walled": false
+    },
+    {
+      "n": 215,
+      "treewidth": 5,
+      "max_clique": 6,
+      "clique_entries": 64,
+      "exact_s": 0.135,
+      "walled": false
+    },
+    {
+      "n": 588,
+      "treewidth": 10,
+      "max_clique": 11,
+      "clique_entries": 2048,
+      "exact_s": 0.3,
+      "walled": false
+    },
+    {
+      "n": 1339,
+      "treewidth": 21,
+      "max_clique": 22,
+      "clique_entries": 4194304,
+      "exact_s": 2.145,
+      "walled": false
+    },
+    {
+      "n": 2819,
+      "treewidth": 64,
+      "clique_entries": 3.6893488147419103e+19,
+      "exact_s": null,
+      "walled": true
+    }
+  ],
+  "namespaces": {
+    "cc": {
+      "treewidth": 12,
+      "monolithic_exact_ok": true,
+      "exact_s": 5.63
+    },
+    "mf": {
+      "treewidth": 37,
+      "monolithic_exact_ok": false,
+      "exact_s": null
+    },
+    "bp": {
+      "treewidth": 269,
+      "monolithic_exact_ok": false,
+      "exact_s": null
+    }
+  },
+  "note": "Exact WMC cost = Theta(2^tw) (junction-tree clique table). Monolithic compilation walls once tw exceeds ~22; cc (tw 12) compiles, mf/bp do not. The modular construction caps every module at tw<=13 (2^13 entries)."
+}

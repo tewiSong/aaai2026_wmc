@@ -1,0 +1,35 @@
+{
+  "cc": {
+    "n_modules": 1,
+    "max_module_tw": 12,
+    "n_terms_exact": 4041,
+    "exact_frac": 1.0,
+    "time_s": 5.4726,
+    "core_size": 0,
+    "core_frac": 0.0,
+    "wall_time_s": 5.54,
+    "validation_max_abs_err": 0.0
+  },
+  "mf": {
+    "n_modules": 4929,
+    "max_module_tw": 13,
+    "n_terms_exact": 9929,
+    "exact_frac": 0.9801,
+    "time_s": 48.9763,
+    "core_size": 202,
+    "core_frac": 0.0199,
+    "wall_time_s": 49.01,
+    "validation_max_abs_err": 0.0
+  },
+  "bp": {
+    "n_modules": 5377,
+    "max_module_tw": 12,
+    "n_terms_exact": 24650,
+    "exact_frac": 0.9499,
+    "time_s": 203.5338,
+    "core_size": 1300,
+    "core_frac": 0.0501,
+    "wall_time_s": 203.74,
+    "validation_max_abs_err": 0.0
+  }
+}

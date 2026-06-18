@@ -1,0 +1,9 @@
+# Environment for EL++ normalization of GO (gci0-gci3) via mowl/ELK.
+# Separate from the main `nesy` env because mowl requires numpy<2 and a JVM (JPype).
+# Create with:
+#   conda create -p /ibex/user/songt/conda_envs/nesy-mowl python=3.11 -y
+#   /ibex/user/songt/conda_envs/nesy-mowl/bin/pip install -r requirements-mowl.txt
+# Requires a system JDK (Java 11 is present on Ibex).
+mowl-borg==1.0.1
+numpy<2
+JPype1>=1.5.0

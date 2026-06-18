@@ -1,0 +1,29 @@
+[
+  {
+    "namespace": "cc",
+    "n_terms": 4041,
+    "n_edges": 4629,
+    "n_components": 1,
+    "multi_parent": 538,
+    "multi_parent_frac": 0.1331,
+    "max_in_degree": 4
+  },
+  {
+    "namespace": "mf",
+    "n_terms": 10131,
+    "n_edges": 12561,
+    "n_components": 1,
+    "multi_parent": 2028,
+    "multi_parent_frac": 0.2002,
+    "max_in_degree": 7
+  },
+  {
+    "namespace": "bp",
+    "n_terms": 25950,
+    "n_edges": 45220,
+    "n_components": 1,
+    "multi_parent": 13809,
+    "multi_parent_frac": 0.5321,
+    "max_in_degree": 9
+  }
+]

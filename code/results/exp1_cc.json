@@ -1,0 +1,19 @@
+{
+  "seed": 0,
+  "n_terms": 4041,
+  "treewidth": 12,
+  "exact_time_s": 5.86,
+  "bp_time_s": 33.33,
+  "mean_err": 0.0002051367406859526,
+  "p95_err": 8.87031471187294e-05,
+  "max_err": 0.06390442619538429,
+  "frac_err_gt_0p01": 0.006186587478346944,
+  "multi_parent_mean_err": 0.0007366594125818322,
+  "single_parent_mean_err": 0.00012350408368338818,
+  "localization_ratio": 5.964656314282796,
+  "n_multi_parent": 538,
+  "upward_softor_mean_err": 0.033542657365225055,
+  "upward_softor_max_err": 0.6777957387583263,
+  "error_vs_indegree_slope": 0.0005373230435879571,
+  "error_vs_indegree_intercept": -0.0004138646546014718
+}

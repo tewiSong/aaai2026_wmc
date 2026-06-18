@@ -5,3 +5,15 @@
 *.out
 *.pdf
 *.synctex.gz
+
+# LaTeX latexmk db
+*.fls
+*.fdb_latexmk
+
+# Experiment code: keep source, drop heavy build artifacts & data
+code/lean/**/.lake/
+**/__pycache__/
+*.pyc
+code/data/
+code/slurm/*.err
+code/slurm/*.out

@@ -1,0 +1,17 @@
+{
+  "cc": {
+    "n_terms": 4041,
+    "treewidth": 12,
+    "time_s": 3.8
+  },
+  "mf": {
+    "n_terms": 10131,
+    "treewidth": 37,
+    "time_s": 7.9
+  },
+  "bp": {
+    "n_terms": 25950,
+    "treewidth": 269,
+    "time_s": 180.0
+  }
+}

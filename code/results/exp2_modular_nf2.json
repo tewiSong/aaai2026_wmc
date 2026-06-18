@@ -1,0 +1,32 @@
+{
+  "cc": {
+    "n_terms": 4041,
+    "nf2": 25,
+    "core_frac": 0.0099,
+    "n_modules": 1631,
+    "max_module_tw": 4,
+    "exact_frac": 0.9901,
+    "val_err": 0.0,
+    "time_s": 7.5
+  },
+  "mf": {
+    "n_terms": 10131,
+    "nf2": 71,
+    "core_frac": 0.0199,
+    "n_modules": 4820,
+    "max_module_tw": 14,
+    "exact_frac": 0.9801,
+    "val_err": 0.0,
+    "time_s": 49.3
+  },
+  "bp": {
+    "n_terms": 25950,
+    "nf2": 5646,
+    "core_frac": 0.1697,
+    "n_modules": 6833,
+    "max_module_tw": 4,
+    "exact_frac": 0.8303,
+    "val_err": 0.0,
+    "time_s": 288.9
+  }
+}
