@@ -1,0 +1,18 @@
+{
+  "anesi": {
+    "log": "code/slurm/nesy_gpu_anesi.47601292.out",
+    "sum_accuracy": {
+      "1": 0.9728434504792333,
+      "2": 0.9223726114649682,
+      "3": 0.875,
+      "4": 0.7484177215189873
+    }
+  },
+  "nesydm": {
+    "log": "code/slurm/nesy_gpu_nesydm.47616671.out",
+    "answer_accuracy": {
+      "1": 0.9714,
+      "4": 0.875
+    }
+  }
+}

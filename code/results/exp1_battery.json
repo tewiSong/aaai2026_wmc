@@ -1,18 +1,18 @@
 {
   "single_edge": {
-    "max_err_over_grid": 5.362932320451819e-13,
+    "max_err_over_grid": 1.1619039064214576e-12,
     "exact_on_grid": true
   },
   "star3": {
-    "max_err_over_grid": 4.0228931297292547e-13,
+    "max_err_over_grid": 3.867461906281733e-13,
     "exact_on_grid": true
   },
   "polytree_2parent": {
-    "max_err_over_grid": 4.3642867098014904e-13,
+    "max_err_over_grid": 4.2377212849942225e-13,
     "exact_on_grid": true
   },
   "diamond": {
-    "max_err_over_grid": 0.05750126833268761,
+    "max_err_over_grid": 0.05750126833241151,
     "exact_on_grid": false
   }
 }

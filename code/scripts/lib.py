@@ -30,15 +30,14 @@ NAMESPACES = ["cc", "mf", "bp"]
 def load_theories() -> Dict[str, TruePathTheory]:
     """Load the true-path theories: the GO subsumption (is-a) constraint graph.
 
-    Treewidth is a property of the constraint graph, and the paper's reported treewidths
-    (9/31/272) are those of the subsumption hierarchy -- which our exact min-fill reproduces
-    (12/37/269). This is the object the treewidth and modular-decomposition experiments run on.
+    Treewidth is controlled through a fixed min-fill decomposition of the constraint graph.
+    The current GO release gives min-fill widths 12/37/269 for the subsumption hierarchy.
+    This is the object the treewidth and modular-decomposition experiments run on.
     The EL++ conjunction (NF2) and existential (NF3/NF4) definitions extracted by
-    scripts/05b_extract_norm.py are additional Horn clauses of the theory; we verify they only
-    *raise* treewidth (cc 12->16, mf 37->54, bp intractable), so omitting them from the
-    decomposition is conservative and matches the paper's treewidth regime. They are available
-    via `truepath.graph.build_namespace_theories_from_norm` and enter the soft closure / WMC
-    clause set where used. No approximate treewidth fallback is used: min-fill is exact.
+    scripts/05b_extract_norm.py are additional Horn clauses of the theory. The full-theory
+    stress check in scripts/07_modular_with_nf2.py includes NF2 clauses inside the module WMC
+    and validates the solved modules against brute force. No treewidth fallback is used: all
+    reported widths come from the same min-fill implementation.
     """
     if os.path.exists(CACHE_PATH):
         with open(CACHE_PATH, "rb") as fh:

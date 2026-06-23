@@ -56,11 +56,12 @@ def main():
                      wmc_relerr=abs(exact_q - composed_query(p1)) / exact_q))
     for r in [2, 3]:
         cores = rd.tt_svd(T, max_rank=r)
-        pr = np.clip(rd.tt_reconstruct(cores), 0, None)
-        pr /= pr.sum()
+        pr, diag = rd.probability_tensor(rd.tt_reconstruct(cores),
+                                         project_negative=(r < exact_rank))
         kl, tv = rd.kl_tv(T, pr)
         rows.append(dict(model=f"rank{r}", kl=kl, tv=tv,
-                         wmc_relerr=abs(exact_q - composed_query(pr)) / exact_q))
+                         wmc_relerr=abs(exact_q - composed_query(pr)) / exact_q,
+                         **diag))
 
     out = dict(modes=modes, exact_rank=exact_rank, rows=rows)
     print(f"[disjunctive] modes={modes} exact_rank={exact_rank}")

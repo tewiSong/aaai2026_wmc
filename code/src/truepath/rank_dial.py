@@ -13,7 +13,10 @@ For a small core sub-theory we:
 
 TT-SVD is implemented directly (a sequence of SVD truncations); no approximation library
 is required and the exact-rank path uses a numerical-zero tolerance only to count
-vanishing singular values.
+vanishing singular values. Low-rank SVD truncation is not guaranteed to be nonnegative;
+when a probability message is required we explicitly project the reconstructed tensor
+onto the probability simplex by removing negative mass and renormalizing, and report the
+amount of removed negative mass in the result rows.
 """
 
 from __future__ import annotations
@@ -123,6 +126,48 @@ def tt_max_rank(cores: List[np.ndarray]) -> int:
     return max(core.shape[2] for core in cores[:-1]) if len(cores) > 1 else 1
 
 
+def probability_tensor(
+    tensor: np.ndarray,
+    *,
+    project_negative: bool,
+    tol: float = 1e-12,
+) -> Tuple[np.ndarray, Dict[str, object]]:
+    """Return a normalized probability tensor and diagnostics.
+
+    Exact-rank reconstructions should only have roundoff-level negative entries. Truncated
+    TT-SVD can produce signed tensors; when `project_negative` is true, this function
+    applies the explicit nonnegative projection used by the rank-dial experiment and
+    records how much negative mass was removed. When it is false, significant negative
+    mass is an error rather than a hidden repair.
+    """
+    arr = np.asarray(tensor, dtype=np.float64)
+    if not np.all(np.isfinite(arr)):
+        raise FloatingPointError("rank message contains non-finite entries")
+    min_value = float(arr.min())
+    negative = arr < -tol
+    negative_mass = float(-arr[negative].sum()) if np.any(negative) else 0.0
+    pre_sum = float(arr.sum())
+    projected = False
+    if np.any(negative):
+        if not project_negative:
+            raise FloatingPointError(
+                f"rank message has negative probability mass {negative_mass:.3e}"
+            )
+        arr = np.maximum(arr, 0.0)
+        projected = True
+    else:
+        arr = np.where(arr < 0.0, 0.0, arr)
+    total = float(arr.sum())
+    if not np.isfinite(total) or total <= 0.0:
+        raise FloatingPointError("rank message has non-positive mass after normalization")
+    return arr / total, dict(
+        projected=projected,
+        pre_projection_sum=pre_sum,
+        projected_negative_mass=negative_mass,
+        min_value_before_projection=min_value,
+    )
+
+
 def kl_tv(q: np.ndarray, p: np.ndarray) -> Tuple[float, float]:
     """KL(q || p) in nats and total variation, over the support of q."""
     qf = q.ravel()
@@ -161,16 +206,16 @@ def rank_dial(theory: TruePathTheory, priors: Dict[object, float],
     for r in ranks:
         if r == 1:
             kl, tv = kl1, tv1
-            pr = p1
+            diag = dict(projected=False, pre_projection_sum=float(p1.sum()),
+                        projected_negative_mass=0.0,
+                        min_value_before_projection=float(p1.min()))
         else:
             cores = tt_svd(q, max_rank=r, tol=1e-12)
-            pr = tt_reconstruct(cores)
-            pr = np.clip(pr, 0.0, None)
-            s = pr.sum()
-            if s > 0:
-                pr = pr / s
+            pr, diag = probability_tensor(tt_reconstruct(cores),
+                                          project_negative=(r < exact_rank),
+                                          tol=1e-12)
             kl, tv = kl_tv(q, pr)
         gap = (tv1 - tv) / tv1 if tv1 > 0 else 0.0
-        rows.append(dict(rank=r, kl=kl, tv=tv, gap_closed=gap))
+        rows.append(dict(rank=r, kl=kl, tv=tv, gap_closed=gap, **diag))
     return dict(w=len(atoms), n_models=n_models, exact_rank=exact_rank,
                 kl_rank1=kl1, tv_rank1=tv1, rows=rows)

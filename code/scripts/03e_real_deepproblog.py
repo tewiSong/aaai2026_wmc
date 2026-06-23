@@ -44,8 +44,9 @@ def _dpl_worker(atoms, edges, priors, target, q):
     r = m.solve([Query(Term("ok")), Query(Term("qa"))])
     pok = float(list(r[0].result.values())[0])
     pqa = float(list(r[1].result.values())[0])
-    q.put((pqa / pok if pok > 0 else 0.0, time.time() - t0,
-           float(r[0].compile_time + r[1].compile_time)))
+    if pok <= 0.0:
+        raise FloatingPointError("DeepProbLog returned zero mass for ok")
+    q.put((pqa / pok, time.time() - t0, float(r[0].compile_time + r[1].compile_time)))
 
 
 def run_dpl(atoms, edges, priors, target, timeout_s=300):
@@ -54,7 +55,9 @@ def run_dpl(atoms, edges, priors, target, timeout_s=300):
     p.start(); p.join(timeout_s)
     if p.is_alive():
         p.terminate(); p.join(); return None
-    return q.get() if not q.empty() else None
+    if q.empty():
+        raise RuntimeError("DeepProbLog worker exited without returning a result")
+    return q.get()
 
 
 def main():

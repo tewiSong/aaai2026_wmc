@@ -83,9 +83,12 @@ def main():
             facts = sorted([bprob[s] for s in ([t] + list(descendants(t)))], reverse=True)
             exact = 1 - np.prod([1 - p for p in facts])
             sc = scallop_marginal(edges, bprob, t, k)
-            if sc is not None:
-                vals.append(abs(exact - sc))
-        nb[str(k)] = float(max(vals)) if vals else None
+            if sc is None:
+                raise RuntimeError(f"Scallop did not return target {t} at k={k}")
+            vals.append(abs(exact - sc))
+        if not vals:
+            raise RuntimeError(f"no Scallop targets evaluated at k={k}")
+        nb[str(k)] = float(max(vals))
     out["bp_neighborhood_maxdrift"] = nb
     print(f"[real-scallop] bp neighborhood (hub {hub}, {len(nodes)} terms) max drift vs exact:",
           " ".join(f"k{k}={v:.4f}" for k, v in nb.items()), flush=True)

@@ -44,12 +44,12 @@ def main():
 
     tw = _load("exp2_treewidth.json")
     if tw:
-        print("\n[Exp2] Treewidth")
+        print("\n[Exp2] Min-fill width")
         for ns, v in tw.items():
-            print(f"  {ns}: tw={v['treewidth']} (terms={v['n_terms']}, {v['time_s']}s)")
+            print(f"  {ns}: width={v['treewidth']} (terms={v['n_terms']}, {v['time_s']}s)")
     cc = _load("exp2_corecut.json")
     if cc:
-        print("\n[Exp2] Core-cut (final batch)")
+        print("\n[Exp2] Residual core-cut, before separator boundary (final batch)")
         for ns, recs in cc.items():
             last = recs[-1]
             print(f"  {ns}: cut {100*last['cut_frac']:.1f}% -> max_tw {last['max_tw']}, "
@@ -58,9 +58,21 @@ def main():
     if mod:
         print("\n[Exp2] Modular exact WMC")
         for ns, v in mod.items():
+            val = v.get("validation_max_abs_err")
+            val_s = "n/a" if val is None else f"{val:.1e}"
+            bp_s = v.get("boundary_bp_time_s", 0.0)
+            jt_s = v.get("module_jt_time_s", v["wall_time_s"])
             print(f"  {ns}: core {100*v['core_frac']:.1f}% modules={v['n_modules']} "
                   f"max_tw={v['max_module_tw']} exact={100*v['exact_frac']:.1f}% "
-                  f"time={v['wall_time_s']}s val_err={v['validation_max_abs_err']:.1e}")
+                  f"total={v['wall_time_s']}s bp={bp_s}s jt={jt_s}s val_err={val_s}")
+    nf2 = _load("exp2_modular_nf2.json")
+    if nf2:
+        print("\n[Exp2] Modular exact WMC with NF2 conjunctions")
+        for ns, v in nf2.items():
+            print(f"  {ns}: nf2={v['nf2']} core {100*v['core_frac']:.1f}% "
+                  f"modules={v['n_modules']} max_tw={v['max_module_tw']} "
+                  f"exact={100*v['exact_frac']:.1f}% time={v['time_s']}s "
+                  f"val_err={v['val_err']:.1e}")
     rd = _load("exp2_rankdial.json")
     if rd and rd.get("detailed"):
         print("\n[Exp2] Rank-r dial (detailed core)")
@@ -68,8 +80,9 @@ def main():
         print(f"  w={det['w']} models={det['n_models']} exact_rank={det['exact_rank']} "
               f"KL_rank1={det['kl_rank1']:.2f}")
         for row in det["rows"]:
+            proj = " projected" if row.get("projected") else ""
             print(f"    rank {row['rank']:2d}: KL={row['kl']:.3f} TV={row['tv']:.3f} "
-                  f"gap_closed={row['gap_closed']:.0%}")
+                  f"gap_closed={row['gap_closed']:.0%}{proj}")
         s = rd["summary"]
         print(f"  over {s['n_cores']} cores: KL_rank1 median={s['kl_rank1_median']:.2f} "
               f"exact_rank median={s['exact_rank_median']}")
@@ -94,6 +107,33 @@ def main():
               " ".join(f"k{k}={v:.3f}" for k, v in fn["topk"].items()))
         bn = sk["bp_neighborhoods"]["summary"]
         print("  bp max-drift: " + " ".join(f"k{k}={bn[k]['max_drift']:.3f}" for k in bn))
+
+    rs = _load("exp3d_real_scallop.json")
+    if rs:
+        print("\n[Exp3d] Real Scallop (scallopy)")
+        four = rs["four_node"]
+        print("  four-node: " + " ".join(f"k{k}={v:.3f}" for k, v in four.items()))
+        nb = rs["bp_neighborhood_maxdrift"]
+        print("  bp neighborhood max-drift: " + " ".join(f"k{k}={v:.3f}" for k, v in nb.items()))
+
+    dpl = _load("exp3e_real_deepproblog.json")
+    if dpl:
+        print("\n[Exp3e] Real DeepProbLog")
+        print(f"  diamond mu_a={dpl['diamond_mu_a']:.4f}")
+        for r in dpl["bp_subgraph_scaling"]:
+            s = "WALL" if r["walled"] else f"{r['dpl_time_s']}s"
+            print(f"  subgraph n={r['n']} tw={r['treewidth']}: {s}")
+        for ns, v in dpl["namespaces"].items():
+            s = f"{v['time_s']}s" if v["ok"] else "WALL"
+            print(f"  full {ns} tw={v['treewidth']}: {s}")
+
+    learned = _load("exp3f_learned_logs.json")
+    if learned:
+        print("\n[Exp3f] Actual learned-WMC system logs")
+        an = learned["anesi"]["sum_accuracy"]
+        print("  A-NeSI sum-accuracy: " + ", ".join(f"N={n}:{an[n]:.3f}" for n in sorted(an)))
+        nd = learned["nesydm"]["answer_accuracy"]
+        print("  NeSyDM answer-accuracy: " + ", ".join(f"N={n}:{nd[n]:.3f}" for n in sorted(nd)))
 
     cch = _load("exp3c_carrychain.json")
     if cch:

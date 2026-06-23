@@ -10,15 +10,23 @@
     },
     {
       "model": "rank2",
-      "kl": 0.3817925948084629,
+      "kl": 0.38179259480846284,
       "tv": 0.2810405719180336,
-      "wmc_relerr": 0.040828954338801626
+      "wmc_relerr": 0.040828954338801626,
+      "projected": false,
+      "pre_projection_sum": 0.9900475000484439,
+      "projected_negative_mass": 0.0,
+      "min_value_before_projection": -4.253037757146804e-17
     },
     {
       "model": "rank3",
-      "kl": 3.5157062446463274e-16,
-      "tv": 2.6727229679670253e-16,
-      "wmc_relerr": 0.0
+      "kl": 1.1102230246251563e-16,
+      "tv": 9.020177812895226e-17,
+      "wmc_relerr": 0.0,
+      "projected": false,
+      "pre_projection_sum": 0.9999999999999997,
+      "projected_negative_mass": 0.0,
+      "min_value_before_projection": -6.627443154248202e-17
     }
   ]
 }

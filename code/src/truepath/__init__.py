@@ -5,7 +5,7 @@ This package implements the inference layer studied in the paper:
     plus EL++ normal-form conjunction and existential definitions),
   - the soft closure (soft-OR loopy belief propagation),
   - exact weighted model counting (WMC) marginals via knowledge compilation (SDD),
-  - min-fill treewidth and Shafer-Shenoy junction-tree calibration,
+  - min-fill width upper bounds and Shafer-Shenoy junction-tree calibration,
   - the modular exact-WMC construction (per-module SDD + weighted separator messages),
   - the rank-r separator (tensor-train) dial for the residual reconvergence core.
 

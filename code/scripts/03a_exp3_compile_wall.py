@@ -65,13 +65,20 @@ def _jt_worker(comp_nodes, nf1, q):
             g.add_edge(c, p)
     priors = {v: 0.5 for v in nodes}
     t0 = _t.time()
-    max_bits = 0
-    for cmp in nx.connected_components(g):
-        sub = g.subgraph(cmp).copy()
-        jt = JunctionTree(sub, gidx)
-        max_bits = max(max_bits, max((len(c) for c in jt.cliques), default=0))
-        jt.calibrate_marginals(clauses, priors)  # allocates 2^clique tables
-    q.put((max_bits, _t.time() - t0))
+    try:
+        max_bits = 0
+        for cmp in nx.connected_components(g):
+            sub = g.subgraph(cmp).copy()
+            jt = JunctionTree(sub, gidx)
+            max_bits = max(max_bits, max((len(c) for c in jt.cliques), default=0))
+            jt.calibrate_marginals(clauses, priors)  # allocates 2^clique tables
+        q.put(("ok", max_bits, _t.time() - t0))
+    except (MemoryError, ValueError) as e:
+        text = str(e)
+        if isinstance(e, MemoryError) or "maximum supported dimension" in text or "Unable to allocate" in text:
+            q.put(("wall", text))
+        else:
+            q.put(("error", repr(e)))
 
 
 def compile_subgraph(theory, comp, timeout_s=120):
@@ -85,7 +92,16 @@ def compile_subgraph(theory, comp, timeout_s=120):
         p.terminate()
         p.join()
         return None
-    return q.get() if not q.empty() else None
+    if q.empty():
+        raise RuntimeError("junction-tree worker exited without returning a result")
+    status, *payload = q.get()
+    if status == "wall":
+        return None
+    if status == "error":
+        raise RuntimeError(f"junction-tree worker failed: {payload[0]}")
+    if status != "ok":
+        raise RuntimeError(f"unknown junction-tree worker status: {status}")
+    return tuple(payload)
 
 
 def main():
@@ -134,7 +150,7 @@ def main():
         namespaces=namespaces,
         note="Exact WMC cost = Theta(2^tw) (junction-tree clique table). Monolithic compilation "
              "walls once tw exceeds ~22; cc (tw 12) compiles, mf/bp do not. The modular "
-             "construction caps every module at tw<=13 (2^13 entries).",
+             "construction caps every is-a-backbone module at tw<=14.",
     )
     out = os.path.join(lib.RESULTS_DIR, "exp3a_compile_wall.json")
     with open(out, "w") as fh:

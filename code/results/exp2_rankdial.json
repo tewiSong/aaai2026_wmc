@@ -3,50 +3,78 @@
     "w": 10,
     "n_models": 53,
     "exact_rank": 6,
-    "kl_rank1": 1.953842326194976,
+    "kl_rank1": 1.9538423261949758,
     "tv_rank1": 0.6748657674825882,
     "rows": [
       {
         "rank": 1,
-        "kl": 1.953842326194976,
+        "kl": 1.9538423261949758,
         "tv": 0.6748657674825882,
-        "gap_closed": 0.0
+        "gap_closed": 0.0,
+        "projected": false,
+        "pre_projection_sum": 1.0000000000000009,
+        "projected_negative_mass": 0.0,
+        "min_value_before_projection": 2.0340457251614138e-07
       },
       {
         "rank": 2,
-        "kl": 1.4631617627390032,
-        "tv": 0.36196582288753104,
-        "gap_closed": 0.46364767583670646
+        "kl": 1.4631617627390023,
+        "tv": 0.361965822887531,
+        "gap_closed": 0.4636476758367065,
+        "projected": true,
+        "pre_projection_sum": 0.7759941544718215,
+        "projected_negative_mass": 0.04497443133718921,
+        "min_value_before_projection": -0.023670212849233607
       },
       {
         "rank": 4,
         "kl": 0.26423274392742474,
-        "tv": 0.11889785507248914,
-        "gap_closed": 0.8238199938396538
+        "tv": 0.11889785507248907,
+        "gap_closed": 0.8238199938396539,
+        "projected": true,
+        "pre_projection_sum": 0.9550651930998739,
+        "projected_negative_mass": 0.00466278198051796,
+        "min_value_before_projection": -0.0012274587201867111
       },
       {
         "rank": 8,
-        "kl": 8.163963811751355e-16,
-        "tv": 1.0767865356377928e-15,
-        "gap_closed": 0.9999999999999983
+        "kl": 1.296034390750709e-15,
+        "tv": 1.2734786174252146e-15,
+        "gap_closed": 0.9999999999999982,
+        "projected": false,
+        "pre_projection_sum": 1.0000000000000022,
+        "projected_negative_mass": 0.0,
+        "min_value_before_projection": -1.0280938595894304e-16
       },
       {
         "rank": 10,
-        "kl": 8.163963811751355e-16,
-        "tv": 1.0767865356377928e-15,
-        "gap_closed": 0.9999999999999983
+        "kl": 1.296034390750709e-15,
+        "tv": 1.2734786174252146e-15,
+        "gap_closed": 0.9999999999999982,
+        "projected": false,
+        "pre_projection_sum": 1.0000000000000022,
+        "projected_negative_mass": 0.0,
+        "min_value_before_projection": -1.0280938595894304e-16
       },
       {
         "rank": 12,
-        "kl": 8.163963811751355e-16,
-        "tv": 1.0767865356377928e-15,
-        "gap_closed": 0.9999999999999983
+        "kl": 1.296034390750709e-15,
+        "tv": 1.2734786174252146e-15,
+        "gap_closed": 0.9999999999999982,
+        "projected": false,
+        "pre_projection_sum": 1.0000000000000022,
+        "projected_negative_mass": 0.0,
+        "min_value_before_projection": -1.0280938595894304e-16
       },
       {
         "rank": 16,
-        "kl": 8.163963811751355e-16,
-        "tv": 1.0767865356377928e-15,
-        "gap_closed": 0.9999999999999983
+        "kl": 1.296034390750709e-15,
+        "tv": 1.2734786174252146e-15,
+        "gap_closed": 0.9999999999999982,
+        "projected": false,
+        "pre_projection_sum": 1.0000000000000022,
+        "projected_negative_mass": 0.0,
+        "min_value_before_projection": -1.0280938595894304e-16
       }
     ],
     "seed_term": "GO:0009319",
@@ -71,50 +99,78 @@
       "w": 10,
       "n_models": 53,
       "exact_rank": 6,
-      "kl_rank1": 1.953842326194976,
+      "kl_rank1": 1.9538423261949758,
       "tv_rank1": 0.6748657674825882,
       "rows": [
         {
           "rank": 1,
-          "kl": 1.953842326194976,
+          "kl": 1.9538423261949758,
           "tv": 0.6748657674825882,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000009,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 2.0340457251614138e-07
         },
         {
           "rank": 2,
-          "kl": 1.4631617627390032,
-          "tv": 0.36196582288753104,
-          "gap_closed": 0.46364767583670646
+          "kl": 1.4631617627390023,
+          "tv": 0.361965822887531,
+          "gap_closed": 0.4636476758367065,
+          "projected": true,
+          "pre_projection_sum": 0.7759941544718215,
+          "projected_negative_mass": 0.04497443133718921,
+          "min_value_before_projection": -0.023670212849233607
         },
         {
           "rank": 4,
           "kl": 0.26423274392742474,
-          "tv": 0.11889785507248914,
-          "gap_closed": 0.8238199938396538
+          "tv": 0.11889785507248907,
+          "gap_closed": 0.8238199938396539,
+          "projected": true,
+          "pre_projection_sum": 0.9550651930998739,
+          "projected_negative_mass": 0.00466278198051796,
+          "min_value_before_projection": -0.0012274587201867111
         },
         {
           "rank": 8,
-          "kl": 8.163963811751355e-16,
-          "tv": 1.0767865356377928e-15,
-          "gap_closed": 0.9999999999999983
+          "kl": 1.296034390750709e-15,
+          "tv": 1.2734786174252146e-15,
+          "gap_closed": 0.9999999999999982,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000022,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.0280938595894304e-16
         },
         {
           "rank": 10,
-          "kl": 8.163963811751355e-16,
-          "tv": 1.0767865356377928e-15,
-          "gap_closed": 0.9999999999999983
+          "kl": 1.296034390750709e-15,
+          "tv": 1.2734786174252146e-15,
+          "gap_closed": 0.9999999999999982,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000022,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.0280938595894304e-16
         },
         {
           "rank": 12,
-          "kl": 8.163963811751355e-16,
-          "tv": 1.0767865356377928e-15,
-          "gap_closed": 0.9999999999999983
+          "kl": 1.296034390750709e-15,
+          "tv": 1.2734786174252146e-15,
+          "gap_closed": 0.9999999999999982,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000022,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.0280938595894304e-16
         },
         {
           "rank": 16,
-          "kl": 8.163963811751355e-16,
-          "tv": 1.0767865356377928e-15,
-          "gap_closed": 0.9999999999999983
+          "kl": 1.296034390750709e-15,
+          "tv": 1.2734786174252146e-15,
+          "gap_closed": 0.9999999999999982,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000022,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.0280938595894304e-16
         }
       ],
       "seed_term": "GO:0009319",
@@ -131,43 +187,71 @@
           "rank": 1,
           "kl": 1.4458570239672366,
           "tv": 0.6280842682046489,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.000000000000001,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 1.3884650858030017e-10
         },
         {
           "rank": 2,
-          "kl": 0.16739973296486094,
-          "tv": 0.053284532558105085,
-          "gap_closed": 0.9151634020218075
+          "kl": 0.1673997329648604,
+          "tv": 0.05328453255810499,
+          "gap_closed": 0.9151634020218077,
+          "projected": true,
+          "pre_projection_sum": 0.9781711844346843,
+          "projected_negative_mass": 0.0006602034907328665,
+          "min_value_before_projection": -9.628980500335713e-05
         },
         {
           "rank": 4,
-          "kl": 3.450093918972988e-16,
-          "tv": 6.437038429737694e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 3.0493853820131347e-16,
+          "tv": 4.033281921394928e-16,
+          "gap_closed": 0.9999999999999993,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999992,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -3.762136327673867e-17
         },
         {
           "rank": 8,
-          "kl": 3.450093918972988e-16,
-          "tv": 6.437038429737694e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 3.0493853820131347e-16,
+          "tv": 4.033281921394928e-16,
+          "gap_closed": 0.9999999999999993,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999992,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -3.762136327673867e-17
         },
         {
           "rank": 10,
-          "kl": 3.450093918972988e-16,
-          "tv": 6.437038429737694e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 3.0493853820131347e-16,
+          "tv": 4.033281921394928e-16,
+          "gap_closed": 0.9999999999999993,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999992,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -3.762136327673867e-17
         },
         {
           "rank": 12,
-          "kl": 3.450093918972988e-16,
-          "tv": 6.437038429737694e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 3.0493853820131347e-16,
+          "tv": 4.033281921394928e-16,
+          "gap_closed": 0.9999999999999993,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999992,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -3.762136327673867e-17
         },
         {
           "rank": 16,
-          "kl": 3.450093918972988e-16,
-          "tv": 6.437038429737694e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 3.0493853820131347e-16,
+          "tv": 4.033281921394928e-16,
+          "gap_closed": 0.9999999999999993,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999992,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -3.762136327673867e-17
         }
       ],
       "seed_term": "GO:0042765",
@@ -184,43 +268,71 @@
           "rank": 1,
           "kl": 1.94697652482998,
           "tv": 0.7116811845866104,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999986,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 5.997003571390595e-10
         },
         {
           "rank": 2,
-          "kl": 0.7827994178962918,
-          "tv": 0.28193919954747315,
-          "gap_closed": 0.6038405880981084
+          "kl": 0.7827994178962192,
+          "tv": 0.2819391995474733,
+          "gap_closed": 0.6038405880981081,
+          "projected": true,
+          "pre_projection_sum": 0.8886361720507685,
+          "projected_negative_mass": 0.04270392815997093,
+          "min_value_before_projection": -0.012760771937093428
         },
         {
           "rank": 4,
-          "kl": 0.01641608253362174,
-          "tv": 0.016034598395690033,
-          "gap_closed": 0.9774694080116733
+          "kl": 0.016416082533621874,
+          "tv": 0.016034598395690096,
+          "gap_closed": 0.977469408011673,
+          "projected": true,
+          "pre_projection_sum": 1.0113691648989311,
+          "projected_negative_mass": 0.00034673212530544613,
+          "min_value_before_projection": -4.9245759794442484e-05
         },
         {
           "rank": 8,
-          "kl": 1.7805317700008585e-15,
-          "tv": 1.8291402125785456e-15,
-          "gap_closed": 0.9999999999999976
+          "kl": 1.1813417894943834e-15,
+          "tv": 1.7133810935295935e-15,
+          "gap_closed": 0.9999999999999977,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999968,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.1135653367493092e-16
         },
         {
           "rank": 10,
-          "kl": 1.7805317700008585e-15,
-          "tv": 1.8291402125785456e-15,
-          "gap_closed": 0.9999999999999976
+          "kl": 1.1813417894943834e-15,
+          "tv": 1.7133810935295935e-15,
+          "gap_closed": 0.9999999999999977,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999968,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.1135653367493092e-16
         },
         {
           "rank": 12,
-          "kl": 1.7805317700008585e-15,
-          "tv": 1.8291402125785456e-15,
-          "gap_closed": 0.9999999999999976
+          "kl": 1.1813417894943834e-15,
+          "tv": 1.7133810935295935e-15,
+          "gap_closed": 0.9999999999999977,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999968,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.1135653367493092e-16
         },
         {
           "rank": 16,
-          "kl": 1.7805317700008585e-15,
-          "tv": 1.8291402125785456e-15,
-          "gap_closed": 0.9999999999999976
+          "kl": 1.1813417894943834e-15,
+          "tv": 1.7133810935295935e-15,
+          "gap_closed": 0.9999999999999977,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999968,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.1135653367493092e-16
         }
       ],
       "seed_term": "GO:0045259",
@@ -237,43 +349,71 @@
           "rank": 1,
           "kl": 2.1520316736109724,
           "tv": 0.6766152719737543,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000009,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 3.5273280495970085e-12
         },
         {
           "rank": 2,
-          "kl": 4.530863518583774,
-          "tv": 0.3359641115216876,
-          "gap_closed": 0.5034635997179804
+          "kl": 4.530863518582669,
+          "tv": 0.3359641115216877,
+          "gap_closed": 0.5034635997179803,
+          "projected": true,
+          "pre_projection_sum": 0.7003547934753963,
+          "projected_negative_mass": 0.0023234438429543657,
+          "min_value_before_projection": -0.0005203635352975278
         },
         {
           "rank": 4,
-          "kl": 0.38584593847735227,
-          "tv": 0.1755769674813865,
-          "gap_closed": 0.7405069398312412
+          "kl": 0.38584593847735404,
+          "tv": 0.17557696748138665,
+          "gap_closed": 0.740506939831241,
+          "projected": true,
+          "pre_projection_sum": 0.9051246423317828,
+          "projected_negative_mass": 0.002991888073212906,
+          "min_value_before_projection": -0.00032997368548857287
         },
         {
           "rank": 8,
-          "kl": 1.7127966890388562e-15,
-          "tv": 1.71286898610708e-15,
-          "gap_closed": 0.9999999999999976
+          "kl": 1.2360257864637642e-15,
+          "tv": 1.5111081251257963e-15,
+          "gap_closed": 0.9999999999999977,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.2292754387265865e-16
         },
         {
           "rank": 10,
-          "kl": 1.7127966890388562e-15,
-          "tv": 1.71286898610708e-15,
-          "gap_closed": 0.9999999999999976
+          "kl": 1.2360257864637642e-15,
+          "tv": 1.5111081251257963e-15,
+          "gap_closed": 0.9999999999999977,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.2292754387265865e-16
         },
         {
           "rank": 12,
-          "kl": 1.7127966890388562e-15,
-          "tv": 1.71286898610708e-15,
-          "gap_closed": 0.9999999999999976
+          "kl": 1.2360257864637642e-15,
+          "tv": 1.5111081251257963e-15,
+          "gap_closed": 0.9999999999999977,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.2292754387265865e-16
         },
         {
           "rank": 16,
-          "kl": 1.7127966890388562e-15,
-          "tv": 1.71286898610708e-15,
-          "gap_closed": 0.9999999999999976
+          "kl": 1.2360257864637642e-15,
+          "tv": 1.5111081251257963e-15,
+          "gap_closed": 0.9999999999999977,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.2292754387265865e-16
         }
       ],
       "seed_term": "GO:1990332",
@@ -290,43 +430,71 @@
           "rank": 1,
           "kl": 3.472178938094175,
           "tv": 0.8701653066892769,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000024,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 9.53070836535767e-09
         },
         {
           "rank": 2,
-          "kl": 0.5550027823151643,
-          "tv": 0.18540350901597263,
-          "gap_closed": 0.7869330027401592
+          "kl": 0.5550027823151608,
+          "tv": 0.18540350901597247,
+          "gap_closed": 0.7869330027401594,
+          "projected": true,
+          "pre_projection_sum": 0.9345017136716378,
+          "projected_negative_mass": 0.005555507307725343,
+          "min_value_before_projection": -0.0011117558717287754
         },
         {
           "rank": 4,
-          "kl": 0.02490708680821703,
-          "tv": 0.01863391607184648,
-          "gap_closed": 0.9785857745320333
+          "kl": 0.024907086808214293,
+          "tv": 0.018633916071846016,
+          "gap_closed": 0.9785857745320339,
+          "projected": true,
+          "pre_projection_sum": 0.9919838525902912,
+          "projected_negative_mass": 0.003077420674780262,
+          "min_value_before_projection": -0.0017808886990658569
         },
         {
           "rank": 8,
-          "kl": 1.077241748448843e-15,
-          "tv": 1.2765106348376946e-15,
-          "gap_closed": 0.9999999999999986
+          "kl": 1.0941889982069408e-15,
+          "tv": 1.0092876521378e-15,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999966,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -7.500271264300004e-17
         },
         {
           "rank": 10,
-          "kl": 1.077241748448843e-15,
-          "tv": 1.2765106348376946e-15,
-          "gap_closed": 0.9999999999999986
+          "kl": 1.0941889982069408e-15,
+          "tv": 1.0092876521378e-15,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999966,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -7.500271264300004e-17
         },
         {
           "rank": 12,
-          "kl": 1.077241748448843e-15,
-          "tv": 1.2765106348376946e-15,
-          "gap_closed": 0.9999999999999986
+          "kl": 1.0941889982069408e-15,
+          "tv": 1.0092876521378e-15,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999966,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -7.500271264300004e-17
         },
         {
           "rank": 16,
-          "kl": 1.077241748448843e-15,
-          "tv": 1.2765106348376946e-15,
-          "gap_closed": 0.9999999999999986
+          "kl": 1.0941889982069408e-15,
+          "tv": 1.0092876521378e-15,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999966,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -7.500271264300004e-17
         }
       ],
       "seed_term": "GO:0000144",
@@ -343,43 +511,71 @@
           "rank": 1,
           "kl": 0.7476658636190839,
           "tv": 0.41454305982612677,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000007,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 6.202691102894918e-08
         },
         {
           "rank": 2,
-          "kl": 0.023054941054760563,
-          "tv": 0.0030682722619916896,
-          "gap_closed": 0.9925984232777202
+          "kl": 0.02305494105476073,
+          "tv": 0.003068272261991622,
+          "gap_closed": 0.9925984232777204,
+          "projected": true,
+          "pre_projection_sum": 0.9970319897299154,
+          "projected_negative_mass": 3.048121070215635e-08,
+          "min_value_before_projection": -8.667640054742131e-09
         },
         {
           "rank": 4,
-          "kl": 3.0234635874444434e-16,
-          "tv": 3.2362862833034414e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": 5.206975233332312e-16,
+          "tv": 4.593313095166347e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.4785985182766112e-17
         },
         {
           "rank": 8,
-          "kl": 3.0234635874444434e-16,
-          "tv": 3.2362862833034414e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": 5.206975233332312e-16,
+          "tv": 4.593313095166347e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.4785985182766112e-17
         },
         {
           "rank": 10,
-          "kl": 3.0234635874444434e-16,
-          "tv": 3.2362862833034414e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": 5.206975233332312e-16,
+          "tv": 4.593313095166347e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.4785985182766112e-17
         },
         {
           "rank": 12,
-          "kl": 3.0234635874444434e-16,
-          "tv": 3.2362862833034414e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": 5.206975233332312e-16,
+          "tv": 4.593313095166347e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.4785985182766112e-17
         },
         {
           "rank": 16,
-          "kl": 3.0234635874444434e-16,
-          "tv": 3.2362862833034414e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": 5.206975233332312e-16,
+          "tv": 4.593313095166347e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.4785985182766112e-17
         }
       ],
       "seed_term": "GO:0000506",
@@ -396,43 +592,71 @@
           "rank": 1,
           "kl": 1.7129810248372925,
           "tv": 0.6304152023525663,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 9.059646675691673e-09
         },
         {
           "rank": 2,
-          "kl": 0.49182223508719797,
-          "tv": 0.11066320024602752,
-          "gap_closed": 0.8244598165890391
+          "kl": 0.49182223508719725,
+          "tv": 0.11066320024602756,
+          "gap_closed": 0.824459816589039,
+          "projected": true,
+          "pre_projection_sum": 0.9414010705261735,
+          "projected_negative_mass": 0.002857008583184115,
+          "min_value_before_projection": -0.0004400135922110636
         },
         {
           "rank": 4,
-          "kl": 9.315235919341265e-16,
-          "tv": 1.0689120187762912e-15,
-          "gap_closed": 0.9999999999999982
+          "kl": 5.285777079339707e-16,
+          "tv": 6.604067623458378e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999994,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -3.140664155997297e-17
         },
         {
           "rank": 8,
-          "kl": 9.315235919341265e-16,
-          "tv": 1.0689120187762912e-15,
-          "gap_closed": 0.9999999999999982
+          "kl": 5.285777079339707e-16,
+          "tv": 6.604067623458378e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999994,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -3.140664155997297e-17
         },
         {
           "rank": 10,
-          "kl": 9.315235919341265e-16,
-          "tv": 1.0689120187762912e-15,
-          "gap_closed": 0.9999999999999982
+          "kl": 5.285777079339707e-16,
+          "tv": 6.604067623458378e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999994,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -3.140664155997297e-17
         },
         {
           "rank": 12,
-          "kl": 9.315235919341265e-16,
-          "tv": 1.0689120187762912e-15,
-          "gap_closed": 0.9999999999999982
+          "kl": 5.285777079339707e-16,
+          "tv": 6.604067623458378e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999994,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -3.140664155997297e-17
         },
         {
           "rank": 16,
-          "kl": 9.315235919341265e-16,
-          "tv": 1.0689120187762912e-15,
-          "gap_closed": 0.9999999999999982
+          "kl": 5.285777079339707e-16,
+          "tv": 6.604067623458378e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999994,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -3.140664155997297e-17
         }
       ],
       "seed_term": "GO:0000835",
@@ -442,50 +666,78 @@
       "w": 7,
       "n_models": 15,
       "exact_rank": 3,
-      "kl_rank1": 0.5668590431861906,
+      "kl_rank1": 0.5668590431861905,
       "tv_rank1": 0.34039286882386494,
       "rows": [
         {
           "rank": 1,
-          "kl": 0.5668590431861906,
+          "kl": 0.5668590431861905,
           "tv": 0.34039286882386494,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999997,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 7.313528957240845e-09
         },
         {
           "rank": 2,
-          "kl": 0.03175498114708196,
-          "tv": 0.002962418811822345,
-          "gap_closed": 0.9912970597120375
+          "kl": 0.031754981147081834,
+          "tv": 0.002962418811822424,
+          "gap_closed": 0.9912970597120373,
+          "projected": true,
+          "pre_projection_sum": 0.9970544028937596,
+          "projected_negative_mass": 2.2748280086731515e-09,
+          "min_value_before_projection": -1.3706699638943378e-09
         },
         {
           "rank": 4,
-          "kl": 1.0309103483149682e-16,
-          "tv": 1.7641664985082305e-16,
-          "gap_closed": 0.9999999999999996
+          "kl": 8.317518324394002e-18,
+          "tv": 2.6539885825239906e-16,
+          "gap_closed": 0.9999999999999992,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.7742129889822107e-17
         },
         {
           "rank": 8,
-          "kl": 1.0309103483149682e-16,
-          "tv": 1.7641664985082305e-16,
-          "gap_closed": 0.9999999999999996
+          "kl": 8.317518324394002e-18,
+          "tv": 2.6539885825239906e-16,
+          "gap_closed": 0.9999999999999992,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.7742129889822107e-17
         },
         {
           "rank": 10,
-          "kl": 1.0309103483149682e-16,
-          "tv": 1.7641664985082305e-16,
-          "gap_closed": 0.9999999999999996
+          "kl": 8.317518324394002e-18,
+          "tv": 2.6539885825239906e-16,
+          "gap_closed": 0.9999999999999992,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.7742129889822107e-17
         },
         {
           "rank": 12,
-          "kl": 1.0309103483149682e-16,
-          "tv": 1.7641664985082305e-16,
-          "gap_closed": 0.9999999999999996
+          "kl": 8.317518324394002e-18,
+          "tv": 2.6539885825239906e-16,
+          "gap_closed": 0.9999999999999992,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.7742129889822107e-17
         },
         {
           "rank": 16,
-          "kl": 1.0309103483149682e-16,
-          "tv": 1.7641664985082305e-16,
-          "gap_closed": 0.9999999999999996
+          "kl": 8.317518324394002e-18,
+          "tv": 2.6539885825239906e-16,
+          "gap_closed": 0.9999999999999992,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.7742129889822107e-17
         }
       ],
       "seed_term": "GO:0002180",
@@ -502,43 +754,71 @@
           "rank": 1,
           "kl": 1.5256966062679451,
           "tv": 0.5507401810892547,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.000000000000001,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 4.924015162246257e-17
         },
         {
           "rank": 2,
-          "kl": 0.8535666656129999,
-          "tv": 0.1432154176433894,
-          "gap_closed": 0.7399582914757776
+          "kl": 0.8535666656140053,
+          "tv": 0.14321541764338944,
+          "gap_closed": 0.7399582914757776,
+          "projected": true,
+          "pre_projection_sum": 0.917862837219521,
+          "projected_negative_mass": 0.0032074449442044853,
+          "min_value_before_projection": -0.0012348842756982569
         },
         {
           "rank": 4,
-          "kl": 0.05090032436908107,
-          "tv": 0.03369987790562849,
-          "gap_closed": 0.9388098434383764
+          "kl": 0.050900324369080444,
+          "tv": 0.033699877905628034,
+          "gap_closed": 0.9388098434383771,
+          "projected": true,
+          "pre_projection_sum": 1.0061632741655713,
+          "projected_negative_mass": 0.00535739482677272,
+          "min_value_before_projection": -0.0006142966318286881
         },
         {
           "rank": 8,
-          "kl": 0.0005345277806511013,
-          "tv": 0.00037460113930410396,
-          "gap_closed": 0.9993198223914529
+          "kl": 0.0005345277806501141,
+          "tv": 0.00037460113930318727,
+          "gap_closed": 0.9993198223914544,
+          "projected": true,
+          "pre_projection_sum": 0.9999583225796222,
+          "projected_negative_mass": 0.00013191009569743132,
+          "min_value_before_projection": -1.6515364253656585e-05
         },
         {
           "rank": 10,
-          "kl": 1.9861335324668324e-14,
-          "tv": 2.100773049201891e-14,
-          "gap_closed": 0.9999999999999619
+          "kl": 2.0304309828507502e-14,
+          "tv": 2.1463236386916065e-14,
+          "gap_closed": 0.9999999999999611,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000244,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -7.826657144444262e-17
         },
         {
           "rank": 12,
-          "kl": 1.9861335324668324e-14,
-          "tv": 2.100773049201891e-14,
-          "gap_closed": 0.9999999999999619
+          "kl": 2.0304309828507502e-14,
+          "tv": 2.1463236386916065e-14,
+          "gap_closed": 0.9999999999999611,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000244,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -7.826657144444262e-17
         },
         {
           "rank": 16,
-          "kl": 1.9861335324668324e-14,
-          "tv": 2.100773049201891e-14,
-          "gap_closed": 0.9999999999999619
+          "kl": 2.0304309828507502e-14,
+          "tv": 2.1463236386916065e-14,
+          "gap_closed": 0.9999999999999611,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000244,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -7.826657144444262e-17
         }
       ],
       "seed_term": "GO:0005675",
@@ -555,43 +835,71 @@
           "rank": 1,
           "kl": 1.2038546093181004,
           "tv": 0.4644116312093385,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999993,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 0.0001758925022902928
         },
         {
           "rank": 2,
-          "kl": 0.48114327354147546,
-          "tv": 0.3041182113949905,
-          "gap_closed": 0.34515375809374166
+          "kl": 0.48114327354147557,
+          "tv": 0.3041182113949904,
+          "gap_closed": 0.3451537580937419,
+          "projected": true,
+          "pre_projection_sum": 0.9760704199697114,
+          "projected_negative_mass": 0.048908223473792825,
+          "min_value_before_projection": -0.01767867500689301
         },
         {
           "rank": 4,
-          "kl": 7.684946182011806e-16,
-          "tv": 7.331636820832832e-16,
-          "gap_closed": 0.9999999999999984
+          "kl": 6.607771919076974e-16,
+          "tv": 6.981624892478446e-16,
+          "gap_closed": 0.9999999999999984,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000009,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.0088729653228184e-16
         },
         {
           "rank": 8,
-          "kl": 7.684946182011806e-16,
-          "tv": 7.331636820832832e-16,
-          "gap_closed": 0.9999999999999984
+          "kl": 6.607771919076974e-16,
+          "tv": 6.981624892478446e-16,
+          "gap_closed": 0.9999999999999984,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000009,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.0088729653228184e-16
         },
         {
           "rank": 10,
-          "kl": 7.684946182011806e-16,
-          "tv": 7.331636820832832e-16,
-          "gap_closed": 0.9999999999999984
+          "kl": 6.607771919076974e-16,
+          "tv": 6.981624892478446e-16,
+          "gap_closed": 0.9999999999999984,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000009,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.0088729653228184e-16
         },
         {
           "rank": 12,
-          "kl": 7.684946182011806e-16,
-          "tv": 7.331636820832832e-16,
-          "gap_closed": 0.9999999999999984
+          "kl": 6.607771919076974e-16,
+          "tv": 6.981624892478446e-16,
+          "gap_closed": 0.9999999999999984,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000009,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.0088729653228184e-16
         },
         {
           "rank": 16,
-          "kl": 7.684946182011806e-16,
-          "tv": 7.331636820832832e-16,
-          "gap_closed": 0.9999999999999984
+          "kl": 6.607771919076974e-16,
+          "tv": 6.981624892478446e-16,
+          "gap_closed": 0.9999999999999984,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000009,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.0088729653228184e-16
         }
       ],
       "seed_term": "GO:0005697",
@@ -608,43 +916,71 @@
           "rank": 1,
           "kl": 1.4189701216363526,
           "tv": 0.6315727545655945,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000004,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 2.646412426354505e-12
         },
         {
           "rank": 2,
-          "kl": 0.01093136716004862,
-          "tv": 0.0070359595750338275,
-          "gap_closed": 0.9888596214384308
+          "kl": 0.01093136716004872,
+          "tv": 0.007035959575033839,
+          "gap_closed": 0.9888596214384305,
+          "projected": true,
+          "pre_projection_sum": 0.9978994901787086,
+          "projected_negative_mass": 0.000166156917699767,
+          "min_value_before_projection": -4.423907996104615e-05
         },
         {
           "rank": 4,
-          "kl": 1.1446363901020532e-15,
-          "tv": 1.1753855426137827e-15,
-          "gap_closed": 0.9999999999999981
+          "kl": 1.216809806657618e-15,
+          "tv": 1.6026774590748134e-15,
+          "gap_closed": 0.9999999999999976,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.969141240136951e-17
         },
         {
           "rank": 8,
-          "kl": 1.1446363901020532e-15,
-          "tv": 1.1753855426137827e-15,
-          "gap_closed": 0.9999999999999981
+          "kl": 1.216809806657618e-15,
+          "tv": 1.6026774590748134e-15,
+          "gap_closed": 0.9999999999999976,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.969141240136951e-17
         },
         {
           "rank": 10,
-          "kl": 1.1446363901020532e-15,
-          "tv": 1.1753855426137827e-15,
-          "gap_closed": 0.9999999999999981
+          "kl": 1.216809806657618e-15,
+          "tv": 1.6026774590748134e-15,
+          "gap_closed": 0.9999999999999976,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.969141240136951e-17
         },
         {
           "rank": 12,
-          "kl": 1.1446363901020532e-15,
-          "tv": 1.1753855426137827e-15,
-          "gap_closed": 0.9999999999999981
+          "kl": 1.216809806657618e-15,
+          "tv": 1.6026774590748134e-15,
+          "gap_closed": 0.9999999999999976,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.969141240136951e-17
         },
         {
           "rank": 16,
-          "kl": 1.1446363901020532e-15,
-          "tv": 1.1753855426137827e-15,
-          "gap_closed": 0.9999999999999981
+          "kl": 1.216809806657618e-15,
+          "tv": 1.6026774590748134e-15,
+          "gap_closed": 0.9999999999999976,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.969141240136951e-17
         }
       ],
       "seed_term": "GO:0005787",
@@ -654,50 +990,78 @@
       "w": 13,
       "n_models": 32,
       "exact_rank": 7,
-      "kl_rank1": 2.870759039690959,
+      "kl_rank1": 2.8707590396909586,
       "tv_rank1": 0.7405877394605155,
       "rows": [
         {
           "rank": 1,
-          "kl": 2.870759039690959,
+          "kl": 2.8707590396909586,
           "tv": 0.7405877394605155,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.000000000000001,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 6.194401020104131e-12
         },
         {
           "rank": 2,
-          "kl": 3.048231503749997,
-          "tv": 0.18743176282237728,
-          "gap_closed": 0.7469148450136202
+          "kl": 3.048231503749995,
+          "tv": 0.1874317628223773,
+          "gap_closed": 0.7469148450136202,
+          "projected": true,
+          "pre_projection_sum": 0.8851780624096633,
+          "projected_negative_mass": 0.008776737223052281,
+          "min_value_before_projection": -0.004202287401970965
         },
         {
           "rank": 4,
-          "kl": 0.053695492807679934,
-          "tv": 0.032393034744835326,
-          "gap_closed": 0.9562603685980108
+          "kl": 0.053695492807680066,
+          "tv": 0.032393034744835604,
+          "gap_closed": 0.9562603685980106,
+          "projected": true,
+          "pre_projection_sum": 0.9979830864652162,
+          "projected_negative_mass": 0.012234376122693305,
+          "min_value_before_projection": -0.0020583942523086035
         },
         {
           "rank": 8,
-          "kl": 1.4790616419702453e-15,
-          "tv": 1.7243939002090536e-15,
-          "gap_closed": 0.9999999999999976
+          "kl": 1.2485485420934164e-15,
+          "tv": 1.3277225593689349e-15,
+          "gap_closed": 0.9999999999999982,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999974,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.869767118896447e-16
         },
         {
           "rank": 10,
-          "kl": 1.4790616419702453e-15,
-          "tv": 1.7243939002090536e-15,
-          "gap_closed": 0.9999999999999976
+          "kl": 1.2485485420934164e-15,
+          "tv": 1.3277225593689349e-15,
+          "gap_closed": 0.9999999999999982,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999974,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.869767118896447e-16
         },
         {
           "rank": 12,
-          "kl": 1.4790616419702453e-15,
-          "tv": 1.7243939002090536e-15,
-          "gap_closed": 0.9999999999999976
+          "kl": 1.2485485420934164e-15,
+          "tv": 1.3277225593689349e-15,
+          "gap_closed": 0.9999999999999982,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999974,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.869767118896447e-16
         },
         {
           "rank": 16,
-          "kl": 1.4790616419702453e-15,
-          "tv": 1.7243939002090536e-15,
-          "gap_closed": 0.9999999999999976
+          "kl": 1.2485485420934164e-15,
+          "tv": 1.3277225593689349e-15,
+          "gap_closed": 0.9999999999999982,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999974,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.869767118896447e-16
         }
       ],
       "seed_term": "GO:0008024",
@@ -714,43 +1078,71 @@
           "rank": 1,
           "kl": 0.7567751008906954,
           "tv": 0.4157958073143144,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999991,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 8.586052054440992e-08
         },
         {
           "rank": 2,
           "kl": 0.03071288791438411,
-          "tv": 0.004087877873992441,
-          "gap_closed": 0.9901685447470078
+          "tv": 0.004087877873992516,
+          "gap_closed": 0.9901685447470077,
+          "projected": true,
+          "pre_projection_sum": 0.9960458668522504,
+          "projected_negative_mass": 5.932882090817163e-08,
+          "min_value_before_projection": -2.0549750832918124e-08
         },
         {
           "rank": 4,
-          "kl": -1.3580787838769583e-16,
-          "tv": 2.512742085443527e-16,
-          "gap_closed": 0.9999999999999993
+          "kl": -1.0739743232150905e-16,
+          "tv": 1.3082791124107165e-16,
+          "gap_closed": 0.9999999999999998,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000007,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.1601547683467764e-17
         },
         {
           "rank": 8,
-          "kl": -1.3580787838769583e-16,
-          "tv": 2.512742085443527e-16,
-          "gap_closed": 0.9999999999999993
+          "kl": -1.0739743232150905e-16,
+          "tv": 1.3082791124107165e-16,
+          "gap_closed": 0.9999999999999998,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000007,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.1601547683467764e-17
         },
         {
           "rank": 10,
-          "kl": -1.3580787838769583e-16,
-          "tv": 2.512742085443527e-16,
-          "gap_closed": 0.9999999999999993
+          "kl": -1.0739743232150905e-16,
+          "tv": 1.3082791124107165e-16,
+          "gap_closed": 0.9999999999999998,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000007,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.1601547683467764e-17
         },
         {
           "rank": 12,
-          "kl": -1.3580787838769583e-16,
-          "tv": 2.512742085443527e-16,
-          "gap_closed": 0.9999999999999993
+          "kl": -1.0739743232150905e-16,
+          "tv": 1.3082791124107165e-16,
+          "gap_closed": 0.9999999999999998,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000007,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.1601547683467764e-17
         },
         {
           "rank": 16,
-          "kl": -1.3580787838769583e-16,
-          "tv": 2.512742085443527e-16,
-          "gap_closed": 0.9999999999999993
+          "kl": -1.0739743232150905e-16,
+          "tv": 1.3082791124107165e-16,
+          "gap_closed": 0.9999999999999998,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000007,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.1601547683467764e-17
         }
       ],
       "seed_term": "GO:0008250",
@@ -767,43 +1159,71 @@
           "rank": 1,
           "kl": 1.5823573850519028,
           "tv": 0.608039192862366,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999993,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 9.547241481192069e-09
         },
         {
           "rank": 2,
-          "kl": 0.9519830841713063,
-          "tv": 0.3197352438152373,
-          "gap_closed": 0.4741535618615761
+          "kl": 0.9519830841713064,
+          "tv": 0.3197352438152374,
+          "gap_closed": 0.474153561861576,
+          "projected": true,
+          "pre_projection_sum": 0.8153524345233318,
+          "projected_negative_mass": 0.001066601509372373,
+          "min_value_before_projection": -0.00028749864977021286
         },
         {
           "rank": 4,
           "kl": Infinity,
-          "tv": 0.07653596506344484,
-          "gap_closed": 0.8741265925586983
+          "tv": 0.07653596506344507,
+          "gap_closed": 0.8741265925586978,
+          "projected": true,
+          "pre_projection_sum": 0.9750512308600094,
+          "projected_negative_mass": 0.013955451220798241,
+          "min_value_before_projection": -0.0035213227472916924
         },
         {
           "rank": 8,
-          "kl": 1.4011256721503922e-15,
-          "tv": 1.7717614223940043e-15,
-          "gap_closed": 0.9999999999999971
+          "kl": 1.9793906991270287e-15,
+          "tv": 2.1224408162521728e-15,
+          "gap_closed": 0.9999999999999966,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -9.433207201199114e-17
         },
         {
           "rank": 10,
-          "kl": 1.4011256721503922e-15,
-          "tv": 1.7717614223940043e-15,
-          "gap_closed": 0.9999999999999971
+          "kl": 1.9793906991270287e-15,
+          "tv": 2.1224408162521728e-15,
+          "gap_closed": 0.9999999999999966,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -9.433207201199114e-17
         },
         {
           "rank": 12,
-          "kl": 1.4011256721503922e-15,
-          "tv": 1.7717614223940043e-15,
-          "gap_closed": 0.9999999999999971
+          "kl": 1.9793906991270287e-15,
+          "tv": 2.1224408162521728e-15,
+          "gap_closed": 0.9999999999999966,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -9.433207201199114e-17
         },
         {
           "rank": 16,
-          "kl": 1.4011256721503922e-15,
-          "tv": 1.7717614223940043e-15,
-          "gap_closed": 0.9999999999999971
+          "kl": 1.9793906991270287e-15,
+          "tv": 2.1224408162521728e-15,
+          "gap_closed": 0.9999999999999966,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -9.433207201199114e-17
         }
       ],
       "seed_term": "GO:0009357",
@@ -813,50 +1233,78 @@
       "w": 7,
       "n_models": 15,
       "exact_rank": 3,
-      "kl_rank1": 0.7506509436713567,
+      "kl_rank1": 0.7506509436713565,
       "tv_rank1": 0.4149537380935414,
       "rows": [
         {
           "rank": 1,
-          "kl": 0.7506509436713567,
+          "kl": 0.7506509436713565,
           "tv": 0.4149537380935414,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 6.96413454296066e-08
         },
         {
           "rank": 2,
-          "kl": 0.02556090507448714,
-          "tv": 0.003401895550511517,
-          "gap_closed": 0.9918017474281804
+          "kl": 0.025560905074487102,
+          "tv": 0.0034018955505115433,
+          "gap_closed": 0.9918017474281803,
+          "projected": true,
+          "pre_projection_sum": 0.9967093121837209,
+          "projected_negative_mass": 3.865130724390075e-08,
+          "min_value_before_projection": -1.1823154723078962e-08
         },
         {
           "rank": 4,
-          "kl": -1.1006630418682237e-17,
-          "tv": 2.983150189457424e-16,
-          "gap_closed": 0.9999999999999993
+          "kl": -5.396022505217472e-17,
+          "tv": 2.315357418003686e-16,
+          "gap_closed": 0.9999999999999994,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999996,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.501522787716704e-17
         },
         {
           "rank": 8,
-          "kl": -1.1006630418682237e-17,
-          "tv": 2.983150189457424e-16,
-          "gap_closed": 0.9999999999999993
+          "kl": -5.396022505217472e-17,
+          "tv": 2.315357418003686e-16,
+          "gap_closed": 0.9999999999999994,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999996,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.501522787716704e-17
         },
         {
           "rank": 10,
-          "kl": -1.1006630418682237e-17,
-          "tv": 2.983150189457424e-16,
-          "gap_closed": 0.9999999999999993
+          "kl": -5.396022505217472e-17,
+          "tv": 2.315357418003686e-16,
+          "gap_closed": 0.9999999999999994,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999996,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.501522787716704e-17
         },
         {
           "rank": 12,
-          "kl": -1.1006630418682237e-17,
-          "tv": 2.983150189457424e-16,
-          "gap_closed": 0.9999999999999993
+          "kl": -5.396022505217472e-17,
+          "tv": 2.315357418003686e-16,
+          "gap_closed": 0.9999999999999994,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999996,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.501522787716704e-17
         },
         {
           "rank": 16,
-          "kl": -1.1006630418682237e-17,
-          "tv": 2.983150189457424e-16,
-          "gap_closed": 0.9999999999999993
+          "kl": -5.396022505217472e-17,
+          "tv": 2.315357418003686e-16,
+          "gap_closed": 0.9999999999999994,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999996,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.501522787716704e-17
         }
       ],
       "seed_term": "GO:0009923",
@@ -873,43 +1321,71 @@
           "rank": 1,
           "kl": 2.9543079553079097,
           "tv": 0.7974198451000112,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999991,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 2.443507907794551e-10
         },
         {
           "rank": 2,
-          "kl": 1.1131476188206293,
-          "tv": 0.3035460651558887,
-          "gap_closed": 0.6193397154320652
+          "kl": 1.1131476188206295,
+          "tv": 0.3035460651558888,
+          "gap_closed": 0.6193397154320651,
+          "projected": true,
+          "pre_projection_sum": 0.8523760052332002,
+          "projected_negative_mass": 0.0215828787977995,
+          "min_value_before_projection": -0.003519672661704141
         },
         {
           "rank": 4,
-          "kl": 0.1362055924567199,
-          "tv": 0.12551730940131506,
-          "gap_closed": 0.8425957039160809
+          "kl": 0.13620559245672414,
+          "tv": 0.12551730940131783,
+          "gap_closed": 0.8425957039160775,
+          "projected": true,
+          "pre_projection_sum": 1.020294774224597,
+          "projected_negative_mass": 0.04379372807479108,
+          "min_value_before_projection": -0.004819958921901487
         },
         {
           "rank": 8,
-          "kl": 1.1334353327430636e-15,
-          "tv": 1.4940521968330292e-15,
-          "gap_closed": 0.9999999999999982
+          "kl": 1.348039345351737e-15,
+          "tv": 1.812023642459859e-15,
+          "gap_closed": 0.9999999999999978,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -3.6755020865549287e-16
         },
         {
           "rank": 10,
-          "kl": 1.1334353327430636e-15,
-          "tv": 1.4940521968330292e-15,
-          "gap_closed": 0.9999999999999982
+          "kl": 1.348039345351737e-15,
+          "tv": 1.812023642459859e-15,
+          "gap_closed": 0.9999999999999978,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -3.6755020865549287e-16
         },
         {
           "rank": 12,
-          "kl": 1.1334353327430636e-15,
-          "tv": 1.4940521968330292e-15,
-          "gap_closed": 0.9999999999999982
+          "kl": 1.348039345351737e-15,
+          "tv": 1.812023642459859e-15,
+          "gap_closed": 0.9999999999999978,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -3.6755020865549287e-16
         },
         {
           "rank": 16,
-          "kl": 1.1334353327430636e-15,
-          "tv": 1.4940521968330292e-15,
-          "gap_closed": 0.9999999999999982
+          "kl": 1.348039345351737e-15,
+          "tv": 1.812023642459859e-15,
+          "gap_closed": 0.9999999999999978,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -3.6755020865549287e-16
         }
       ],
       "seed_term": "GO:0012510",
@@ -926,43 +1402,71 @@
           "rank": 1,
           "kl": 0.9833982940178122,
           "tv": 0.4074584715087076,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 1.0054367308603195e-12
         },
         {
           "rank": 2,
-          "kl": 0.6212945402914072,
-          "tv": 0.17753956080368474,
-          "gap_closed": 0.5642756913451715
+          "kl": 0.6212945402915261,
+          "tv": 0.177539560803685,
+          "gap_closed": 0.564275691345171,
+          "projected": true,
+          "pre_projection_sum": 0.8660109545228131,
+          "projected_negative_mass": 0.03537003114189589,
+          "min_value_before_projection": -0.024340388380529255
         },
         {
           "rank": 4,
-          "kl": 0.0029944522181320045,
-          "tv": 0.002708819571441805,
-          "gap_closed": 0.9933519124994216
+          "kl": 0.0029944522181319455,
+          "tv": 0.002708819571441862,
+          "gap_closed": 0.9933519124994215,
+          "projected": true,
+          "pre_projection_sum": 0.9995484377679538,
+          "projected_negative_mass": 0.00015345632412220756,
+          "min_value_before_projection": -0.0001485928002104319
         },
         {
           "rank": 8,
-          "kl": 6.630339650323238e-16,
-          "tv": 1.1655662369838085e-15,
-          "gap_closed": 0.9999999999999971
+          "kl": 6.772280233037304e-16,
+          "tv": 1.7878523180653155e-15,
+          "gap_closed": 0.9999999999999957,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999989,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -7.959909079396378e-16
         },
         {
           "rank": 10,
-          "kl": 6.630339650323238e-16,
-          "tv": 1.1655662369838085e-15,
-          "gap_closed": 0.9999999999999971
+          "kl": 6.772280233037304e-16,
+          "tv": 1.7878523180653155e-15,
+          "gap_closed": 0.9999999999999957,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999989,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -7.959909079396378e-16
         },
         {
           "rank": 12,
-          "kl": 6.630339650323238e-16,
-          "tv": 1.1655662369838085e-15,
-          "gap_closed": 0.9999999999999971
+          "kl": 6.772280233037304e-16,
+          "tv": 1.7878523180653155e-15,
+          "gap_closed": 0.9999999999999957,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999989,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -7.959909079396378e-16
         },
         {
           "rank": 16,
-          "kl": 6.630339650323238e-16,
-          "tv": 1.1655662369838085e-15,
-          "gap_closed": 0.9999999999999971
+          "kl": 6.772280233037304e-16,
+          "tv": 1.7878523180653155e-15,
+          "gap_closed": 0.9999999999999957,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999989,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -7.959909079396378e-16
         }
       ],
       "seed_term": "GO:0016581",
@@ -979,43 +1483,71 @@
           "rank": 1,
           "kl": 2.4082828558001554,
           "tv": 0.7170009140151179,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999981,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 7.722684340353763e-15
         },
         {
           "rank": 2,
-          "kl": 1.1723139442089952,
+          "kl": 1.1723139442089967,
           "tv": 0.09173095603377951,
-          "gap_closed": 0.8720629859171345
+          "gap_closed": 0.8720629859171345,
+          "projected": true,
+          "pre_projection_sum": 0.9202393947855261,
+          "projected_negative_mass": 0.004630405471784968,
+          "min_value_before_projection": -0.0036267666664194054
         },
         {
           "rank": 4,
-          "kl": 1.263228974397614e-16,
-          "tv": 5.147619060731091e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": -1.212167072074751e-16,
+          "tv": 4.3884057861026965e-16,
+          "gap_closed": 0.9999999999999993,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.291871480262256e-16
         },
         {
           "rank": 8,
-          "kl": 1.263228974397614e-16,
-          "tv": 5.147619060731091e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": -1.212167072074751e-16,
+          "tv": 4.3884057861026965e-16,
+          "gap_closed": 0.9999999999999993,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.291871480262256e-16
         },
         {
           "rank": 10,
-          "kl": 1.263228974397614e-16,
-          "tv": 5.147619060731091e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": -1.212167072074751e-16,
+          "tv": 4.3884057861026965e-16,
+          "gap_closed": 0.9999999999999993,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.291871480262256e-16
         },
         {
           "rank": 12,
-          "kl": 1.263228974397614e-16,
-          "tv": 5.147619060731091e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": -1.212167072074751e-16,
+          "tv": 4.3884057861026965e-16,
+          "gap_closed": 0.9999999999999993,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.291871480262256e-16
         },
         {
           "rank": 16,
-          "kl": 1.263228974397614e-16,
-          "tv": 5.147619060731091e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": -1.212167072074751e-16,
+          "tv": 4.3884057861026965e-16,
+          "gap_closed": 0.9999999999999993,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.291871480262256e-16
         }
       ],
       "seed_term": "GO:0030140",
@@ -1032,43 +1564,71 @@
           "rank": 1,
           "kl": 0.604740327866522,
           "tv": 0.38428713416701704,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000007,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 3.1325301143700634e-06
         },
         {
           "rank": 2,
-          "kl": 0.034285497352792904,
-          "tv": 0.007221025681421773,
-          "gap_closed": 0.9812092962803084
+          "kl": 0.03428549735279304,
+          "tv": 0.00722102568142169,
+          "gap_closed": 0.9812092962803086,
+          "projected": true,
+          "pre_projection_sum": 0.9937600089834204,
+          "projected_negative_mass": 2.591549715958207e-06,
+          "min_value_before_projection": -5.437306341556516e-07
         },
         {
           "rank": 4,
-          "kl": 3.475174947728232e-16,
-          "tv": 3.222649975272947e-16,
-          "gap_closed": 0.9999999999999991
+          "kl": 5.037672467616283e-16,
+          "tv": 4.771342016248446e-16,
+          "gap_closed": 0.9999999999999987,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.547628132857197e-17
         },
         {
           "rank": 8,
-          "kl": 3.475174947728232e-16,
-          "tv": 3.222649975272947e-16,
-          "gap_closed": 0.9999999999999991
+          "kl": 5.037672467616283e-16,
+          "tv": 4.771342016248446e-16,
+          "gap_closed": 0.9999999999999987,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.547628132857197e-17
         },
         {
           "rank": 10,
-          "kl": 3.475174947728232e-16,
-          "tv": 3.222649975272947e-16,
-          "gap_closed": 0.9999999999999991
+          "kl": 5.037672467616283e-16,
+          "tv": 4.771342016248446e-16,
+          "gap_closed": 0.9999999999999987,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.547628132857197e-17
         },
         {
           "rank": 12,
-          "kl": 3.475174947728232e-16,
-          "tv": 3.222649975272947e-16,
-          "gap_closed": 0.9999999999999991
+          "kl": 5.037672467616283e-16,
+          "tv": 4.771342016248446e-16,
+          "gap_closed": 0.9999999999999987,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.547628132857197e-17
         },
         {
           "rank": 16,
-          "kl": 3.475174947728232e-16,
-          "tv": 3.222649975272947e-16,
-          "gap_closed": 0.9999999999999991
+          "kl": 5.037672467616283e-16,
+          "tv": 4.771342016248446e-16,
+          "gap_closed": 0.9999999999999987,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.547628132857197e-17
         }
       ],
       "seed_term": "GO:0030532",
@@ -1078,50 +1638,78 @@
       "w": 8,
       "n_models": 19,
       "exact_rank": 4,
-      "kl_rank1": 0.9640716552767862,
+      "kl_rank1": 0.964071655276786,
       "tv_rank1": 0.497805713489678,
       "rows": [
         {
           "rank": 1,
-          "kl": 0.9640716552767862,
+          "kl": 0.964071655276786,
           "tv": 0.497805713489678,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000004,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 5.1158211052780924e-09
         },
         {
           "rank": 2,
-          "kl": 0.27700632767921896,
+          "kl": 0.2770063276792196,
           "tv": 0.1350739765069775,
-          "gap_closed": 0.7286612570994964
+          "gap_closed": 0.7286612570994964,
+          "projected": true,
+          "pre_projection_sum": 0.9306412710943609,
+          "projected_negative_mass": 0.02368908882200285,
+          "min_value_before_projection": -0.006414675352277116
         },
         {
           "rank": 4,
-          "kl": 5.760174443649234e-16,
-          "tv": 7.9361348727967495e-16,
-          "gap_closed": 0.9999999999999984
+          "kl": 3.528040087829645e-16,
+          "tv": 4.689957504520419e-16,
+          "gap_closed": 0.9999999999999991,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000013,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -5.778701938700659e-17
         },
         {
           "rank": 8,
-          "kl": 5.760174443649234e-16,
-          "tv": 7.9361348727967495e-16,
-          "gap_closed": 0.9999999999999984
+          "kl": 3.528040087829645e-16,
+          "tv": 4.689957504520419e-16,
+          "gap_closed": 0.9999999999999991,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000013,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -5.778701938700659e-17
         },
         {
           "rank": 10,
-          "kl": 5.760174443649234e-16,
-          "tv": 7.9361348727967495e-16,
-          "gap_closed": 0.9999999999999984
+          "kl": 3.528040087829645e-16,
+          "tv": 4.689957504520419e-16,
+          "gap_closed": 0.9999999999999991,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000013,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -5.778701938700659e-17
         },
         {
           "rank": 12,
-          "kl": 5.760174443649234e-16,
-          "tv": 7.9361348727967495e-16,
-          "gap_closed": 0.9999999999999984
+          "kl": 3.528040087829645e-16,
+          "tv": 4.689957504520419e-16,
+          "gap_closed": 0.9999999999999991,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000013,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -5.778701938700659e-17
         },
         {
           "rank": 16,
-          "kl": 5.760174443649234e-16,
-          "tv": 7.9361348727967495e-16,
-          "gap_closed": 0.9999999999999984
+          "kl": 3.528040087829645e-16,
+          "tv": 4.689957504520419e-16,
+          "gap_closed": 0.9999999999999991,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000013,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -5.778701938700659e-17
         }
       ],
       "seed_term": "GO:0031429",
@@ -1138,43 +1726,71 @@
           "rank": 1,
           "kl": 0.9807722287875345,
           "tv": 0.4197155094049947,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000009,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 5.169316945748645e-09
         },
         {
           "rank": 2,
-          "kl": 0.2548995435993093,
-          "tv": 0.07299512874581236,
-          "gap_closed": 0.8260842711071288
+          "kl": 0.25489954359930955,
+          "tv": 0.07299512874581239,
+          "gap_closed": 0.8260842711071288,
+          "projected": true,
+          "pre_projection_sum": 0.9568590698975925,
+          "projected_negative_mass": 0.0027664129119325306,
+          "min_value_before_projection": -0.0027199534131559125
         },
         {
           "rank": 4,
-          "kl": 3.0236237989927697e-16,
-          "tv": 4.286443682017715e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 3.123226384993756e-16,
+          "tv": 6.399508713979679e-16,
+          "gap_closed": 0.9999999999999984,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999994,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -5.926277484132034e-17
         },
         {
           "rank": 8,
-          "kl": 3.0236237989927697e-16,
-          "tv": 4.286443682017715e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 3.123226384993756e-16,
+          "tv": 6.399508713979679e-16,
+          "gap_closed": 0.9999999999999984,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999994,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -5.926277484132034e-17
         },
         {
           "rank": 10,
-          "kl": 3.0236237989927697e-16,
-          "tv": 4.286443682017715e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 3.123226384993756e-16,
+          "tv": 6.399508713979679e-16,
+          "gap_closed": 0.9999999999999984,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999994,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -5.926277484132034e-17
         },
         {
           "rank": 12,
-          "kl": 3.0236237989927697e-16,
-          "tv": 4.286443682017715e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 3.123226384993756e-16,
+          "tv": 6.399508713979679e-16,
+          "gap_closed": 0.9999999999999984,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999994,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -5.926277484132034e-17
         },
         {
           "rank": 16,
-          "kl": 3.0236237989927697e-16,
-          "tv": 4.286443682017715e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 3.123226384993756e-16,
+          "tv": 6.399508713979679e-16,
+          "gap_closed": 0.9999999999999984,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999994,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -5.926277484132034e-17
         }
       ],
       "seed_term": "GO:0031502",
@@ -1184,50 +1800,78 @@
       "w": 8,
       "n_models": 14,
       "exact_rank": 5,
-      "kl_rank1": 0.6748711007948172,
+      "kl_rank1": 0.674871100794817,
       "tv_rank1": 0.2911951526845781,
       "rows": [
         {
           "rank": 1,
-          "kl": 0.6748711007948172,
+          "kl": 0.674871100794817,
           "tv": 0.2911951526845781,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000009,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 6.350475398947558e-10
         },
         {
           "rank": 2,
-          "kl": 0.5066907964780932,
-          "tv": 0.08368802178689014,
-          "gap_closed": 0.7126050313154051
+          "kl": 0.5066907964780929,
+          "tv": 0.0836880217868901,
+          "gap_closed": 0.7126050313154052,
+          "projected": true,
+          "pre_projection_sum": 0.9222538544618772,
+          "projected_negative_mass": 0.0039378215538852105,
+          "min_value_before_projection": -0.0004299748298512562
         },
         {
           "rank": 4,
-          "kl": 0.010872013802672083,
-          "tv": 0.011725862940442786,
-          "gap_closed": 0.9597319432265954
+          "kl": 0.010872013802671526,
+          "tv": 0.011725862940442188,
+          "gap_closed": 0.9597319432265975,
+          "projected": true,
+          "pre_projection_sum": 1.0000480667716405,
+          "projected_negative_mass": 0.0038802021352250696,
+          "min_value_before_projection": -0.003840004616317376
         },
         {
           "rank": 8,
-          "kl": 6.592641491964757e-16,
-          "tv": 7.242661656702172e-16,
-          "gap_closed": 0.9999999999999976
+          "kl": 4.723507712758289e-16,
+          "tv": 5.94248764506745e-16,
+          "gap_closed": 0.9999999999999979,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.9820273809487648e-16
         },
         {
           "rank": 10,
-          "kl": 6.592641491964757e-16,
-          "tv": 7.242661656702172e-16,
-          "gap_closed": 0.9999999999999976
+          "kl": 4.723507712758289e-16,
+          "tv": 5.94248764506745e-16,
+          "gap_closed": 0.9999999999999979,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.9820273809487648e-16
         },
         {
           "rank": 12,
-          "kl": 6.592641491964757e-16,
-          "tv": 7.242661656702172e-16,
-          "gap_closed": 0.9999999999999976
+          "kl": 4.723507712758289e-16,
+          "tv": 5.94248764506745e-16,
+          "gap_closed": 0.9999999999999979,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.9820273809487648e-16
         },
         {
           "rank": 16,
-          "kl": 6.592641491964757e-16,
-          "tv": 7.242661656702172e-16,
-          "gap_closed": 0.9999999999999976
+          "kl": 4.723507712758289e-16,
+          "tv": 5.94248764506745e-16,
+          "gap_closed": 0.9999999999999979,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.9820273809487648e-16
         }
       ],
       "seed_term": "GO:0031676",
@@ -1244,43 +1888,71 @@
           "rank": 1,
           "kl": 3.433206763835893,
           "tv": 0.8585352013912059,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999997,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 7.778625362259654e-09
         },
         {
           "rank": 2,
-          "kl": 0.5909724410841503,
-          "tv": 0.1889892371672435,
-          "gap_closed": 0.7798701359466711
+          "kl": 0.5909724410841455,
+          "tv": 0.18898923716724333,
+          "gap_closed": 0.7798701359466712,
+          "projected": true,
+          "pre_projection_sum": 0.9261847463883034,
+          "projected_negative_mass": 0.0023036109410421468,
+          "min_value_before_projection": -0.0004422392703823621
         },
         {
           "rank": 4,
-          "kl": 0.06219093668035594,
-          "tv": 0.026032536135453848,
-          "gap_closed": 0.9696779630080751
+          "kl": 0.06219093668035522,
+          "tv": 0.026032536135453727,
+          "gap_closed": 0.9696779630080752,
+          "projected": true,
+          "pre_projection_sum": 0.9829913799176673,
+          "projected_negative_mass": 0.003926958216731204,
+          "min_value_before_projection": -0.0015192150940463891
         },
         {
           "rank": 8,
-          "kl": 1.2339562628683303e-15,
-          "tv": 1.2173823125856177e-15,
-          "gap_closed": 0.9999999999999986
+          "kl": 5.976052230699121e-16,
+          "tv": 9.191114831459755e-16,
+          "gap_closed": 0.999999999999999,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999986,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.379985626846633e-16
         },
         {
           "rank": 10,
-          "kl": 1.2339562628683303e-15,
-          "tv": 1.2173823125856177e-15,
-          "gap_closed": 0.9999999999999986
+          "kl": 5.976052230699121e-16,
+          "tv": 9.191114831459755e-16,
+          "gap_closed": 0.999999999999999,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999986,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.379985626846633e-16
         },
         {
           "rank": 12,
-          "kl": 1.2339562628683303e-15,
-          "tv": 1.2173823125856177e-15,
-          "gap_closed": 0.9999999999999986
+          "kl": 5.976052230699121e-16,
+          "tv": 9.191114831459755e-16,
+          "gap_closed": 0.999999999999999,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999986,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.379985626846633e-16
         },
         {
           "rank": 16,
-          "kl": 1.2339562628683303e-15,
-          "tv": 1.2173823125856177e-15,
-          "gap_closed": 0.9999999999999986
+          "kl": 5.976052230699121e-16,
+          "tv": 9.191114831459755e-16,
+          "gap_closed": 0.999999999999999,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999986,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.379985626846633e-16
         }
       ],
       "seed_term": "GO:0032174",
@@ -1297,43 +1969,71 @@
           "rank": 1,
           "kl": 3.746695745643975,
           "tv": 0.9030201038583797,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 4.8086561191170944e-08
         },
         {
           "rank": 2,
-          "kl": 0.9748788296118605,
-          "tv": 0.22395239604820724,
-          "gap_closed": 0.7519962234602369
+          "kl": 0.9748788296118628,
+          "tv": 0.2239523960482072,
+          "gap_closed": 0.751996223460237,
+          "projected": true,
+          "pre_projection_sum": 0.8723527877193216,
+          "projected_negative_mass": 0.0021714876419183494,
+          "min_value_before_projection": -0.0011114614903241175
         },
         {
           "rank": 4,
-          "kl": 0.008265905131676878,
-          "tv": 0.008175335553037908,
-          "gap_closed": 0.9909466738136762
+          "kl": 0.008265905131677024,
+          "tv": 0.00817533555303812,
+          "gap_closed": 0.9909466738136761,
+          "projected": true,
+          "pre_projection_sum": 1.0057418619499516,
+          "projected_negative_mass": 9.526966760248236e-05,
+          "min_value_before_projection": -3.9485707231502446e-05
         },
         {
           "rank": 8,
-          "kl": 1.7975932744943412e-15,
-          "tv": 1.9853168021204024e-15,
-          "gap_closed": 0.9999999999999978
+          "kl": 1.307757218471723e-15,
+          "tv": 1.6796699322110215e-15,
+          "gap_closed": 0.9999999999999981,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000024,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.662917565119674e-17
         },
         {
           "rank": 10,
-          "kl": 1.7975932744943412e-15,
-          "tv": 1.9853168021204024e-15,
-          "gap_closed": 0.9999999999999978
+          "kl": 1.307757218471723e-15,
+          "tv": 1.6796699322110215e-15,
+          "gap_closed": 0.9999999999999981,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000024,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.662917565119674e-17
         },
         {
           "rank": 12,
-          "kl": 1.7975932744943412e-15,
-          "tv": 1.9853168021204024e-15,
-          "gap_closed": 0.9999999999999978
+          "kl": 1.307757218471723e-15,
+          "tv": 1.6796699322110215e-15,
+          "gap_closed": 0.9999999999999981,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000024,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.662917565119674e-17
         },
         {
           "rank": 16,
-          "kl": 1.7975932744943412e-15,
-          "tv": 1.9853168021204024e-15,
-          "gap_closed": 0.9999999999999978
+          "kl": 1.307757218471723e-15,
+          "tv": 1.6796699322110215e-15,
+          "gap_closed": 0.9999999999999981,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000024,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.662917565119674e-17
         }
       ],
       "seed_term": "GO:0032177",
@@ -1350,43 +2050,71 @@
           "rank": 1,
           "kl": 2.160460525635587,
           "tv": 0.7092577862218621,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999983,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 2.595387802959886e-14
         },
         {
           "rank": 2,
-          "kl": 0.8384386228332907,
+          "kl": 0.8384386228332918,
           "tv": 0.25408499349234404,
-          "gap_closed": 0.6417593173762297
+          "gap_closed": 0.6417593173762297,
+          "projected": true,
+          "pre_projection_sum": 0.7683149928012976,
+          "projected_negative_mass": 0.08661719957000999,
+          "min_value_before_projection": -0.023255943133944253
         },
         {
           "rank": 4,
-          "kl": 0.03516638959670903,
-          "tv": 0.03114054270960317,
-          "gap_closed": 0.9560941827999021
+          "kl": 0.03516638959670943,
+          "tv": 0.03114054270960358,
+          "gap_closed": 0.9560941827999017,
+          "projected": true,
+          "pre_projection_sum": 1.017090754805061,
+          "projected_negative_mass": 0.006394252196644511,
+          "min_value_before_projection": -0.0009513242720073544
         },
         {
           "rank": 8,
-          "kl": 1.0090335767831774e-15,
-          "tv": 4.4070035073129064e-15,
-          "gap_closed": 0.9999999999999938
+          "kl": 1.408477942447657e-15,
+          "tv": 4.376055563946926e-15,
+          "gap_closed": 0.9999999999999939,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999972,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.0689278171795114e-15
         },
         {
           "rank": 10,
-          "kl": 1.0090335767831774e-15,
-          "tv": 4.4070035073129064e-15,
-          "gap_closed": 0.9999999999999938
+          "kl": 1.408477942447657e-15,
+          "tv": 4.376055563946926e-15,
+          "gap_closed": 0.9999999999999939,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999972,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.0689278171795114e-15
         },
         {
           "rank": 12,
-          "kl": 1.0090335767831774e-15,
-          "tv": 4.4070035073129064e-15,
-          "gap_closed": 0.9999999999999938
+          "kl": 1.408477942447657e-15,
+          "tv": 4.376055563946926e-15,
+          "gap_closed": 0.9999999999999939,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999972,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.0689278171795114e-15
         },
         {
           "rank": 16,
-          "kl": 1.0090335767831774e-15,
-          "tv": 4.4070035073129064e-15,
-          "gap_closed": 0.9999999999999938
+          "kl": 1.408477942447657e-15,
+          "tv": 4.376055563946926e-15,
+          "gap_closed": 0.9999999999999939,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999972,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.0689278171795114e-15
         }
       ],
       "seed_term": "GO:0032983",
@@ -1403,43 +2131,71 @@
           "rank": 1,
           "kl": 0.8999923447663418,
           "tv": 0.24416373103214595,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000009,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 1.0871714938514212e-13
         },
         {
           "rank": 2,
-          "kl": 2.335281054945308,
-          "tv": 0.06042122354165594,
-          "gap_closed": 0.7525380887397193
+          "kl": 2.335281059579978,
+          "tv": 0.06042122354165588,
+          "gap_closed": 0.7525380887397195,
+          "projected": true,
+          "pre_projection_sum": 0.9397199185379547,
+          "projected_negative_mass": 0.011963459486654074,
+          "min_value_before_projection": -0.006345607262457497
         },
         {
           "rank": 4,
-          "kl": 0.010427337387516599,
-          "tv": 0.009201548718862277,
-          "gap_closed": 0.9623140231353574
+          "kl": 0.010427337387516049,
+          "tv": 0.0092015487188617,
+          "gap_closed": 0.9623140231353597,
+          "projected": true,
+          "pre_projection_sum": 1.0007700002008355,
+          "projected_negative_mass": 0.00194600853587416,
+          "min_value_before_projection": -0.00030484862289805554
         },
         {
           "rank": 8,
-          "kl": 8.525881011581856e-16,
-          "tv": 1.082693919136753e-15,
-          "gap_closed": 0.9999999999999956
+          "kl": 1.4740891956618898e-15,
+          "tv": 1.4784506750836442e-15,
+          "gap_closed": 0.999999999999994,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000029,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.2446290764184856e-17
         },
         {
           "rank": 10,
-          "kl": 8.525881011581856e-16,
-          "tv": 1.082693919136753e-15,
-          "gap_closed": 0.9999999999999956
+          "kl": 1.4740891956618898e-15,
+          "tv": 1.4784506750836442e-15,
+          "gap_closed": 0.999999999999994,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000029,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.2446290764184856e-17
         },
         {
           "rank": 12,
-          "kl": 8.525881011581856e-16,
-          "tv": 1.082693919136753e-15,
-          "gap_closed": 0.9999999999999956
+          "kl": 1.4740891956618898e-15,
+          "tv": 1.4784506750836442e-15,
+          "gap_closed": 0.999999999999994,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000029,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.2446290764184856e-17
         },
         {
           "rank": 16,
-          "kl": 8.525881011581856e-16,
-          "tv": 1.082693919136753e-15,
-          "gap_closed": 0.9999999999999956
+          "kl": 1.4740891956618898e-15,
+          "tv": 1.4784506750836442e-15,
+          "gap_closed": 0.999999999999994,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000029,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.2446290764184856e-17
         }
       ],
       "seed_term": "GO:0033176",
@@ -1449,50 +2205,78 @@
       "w": 10,
       "n_models": 35,
       "exact_rank": 6,
-      "kl_rank1": 2.0030333374149873,
+      "kl_rank1": 2.003033337414987,
       "tv_rank1": 0.7294038305631079,
       "rows": [
         {
           "rank": 1,
-          "kl": 2.0030333374149873,
+          "kl": 2.003033337414987,
           "tv": 0.7294038305631079,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999981,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 1.493831600002899e-09
         },
         {
           "rank": 2,
-          "kl": 0.5536761857244925,
-          "tv": 0.1458475847127431,
-          "gap_closed": 0.8000454911236933
+          "kl": 0.5536761857244913,
+          "tv": 0.14584758471274312,
+          "gap_closed": 0.8000454911236932,
+          "projected": true,
+          "pre_projection_sum": 0.9243943375156853,
+          "projected_negative_mass": 0.0026899131890444575,
+          "min_value_before_projection": -0.0006367622115594898
         },
         {
           "rank": 4,
-          "kl": 0.028804965768356262,
-          "tv": 0.0176207643341094,
-          "gap_closed": 0.9758422377347457
+          "kl": 0.028804965768356162,
+          "tv": 0.01762076433410943,
+          "gap_closed": 0.9758422377347457,
+          "projected": true,
+          "pre_projection_sum": 0.9944927113306437,
+          "projected_negative_mass": 0.0022965891974483614,
+          "min_value_before_projection": -0.00062086226989389
         },
         {
           "rank": 8,
-          "kl": 3.614895756736762e-16,
-          "tv": 7.082695575352981e-16,
-          "gap_closed": 0.9999999999999991
+          "kl": 3.659923188844868e-16,
+          "tv": 1.0643238650434487e-15,
+          "gap_closed": 0.9999999999999984,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.1660165671798412e-16
         },
         {
           "rank": 10,
-          "kl": 3.614895756736762e-16,
-          "tv": 7.082695575352981e-16,
-          "gap_closed": 0.9999999999999991
+          "kl": 3.659923188844868e-16,
+          "tv": 1.0643238650434487e-15,
+          "gap_closed": 0.9999999999999984,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.1660165671798412e-16
         },
         {
           "rank": 12,
-          "kl": 3.614895756736762e-16,
-          "tv": 7.082695575352981e-16,
-          "gap_closed": 0.9999999999999991
+          "kl": 3.659923188844868e-16,
+          "tv": 1.0643238650434487e-15,
+          "gap_closed": 0.9999999999999984,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.1660165671798412e-16
         },
         {
           "rank": 16,
-          "kl": 3.614895756736762e-16,
-          "tv": 7.082695575352981e-16,
-          "gap_closed": 0.9999999999999991
+          "kl": 3.659923188844868e-16,
+          "tv": 1.0643238650434487e-15,
+          "gap_closed": 0.9999999999999984,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.1660165671798412e-16
         }
       ],
       "seed_term": "GO:0033573",
@@ -1502,50 +2286,78 @@
       "w": 13,
       "n_models": 45,
       "exact_rank": 10,
-      "kl_rank1": 1.2613307892867154,
+      "kl_rank1": 1.2613307892867152,
       "tv_rank1": 0.48365195824085605,
       "rows": [
         {
           "rank": 1,
-          "kl": 1.2613307892867154,
+          "kl": 1.2613307892867152,
           "tv": 0.48365195824085605,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000004,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 5.564333982181889e-18
         },
         {
           "rank": 2,
-          "kl": 0.9936485405645364,
-          "tv": 0.14850571322341174,
-          "gap_closed": 0.6929492154574163
+          "kl": 0.9936485405708955,
+          "tv": 0.14850571322341188,
+          "gap_closed": 0.6929492154574161,
+          "projected": true,
+          "pre_projection_sum": 0.916489247681683,
+          "projected_negative_mass": 0.006958664611045114,
+          "min_value_before_projection": -0.00286119872597845
         },
         {
           "rank": 4,
-          "kl": 0.17494404275252526,
-          "tv": 0.05270885569868787,
-          "gap_closed": 0.8910190379660592
+          "kl": 0.17494404275252418,
+          "tv": 0.05270885569868767,
+          "gap_closed": 0.8910190379660596,
+          "projected": true,
+          "pre_projection_sum": 0.9703064784223597,
+          "projected_negative_mass": 0.002926383614694236,
+          "min_value_before_projection": -0.0007513787972293438
         },
         {
           "rank": 8,
-          "kl": 0.007197439310459287,
-          "tv": 0.004245473299887337,
-          "gap_closed": 0.9912220487738145
+          "kl": 0.00719743931045976,
+          "tv": 0.004245473299887322,
+          "gap_closed": 0.9912220487738145,
+          "projected": true,
+          "pre_projection_sum": 0.998716698979909,
+          "projected_negative_mass": 0.0008156260041773748,
+          "min_value_before_projection": -0.0001132332619513952
         },
         {
           "rank": 10,
-          "kl": 3.265909389713567e-15,
-          "tv": 3.681188064997899e-15,
-          "gap_closed": 0.9999999999999925
+          "kl": 2.5460221459096828e-15,
+          "tv": 2.8409356169744944e-15,
+          "gap_closed": 0.9999999999999941,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000013,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.2393813662045065e-16
         },
         {
           "rank": 12,
-          "kl": 3.265909389713567e-15,
-          "tv": 3.681188064997899e-15,
-          "gap_closed": 0.9999999999999925
+          "kl": 2.5460221459096828e-15,
+          "tv": 2.8409356169744944e-15,
+          "gap_closed": 0.9999999999999941,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000013,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.2393813662045065e-16
         },
         {
           "rank": 16,
-          "kl": 3.265909389713567e-15,
-          "tv": 3.681188064997899e-15,
-          "gap_closed": 0.9999999999999925
+          "kl": 2.5460221459096828e-15,
+          "tv": 2.8409356169744944e-15,
+          "gap_closed": 0.9999999999999941,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000013,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.2393813662045065e-16
         }
       ],
       "seed_term": "GO:0043494",
@@ -1562,43 +2374,71 @@
           "rank": 1,
           "kl": 0.928094742384316,
           "tv": 0.4629833321463656,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000007,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 4.911152775453869e-10
         },
         {
           "rank": 2,
-          "kl": 0.06871931704235168,
-          "tv": 0.04078921354854421,
-          "gap_closed": 0.9118991749455696
+          "kl": 0.06871931704235193,
+          "tv": 0.04078921354854423,
+          "gap_closed": 0.9118991749455696,
+          "projected": true,
+          "pre_projection_sum": 0.987029711663846,
+          "projected_negative_mass": 0.0025926889456958442,
+          "min_value_before_projection": -0.0009388128466226253
         },
         {
           "rank": 4,
-          "kl": 6.520937354862788e-16,
-          "tv": 5.177474569606908e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 5.830028405097385e-16,
+          "tv": 4.556886112403391e-16,
+          "gap_closed": 0.999999999999999,
+          "projected": false,
+          "pre_projection_sum": 0.999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.615594508126297e-18
         },
         {
           "rank": 8,
-          "kl": 6.520937354862788e-16,
-          "tv": 5.177474569606908e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 5.830028405097385e-16,
+          "tv": 4.556886112403391e-16,
+          "gap_closed": 0.999999999999999,
+          "projected": false,
+          "pre_projection_sum": 0.999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.615594508126297e-18
         },
         {
           "rank": 10,
-          "kl": 6.520937354862788e-16,
-          "tv": 5.177474569606908e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 5.830028405097385e-16,
+          "tv": 4.556886112403391e-16,
+          "gap_closed": 0.999999999999999,
+          "projected": false,
+          "pre_projection_sum": 0.999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.615594508126297e-18
         },
         {
           "rank": 12,
-          "kl": 6.520937354862788e-16,
-          "tv": 5.177474569606908e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 5.830028405097385e-16,
+          "tv": 4.556886112403391e-16,
+          "gap_closed": 0.999999999999999,
+          "projected": false,
+          "pre_projection_sum": 0.999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.615594508126297e-18
         },
         {
           "rank": 16,
-          "kl": 6.520937354862788e-16,
-          "tv": 5.177474569606908e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 5.830028405097385e-16,
+          "tv": 4.556886112403391e-16,
+          "gap_closed": 0.999999999999999,
+          "projected": false,
+          "pre_projection_sum": 0.999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.615594508126297e-18
         }
       ],
       "seed_term": "GO:0043541",
@@ -1615,43 +2455,71 @@
           "rank": 1,
           "kl": 1.3710421346595851,
           "tv": 0.550745659670527,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000004,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 4.508443847295409e-09
         },
         {
           "rank": 2,
-          "kl": 0.8513974643407255,
-          "tv": 0.18543768156598608,
-          "gap_closed": 0.6632970622466265
+          "kl": 0.851397464340776,
+          "tv": 0.1854376815659862,
+          "gap_closed": 0.6632970622466263,
+          "projected": true,
+          "pre_projection_sum": 0.8357481288608011,
+          "projected_negative_mass": 0.0014880047482536698,
+          "min_value_before_projection": -0.00023724999341217997
         },
         {
           "rank": 4,
-          "kl": 0.07957597598608755,
-          "tv": 0.0211968560449636,
-          "gap_closed": 0.961512441046482
+          "kl": 0.07957597598608757,
+          "tv": 0.021196856044963693,
+          "gap_closed": 0.9615124410464818,
+          "projected": true,
+          "pre_projection_sum": 0.9830194463107922,
+          "projected_negative_mass": 0.00026323455942040545,
+          "min_value_before_projection": -6.52158449437862e-05
         },
         {
           "rank": 8,
-          "kl": 2.2674515416970666e-16,
-          "tv": 2.178780328888294e-15,
-          "gap_closed": 0.999999999999996
+          "kl": 1.31873010990526e-16,
+          "tv": 2.1687201719496258e-15,
+          "gap_closed": 0.999999999999996,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999905,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -8.730074377675125e-16
         },
         {
           "rank": 10,
-          "kl": 2.2674515416970666e-16,
-          "tv": 2.178780328888294e-15,
-          "gap_closed": 0.999999999999996
+          "kl": 1.31873010990526e-16,
+          "tv": 2.1687201719496258e-15,
+          "gap_closed": 0.999999999999996,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999905,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -8.730074377675125e-16
         },
         {
           "rank": 12,
-          "kl": 2.2674515416970666e-16,
-          "tv": 2.178780328888294e-15,
-          "gap_closed": 0.999999999999996
+          "kl": 1.31873010990526e-16,
+          "tv": 2.1687201719496258e-15,
+          "gap_closed": 0.999999999999996,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999905,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -8.730074377675125e-16
         },
         {
           "rank": 16,
-          "kl": 2.2674515416970666e-16,
-          "tv": 2.178780328888294e-15,
-          "gap_closed": 0.999999999999996
+          "kl": 1.31873010990526e-16,
+          "tv": 2.1687201719496258e-15,
+          "gap_closed": 0.999999999999996,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999905,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -8.730074377675125e-16
         }
       ],
       "seed_term": "GO:0044799",
@@ -1668,43 +2536,71 @@
           "rank": 1,
           "kl": 0.6909139251692583,
           "tv": 0.33889981617841636,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999989,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 2.6433134476339875e-12
         },
         {
           "rank": 2,
-          "kl": 0.015456995468064344,
-          "tv": 0.002189590138304959,
-          "gap_closed": 0.9935391226734918
+          "kl": 0.01545699546806113,
+          "tv": 0.0021895901383049724,
+          "gap_closed": 0.9935391226734915,
+          "projected": true,
+          "pre_projection_sum": 0.998097579336808,
+          "projected_negative_mass": 2.323392952112318e-07,
+          "min_value_before_projection": -6.537565242729497e-08
         },
         {
           "rank": 4,
-          "kl": 6.734631673091423e-16,
-          "tv": 9.806005563953317e-16,
-          "gap_closed": 0.999999999999997
+          "kl": 8.221509750134315e-16,
+          "tv": 1.0443733646485526e-15,
+          "gap_closed": 0.9999999999999969,
+          "projected": false,
+          "pre_projection_sum": 1.0,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.2686497775793084e-16
         },
         {
           "rank": 8,
-          "kl": 6.734631673091423e-16,
-          "tv": 9.806005563953317e-16,
-          "gap_closed": 0.999999999999997
+          "kl": 8.221509750134315e-16,
+          "tv": 1.0443733646485526e-15,
+          "gap_closed": 0.9999999999999969,
+          "projected": false,
+          "pre_projection_sum": 1.0,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.2686497775793084e-16
         },
         {
           "rank": 10,
-          "kl": 6.734631673091423e-16,
-          "tv": 9.806005563953317e-16,
-          "gap_closed": 0.999999999999997
+          "kl": 8.221509750134315e-16,
+          "tv": 1.0443733646485526e-15,
+          "gap_closed": 0.9999999999999969,
+          "projected": false,
+          "pre_projection_sum": 1.0,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.2686497775793084e-16
         },
         {
           "rank": 12,
-          "kl": 6.734631673091423e-16,
-          "tv": 9.806005563953317e-16,
-          "gap_closed": 0.999999999999997
+          "kl": 8.221509750134315e-16,
+          "tv": 1.0443733646485526e-15,
+          "gap_closed": 0.9999999999999969,
+          "projected": false,
+          "pre_projection_sum": 1.0,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.2686497775793084e-16
         },
         {
           "rank": 16,
-          "kl": 6.734631673091423e-16,
-          "tv": 9.806005563953317e-16,
-          "gap_closed": 0.999999999999997
+          "kl": 8.221509750134315e-16,
+          "tv": 1.0443733646485526e-15,
+          "gap_closed": 0.9999999999999969,
+          "projected": false,
+          "pre_projection_sum": 1.0,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -2.2686497775793084e-16
         }
       ],
       "seed_term": "GO:0045252",
@@ -1714,50 +2610,78 @@
       "w": 10,
       "n_models": 39,
       "exact_rank": 5,
-      "kl_rank1": 1.5650798533027106,
+      "kl_rank1": 1.5650798533027102,
       "tv_rank1": 0.5827490537486067,
       "rows": [
         {
           "rank": 1,
-          "kl": 1.5650798533027106,
+          "kl": 1.5650798533027102,
           "tv": 0.5827490537486067,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 2.5612912487741416e-10
         },
         {
           "rank": 2,
-          "kl": 0.7632512857436079,
-          "tv": 0.2210267644336293,
-          "gap_closed": 0.620717077081727
+          "kl": 0.7632512857436085,
+          "tv": 0.22102676443362926,
+          "gap_closed": 0.6207170770817272,
+          "projected": true,
+          "pre_projection_sum": 0.8660676441332361,
+          "projected_negative_mass": 0.014064430324009895,
+          "min_value_before_projection": -0.005227683428685669
         },
         {
           "rank": 4,
-          "kl": 0.02917593828768404,
-          "tv": 0.017291050071277857,
-          "gap_closed": 0.9703284802265212
+          "kl": 0.02917593828768433,
+          "tv": 0.01729105007127791,
+          "gap_closed": 0.970328480226521,
+          "projected": true,
+          "pre_projection_sum": 0.9936637163792761,
+          "projected_negative_mass": 0.001405953833205114,
+          "min_value_before_projection": -0.0005669407689152326
         },
         {
           "rank": 8,
-          "kl": 2.421610415604253e-16,
-          "tv": 6.291904739615653e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 6.916975863930684e-16,
+          "tv": 7.600658065897175e-16,
+          "gap_closed": 0.9999999999999987,
+          "projected": false,
+          "pre_projection_sum": 1.000000000000003,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.7885061159545053e-17
         },
         {
           "rank": 10,
-          "kl": 2.421610415604253e-16,
-          "tv": 6.291904739615653e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 6.916975863930684e-16,
+          "tv": 7.600658065897175e-16,
+          "gap_closed": 0.9999999999999987,
+          "projected": false,
+          "pre_projection_sum": 1.000000000000003,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.7885061159545053e-17
         },
         {
           "rank": 12,
-          "kl": 2.421610415604253e-16,
-          "tv": 6.291904739615653e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 6.916975863930684e-16,
+          "tv": 7.600658065897175e-16,
+          "gap_closed": 0.9999999999999987,
+          "projected": false,
+          "pre_projection_sum": 1.000000000000003,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.7885061159545053e-17
         },
         {
           "rank": 16,
-          "kl": 2.421610415604253e-16,
-          "tv": 6.291904739615653e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 6.916975863930684e-16,
+          "tv": 7.600658065897175e-16,
+          "gap_closed": 0.9999999999999987,
+          "projected": false,
+          "pre_projection_sum": 1.000000000000003,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.7885061159545053e-17
         }
       ],
       "seed_term": "GO:0045271",
@@ -1774,43 +2698,71 @@
           "rank": 1,
           "kl": 0.6718817301023687,
           "tv": 0.38966999966753474,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000004,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 5.095250264518598e-08
         },
         {
           "rank": 2,
-          "kl": 0.07350187366024413,
-          "tv": 0.007888066135534767,
-          "gap_closed": 0.979757060737894
+          "kl": 0.07350187366024406,
+          "tv": 0.007888066135534744,
+          "gap_closed": 0.9797570607378941,
+          "projected": true,
+          "pre_projection_sum": 0.992201711419689,
+          "projected_negative_mass": 1.642534777572129e-07,
+          "min_value_before_projection": -3.675292499743304e-08
         },
         {
           "rank": 4,
-          "kl": 2.7370824158443643e-16,
-          "tv": 2.354458862257069e-16,
-          "gap_closed": 0.9999999999999994
+          "kl": 2.6315869172499633e-16,
+          "tv": 2.2948746277054756e-16,
+          "gap_closed": 0.9999999999999994,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.951168385069727e-18
         },
         {
           "rank": 8,
-          "kl": 2.7370824158443643e-16,
-          "tv": 2.354458862257069e-16,
-          "gap_closed": 0.9999999999999994
+          "kl": 2.6315869172499633e-16,
+          "tv": 2.2948746277054756e-16,
+          "gap_closed": 0.9999999999999994,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.951168385069727e-18
         },
         {
           "rank": 10,
-          "kl": 2.7370824158443643e-16,
-          "tv": 2.354458862257069e-16,
-          "gap_closed": 0.9999999999999994
+          "kl": 2.6315869172499633e-16,
+          "tv": 2.2948746277054756e-16,
+          "gap_closed": 0.9999999999999994,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.951168385069727e-18
         },
         {
           "rank": 12,
-          "kl": 2.7370824158443643e-16,
-          "tv": 2.354458862257069e-16,
-          "gap_closed": 0.9999999999999994
+          "kl": 2.6315869172499633e-16,
+          "tv": 2.2948746277054756e-16,
+          "gap_closed": 0.9999999999999994,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.951168385069727e-18
         },
         {
           "rank": 16,
-          "kl": 2.7370824158443643e-16,
-          "tv": 2.354458862257069e-16,
-          "gap_closed": 0.9999999999999994
+          "kl": 2.6315869172499633e-16,
+          "tv": 2.2948746277054756e-16,
+          "gap_closed": 0.9999999999999994,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.951168385069727e-18
         }
       ],
       "seed_term": "GO:0045273",
@@ -1820,50 +2772,78 @@
       "w": 9,
       "n_models": 33,
       "exact_rank": 6,
-      "kl_rank1": 1.7840664581822987,
+      "kl_rank1": 1.7840664581822985,
       "tv_rank1": 0.6716231236703856,
       "rows": [
         {
           "rank": 1,
-          "kl": 1.7840664581822987,
+          "kl": 1.7840664581822985,
           "tv": 0.6716231236703856,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000002,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 1.2595109094522561e-06
         },
         {
           "rank": 2,
-          "kl": 1.2191927577096147,
+          "kl": 1.219192757709615,
           "tv": 0.3328487259413914,
-          "gap_closed": 0.5044114560523313
+          "gap_closed": 0.5044114560523313,
+          "projected": true,
+          "pre_projection_sum": 0.8024329638054152,
+          "projected_negative_mass": 0.00648046706429153,
+          "min_value_before_projection": -0.002301260799574756
         },
         {
           "rank": 4,
-          "kl": 0.138315254046556,
-          "tv": 0.09021932579868891,
-          "gap_closed": 0.8656697147268471
+          "kl": 0.13831525404655612,
+          "tv": 0.09021932579868909,
+          "gap_closed": 0.865669714726847,
+          "projected": true,
+          "pre_projection_sum": 0.9806955552949418,
+          "projected_negative_mass": 0.018154612559178097,
+          "min_value_before_projection": -0.0030949937170125555
         },
         {
           "rank": 8,
-          "kl": 6.288270475813252e-16,
-          "tv": 1.1519052408479695e-15,
-          "gap_closed": 0.9999999999999983
+          "kl": 6.0185738545027e-16,
+          "tv": 7.639638659417222e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000004,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -5.049616275234883e-17
         },
         {
           "rank": 10,
-          "kl": 6.288270475813252e-16,
-          "tv": 1.1519052408479695e-15,
-          "gap_closed": 0.9999999999999983
+          "kl": 6.0185738545027e-16,
+          "tv": 7.639638659417222e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000004,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -5.049616275234883e-17
         },
         {
           "rank": 12,
-          "kl": 6.288270475813252e-16,
-          "tv": 1.1519052408479695e-15,
-          "gap_closed": 0.9999999999999983
+          "kl": 6.0185738545027e-16,
+          "tv": 7.639638659417222e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000004,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -5.049616275234883e-17
         },
         {
           "rank": 16,
-          "kl": 6.288270475813252e-16,
-          "tv": 1.1519052408479695e-15,
-          "gap_closed": 0.9999999999999983
+          "kl": 6.0185738545027e-16,
+          "tv": 7.639638659417222e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000004,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -5.049616275234883e-17
         }
       ],
       "seed_term": "GO:0045275",
@@ -1880,43 +2860,71 @@
           "rank": 1,
           "kl": 1.968831286515388,
           "tv": 0.6953398192134848,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000007,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 3.1426196792559273e-06
         },
         {
           "rank": 2,
           "kl": Infinity,
-          "tv": 0.3950209106431547,
-          "gap_closed": 0.43190235949672473
+          "tv": 0.3950209106431543,
+          "gap_closed": 0.4319023594967253,
+          "projected": true,
+          "pre_projection_sum": 0.7193852425484109,
+          "projected_negative_mass": 0.10816663441668438,
+          "min_value_before_projection": -0.01082603269403487
         },
         {
           "rank": 4,
-          "kl": 0.2768813023233942,
-          "tv": 0.12542096957737425,
-          "gap_closed": 0.8196263666889653
+          "kl": 0.2768813023233917,
+          "tv": 0.12542096957737411,
+          "gap_closed": 0.8196263666889655,
+          "projected": true,
+          "pre_projection_sum": 0.9612406195550229,
+          "projected_negative_mass": 0.009447478079572878,
+          "min_value_before_projection": -0.002436663273876558
         },
         {
           "rank": 8,
-          "kl": 9.88696127969674e-16,
-          "tv": 1.0776281754521337e-15,
-          "gap_closed": 0.9999999999999984
+          "kl": 7.940276546711026e-16,
+          "tv": 1.0381915971026398e-15,
+          "gap_closed": 0.9999999999999986,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.3580876257412165e-16
         },
         {
           "rank": 10,
-          "kl": 9.88696127969674e-16,
-          "tv": 1.0776281754521337e-15,
-          "gap_closed": 0.9999999999999984
+          "kl": 7.940276546711026e-16,
+          "tv": 1.0381915971026398e-15,
+          "gap_closed": 0.9999999999999986,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.3580876257412165e-16
         },
         {
           "rank": 12,
-          "kl": 9.88696127969674e-16,
-          "tv": 1.0776281754521337e-15,
-          "gap_closed": 0.9999999999999984
+          "kl": 7.940276546711026e-16,
+          "tv": 1.0381915971026398e-15,
+          "gap_closed": 0.9999999999999986,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.3580876257412165e-16
         },
         {
           "rank": 16,
-          "kl": 9.88696127969674e-16,
-          "tv": 1.0776281754521337e-15,
-          "gap_closed": 0.9999999999999984
+          "kl": 7.940276546711026e-16,
+          "tv": 1.0381915971026398e-15,
+          "gap_closed": 0.9999999999999986,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.3580876257412165e-16
         }
       ],
       "seed_term": "GO:0045277",
@@ -1933,43 +2941,71 @@
           "rank": 1,
           "kl": 0.5409912298079315,
           "tv": 0.3604908143615229,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999996,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 2.0907544462476002e-07
         },
         {
           "rank": 2,
-          "kl": 0.008266721932612117,
-          "tv": 0.0014036786574622073,
-          "gap_closed": 0.9961062013190314
+          "kl": 0.008266721932611824,
+          "tv": 0.0014036786574622398,
+          "gap_closed": 0.9961062013190314,
+          "projected": true,
+          "pre_projection_sum": 0.9986801088389823,
+          "projected_negative_mass": 1.3363226261922956e-07,
+          "min_value_before_projection": -3.7342276773283343e-08
         },
         {
           "rank": 4,
-          "kl": 1.692610722368452e-16,
-          "tv": 2.9322881139391086e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": 2.223730040609607e-16,
+          "tv": 3.4786882750682437e-16,
+          "gap_closed": 0.9999999999999991,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999992,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.169905298562507e-17
         },
         {
           "rank": 8,
-          "kl": 1.692610722368452e-16,
-          "tv": 2.9322881139391086e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": 2.223730040609607e-16,
+          "tv": 3.4786882750682437e-16,
+          "gap_closed": 0.9999999999999991,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999992,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.169905298562507e-17
         },
         {
           "rank": 10,
-          "kl": 1.692610722368452e-16,
-          "tv": 2.9322881139391086e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": 2.223730040609607e-16,
+          "tv": 3.4786882750682437e-16,
+          "gap_closed": 0.9999999999999991,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999992,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.169905298562507e-17
         },
         {
           "rank": 12,
-          "kl": 1.692610722368452e-16,
-          "tv": 2.9322881139391086e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": 2.223730040609607e-16,
+          "tv": 3.4786882750682437e-16,
+          "gap_closed": 0.9999999999999991,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999992,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.169905298562507e-17
         },
         {
           "rank": 16,
-          "kl": 1.692610722368452e-16,
-          "tv": 2.9322881139391086e-16,
-          "gap_closed": 0.9999999999999992
+          "kl": 2.223730040609607e-16,
+          "tv": 3.4786882750682437e-16,
+          "gap_closed": 0.9999999999999991,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999992,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.169905298562507e-17
         }
       ],
       "seed_term": "GO:0045283",
@@ -1986,43 +3022,71 @@
           "rank": 1,
           "kl": 0.9919748670190985,
           "tv": 0.5006248526224698,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000007,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 1.71408349409037e-08
         },
         {
           "rank": 2,
           "kl": 0.31726765919478384,
-          "tv": 0.13698420671729306,
-          "gap_closed": 0.7263735389888938
+          "tv": 0.13698420671729303,
+          "gap_closed": 0.7263735389888938,
+          "projected": true,
+          "pre_projection_sum": 0.9281564191517782,
+          "projected_negative_mass": 0.023686330940883894,
+          "min_value_before_projection": -0.0064244241054670715
         },
         {
           "rank": 4,
-          "kl": 4.005127833173349e-16,
-          "tv": 5.074330546275345e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 5.660632207859408e-16,
+          "tv": 5.596564360302381e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.030111867757919e-17
         },
         {
           "rank": 8,
-          "kl": 4.005127833173349e-16,
-          "tv": 5.074330546275345e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 5.660632207859408e-16,
+          "tv": 5.596564360302381e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.030111867757919e-17
         },
         {
           "rank": 10,
-          "kl": 4.005127833173349e-16,
-          "tv": 5.074330546275345e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 5.660632207859408e-16,
+          "tv": 5.596564360302381e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.030111867757919e-17
         },
         {
           "rank": 12,
-          "kl": 4.005127833173349e-16,
-          "tv": 5.074330546275345e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 5.660632207859408e-16,
+          "tv": 5.596564360302381e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.030111867757919e-17
         },
         {
           "rank": 16,
-          "kl": 4.005127833173349e-16,
-          "tv": 5.074330546275345e-16,
-          "gap_closed": 0.9999999999999989
+          "kl": 5.660632207859408e-16,
+          "tv": 5.596564360302381e-16,
+          "gap_closed": 0.9999999999999989,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000016,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -6.030111867757919e-17
         }
       ],
       "seed_term": "GO:0072589",
@@ -2032,50 +3096,78 @@
       "w": 11,
       "n_models": 37,
       "exact_rank": 6,
-      "kl_rank1": 1.6090925201154305,
+      "kl_rank1": 1.6090925201154302,
       "tv_rank1": 0.6335501133485737,
       "rows": [
         {
           "rank": 1,
-          "kl": 1.6090925201154305,
+          "kl": 1.6090925201154302,
           "tv": 0.6335501133485737,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999987,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 8.13083594958283e-11
         },
         {
           "rank": 2,
-          "kl": 1.0209814577269956,
-          "tv": 0.33172500762318585,
-          "gap_closed": 0.476402891209533
+          "kl": 1.0209814577269967,
+          "tv": 0.33172500762318574,
+          "gap_closed": 0.47640289120953316,
+          "projected": true,
+          "pre_projection_sum": 0.8764780454171993,
+          "projected_negative_mass": 0.015367228975739633,
+          "min_value_before_projection": -0.0060795835553546914
         },
         {
           "rank": 4,
-          "kl": 0.21725506252220253,
-          "tv": 0.08908777060617595,
-          "gap_closed": 0.8593832299463885
+          "kl": 0.2172550625222033,
+          "tv": 0.08908777060617597,
+          "gap_closed": 0.8593832299463883,
+          "projected": true,
+          "pre_projection_sum": 0.9684848310563319,
+          "projected_negative_mass": 0.021775713430974848,
+          "min_value_before_projection": -0.007230225121490249
         },
         {
           "rank": 8,
-          "kl": 1.1205506331809656e-15,
-          "tv": 1.3949006105492155e-15,
-          "gap_closed": 0.9999999999999977
+          "kl": 1.5427823077569882e-15,
+          "tv": 1.7467428775398776e-15,
+          "gap_closed": 0.9999999999999972,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.113123918820605e-16
         },
         {
           "rank": 10,
-          "kl": 1.1205506331809656e-15,
-          "tv": 1.3949006105492155e-15,
-          "gap_closed": 0.9999999999999977
+          "kl": 1.5427823077569882e-15,
+          "tv": 1.7467428775398776e-15,
+          "gap_closed": 0.9999999999999972,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.113123918820605e-16
         },
         {
           "rank": 12,
-          "kl": 1.1205506331809656e-15,
-          "tv": 1.3949006105492155e-15,
-          "gap_closed": 0.9999999999999977
+          "kl": 1.5427823077569882e-15,
+          "tv": 1.7467428775398776e-15,
+          "gap_closed": 0.9999999999999972,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.113123918820605e-16
         },
         {
           "rank": 16,
-          "kl": 1.1205506331809656e-15,
-          "tv": 1.3949006105492155e-15,
-          "gap_closed": 0.9999999999999977
+          "kl": 1.5427823077569882e-15,
+          "tv": 1.7467428775398776e-15,
+          "gap_closed": 0.9999999999999972,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -4.113123918820605e-16
         }
       ],
       "seed_term": "GO:0090730",
@@ -2092,43 +3184,71 @@
           "rank": 1,
           "kl": 1.7037900221884745,
           "tv": 0.6871455809643946,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000007,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 2.1921465366847293e-13
         },
         {
           "rank": 2,
-          "kl": 0.29739066608082415,
-          "tv": 0.151363021499421,
-          "gap_closed": 0.7797220477107834
+          "kl": 0.29739066608082537,
+          "tv": 0.1513630214994211,
+          "gap_closed": 0.7797220477107831,
+          "projected": true,
+          "pre_projection_sum": 0.9763654056013852,
+          "projected_negative_mass": 0.03844733771167737,
+          "min_value_before_projection": -0.011455200378861594
         },
         {
           "rank": 4,
-          "kl": 0.0020647169042250415,
-          "tv": 0.0012778696033085492,
-          "gap_closed": 0.9981403218783491
+          "kl": 0.0020647169042241446,
+          "tv": 0.0012778696033085859,
+          "gap_closed": 0.9981403218783491,
+          "projected": true,
+          "pre_projection_sum": 0.9994959981420881,
+          "projected_negative_mass": 1.6471808236029575e-05,
+          "min_value_before_projection": -6.065322098478915e-06
         },
         {
           "rank": 8,
-          "kl": 1.2122555124794708e-15,
-          "tv": 1.386366620055285e-15,
-          "gap_closed": 0.9999999999999981
+          "kl": 6.017822105418677e-16,
+          "tv": 6.337422199528361e-16,
+          "gap_closed": 0.999999999999999,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -8.097249426662956e-17
         },
         {
           "rank": 10,
-          "kl": 1.2122555124794708e-15,
-          "tv": 1.386366620055285e-15,
-          "gap_closed": 0.9999999999999981
+          "kl": 6.017822105418677e-16,
+          "tv": 6.337422199528361e-16,
+          "gap_closed": 0.999999999999999,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -8.097249426662956e-17
         },
         {
           "rank": 12,
-          "kl": 1.2122555124794708e-15,
-          "tv": 1.386366620055285e-15,
-          "gap_closed": 0.9999999999999981
+          "kl": 6.017822105418677e-16,
+          "tv": 6.337422199528361e-16,
+          "gap_closed": 0.999999999999999,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -8.097249426662956e-17
         },
         {
           "rank": 16,
-          "kl": 1.2122555124794708e-15,
-          "tv": 1.386366620055285e-15,
-          "gap_closed": 0.9999999999999981
+          "kl": 6.017822105418677e-16,
+          "tv": 6.337422199528361e-16,
+          "gap_closed": 0.999999999999999,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999999,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -8.097249426662956e-17
         }
       ],
       "seed_term": "GO:0098522",
@@ -2138,50 +3258,78 @@
       "w": 9,
       "n_models": 17,
       "exact_rank": 5,
-      "kl_rank1": 1.7120276542970314,
+      "kl_rank1": 1.7120276542970312,
       "tv_rank1": 0.6801896157684317,
       "rows": [
         {
           "rank": 1,
-          "kl": 1.7120276542970314,
+          "kl": 1.7120276542970312,
           "tv": 0.6801896157684317,
-          "gap_closed": 0.0
+          "gap_closed": 0.0,
+          "projected": false,
+          "pre_projection_sum": 1.0000000000000004,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": 2.4095576668523728e-08
         },
         {
           "rank": 2,
-          "kl": 0.4509272477902989,
-          "tv": 0.27912491904936193,
-          "gap_closed": 0.5896366063542066
+          "kl": 0.45092724779029936,
+          "tv": 0.2791249190493619,
+          "gap_closed": 0.5896366063542067,
+          "projected": true,
+          "pre_projection_sum": 0.9518501499685007,
+          "projected_negative_mass": 0.13529930704511126,
+          "min_value_before_projection": -0.01831409031953644
         },
         {
           "rank": 4,
-          "kl": 0.007868361946478438,
-          "tv": 0.005690203938129992,
-          "gap_closed": 0.99163438575624
+          "kl": 0.007868361946478594,
+          "tv": 0.005690203938129865,
+          "gap_closed": 0.9916343857562402,
+          "projected": true,
+          "pre_projection_sum": 0.9978797262028838,
+          "projected_negative_mass": 0.0009332028865949559,
+          "min_value_before_projection": -0.000823273707739228
         },
         {
           "rank": 8,
-          "kl": 9.856769326077931e-16,
-          "tv": 1.8331083037870745e-15,
-          "gap_closed": 0.9999999999999972
+          "kl": 1.24031368748669e-15,
+          "tv": 2.0112735406042708e-15,
+          "gap_closed": 0.9999999999999971,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.9486930015597304e-16
         },
         {
           "rank": 10,
-          "kl": 9.856769326077931e-16,
-          "tv": 1.8331083037870745e-15,
-          "gap_closed": 0.9999999999999972
+          "kl": 1.24031368748669e-15,
+          "tv": 2.0112735406042708e-15,
+          "gap_closed": 0.9999999999999971,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.9486930015597304e-16
         },
         {
           "rank": 12,
-          "kl": 9.856769326077931e-16,
-          "tv": 1.8331083037870745e-15,
-          "gap_closed": 0.9999999999999972
+          "kl": 1.24031368748669e-15,
+          "tv": 2.0112735406042708e-15,
+          "gap_closed": 0.9999999999999971,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.9486930015597304e-16
         },
         {
           "rank": 16,
-          "kl": 9.856769326077931e-16,
-          "tv": 1.8331083037870745e-15,
-          "gap_closed": 0.9999999999999972
+          "kl": 1.24031368748669e-15,
+          "tv": 2.0112735406042708e-15,
+          "gap_closed": 0.9999999999999971,
+          "projected": false,
+          "pre_projection_sum": 0.9999999999999998,
+          "projected_negative_mass": 0.0,
+          "min_value_before_projection": -1.9486930015597304e-16
         }
       ],
       "seed_term": "GO:0098983",

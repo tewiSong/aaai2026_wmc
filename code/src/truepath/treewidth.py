@@ -36,7 +36,7 @@ def _fill_count(adj: Dict[object, Set[object]], v: object) -> int:
 
 
 def min_fill_order(graph: nx.Graph) -> Tuple[List, int]:
-    """Return (elimination_order, width) under the exact min-fill heuristic.
+    """Return (elimination_order, width) under the implemented min-fill heuristic.
 
     width is the treewidth upper bound: max over eliminated vertices of the size of its live
     neighbourhood at elimination time (= largest bag size - 1).
@@ -45,9 +45,9 @@ def min_fill_order(graph: nx.Graph) -> Tuple[List, int]:
         fill(v) = C(d,2) - (edges among N(v)),  edges among N(v) = A[N(v),N(v)].sum()/2,
     a single vectorised submatrix sum, and cliquing N(v) is one boolean broadcast. After
     eliminating v the only fill counts that change are those of vertices within distance two,
-    which are recomputed exactly. This is the genuine min-fill (it matches NetworkX's
+    which are recomputed exactly. This is the standard min-fill heuristic (it matches NetworkX's
     `treewidth_min_fill_in` up to heuristic tie-breaking) with no lazy / min-degree
-    approximation; the vectorisation makes the exact computation fast on the dense bp graph.
+    substitute; the vectorisation makes the fill-count computation fast on the dense bp graph.
     """
     import numpy as np
 
@@ -110,11 +110,77 @@ def min_fill_order(graph: nx.Graph) -> Tuple[List, int]:
     return order, width
 
 
-def treewidth_min_fill(graph: nx.Graph) -> int:
-    """Exact min-fill treewidth upper bound (max over connected components).
+def min_fill_width_bounded(graph: nx.Graph, limit: int) -> int:
+    """Min-fill width, stopping once the width is known to exceed `limit`.
 
-    No approximation: every component uses the exact min-fill order above; large dense
-    components (bp) are simply given the wall-clock they need.
+    This follows the same elimination rule as `min_fill_order`. If the returned value is
+    at most `limit`, it is the complete min-fill width. If it is larger than `limit`, the
+    exact larger width is intentionally not computed because the caller only needs to
+    reject that graph under the cap.
+    """
+    import numpy as np
+
+    nodes = list(graph.nodes())
+    n = len(nodes)
+    if n == 0:
+        return 0
+    idx = {v: i for i, v in enumerate(nodes)}
+    A = np.zeros((n, n), dtype=bool)
+    for u, w in graph.edges():
+        i, j = idx[u], idx[w]
+        if i != j:
+            A[i, j] = True
+            A[j, i] = True
+
+    def fill_of(v: int) -> int:
+        nb = np.flatnonzero(A[v])
+        d = nb.size
+        if d < 2:
+            return 0
+        e = int(A[np.ix_(nb, nb)].sum()) // 2
+        return d * (d - 1) // 2 - e
+
+    fill = [fill_of(i) for i in range(n)]
+    version = [0] * n
+    alive = np.ones(n, dtype=bool)
+    heap: List[Tuple[int, int, int, int]] = [(fill[i], int(A[i].sum()), 0, i) for i in range(n)]
+    heapq.heapify(heap)
+
+    width = 0
+    remaining = n
+    while remaining:
+        while True:
+            f, deg, ver, v = heapq.heappop(heap)
+            if alive[v] and ver == version[v]:
+                break
+        nb = np.flatnonzero(A[v])
+        width = max(width, nb.size)
+        if width > limit:
+            return int(width)
+        if nb.size:
+            twohop = np.flatnonzero(A[nb].any(axis=0))
+            A[np.ix_(nb, nb)] = True
+            A[nb, nb] = False
+        else:
+            twohop = nb
+        A[v, :] = False
+        A[:, v] = False
+        alive[v] = False
+        for u in twohop:
+            u = int(u)
+            if u != v and alive[u]:
+                fill[u] = fill_of(u)
+                version[u] += 1
+                heapq.heappush(heap, (fill[u], int(A[u].sum()), version[u], u))
+        remaining -= 1
+    return int(width)
+
+
+def treewidth_min_fill(graph: nx.Graph) -> int:
+    """Min-fill treewidth upper bound (max over connected components).
+
+    No fallback: every component uses the same min-fill ordering rule above; large dense
+    components (bp) are given the wall-clock they need.
     """
     tw = 0
     for comp in nx.connected_components(graph):

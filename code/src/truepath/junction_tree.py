@@ -6,9 +6,9 @@ cliques, and calibrate with two-pass sum-product message passing. Reading each c
 calibrated potential yields exact per-variable marginals mu_i = P(y_i = 1 | T) in a
 single calibration, at cost O(n * 2^treewidth).
 
-This is the exact reference used for the cc namespace (whole graph, tw 9) and for every
-low-treewidth module of the modular construction. It is exact arithmetic throughout and
-is validated against brute force and the SDD path.
+This is the exact reference used for the cc namespace (whole graph, tw 12) and for every
+low-treewidth module of the modular construction. The factorization is exact and evaluated
+in floating point; outputs are validated against brute force and the SDD path.
 """
 
 from __future__ import annotations
@@ -146,11 +146,6 @@ class JunctionTree:
             big = small_sorted.reshape(bshape)
             pot[ci] = pot[ci] * big
 
-        # Separators between clique i and parent p: intersection vars.
-        # Two-pass calibration (collect upward, distribute downward) - Shafer-Shenoy
-        # implemented on potentials with Hugin-style updates.
-        msg_up: Dict[Tuple[int, int], np.ndarray] = {}
-
         def marginalize(table: np.ndarray, cv: List[object], keep: List[object]) -> np.ndarray:
             keepset = set(keep)
             axes = tuple(k for k, v in enumerate(cv) if v not in keepset)
@@ -170,39 +165,64 @@ class JunctionTree:
         for r in self.roots:
             post(r)
 
-        # Collect: leaves -> root
-        msg: Dict[Tuple[int, int], Tuple[List[object], np.ndarray]] = {}
+        neighbors: List[List[int]] = [[] for _ in range(len(self.cliques))]
+        for i, p in enumerate(self.parent):
+            if p >= 0:
+                neighbors[i].append(p)
+                neighbors[p].append(i)
+
+        def separator(i: int, j: int) -> List[object]:
+            return sorted(self.cliques[i] & self.cliques[j], key=lambda x: self.pos[x])
+
+        # Shafer-Shenoy messages: m_{i->j} = sum_{C_i \ S_ij} phi_i * prod_{k != j} m_{k->i}.
+        messages: Dict[Tuple[int, int], Tuple[List[object], np.ndarray]] = {}
+
+        def compute_message(i: int, j: int) -> None:
+            table = pot[i].copy()
+            for k in neighbors[i]:
+                if k == j:
+                    continue
+                if (k, i) not in messages:
+                    raise RuntimeError(f"missing message {k}->{i} while computing {i}->{j}")
+                sep_ki, msg_ki = messages[(k, i)]
+                table = _multiply_in(table, clique_vars[i], var_axis[i], sep_ki, msg_ki)
+            sep_ij = separator(i, j)
+            msg = marginalize(table, clique_vars[i], sep_ij)
+            if not np.all(np.isfinite(msg)):
+                raise FloatingPointError(f"non-finite JT message {i}->{j}")
+            z = float(msg.sum())
+            if not np.isfinite(z) or z <= 0.0:
+                raise FloatingPointError(f"zero JT message mass {i}->{j} over separator {sep_ij}")
+            msg = msg / z
+            messages[(i, j)] = (sep_ij, msg)
+
+        # Collect: leaves -> root.
         for i in order_post:
             p = self.parent[i]
             if p < 0:
                 continue
-            sep = sorted(self.cliques[i] & self.cliques[p], key=lambda x: self.pos[x])
-            # combine potential with incoming child messages already folded into pot[i]
-            m = marginalize(pot[i], clique_vars[i], sep)
-            msg[(i, p)] = (sep, m)
-            # fold into parent potential
-            pot[p] = _multiply_in(pot[p], clique_vars[p], var_axis[p], sep, m)
+            compute_message(i, p)
 
-        # Distribute: root -> leaves
+        # Distribute: root -> leaves.
         for i in reversed(order_post):
             for c in self.children[i]:
-                sep = sorted(self.cliques[i] & self.cliques[c], key=lambda x: self.pos[x])
-                # message to child = marginalize parent's potential / message it sent up
-                up_sep, up_m = msg[(c, i)]
-                par_marg = marginalize(pot[i], clique_vars[i], sep)
-                down = par_marg / np.where(up_m > 0, up_m, 1.0)
-                pot[c] = _multiply_in(pot[c], clique_vars[c], var_axis[c], sep, down)
+                compute_message(i, c)
 
         # Read marginals.
         marg: Dict[object, float] = {}
         for v in nodes:
             ci = find_clique([v])
-            table = pot[ci]
+            table = pot[ci].copy()
             cv = clique_vars[ci]
+            for k in neighbors[ci]:
+                sep_ki, msg_ki = messages[(k, ci)]
+                table = _multiply_in(table, cv, var_axis[ci], sep_ki, msg_ki)
             m = marginalize(table, cv, [v])
             s = m.sum()
             ax = 1  # after marginalizing to single var, index 1 = true
-            marg[v] = float(m[1] / s) if s > 0 else 0.0
+            if not np.isfinite(s) or s <= 0.0:
+                raise FloatingPointError(f"zero calibrated marginal mass for node {v}: {m}")
+            marg[v] = float(m[1] / s)
         return marg
 
 

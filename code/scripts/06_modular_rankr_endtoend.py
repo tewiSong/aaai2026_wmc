@@ -56,7 +56,9 @@ def _periphery_message(periph_atoms, B, clauses_global, gidx, priors):
             w *= p if asg[idx[v]] == 1 else (1 - p)
         msg[tuple(asg[bi] for bi in Bidx)] += w
     s = msg.sum()
-    return msg / s if s > 0 else msg
+    if not np.isfinite(s) or s <= 0.0:
+        raise FloatingPointError("periphery separator message has non-positive mass")
+    return msg / s
 
 
 def core_marginals(core, B, clauses_global, gidx, priors, msgB):
@@ -94,7 +96,9 @@ def core_marginals(core, B, clauses_global, gidx, priors, msgB):
         for c in core:
             if asg[idx[c]] == 1:
                 num[c] += w
-    return {c: (num[c] / den if den > 0 else 0.0) for c in core}
+    if not np.isfinite(den) or den <= 0.0:
+        raise FloatingPointError("core marginal denominator is non-positive")
+    return {c: num[c] / den for c in core}
 
 
 def run(seed=0, max_subgraph=18, n_examples=6, namespace="cc"):
@@ -154,8 +158,10 @@ def run(seed=0, max_subgraph=18, n_examples=6, namespace="cc"):
                 m = prod_msg
             else:
                 c = rank_dial.tt_svd(msg_exact, max_rank=r)
-                m = np.clip(rank_dial.tt_reconstruct(c), 0, None)
-                m = m / m.sum()
+                m, _diag = rank_dial.probability_tensor(
+                    rank_dial.tt_reconstruct(c),
+                    project_negative=(r < exact_rank),
+                )
             cm = core_marginals(core, B, clauses, gidx, priors, m)
             err = max(abs(cm[c] - gold[c]) for c in core)
             sweep.append((r, float(err)))

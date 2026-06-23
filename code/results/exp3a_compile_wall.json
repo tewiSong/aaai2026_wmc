@@ -5,7 +5,7 @@
       "treewidth": 1,
       "max_clique": 2,
       "clique_entries": 4,
-      "exact_s": 0.002,
+      "exact_s": 0.003,
       "walled": false
     },
     {
@@ -13,7 +13,7 @@
       "treewidth": 4,
       "max_clique": 5,
       "clique_entries": 32,
-      "exact_s": 0.014,
+      "exact_s": 0.019,
       "walled": false
     },
     {
@@ -21,7 +21,7 @@
       "treewidth": 5,
       "max_clique": 6,
       "clique_entries": 64,
-      "exact_s": 0.135,
+      "exact_s": 0.08,
       "walled": false
     },
     {
@@ -29,7 +29,7 @@
       "treewidth": 10,
       "max_clique": 11,
       "clique_entries": 2048,
-      "exact_s": 0.3,
+      "exact_s": 0.26,
       "walled": false
     },
     {
@@ -37,7 +37,7 @@
       "treewidth": 21,
       "max_clique": 22,
       "clique_entries": 4194304,
-      "exact_s": 2.145,
+      "exact_s": 9.331,
       "walled": false
     },
     {
@@ -52,7 +52,7 @@
     "cc": {
       "treewidth": 12,
       "monolithic_exact_ok": true,
-      "exact_s": 5.63
+      "exact_s": 7.88
     },
     "mf": {
       "treewidth": 37,
@@ -65,5 +65,5 @@
       "exact_s": null
     }
   },
-  "note": "Exact WMC cost = Theta(2^tw) (junction-tree clique table). Monolithic compilation walls once tw exceeds ~22; cc (tw 12) compiles, mf/bp do not. The modular construction caps every module at tw<=13 (2^13 entries)."
+  "note": "Exact WMC cost = Theta(2^tw) (junction-tree clique table). Monolithic compilation walls once tw exceeds ~22; cc (tw 12) compiles, mf/bp do not. The modular construction caps every is-a-backbone module at tw<=14."
 }
