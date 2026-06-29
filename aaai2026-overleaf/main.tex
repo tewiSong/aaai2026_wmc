@@ -3,6 +3,7 @@
 \usepackage{times}
 \usepackage{helvet}
 \usepackage{courier}
+\renewcommand{\ttdefault}{cmtt}
 \usepackage[hyphens]{url}
 \usepackage{graphicx}
 \urlstyle{rm}
@@ -22,13 +23,11 @@
 \newcommand{\tw}{\ensuremath{\mathrm{tw}}}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\bC}[1]{\boldsymbol{#1}}
-\newcommand{\tbd}{\textit{TBD}} % placeholder for experiments not yet run
-
 \newtheorem{theorem}{Theorem}
 \newtheorem{definition}{Definition}
 \newtheorem{proposition}{Proposition}
 
-\title{Modular Weighted Model Counting for Neuro-Symbolic Inference over Large Ontologies}
+\title{Modular Weighted Model Counting for Structure-Aware Posterior Inference over Large Ontologies}
 \author{
     Anonymous Submission
 }
@@ -40,82 +39,59 @@
 \maketitle
 
 \begin{abstract}
-Neuro-symbolic systems predict independent scores for ontology concepts, but hierarchical theories require that every child concept implies its ancestors. The principled repair is to condition these scores on the symbolic theory via weighted model counting (WMC). Exact WMC is intractable on large ontologies; deployed systems instead apply a fast soft message-passing closure whose correctness has been unknown. We prove that this closure is loopy belief propagation on hierarchical constraints: it matches exact WMC on tree-like structure and deviates only at path reconvergences. We introduce separator-aware modular exact WMC, which isolates a small reconvergence core and recovers exact marginals on the periphery; a rank-$r$ separator interpolates between the soft closure (rank~1) and exact inference (full rank). On the Gene Ontology (GO), cutting 0--9\% reconvergence cores yields exact marginals for 91--100\% of terms across cellular component, molecular function, and biological process. We extend the same pipeline to UBERON and ChEBI and compare against DeepProbLog, Scallop, and learned approximators.
+Many prediction systems output independent scores for labels or concepts that are constrained by a large symbolic ontology. The statistically correct structure-aware posterior is obtained by conditioning the product distribution on the ontology theory, giving marginals that are ratios of weighted model counts (WMC). This target is exact but intractable on large ontologies; the scalable alternative used in practice is a soft message-passing closure whose correctness has not been characterized. We study this gap for true-path ontology inference, a setting that covers ontology-constrained prediction and neuro-symbolic concept layers. We prove that the soft closure is loopy belief propagation on the true-path constraint graph: it is exact on tree-like fragments for all priors, and its first failure mode is path reconvergence. We then introduce separator-aware modular WMC, which cuts a small reconvergence core, solves low-treewidth peripheral modules exactly, and represents the remaining core dependence by a rank-$r$ separator message. On the Gene Ontology (GO), this recovers exact WMC marginals for 91--100\% of terms across cellular component, molecular function, and biological process; the rank-$1$ endpoint is the common independence closure, while full rank recovers exact core inference.
 \end{abstract}
 
 \section{Introduction}
-Biomedical ontologies such as the Gene Ontology (GO) \citep{ashburner2000go,geneontology2023} encode factual knowledge as concepts linked by subsumption: if a protein is annotated with a specific function, every more general ancestor term must hold as well. GO splits its terms into three namespaces---\emph{cellular component} (cc), \emph{molecular function} (mf), and \emph{biological process} (bp)---which we evaluate separately because they differ in size and graph structure. Neuro-symbolic (NeSy) predictors \citep{manhaeve2018deepproblog,xu2018semanticloss,ahmed2022spl} attach a neural score to each concept and are widely used in protein function prediction and related tasks. The general goal is to turn these independent neural marginals into \emph{structure-aware} probabilities that respect the ontology.
+Many AI systems predict over concept vocabularies whose labels are not independent. Protein function predictors output scores over the Gene Ontology (GO) \citep{ashburner2000go,geneontology2023,kulmanov2020deepgoplus,kulmanov2022deepgozero,yu2023clean}; biomedical annotation systems use anatomy and chemical ontologies such as UBERON and ChEBI \citep{mungall2012uberon,hastings2016chebi}; neuro-symbolic (NeSy) systems attach neural concept scores to symbolic theories \citep{manhaeve2018deepproblog,xu2018semanticloss,ahmed2022spl}. In all of these settings, the predictor emits one marginal score $p_i$ per concept while the ontology imposes implications: if a specific concept holds, its more general ancestors must also hold. The inference problem is to turn the independent product $q(\bC y)=\prod_i p_i^{y_i}(1-p_i)^{1-y_i}$ into probabilities that respect the ontology.
 
-The statistically correct target is to condition the independent neural distribution on a symbolic theory~$T$, yielding marginals $\mu_i$ as ratios of weighted model counts (WMC) \citep{ahmed2022spl,xu2018semanticloss}. Exact WMC is the gold standard, but it must reason \emph{jointly} over groups of mutually constrained terms; on large ontologies that joint problem is too large for monolithic exact compilers. Deployed systems therefore apply a \emph{soft closure}, a fast monotone message-passing fixpoint \citep{kazakov2014elk}, without knowing when it equals exact WMC or where it errs.
+The correct target is clear. Given an ontology theory $T$, one should condition $q$ on the satisfying assignments of $T$ and report the structure-aware marginal
+\[
+\mu_i = p_T(y_i{=}1)=\frac{\WMC(T\wedge y_i;\bC p)}{\WMC(T;\bC p)}.
+\]
+These WMC marginals are the natural target for constrained prediction, and coincide with the semantic-probabilistic-layer target in NeSy systems \citep{xu2018semanticloss,ahmed2022spl}. The difficulty is computational: exact WMC is $\#$P-hard and, after compilation, scales exponentially in the treewidth of the ontology constraint graph \citep{chavira2008wmc,darwiche2011sdd,bodlaender1993treewidth}. Thus exact compilers are reliable on small subgraphs but do not reach the largest GO namespaces. Practical systems therefore use fast soft closures or truncated proof provenance, gaining scale while losing a theorem that says when the returned marginals are correct.
 
-That gap is concrete, not abstract. On the canonical reconvergence pattern---two child terms both subsume a shared parent, as in the diamond $d\!\Rightarrow\!b,c$, $b,c\!\Rightarrow\!a$---exact WMC and the soft closure disagree even under uniform priors ($P(a{=}1)=5/6$ vs.\ $9/10$). Tree-like fragments, by contrast, provably agree with exact WMC. The remaining design question is not whether hierarchy matters, but which \emph{inference route} to deploy when a full ontology has thousands of terms and reconvergent structure throughout.
+This paper studies the true-path theory of hierarchical biomedical ontologies: the propositional grounding of subsumption edges, together with the Horn $\mathcal{EL}^{++}$ normal-form definitions used by OWL~2~EL reasoners \citep{baader2005elenvelope,kazakov2014elk}. In this setting, the soft closure has a simple interpretation: it is loopy belief propagation on the true-path constraint graph. That observation turns a heuristic post-processing step into an object that can be analyzed. It is exact on tree-like fragments, and its error is caused by reconvergent paths that reuse the same evidence.
 
-Table~\ref{tab:inference-routes} states our positioning claim in one view. Each row is a way NeSy systems actually turn independent neural scores into ontology-respecting marginals. The three columns ask: (i)~does it run on the \textbf{full} non-obsolete vocabulary; (ii)~on that full vocabulary, what \textbf{fraction of terms} receive exact WMC marginals $\mu_i$; and (iii)~for any residual error, is it \textbf{localized} to reconvergences (as in the diamond above) rather than opaque?
+The same observation also suggests a scalable exact route. Large ontologies are not uniformly hard: high treewidth is concentrated around reconvergent regions, while much of the graph remains low-treewidth once those regions are separated. We therefore use exact WMC where the graph permits it and isolate the remaining dependence at module boundaries. A separator message over the boundary variables carries that dependence; a rank-$1$ separator recovers the independence approximation, while higher rank carries progressively richer boundary joints.
 
-\begin{table}[t]\centering
-\caption{Four inference routes compared on scale, exactness, and error localization (introductory summary; GO numbers for ours in Table~\ref{tab:modular}; drift baselines in Table~\ref{tab:nesy}).}\label{tab:inference-routes}
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lccc@{}}
-\toprule
-Route & Full ontology & Exact $\mu_i$ share & Error localized \\
-\midrule
-Exact WMC / DeepProbLog & No & 0\% & Yes \\
-Soft closure & Yes & 0\% & No \\
-Scallop & Yes & 0\% & Partial \\
-Modular WMC (ours) & Yes & 91--100\% & Yes \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Exact compilers including DeepProbLog \citep{manhaeve2018deepproblog} fill the first row: when they compile a subgraph, every returned marginal is exact, but on full GO namespaces they cover 0\% of terms (\S\ref{sec:experiments}). The soft closure and Scallop fill the next rows: full GO, but 0\% exact marginals and no (or only partial) localization of error at reconvergences \citep{vankrieken2024independence,marconato2023reasoningshortcuts}. Our modular route is the only one that both runs on full GO and returns exact $\mu_i$ for 91--100\% of terms (Table~\ref{tab:modular}), with any residual confined to a small reconvergence core where a rank-$r$ separator can dial error to zero. Learned approximators \citep{vankrieken2023anesi,vankrieken2025nesydm} are omitted because they require per-ontology training and, for A-NeSI, intractable exact-WMC samples.
-
-We show that the deployed soft closure is loopy belief propagation (BP) on the constraint graph \citep{pearl1988probabilistic}, exact on tree fragments and wrong only at reconvergences; we formalize this development in Lean~4.
-
-To recover exact inference off the tree at ontology scale, we propose \emph{separator-aware modular exact WMC}. High treewidth concentrates in a small reconvergence core; we cut that core and run exact junction-tree WMC on low-treewidth peripheral modules, passing a weighted separator message across the boundary. A rank-$r$ tensor-train separator dials the residual approximation: rank~1 recovers the soft closure, while full rank restores exact inference on the core.
-
-We evaluate on GO \citep{ashburner2000go,geneontology2023}, UBERON \citep{mungall2012uberon}, and ChEBI \citep{hastings2016chebi} (\S\ref{sec:experiments}). On GO, separator-aware modular WMC yields exact marginals for 100\%/95\%/91\% of terms in cc/mf/bp after cutting reconvergence cores of 0\%/5\%/9\%. Soft-closure error on the cellular-component namespace (cc) concentrates at multi-parent terms ($6.0\times$ larger than at single-parent terms), matching the reconvergence prediction. A rank-$6$ separator restores exact marginals on a representative GO core versus $2^{10}$ dense enumeration. Compared with DeepProbLog, Scallop, and learned approximators on matched subgraphs, our layer is the only evaluated method that runs on full GO vocabularies with quantified error; Scallop undercounts by up to $0.34$ at reconvergences when $k{=}1$.
+Our contributions are:
+\begin{enumerate}
+\item We characterize the common soft true-path closure as loopy belief propagation. We prove exactness on tree fragments for all priors, identify reconvergence as the first failure mode, and formalize the core finite and parametric claims in Lean~4.
+\item We introduce separator-aware modular WMC. The method cuts a reconvergence core, solves each low-treewidth augmented module exactly, and represents the residual boundary dependence with a rank-$r$ separator.
+\item We evaluate the resulting inference layer on GO at ontology scale, include completed UBERON and ChEBI transfer runs, and compare with exact compilation, soft closure, top-$k$ provenance, and learned neuro-symbolic inference where each route is applicable.
+\end{enumerate}
 
 \section{Related Work}\label{sec:related}
-\paragraph{Exact compilation.}
-ProbLog and DeepProbLog compile a logic program to a circuit and evaluate WMC exactly \citep{deraedt2007problog,manhaeve2018deepproblog}. Semantic loss and the semantic probabilistic layer (SPL) use the same WMC marginals $\mu_i$ as training signal \citep{xu2018semanticloss,ahmed2022spl}. Cost is $\Theta(2^{\tw})$ in treewidth and walls below GO namespace scale in our experiments.
+\paragraph{WMC and knowledge compilation.}
+Weighted model counting reduces probabilistic inference to weighted evaluation of a propositional theory \citep{chavira2008wmc}. Knowledge-compilation targets such as SDDs make this exact once the theory is compiled \citep{darwiche2002kcmap,darwiche2011sdd}. The bottleneck is structural: exact compilation and junction-tree inference scale exponentially in treewidth \citep{bodlaender1993treewidth}, which is why monolithic exact WMC walls below large GO namespaces in our experiments.
 
-\paragraph{Scalable relaxations.}
-Scallop keeps only the top-$k$ proofs per fact \citep{huang2021scallop,li2023scallop}, scaling to full GO but undercounting at reconvergent nodes when $k$ is small. The ELK soft closure \citep{kazakov2014elk} is fast and widely deployed, but prior to this work lacked a theorem locating when it equals exact WMC.
+\paragraph{Ontology reasoning and constrained prediction.}
+OWL~2~EL reasoners such as ELK provide scalable logical closure for large biomedical ontologies \citep{baader2005elenvelope,kazakov2014elk}. Protein function and biomedical annotation models then produce per-term scores over these ontologies \citep{kulmanov2018deepgo,kulmanov2020deepgoplus,kulmanov2022deepgozero,yu2023clean}. These systems need posterior marginals that are both structure-aware and calibrated to the independent scores. Our work is not a new neural predictor or ontology reasoner; it is the probabilistic correction layer between independent scores and ontology-constrained marginals.
 
-\paragraph{Learned inference.}
-A-NeSI and NeSyDM learn to approximate WMC and avoid Monte-Carlo collapse on synthetic chains \citep{vankrieken2023anesi,vankrieken2025nesydm}, but require per-ontology training. A-NeSI also needs samples of exact WMC that are intractable on GO.
+\paragraph{Learning and inference with label constraints.}
+Hierarchical and constrained prediction has a long history in structured and multi-label learning \citep{silla2011survey}. A common route is to train with constraints, for example through posterior regularization or semantic regularization \citep{ganchev2010posterior,diligenti2017semantic}; another is constrained inference at prediction time. Recent analyses distinguish these two roles and show that constrained inference can correct violations even when regularization changes the learned model bias \citep{wang2023regularization}. Our setting follows the inference-side view, but targets calibrated posterior marginals under a large ontology theory rather than only point predictions or violation penalties.
+
+\paragraph{Neuro-symbolic inference layers.}
+ProbLog and DeepProbLog compile a logic program to a circuit and evaluate WMC exactly \citep{deraedt2007problog,manhaeve2018deepproblog}. Semantic loss and the semantic probabilistic layer (SPL) use the same WMC marginals $\mu_i$ as training signal \citep{xu2018semanticloss,ahmed2022spl}. Scallop keeps only the top-$k$ proofs per fact \citep{huang2021scallop,li2023scallop}, scaling to full GO but undercounting at reconvergent nodes when $k$ is small. A-NeSI and NeSyDM learn to approximate WMC and avoid Monte-Carlo collapse on synthetic chains \citep{vankrieken2023anesi,vankrieken2025nesydm}, but require per-task training. These systems are important comparison points, but the inference target studied here is broader than any particular NeSy language.
 
 \section{Problem Setup}\label{sec:problem}
-\paragraph{Inputs and outputs.}
-A vocabulary $\mathcal{Y}=\{1,\dots,m\}$ lists ontology concepts. A perception model emits independent marginals $p_i\in[0,1]$, inducing $q(\bC y)=\prod_i p_i^{y_i}(1-p_i)^{1-y_i}$. A symbolic theory $T$ encodes ontology constraints. The target is the structure-conditioned marginal $\mu_i=p_T(y_i{=}1)$ (Definition~\ref{def:wmc}).
+\paragraph{Inputs and target.}
+A vocabulary $\mathcal{Y}=\{1,\dots,m\}$ lists ontology concepts, one Boolean variable $y_i$ per concept. A predictor emits independent marginals $p_i\in[0,1]$, inducing
+\[
+q(\bC y)=\prod_{i=1}^{m}p_i^{y_i}(1-p_i)^{1-y_i}.
+\]
+A symbolic theory $T$ encodes ontology constraints over $\mathcal{Y}$. The target of inference is not the independent $p_i$, but the structure-conditioned marginal $\mu_i=p_T(y_i{=}1)$ obtained after impossible assignments are removed and the remaining mass is renormalized.
 
 \paragraph{Inference routes.}
-The four routes in Table~\ref{tab:inference-routes} share the same input---independent marginals $p_i$ and theory $T$---but differ in how they approximate the target $\mu_i$. \textit{Exact WMC} conditions $q$ on $T$ by weighted model counting. \textit{Soft closure} iterates monotone soft-OR updates (the ELK completion \citep{kazakov2014elk}), the route NeSy systems deploy in practice. Our \textit{modular exact WMC} hybridizes the two: exact junction-tree inference on peripheral modules and a dialable separator on a small reconvergence core (\S\ref{sec:scaling}).
+We compare four inference routes that share the same input---independent marginals $p_i$ and theory $T$---but differ in how they approximate the target $\mu_i$. \textit{Exact WMC} conditions $q$ on $T$ by weighted model counting. \textit{Soft closure} iterates monotone soft-OR updates (the ELK completion \citep{kazakov2014elk}), the common fast post-processing route. \textit{Top-$k$ provenance} keeps only a bounded number of proofs. Our \textit{modular exact WMC} hybridizes exact inference and soft boundary messages: exact junction-tree inference on peripheral modules and a dialable separator on a small reconvergence core (\S\ref{sec:scaling}).
 
 \section{Method: True-Path Inference Layer}\label{sec:setup}
 
 \subsection{Preliminaries}\label{sec:prelim}
-Weighted model counting (WMC) sums weights over Boolean assignments that satisfy a formula. Compile $T$ to a constraint graph whose nodes are ontology terms and whose edges encode Horn constraints; \emph{treewidth} $\tw$ measures how tree-like this graph is. Low $\tw$ means exact junction-tree inference needs only small joint tables; each reconvergence (a term with multiple parents) widens them, and exact compilation costs $\Theta(2^{\tw})$ memory \citep{bodlaender1993treewidth,darwiche2011sdd}. Intuitively, $\tw$ is the size of the largest group of terms that must be reasoned about jointly; GO biological process has $\tw{=}269$, so monolithic exact WMC is infeasible there. We work in OWL~2~EL / $\mathcal{EL}^{++}$, the Horn fragment biomedical ontologies use \citep{baader2005elenvelope}. Full DL disjunction (SROIQ) is deferred to Appendix~\ref{app:nesy}.
+We use four objects throughout the paper: the ontology theory, the exact WMC posterior, the soft closure, and the graph structure that controls tractability.
 
-Figure~\ref{fig:pipeline} summarizes the layer. Independent neural scores $p_i$ enter either exact WMC or the deployed soft closure. Our modular construction computes exact marginals on low-treewidth modules and uses a separator message (rank-$r$ dialable) only on a small reconvergence core.
-
-\begin{figure}[t]\centering
-\footnotesize
-\fbox{\begin{minipage}{0.95\columnwidth}
-\textit{Pipeline.}\quad
-Neural $p_i$ $\to$ soft closure / modular exact WMC $\to$ structure-aware $\mu_i$.\\[2pt]
-\textit{Periphery:} exact junction-tree WMC on each low-$\tw$ module $M\cup B$ (boundary $B$).\\
-\textit{Core (${\le}9\%$ terms):} rank-1 BP separator, rank-$r$ tensor train $\to$ exact.\\
-\textit{Ontologies:} GO, UBERON, ChEBI (same EL\textsuperscript{++} pipeline).
-\end{minipage}}
-\caption{Inference layer overview. Modules are exact. Approximation is confined to the reconvergence core and its separator message.}\label{fig:pipeline}
-\end{figure}
-
-\paragraph{The true-path theory.}
-The relevant logical structure is the propositional theory generated by the hierarchical and definitional axioms of the ontology, restated as a definition.
-
-\begin{definition}[True-path theory]
+\begin{definition}[True-path theory]\label{def:truepath}
 A theory $T$ is a propositional formula over $\mathcal Y$. The \emph{true-path} theory is
 \begin{equation*}
 \begin{aligned}
@@ -127,17 +103,7 @@ the hierarchy edges $E$ plus the EL\textsuperscript{++} normal-form definitions
 \citep{baader2005elenvelope,kazakov2014elk}.
 \end{definition}
 
-The first conjunction is the \emph{true-path rule} shared by hierarchical ontologies such as GO \citep{ashburner2000go}: when a term
-$c$ holds, every more general $\pi$ above it on a subsumption edge holds too. The remaining
-conjuncts capture the EL\textsuperscript{++} normal forms a real ontology compiles to
-\citep{baader2005elenvelope,kazakov2014elk}, so $T$ is the grounding of the full Horn fragment,
-not merely a tree of edges. Being Horn, $T$ has a single canonical (least) model relative to any
-asserted facts, making its closure a deterministic upward propagation rather than a branching
-search.
-
-\paragraph{The exact posterior: a WMC marginal.}
-Conditioning $q$ on the theory gives the principled posterior, whose per-concept marginals are
-ratios of weighted model counts.
+The first conjunction is the true-path rule: when a term $c$ holds, every more general parent $\pi$ holds. The remaining conjuncts keep the Horn definitions produced by $\mathcal{EL}^{++}$ normalization. Thus $T$ is not merely a tree of edges; it is the Boolean grounding of the Horn fragment used by OWL~2~EL biomedical ontologies.
 
 \begin{definition}[WMC marginal]\label{def:wmc}
 The structure-conditioned posterior is $p_T(\bC y)\propto[\bC y\models T]\,q(\bC y)$, with target
@@ -150,27 +116,40 @@ marginal
 \end{equation*}
 \end{definition}
 
-So $\mu_i$ is the probability concept $i$ holds once impossible assignments are excluded, exactly
-the semantic-probabilistic-layer construction \citep{ahmed2022spl,xu2018semanticloss}. Evaluating it
-exactly proceeds by knowledge compilation to an SDD \citep{darwiche2011sdd}, but $\WMC$ is $\#$P-hard
-\citep{chavira2008wmc} and the circuit size is governed by treewidth (\S\ref{sec:scaling}),
-prohibitive on the largest namespaces of real ontologies (e.g., GO biological process).
+\begin{definition}[Soft true-path update]\label{def:soft}
+For a parent concept $\pi$ with prior $q_\pi$ and incoming child messages $m_1,\dots,m_k$, the tree-local soft update is
+\[
+S_\pi(m_1,\dots,m_k)=
+\frac{q_\pi}{q_\pi+(1-q_\pi)\prod_{j=1}^{k}(1-m_j)}.
+\]
+The \emph{soft closure} iterates these local updates, together with the true-path cap, to a monotone fixpoint.
+\end{definition}
 
-\paragraph{The soft closure.}
-Because exact compilation does not scale, the inference actually deployed is not the WMC marginal
-but the monotone message-passing fixpoint of the EL completion \citep{kazakov2014elk}: each node
-aggregates a normalized soft-OR of its sufficient conditions, capped by the true-path constraint
-linking it to its children. A parent combines incoming child messages \emph{as if independent},
-mirroring at the probability level the deterministic upward propagation the Horn closure performs
-at the truth-value level. Iterated to convergence, this is precisely loopy belief propagation
-\citep{pearl1988probabilistic} on the constraint graph of $T$. The fixpoint always exists (the
-closure is extensive and monotone, reaching its limit within the depth of the graph), but \emph{what}
-it converges to is structure-dependent, since merging messages as independent is justified only
-when the supporting derivations share no evidence. We characterize this behavior in \S\ref{sec:lean} and evaluate it in \S\ref{sec:experiments}.
+On a tree this update is exact: the child subproblems are independent after conditioning on the parent. On a reconvergence, as in the diamond, two incoming messages may share evidence; treating them as independent is the approximation. In the theoretical section we show that this is precisely loopy belief propagation (BP) \citep{pearl1988probabilistic} on the true-path constraint graph.
+
+\begin{definition}[Constraint graph and treewidth]\label{def:graph}
+The constraint graph $G_T$ has one node per ontology variable and connects variables that occur together in a clause of $T$. Its treewidth $\tw(G_T)$ is the minimum, over tree decompositions, of the largest bag size minus one.
+\end{definition}
+
+Treewidth measures the size of the largest group of variables that exact inference must reason about jointly. Knowledge compilation and junction-tree WMC have cost exponential in $\tw(G_T)$ \citep{darwiche2011sdd,bodlaender1993treewidth}. This is why a forest is easy, the diamond is the first non-tree obstruction, and GO biological process with $\tw=269$ is out of reach for monolithic exact WMC.
+
+\paragraph{Layer overview.}
+Figure~\ref{fig:pipeline} summarizes the route used in the rest of the paper. Independent predictor scores enter the exact target of Definition~\ref{def:wmc}; the soft closure approximates it by Definition~\ref{def:soft}; our modular layer restores exact inference on most variables by cutting out the high-treewidth core.
+
+\begin{figure}[t]\centering
+\footnotesize
+\fbox{\begin{minipage}{0.95\columnwidth}
+\textit{Input:} independent predictor marginals $p_i$ and true-path theory $T$.\\[2pt]
+\textit{Target:} exact WMC marginals $\mu_i$.\\[2pt]
+\textit{Periphery:} exact junction-tree WMC on low-$\tw$ modules $M\cup B$.\\
+\textit{Core:} rank-$1$ BP separator, or rank-$r$ tensor-train separator for higher accuracy.
+\end{minipage}}
+\caption{Inference layer overview. Modules are solved exactly; approximation is confined to the core separator.}\label{fig:pipeline}
+\end{figure}
 
 \section{Theoretical Analysis}\label{sec:lean}
 
-The soft closure is what NeSy systems deploy in place of the \#P-hard exact WMC \citep{chavira2008wmc}, so the central question is \emph{when the cheap closure coincides with it, and where it cannot}. A deployable layer needs this as a theorem. We prove it and formalise the development in Lean~4 \citep{demoura2021lean}. The implementation and axiom footprint are deferred to Appendix~\ref{app:lean}.
+The soft closure is the scalable approximation used in place of the \#P-hard exact WMC \citep{chavira2008wmc}, so the central question is \emph{when the cheap closure coincides with it, and where it cannot}. A deployable layer needs this as a theorem. We prove it and formalise the development in Lean~4 \citep{demoura2021lean}. The implementation and axiom footprint are deferred to Appendix~\ref{app:lean}.
 
 The formalisation has two parts. A parametric \texttt{mathlib} development proves
 Theorem~\ref{thm:star} in full, over all $k:\mathbb{N}$ and all real priors
@@ -181,166 +160,230 @@ counterexample by \texttt{decide}, with no \texttt{sorry}, no \texttt{native\_de
 footprint $\{\texttt{propext}\}$ alone. Both are in Appendix~\ref{app:lean}.
 
 \paragraph{Tree-exactness for all priors.}
-The inductive primitive is the \emph{star}: a target $\pi$ with $k$ children $c_1,\dots,c_k$ independent under the single true-path constraint $y_{c_j}\!\Rightarrow\!y_\pi$. This is the elementary tree fragment, where the soft-OR update forces $\pi$ true unless every child is absent.
+The inductive primitive is the \emph{star}: a target $\pi$ with $k$ children $c_1,\dots,c_k$ under the constraints $y_{c_j}\!\Rightarrow\!y_\pi$. This is the elementary tree fragment, where child subproblems share no evidence except through $\pi$.
 
 \begin{theorem}[Tree-exactness, all priors]\label{thm:star}
 For a target $\pi$ with $k$ independent children $c_1,\dots,c_k$ under the true-path constraint $y_{c_j}\!\Rightarrow\!y_\pi$, the exact WMC marginal of $\pi$ equals the soft-OR update
 \[
 \mu_\pi=\frac{q_\pi}{q_\pi+(1-q_\pi)\prod_{j=1}^{k}(1-q_{c_j})}
 \]
-for all $k\in\mathbb{N}$ and all priors $q_\pi,q_{c_1},\dots,q_{c_k}$.
+for all $k\in\mathbb{N}$ and all priors $q_\pi,q_{c_1},\dots,q_{c_k}$, where $q_i$ denotes the local prior of concept $i$.
 \end{theorem}
 
 The proof telescopes the product-of-sums in the numerator over all $2^k$ child assignments to $q_\pi$ (each child factor sums to $q_i+(1-q_i)=1$) and adds the single parent-false world contributing $(1-q_\pi)\prod_i(1-q_i)$, so the marginal is the soft-OR ratio for every $k$ and prior. The Lean development carries out exactly this argument over \texttt{Fin}\,$k$ children and real priors (\texttt{WmcStar.star\_marginal\_eq\_softOR}, via the product-of-sums interchange \texttt{Finset.prod\_univ\_sum}), and the Lean-core battery additionally reduces both sides to the same rational by \texttt{decide} for the single edge and the $k{=}2,3$ stars. Theorem~\ref{thm:star} is therefore the instance, for the true-path theory, of the classical fact that BP is exact on trees \citep{pearl1988probabilistic}: combining messages as independent is justified precisely when the children are independent.
 
 \paragraph{The error is confined to reconvergences.}
-\emph{Where} does the closure deviate from WMC, and \emph{by how much}? It equals exact inference on the \emph{computation-tree unrolling}, duplicating any node reached along more than one path, so it is exact iff the constraint graph is a polytree. The obstruction is a \emph{reconvergence}, two paths meeting at a shared ancestor. On the canonical diamond ($d\!\Rightarrow\!b,c$, $b,c\!\Rightarrow\!a$) the exact reconvergent marginal is $5/6$ (Lean: \texttt{diamond\_exact\_5\_6}) while the soft-OR update, treating the two paths as independent, gives $9/10$ (\texttt{diamond\_softor\_9\_10}). The two differ exactly at the reconvergence (\texttt{diamond\_softor\_ne\_exact}). With tree-exactness this makes the closure exact iff the constraint graph is a polytree. The empirical deployed closure (loopy belief propagation, \S\ref{sec:experiments}) likewise equals exact WMC on the tree fragment and departs only at reconvergences.
+\emph{Where} does the closure deviate from WMC? BP on a loopy graph is exact on the computation-tree unrolling: every repeated visit to a variable is copied into a new node. Therefore the update is exact when this unrolling changes nothing, i.e., when the constraint graph is a \emph{polytree} (there is at most one undirected path between any two variables). The obstruction is a \emph{reconvergence}: two derivation paths meet again at a shared variable. On the diamond ($d\!\Rightarrow\!b,c$, $b,c\!\Rightarrow\!a$), exact WMC gives $\mu_a=5/6$ (Lean: \texttt{diamond\_exact\_5\_6}) while the path-independent soft-OR gives $9/10$ (\texttt{diamond\_softor\_9\_10}); the two differ exactly because both messages into $a$ reuse $d$.
 
 \paragraph{Unconditional convergence.}
 The synchronous true-path step is extensive and monotone, so in a finite vocabulary it reaches the least fixpoint within $\mathrm{depth}$ steps. Convergence is unconditional, only the limit is structure-dependent. A closed-form error bound on general DAGs is \#P-hard and is reported empirically in \S\ref{sec:experiments}.
 
 \section{Modular Exact WMC}\label{sec:scaling}
-Theorem~\ref{thm:star} establishes \emph{when} the soft closure is correct. A deployable layer must also answer \emph{at what cost} the exact answer is recoverable off the tree. We turn this into a constructive recipe: partition the ontology graph into low-treewidth peripheral modules separated by a reconvergence core, solve each augmented module exactly, and pass a weighted separator message from the core.
+Theorem~\ref{thm:star} establishes \emph{when} the soft closure is correct. A deployable layer must also answer \emph{where} exact WMC can still be recovered on a large ontology. We use the diamond lesson at scale: keep tree-like regions exact, isolate reconvergent structure, and represent only the boundary dependence approximately when necessary.
 
 \paragraph{Exact WMC is governed by treewidth.}
 Exact $\mu_i$ proceeds by compiling $T$ to an SDD, equivalently by junction-tree calibration, at cost $\Theta(m\,2^{\tw})$ in the constraint-graph treewidth $\tw$ \citep{darwiche2011sdd,darwiche2002kcmap,bodlaender1993treewidth}, $m=|\mathcal Y|$. On a forest $\tw=1$ and exact WMC coincides with the single-pass BP of Theorem~\ref{thm:star}. Each reconvergence enlarges the largest junction-tree bag.
 
-\paragraph{Cutting a reconvergence core.}
-High $\tw$ on large namespaces is carried by few reconvergence hubs. Greedily cutting highest-degree terms in 1\% batches collapses \emph{residual-graph} treewidth sharply (Table~\ref{tab:ontology-struct}), indicating that intractability is localized. The \emph{modular} construction is stricter: each peripheral module $M$ must be solved with its core boundary $B$, so augmented width $M\cup B$ governs exactness.
+\begin{definition}[Core, module, and boundary]\label{def:module}
+Let $C\subseteq\mathcal{Y}$ be a set of variables removed from $G_T$. The connected components of $G_T\setminus C$ are \emph{peripheral modules} $M_1,\dots,M_s$. The boundary of a module is $B_j=\{c\in C: c \text{ is adjacent to some } m\in M_j\}$. We solve the \emph{augmented module} $M_j\cup B_j$ exactly.
+\end{definition}
+
+In the diamond example, choosing $C=\{a\}$ leaves the low-treewidth periphery $\{b,c,d\}$ and boundary $B=\{a\}$. In GO, the same idea is applied to high-degree reconvergence hubs. The residual graph alone is not enough: exactness of a module is governed by the treewidth of the augmented module $M_j\cup B_j$, because boundary variables still couple the module to the core.
+
+\begin{definition}[Separator message and rank]\label{def:separator}
+A separator message for module $M_j$ is a distribution over its boundary variables $B_j$ supplied by the core. Rank~1 means this boundary distribution is represented as a product of one-variable marginals. A rank-$r$ separator uses a tensor-train factorization of the boundary joint with internal rank at most $r$; full rank represents the exact boundary joint.
+\end{definition}
+
+Rank~1 is exactly the independence approximation made by the soft closure in the diamond: the two messages into $a$ are treated as if they came from independent evidence. Increasing the rank allows the separator to carry shared evidence across the boundary.
 
 \paragraph{Separator-aware modular exact WMC.}
-We select a boundary-aware core until every augmented module has $\tw\le14$, then run exact junction-tree WMC on each $M\cup B$ with a rank-1 soft-closure separator message from the core (Proposition~\ref{prop:modular}). The same core-selection heuristic is applied unchanged across ontologies (\S\ref{sec:transfer}).
+We select a boundary-aware core until every augmented module has $\tw\le14$, then run exact junction-tree WMC on each $M_j\cup B_j$. The core sends a separator message to each module; with a full-rank separator, the global result matches exact WMC on the covered variables, while rank~1 recovers the product soft-boundary approximation.
 
 \begin{proposition}[Modular exact WMC]\label{prop:modular}
-Partition the graph into low-$\tw$ modules $M$ separated by a reconvergence core $C$. Solve each augmented module $M\cup B$ ($B$: core nodes adjacent to $M$) exactly by junction-tree WMC. Pass a weighted separator message from $C$. Periphery marginals are exact. Only the core boundary approximation (rank-$r$ dialable) may err.
+Given a core $C$ and modules $M_j$ with boundaries $B_j$, suppose each augmented module $M_j\cup B_j$ has bounded treewidth and is solved exactly by junction-tree WMC. If the separator message over each $B_j$ equals the exact core-induced boundary joint, then the resulting marginals on $\bigcup_j M_j$ equal the exact WMC marginals. If the separator is approximated, the only error source is that boundary approximation.
 \end{proposition}
 
 \paragraph{Rank-$r$ separator dial.}
-At the core boundary the rank-1 (independent) message is exactly the soft closure. A rank-$r$ tensor-train separator dials to exact inference on the core (Appendix~\ref{app:nesy}, Table~\ref{tab:rank}).
+At the core boundary the rank-1 product message is the soft-closure endpoint; a rank-$r$ tensor-train separator moves toward the exact boundary joint without changing the exact per-module circuits. The experiments measure this dial on GO cores (Appendix~\ref{app:nesy}, Table~\ref{tab:rank}).
 
 \section{Experiments}\label{sec:experiments}
 
-\subsection{Experimental Setup}
-We evaluate on three public biomedical ontologies compiled to the same EL\textsuperscript{++} true-path fragment: GO \citep{ashburner2000go,geneontology2023}, UBERON \citep{mungall2012uberon} (release \tbd), and ChEBI \citep{hastings2016chebi} (release \tbd). For GO we download the \texttt{go-basic} release of June 2025 (\texttt{go-basic.obo}) and run each namespace separately: cellular component (cc), molecular function (mf), and biological process (bp). For each ontology we take non-obsolete terms, compile $\mathcal{EL}^{++}$ subsumption (\emph{is-a}) to the true-path theory, and build the constraint graph from EL\textsuperscript{++} normal forms. GO yields $4{,}041$, $10{,}131$, and $25{,}950$ terms in cc, mf, and bp. Exact WMC marginals are computed by SDD compilation \citep{darwiche2011sdd} and Shafer--Shenoy junction-tree calibration, which agree with brute force to $10^{-16}$ on every instance small enough to enumerate. The soft closure is loopy sum-product BP on the constraint factor graph. Priors $p_i$ are drawn uniformly in $[0.05,0.95]$ under a fixed seed unless downstream predictors supply $p_i$. All inference runs use a single CPU node unless noted.
+\paragraph{Experimental design.}
+We separate two questions that are often conflated. The first is an \emph{intrinsic inference-layer evaluation}: given independent term scores and an ontology theory, can the layer compute the WMC posterior, where does the soft approximation fail, and what is the cost of the modular construction? This is not a downstream prediction benchmark; it tests the correctness, scalability, and error localization of the inference operator itself. The second is a \emph{downstream post-processing evaluation}: on a standard GO protein-function prediction task, with the backbone fixed, does replacing raw or heuristic ontology correction with modular WMC improve constrained predictions?
 
-\subsection{Synthetic Pattern Validation}
-On elementary structures a $9\times9$ grid of priors confirms Theorem~\ref{thm:star}: the soft closure equals exact WMC to $5\times10^{-13}$ on the single edge, the $k$-child star, and the two-parent polytree, and departs only on the diamond ($5.8\times10^{-2}$), matching the Lean battery (\S\ref{sec:lean}, Appendix~\ref{app:lean}).
+\subsection{Intrinsic Inference-Layer Evaluation}\label{sec:intrinsic}
+\paragraph{Ontologies and scores.}
+We evaluate the true-path inference layer on GO \citep{ashburner2000go,geneontology2023} at namespace scale---cellular component (cc), molecular function (mf), and biological process (bp)---and use UBERON and ChEBI \citep{mungall2012uberon,hastings2016chebi} as cross-ontology transfer cases. Each ontology is instantiated as the same Horn true-path theory, so differences in Table~\ref{tab:ontology-struct} reflect ontology structure rather than task-specific preprocessing.
 
-\subsection{Gene Ontology}
-\paragraph{Soft closure vs.\ exact WMC.}
-On GO cc, where monolithic treewidth ($12$) permits exact calibration, the soft closure matches exact junction-tree marginals to mean absolute error $2.1\times10^{-4}$ (max $6.4\times10^{-2}$; only $0.6\%$ of terms err by more than $10^{-2}$) in $3.0$\,s over $4{,}041$ terms. Error concentrates at reconvergent terms: $7.4\times10^{-4}$ mean error at multi-parent terms vs.\ $1.2\times10^{-4}$ at single-parent terms ($6.0\times$ factor), growing with in-degree (Fig.~\ref{fig:indegree}). The purely upward soft-OR lacks the downward true-path cap and errs by mean $3.4\times10^{-2}$ on cc, confirming that the deployed closure is bidirectional BP.
+All intrinsic methods receive the same independent marginals $p_i$ and the same ontology theory $T$. Unless otherwise stated, intrinsic priors are sampled uniformly in $[0.05,0.95]$ under a fixed seed. These priors are not meant to model a protein predictor; they provide controlled inputs for comparing inference operators against the same WMC target.
 
-\begin{figure}[t]\centering
-\includegraphics[width=\columnwidth]{fig_cc_error_vs_indegree.png}
-\caption{Per-term soft-closure error on GO cc against in-degree. Marker area is term count; dashed line is a count-weighted linear fit.}\label{fig:indegree}
-\end{figure}
+\paragraph{Intrinsic targets, metrics, and baselines.}
+The gold target is the WMC marginal $\mu_i$ in Definition~\ref{def:wmc}. We report monolithic treewidth, residual treewidth after removing reconvergence cores, number of peripheral modules, maximum augmented-module treewidth, exact-coverage rate, wall time, and drift from exact WMC when exact comparison is available. Junction-tree WMC and brute force agree to machine precision on every enumerated validation module. Baselines include soft closure, monolithic exact WMC/DeepProbLog-style compilation, Scallop top-$k$ provenance, and learned neuro-symbolic inference systems on the tasks they can instantiate. A-NeSI and NeSyDM are not direct ontology-scale baselines because they require per-task training; A-NeSI also requires exact-WMC samples, which are precisely unavailable on full GO bp. We therefore report them only on the carry-chain benchmark in Appendix~\ref{app:nesy}.
 
-\paragraph{Modular exact WMC.}
-Separator-aware modular WMC gives Table~\ref{tab:modular}. Monolithic $\tw$ is $12/37/269$ for cc/mf/bp; after cutting reconvergence cores of 0\%/5.0\%/9.0\%, we obtain exact marginals for 100\%/95.0\%/91.0\% of terms in 1/6{,}519/7{,}249 modules (max augmented $\tw$ 12/5/12; wall times 3.0\,s/57\,s/379\,s). Every validated module matches brute force to $5.6{\times}10^{-17}$.
+\subsubsection{Ontology-Scale Exactness and Scalability}\label{sec:main-results}
+Table~\ref{tab:ontology-struct} gives the structural reason monolithic exact WMC fails on large namespaces. GO cc has treewidth $12$ and can be solved monolithically. GO mf, GO bp, and UBERON have treewidth $37$, $269$, and $46$, respectively. ChEBI is the largest stress test, with $205{,}592$ terms and monolithic treewidth $738$. Removing a small set of high-degree reconvergence terms collapses residual treewidth: GO mf reaches residual $\tw=12$ after a $2.0\%$ cut, GO bp reaches residual $\tw=14$ after a $5.0\%$ cut, UBERON reaches residual $\tw=13$ after a $3.0\%$ cut, and ChEBI reaches residual $\tw=4$ after a $2.0\%$ cut. This residual-width diagnostic is separate from the modular inference result, because exact modular inference must also include boundary terms.
 
 \begin{table}[t]\centering
-\caption{Separator-aware modular exact WMC on GO and additional ontologies. GO rows are the three standard namespaces (cc/mf/bp = cellular component / molecular function / biological process). ``Core'' is the boundary-aware reconvergence core. ``Exact'' is the fraction of terms solved exactly in augmented modules $M\cup B$.}\label{tab:modular}
+\caption{Ontology structure under the true-path compilation. \emph{Cut} removes high-degree reconvergence terms from the residual graph; modular exact WMC in Table~\ref{tab:modular} uses the stricter augmented-module width $M\cup B$.}\label{tab:ontology-struct}
+\footnotesize
+\setlength{\tabcolsep}{2.5pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Ontology & terms & \%mp & max in-deg & $\tw$ & cut & res.\ $\tw$ \\
+\midrule
+GO cc  & 4041  & 13\% & 4 & 12  & 0.0\% & 12 \\
+GO mf  & 10131 & 20\% & 7 & 37  & 2.0\% & 12 \\
+GO bp  & 25950 & 53\% & 9  & 269 & 5.0\% & 14 \\
+UBERON & 14977 & 24\% & 7  & 46  & 3.0\% & 13 \\
+ChEBI  & 205592 & 24.7\% & 14 & 738 & 2.0\% & 4 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Table~\ref{tab:modular} reports the actual modular inference result. The boundary-aware selector cuts 0.0\%/5.0\%/9.0\% of GO cc/mf/bp, 5.0\% of UBERON, and 2.0\% of ChEBI into the core, yielding exact WMC marginals for 100.0\%/95.0\%/91.0\%/95.0\%/98.0\% of terms. The largest augmented-module treewidth is at most $12$ across all five ontologies, and every checked module matches brute force to at most $1.1{\times}10^{-16}$ maximum absolute error. The full pipeline takes 14.8\,s, 56.8\,s, 378.7\,s, 128.1\,s, and 9.3\,h on GO cc, GO mf, GO bp, UBERON, and ChEBI, respectively.
+
+\begin{table}[t]\centering
+\caption{Separator-aware modular exact WMC. \emph{Core} is the boundary-aware reconvergence core. \emph{Exact} is the fraction of terms solved exactly in augmented modules $M\cup B$.}\label{tab:modular}
 \footnotesize
 \setlength{\tabcolsep}{2.5pt}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
-Ontology & terms & \%mp & $\tw$ & core & mods & $\tw_{\max}$ & exact \\
+Ontology & terms & $\tw$ & core & mods & $\tw_{\max}$ & exact & wall \\
 \midrule
-GO cc    & 4041  & 13\% & 12  & 0.0\% & 1     & 12 & 100.0\% \\
-GO mf    & 10131 & 20\% & 37  & 5.0\% & 6519  & 5  & 95.0\% \\
-GO bp    & 25950 & 53\% & 269 & 9.0\% & 7249  & 12 & 91.0\% \\
-UBERON   & \tbd  & \tbd & \tbd & \tbd  & \tbd  & \tbd & \tbd \\
-ChEBI    & \tbd  & \tbd & \tbd & \tbd  & \tbd  & \tbd & \tbd \\
+GO cc  & 4041  & 12  & 0.0\% & 1     & 12 & 100.0\% & 14.8\,s \\
+GO mf  & 10131 & 37  & 5.0\% & 6519  & 5  & 95.0\%  & 56.8\,s \\
+GO bp  & 25950 & 269 & 9.0\% & 7249  & 12 & 91.0\%  & 378.7\,s \\
+UBERON & 14977 & 46 & 5.0\% & 8427 & 11 & 95.0\% & 128.1\,s \\
+ChEBI  & 205592 & 738 & 2.0\% & 181679 & 12 & 98.0\% & 9.3\,h \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-\paragraph{Rank-$r$ separator and NF2.}
-On GO residual cores, rank-1 boundary messages discard median $\mathrm{KL}(q^\star\Vert\text{product})=1.49$ nats over the 40 highest-degree cc cores; a representative $10$-term core is exact at tensor-train rank $6$ (Table~\ref{tab:rank}). Core-term marginals under rank-1 err by up to $8.5\times10^{-2}$ (cc) and $3.6\times10^{-1}$ (bp) and become exact to $10^{-15}$ at full separator rank. Adding conjunction definitions (NF2) yields 99\%/97\%/83\% exact on GO cc/mf/bp at 1\%/3\%/17\% cores (Appendix~\ref{app:multi-ontology}).
+\subsubsection{Reconvergence Predicts Soft-Closure Error}\label{sec:reconvergence-exp}
+On elementary structures, a $9\times9$ grid of priors confirms Theorem~\ref{thm:star}: the soft closure equals exact WMC to at most $5\times10^{-13}$ on the single edge, the three-child star, and the two-parent polytree. On the diamond, the actual loopy-BP implementation differs by up to $5.8\times10^{-2}$ over the grid, while the Lean path-independent soft-OR witness gives $5/6$ versus $9/10$ at uniform priors. Both checks validate the same failure mode: the approximation is not globally arbitrary; it appears when two derivational paths reuse evidence.
 
-\subsection{UBERON and ChEBI}\label{sec:other-ont}
-Table~\ref{tab:ontology-struct} reports structure statistics for all three ontologies. Greedily cutting the top 5\% highest-degree terms collapses residual treewidth sharply (GO bp: $269\!\to\!12$). Full modular-pipeline results for UBERON and ChEBI are in Table~\ref{tab:modular}.
+On GO cc, where $\tw=12$ permits exact calibration of the full namespace, the same pattern appears at ontology scale. The soft closure has mean absolute error $2.1\times10^{-4}$ against exact junction-tree WMC, with maximum error $6.4\times10^{-2}$ and only $0.6\%$ of terms above $10^{-2}$. Error is $6.0\times$ larger at multi-parent terms than at single-parent terms ($7.4\times10^{-4}$ vs.\ $1.2\times10^{-4}$), and it grows with in-degree (Fig.~\ref{fig:indegree}). A purely upward soft-OR, which omits the downward true-path cap, has mean error $3.4\times10^{-2}$; the effective closure is therefore bidirectional BP, not a one-way heuristic.
+
+\begin{figure}[t]\centering
+\includegraphics[width=\columnwidth]{fig_cc_error_vs_indegree.png}
+\caption{Soft-closure error on GO cc against in-degree. Marker area is term count; dashed line is a count-weighted linear fit.}\label{fig:indegree}
+\end{figure}
+
+\subsubsection{Core Selection and Separator Rank}\label{sec:design-exp}
+The modular result depends on two choices: which terms enter the reconvergence core, and how much dependence the boundary separator can represent. The residual-width probe in Table~\ref{tab:ontology-struct} shows that high-degree cuts are a useful diagnostic, but Table~\ref{tab:modular} uses a stricter boundary-aware objective: every peripheral component must remain low-treewidth after its adjacent core boundary $B$ is added back. This is why the paper reports both residual treewidth and augmented-module treewidth.
+
+The separator rank controls the remaining approximation on the core. Over the 40 highest-degree GO cc reconvergence cores, the exact boundary joint is consistently non-product: median $\mathrm{KL}(q^\star\Vert\text{product})=1.49$ nats, with exact tensor-train rank median $5$ (range $3$--$10$). On a representative 10-term core, rank~1 has TV $0.68$, rank~2 closes $46\%$ of the gap, rank~4 closes $82\%$, and rank~8 is exact to numerical precision (Table~\ref{tab:rank}). Thus the soft closure is the rank-1 endpoint of a continuous accuracy-cost dial, rather than a separate algorithm.
 
 \begin{table}[t]\centering
-\caption{Cross-ontology structure probe (EL\textsuperscript{++} true-path compilation). ``Res.\ $\tw$@5\%'' is residual treewidth after cutting the top 5\% highest-degree terms.}\label{tab:ontology-struct}
+\caption{Component analysis on 12 matched GO cc reconvergent subgraphs. Rows isolate method components rather than changing the ontology task.}
+\label{tab:components}
 \footnotesize
-\setlength{\tabcolsep}{2.5pt}
+\setlength{\tabcolsep}{2pt}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}lrrrrr@{}}
+\begin{tabular}{@{}lrrr@{}}
 \toprule
-Ontology & terms & \%mp & max in-deg & $\tw$ & res.\ $\tw$@5\% \\
+Variant & Exact frac & Mean err & Max err \\
 \midrule
-GO cc  & 4041  & 13\% & 4 & 12  & \tbd \\
-GO mf  & 10131 & 20\% & 7 & 37  & \tbd \\
-GO bp  & 25950 & 53\% & 9 & 269 & 12 \\
-UBERON & \tbd  & \tbd & \tbd & \tbd & \tbd \\
-ChEBI  & \tbd  & \tbd & \tbd & \tbd & \tbd \\
+Soft closure only & 0.03 & $8.3{\times}10^{-3}$ & $2.3{\times}10^{-2}$ \\
+w/o boundary augmentation & 0.00 & $9.5{\times}10^{-2}$ & $3.4{\times}10^{-1}$ \\
+w/o separator message & 0.58 & $9.6{\times}10^{-3}$ & $5.7{\times}10^{-2}$ \\
+Full modular, rank-1 & 0.00 & $4.4{\times}10^{-2}$ & $1.5{\times}10^{-1}$ \\
+Full modular, full rank & 1.00 & 0 & 0 \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-\subsection{Downstream GO Protein-Function Prediction}\label{sec:downstream}
-We apply the layer as a drop-in posterior without retraining the base predictor. Base marginals $p_i$ come from \tbd\ (e.g., DeepGOPlus / ESM2+GO). Table~\ref{tab:downstream} reports hierarchy violation rate, F-max, and AUPR on a standard CAFA-style split.
+\subsubsection{Comparison with Probabilistic Inference Routes}
+Table~\ref{tab:nesy} compares exact compilation, top-$k$ provenance, and learned neuro-symbolic inference on matched true-path tasks where they are applicable. DeepProbLog-style exact compilation is correct when it compiles, but it walls on a 679-term GO bp subgraph with treewidth $14$ and does not reach full GO namespaces. Scallop scales by truncating proof provenance; on 200 GO bp neighborhoods, top-$1$ provenance has mean drift $0.109$ and max drift $0.336$, while top-$10$ reduces mean drift to $1.1\times10^{-5}$ and max drift to $3.7\times10^{-4}$. The error again tracks proof multiplicity/reconvergence. A-NeSI and NeSyDM are evaluated separately on carry chains because their training requirement makes them a different route, not a drop-in ontology-scale baseline.
 
 \begin{table}[t]\centering
-\caption{Downstream GO protein-function prediction (\tbd\ predictor, \tbd\ split).}\label{tab:downstream}
+\caption{Probabilistic inference routes on matched true-path tasks when applicable. \emph{Full GO} means running on complete GO namespaces, not only sampled subgraphs.}\label{tab:nesy}
 \footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lccc@{}}
-\toprule
-Method & Violation rate & F-max & AUPR \\
-\midrule
-Raw $p_i$ & \tbd & \tbd & \tbd \\
-Soft closure & \tbd & \tbd & \tbd \\
-Modular exact (rank-1) & \tbd & \tbd & \tbd \\
-Modular exact (full rank) & \tbd & \tbd & \tbd \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Comparison with NeSy Baselines}
-Table~\ref{tab:nesy} fills in the quantitative cells sketched in Table~\ref{tab:inference-routes}: drift vs.\ exact WMC on matched true-path subgraphs with identical priors. DeepProbLog compiles GO cc ($\tw{=}12$) but not mf/bp ($2^{37}$/$2^{269}$). Scallop scales to full GO bp but undercounts at reconvergences when $k$ is small (max drift $0.34$ at $k{=}1$). A-NeSI is evaluated on carry chains only (Appendix~\ref{app:nesy}).
-
-\begin{table}[t]\centering
-\caption{NeSy frameworks on matched true-path subgraphs. A-NeSI/NeSyDM need per-ontology training and exact-$\WMC$ samples.}\label{tab:nesy}
-\footnotesize
-\setlength{\tabcolsep}{1.5pt}
+\setlength{\tabcolsep}{1.2pt}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}llccc@{}}
 \toprule
-Method & Evaluated on & Full ont. & Mean drift & Max drift \\
+Method & Evaluated on & Full GO & Mean drift & Max drift \\
 \midrule
-DeepProbLog & GO cc/mf/bp & No & 0 (exact) & 0 (exact) \\
-Scallop ($k{=}1$) & GO bp & Yes & \tbd & 0.34 \\
-Scallop ($k{=}10$) & GO bp & Yes & \tbd & $<10^{-3}$ \\
-A-NeSI / NeSyDM & Carry chain & No & \tbd & \tbd \\
-Ours (modular) & GO cc/mf/bp & Yes & \tbd & \tbd \\
-Ours (modular) & UBERON & \tbd & \tbd & \tbd \\
-Ours (modular) & ChEBI & \tbd & \tbd & \tbd \\
+DeepProbLog / exact compiler & GO bp subgraphs & No & 0 & 0 \\
+Scallop ($k{=}1$) & 200 GO bp neighborhoods & Yes & 0.109 & 0.336 \\
+Scallop ($k{=}10$) & 200 GO bp neighborhoods & Yes & $1.1{\times}10^{-5}$ & $3.7{\times}10^{-4}$ \\
+A-NeSI / NeSyDM & carry chain only & No & -- & -- \\
+Ours, modular rank-1 & GO cc/mf/bp & Yes & core only & core only \\
+Ours, full-rank core & sampled GO cores & Yes & 0 & 0 \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-\subsection{Transfer and Limits}\label{sec:transfer}
-We test whether the GO-tuned core-selection heuristic ($\tw_{\max}{=}14$) transfers to UBERON and ChEBI without retuning (Table~\ref{tab:transfer}). Failure modes include inexact rank-1 core terms, NF2-induced treewidth growth, and the SROIQ disjunctive regime (Appendix~\ref{app:nesy}).
+\subsection{Downstream Protein Function Prediction over GO}\label{sec:downstream}
+\paragraph{Task and comparison principle.}
+The downstream experiment evaluates whether WMC-based ontology post-processing is useful on standard protein-function prediction over GO \citep{radivojac2013cafa,zhou2019cafa3}. We do not compare protein encoders. Instead, we use fixed published predictors and apply different ontology post-processing layers to the same predicted term scores $p_i$. Thus any difference in Tables~\ref{tab:downstream-within}--\ref{tab:downstream-boundary} is attributable to the post-processing layer, not to a stronger backbone.
+
+\paragraph{Within-vocabulary prediction is neutral.}
+For terms already present in the predictor vocabulary, the training labels are already propagated through the GO hierarchy. Re-imposing the hierarchy at inference therefore has little room to help. Table~\ref{tab:downstream-within} shows representative fixed-MLP runs: WMC changes Fmax by at most $0.007$ relative to raw scores, while hard max-propagation can hurt by over-inflating ancestors. On bp, for example, max-propagation drops Fmax from $0.458$ to $0.420$, while normalized WMC remains close to raw.
 
 \begin{table}[t]\centering
-\caption{Transfer of core-selection heuristic (no retuning). ``$\Delta$ exact'' is change vs.\ ontology-tuned core budget.}\label{tab:transfer}
+\caption{Within-vocabulary GO prediction with a fixed MLP backbone. Fmax changes little because these targets are already supervised and annotation propagation is already reflected in the labels.}\label{tab:downstream-within}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lccc@{}}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llccc@{}}
 \toprule
-Ontology & GO-tuned exact & Tuned exact & $\Delta$ exact \\
+Namespace & Backbone & Raw & Max closure & WMC closure \\
 \midrule
-UBERON & \tbd & \tbd & \tbd \\
-ChEBI  & \tbd & \tbd & \tbd \\
+mf & MLP & 0.654 & -- & 0.653 \\
+bp & MLP & 0.458 & 0.420 & 0.451 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\paragraph{Zero-shot GO terms are the positive regime.}
+The layer helps when the ontology contains external compositional structure not directly supervised by the base predictor. In the DeepGOZero zero-shot protocol, held-out GO terms have no training annotations and cannot be scored directly by the base predictor. The training-free WMC definition closure composes in-vocabulary part scores through GO normal-form definitions and is competitive with a trained DeepGOZero zero-shot model (Table~\ref{tab:downstream-zero}). We evaluate two fixed bases released with DeepGOZero: an InterPro MLP and a sequence CNN. The coverage column is important: three molecular-function terms are not reached because their definitions do not bottom out in the base vocabulary.
+
+\begin{table}[t]\centering
+\caption{DeepGOZero curated zero-shot GO terms. The metric is mean per-term ROC-AUC over reached/evaluable terms. WMC uses no zero-shot training; it composes fixed base-predictor scores through ontology definitions.}\label{tab:downstream-zero}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Namespace & Terms reached & WMC-MLP & WMC-CNN & DGZ zero-shot & DGZ supervised \\
+\midrule
+molecular function & 2/5 & \textbf{0.962} & 0.812 & 0.610 & 0.939 \\
+biological process & 7/7 & \textbf{0.860} & 0.751 & 0.796 & 0.877 \\
+cellular component & 4/4 & 0.866 & \textbf{0.893} & 0.825 & 0.871 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\paragraph{Boundary: no component signal, no gain.}
+The zero-shot gains do not mean symbolic inference repairs a collapsed perception model. On domain-novel proteins, feature-based backbones fall to the Naive frequency floor on their component terms, leaving no protein-specific signal for WMC to compose. Table~\ref{tab:downstream-boundary} shows the boundary on molecular function all-novel proteins: WMC leaves the collapsed base essentially unchanged.
+
+\begin{table}[t]\centering
+\caption{Domain-novel GO proteins. WMC is neutral when the base predictor has no usable component signal.}\label{tab:downstream-boundary}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Backbone & Raw Fmax & +WMC Fmax \\
+\midrule
+DeepGOZero & 0.367 & 0.365 \\
+MLP & 0.369 & 0.369 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+\paragraph{Downstream interpretation.}
+The downstream result is therefore not a blanket improvement over protein-function predictors. It is a competence-boundary result: WMC helps when ontology definitions add external compositional structure and the base retains signal on the components; it is neutral when the term is already supervised or when the base has collapsed on all components.
+
+\subsection{Limits}\label{sec:limits}
+The remaining limits are threefold. Rank-1 modular inference is exact on the periphery but approximate on the reconvergence core; the rank-$r$ separator removes this approximation at additional cost. NF2 conjunctions increase augmented-module width and therefore move some terms from the exact periphery into the core. Full SROIQ disjunction creates multimodal boundary joints, where independence assumptions fail qualitatively; Appendix~\ref{app:nesy} reports this controlled disjunctive regime separately.
+
+
 \section{Conclusion}\label{sec:conclusion}
-We characterize the soft closure deployed in NeSy systems as loopy belief propagation on hierarchical ontology constraints: exact on tree-like structure and wrong only at reconvergences. Separator-aware modular exact WMC recovers exact marginals on most concepts by isolating a small reconvergence core; a rank-$r$ separator interpolates between the fast closure and exact inference. On Gene Ontology, cutting 0--9\% cores yields 91--100\% modular-exact coverage across the cc, mf, and bp namespaces; the same pipeline extends to UBERON and ChEBI. The layer maps independent predictor scores to structure-aware marginals without retraining. Remaining limits include full SROIQ disjunction, rank-1 error on reconvergent cores, and learned approximators that require per-ontology training.
+We study structure-aware posterior inference for independent predictor scores constrained by large hierarchical ontologies. The common soft closure is loopy belief propagation on the true-path constraint graph: exact on tree-like structure and wrong only at reconvergences. Separator-aware modular exact WMC recovers exact marginals on most concepts by isolating a small reconvergence core; a rank-$r$ separator interpolates between the fast independence closure and exact inference. On Gene Ontology, cutting 0--9\% cores yields 91--100\% modular-exact coverage across the cc, mf, and bp namespaces; the same pipeline reaches 95\% modular-exact coverage on UBERON and 98\% on ChEBI. The layer maps independent predictor scores to structure-aware marginals without retraining, with NeSy concept layers as one application rather than the only setting. Remaining limits include full SROIQ disjunction, rank-1 error on reconvergent cores, and learned approximators that require per-ontology training.
 
 \section{Ethical Statement}
 This work uses publicly available ontologies (GO, UBERON, ChEBI) and poses no human-subjects risk. Improved ontology consistency may affect automated annotation quality. Users should treat $\mu_i$ as a structural correction layer, not a standalone clinical predictor.
@@ -353,36 +396,21 @@ Code, data, Lean developments, and experiment scripts will be released upon publ
 \appendix
 
 \section{Application Note}
-The inference layer is a drop-in posterior. Independent neural marginals $p_i$ map to structure-conditioned $\mu_i$ with no retraining, useful for GO-based function predictors \citep{kulmanov2020deepgoplus,lin2023esm2,yu2023clean,kulmanov2018deepgo,kulmanov2022deepgozero} and, more broadly, any hierarchical ontology predictor that outputs per-concept scores.
+The inference layer is a drop-in posterior. Independent predictor marginals $p_i$ map to structure-conditioned $\mu_i$ with no retraining, useful for GO-based function predictors \citep{kulmanov2020deepgoplus,lin2023esm2,yu2023clean,kulmanov2018deepgo,kulmanov2022deepgozero} and, more broadly, any hierarchical ontology predictor that outputs per-concept scores.
 
-\section{Multi-ontology experiment details}\label{app:multi-ontology}
+\section{Ontology Instantiation Details}\label{app:multi-ontology}
 
-\paragraph{Ontology releases and preprocessing.}
-GO \citep{geneontology2023}: \texttt{go-basic} release of June 2025 (\texttt{go-basic.obo}); namespaces cc, mf, bp as above. UBERON \citep{mungall2012uberon}: release \tbd, non-obsolete \emph{is-a} backbone after EL\textsuperscript{++} normalization. ChEBI \citep{hastings2016chebi}: release \tbd, same pipeline. All ontologies are compiled with the ELK reasoner normal forms \citep{kazakov2014elk}.
+\paragraph{Reproducibility identifiers.}
+The ontology snapshots are GO \citep{geneontology2023} \texttt{go-basic.obo} 2025-06, UBERON \citep{mungall2012uberon} \texttt{uberon-basic.owl} 2026-06-19, and ChEBI \citep{hastings2016chebi} release 252 (2026-05-01). We instantiate each ontology by retaining live terms, mapping subsumption edges to implications $y_c\Rightarrow y_\pi$, and adding EL\textsuperscript{++} normal-form conjunctions when the normalized theory is used. GO is evaluated by namespace; UBERON and ChEBI are evaluated as single-ontology transfer cases.
 
-\paragraph{Structure and downstream (GO, UBERON, ChEBI).}
-\begin{itemize}
-\item[\checkmark] GO cc/mf/bp structure statistics (partial: Table~\ref{tab:ontology-struct}).
-\item[\ ] UBERON/ChEBI: terms, \%mp, max in-degree, monolithic $\tw$, residual $\tw$@1/5/9\% cuts.
-\item[\ ] Per-ontology soft-closure error vs.\ in-degree plots (GO cc: Fig.~\ref{fig:indegree}; UBERON/ChEBI: \texttt{fig\_uberon\_error\_vs\_indegree.png}, \texttt{fig\_chebi\_error\_vs\_indegree.png}).
-\item[\ ] Downstream Table~\ref{tab:downstream}: pick predictor (\tbd), split (\tbd), report violation/F-max/AUPR.
-\end{itemize}
+\paragraph{Structure and modular inference protocol.}
+For each ontology row in Tables~\ref{tab:ontology-struct} and~\ref{tab:modular}, we compute term count, edge count, multi-parent fraction, maximum in-degree, monolithic treewidth, residual treewidth after high-degree reconvergence cuts, boundary-aware core size, number of peripheral modules, maximum augmented-module treewidth, exact-coverage rate, and wall time. The residual-width probe removes high-degree terms only to diagnose where treewidth concentrates. The modular pipeline then reselects a boundary-aware core so that each exact component is solved as $M\cup B$, where $B$ is the adjacent core boundary.
 
-\paragraph{Full pipeline and NeSy baselines.}
-\begin{itemize}
-\item[\checkmark] GO modular exact WMC (Table~\ref{tab:modular}).
-\item[\ ] UBERON full modular pipeline: core\%, modules, $\tw_{\max}$, exact\%, wall time.
-\item[\ ] ChEBI full modular pipeline (same columns).
-\item[\ ] NF2 extension on all five rows (GO cc/mf/bp + UBERON + ChEBI).
-\item[\ ] Unified NeSy Table~\ref{tab:nesy}: Scallop mean drift on matched GO bp subgraphs; DeepProbLog compile limits per ontology.
-\end{itemize}
+\paragraph{Validation protocol.}
+On every module small enough for enumeration, the junction-tree WMC marginal is checked against brute force. On monolithic GO cc, where $\tw=12$, the full soft closure is compared directly against exact junction-tree WMC, giving the error localization results in Fig.~\ref{fig:indegree}. On larger ontologies, exact comparison is performed on sampled low-treewidth cones and on the peripheral modules certified by the modular construction.
 
-\paragraph{Transfer and limits.}
-\begin{itemize}
-\item[\ ] Table~\ref{tab:transfer}: GO-tuned vs.\ tuned core budget on UBERON/ChEBI.
-\item[\ ] Failure case study: list top-$k$ inexact terms under rank-$1$ on GO bp and ChEBI.
-\item[\ ] Reproducibility: anonymized repo with one-command reproduce per ontology (\tbd\ URL).
-\end{itemize}
+\paragraph{Baseline protocol.}
+DeepProbLog-style exact compilation is evaluated on increasing GO bp subgraphs until compilation walls. Scallop is evaluated with the same true-path provenance query on 200 GO bp neighborhoods and top-$k$ values $k\in\{1,2,3,5,10,20,50\}$. A-NeSI and NeSyDM are kept in Appendix~\ref{app:nesy} as learned-inference comparisons on carry chains, because they require task-specific training and are not drop-in ontology posterior layers.
 
 \section{Formalisation: implementation and lemma inventory}\label{app:lean}
 
@@ -447,7 +475,7 @@ ontology, and A-NeSI needs samples of the exact $\WMC$ we compute), which is exa
 training-free exact construction of this paper supplies.
 
 \paragraph{Boundary-rank dial on the GO cc reconvergence core (\S\ref{sec:scaling}).}
-The exact constraint-induced boundary joint over a real GO cc reconvergence core ($10$ terms from the June 2025 \texttt{go-basic} release, $53$ models, exact tensor-train rank $6$) is strongly non-product. A rank-$r$ separator message, a tensor train over the separator atoms with the per-module circuits fixed, dials the residual to zero. The rank-$1$ row is exactly the independent soft closure (Table~\ref{tab:rank}).
+The exact constraint-induced boundary joint over a real GO cc reconvergence core ($10$ terms, $53$ models, exact tensor-train rank $6$) is strongly non-product. A rank-$r$ separator message, a tensor train over the separator atoms with the per-module circuits fixed, dials the residual to zero. The rank-$1$ row is exactly the independent soft closure (Table~\ref{tab:rank}).
 
 \begin{table}[t]\centering
 \caption{A rank-$r$ separator message dials the residual-core error to zero (real GO cc reconvergence core, $10$ terms, per-module circuits fixed). $q^\star$ is the exact constraint-induced boundary joint. ``Gap closed'' is the fraction of the rank-$1$ total variation removed.}\label{tab:rank}
