@@ -1,0 +1,187 @@
+{"theory": "dgp2_go_cc", "input": "fused", "stage": "exploratory split", "steps": 300, "lr": 0.05, "proteins_fit": 1456, "proteins_eval": 1456, "bp_variant": "exact theta*, BP training+prediction"}
+isotonic                 fmax 0.69667  micro_ap 0.66722  brier 0.01157  logloss 0.04393  ece 0.00412
+C2_exact_adam            fmax 0.70605  micro_ap 0.69184  brier 0.01083  logloss 0.04187  ece 0.00077
+C2_bp_from_theta_star    fmax 0.70143  micro_ap 0.64641  brier 0.01138  logloss 0.05277  ece 0.00233
+C2_exact_from_logit      fmax 0.66939  micro_ap 0.61109  brier 0.01241  logloss 0.05565  ece 0.00399
+C2_bp_from_logit         fmax 0.66894  micro_ap 0.60487  brier 0.01249  logloss 0.05872  ece 0.00422
+C2_lbfgs_p45             fmax 0.70626  micro_ap 0.69207  brier 0.01083  logloss 0.04188  ece 0.00072
+{
+ "C2_bp_from_theta_star-C2_exact_adam": {
+  "fmax": [
+   -0.007591430815210928,
+   -0.004701490656790097,
+   -0.001754862043361775
+  ],
+  "micro_ap": [
+   -0.053252020667677674,
+   -0.045117751671623074,
+   -0.03689232617251817
+  ],
+  "brier": [
+   0.00042695768330997127,
+   0.0005429347277946415,
+   0.0006664147125621101
+  ],
+  "logloss": [
+   0.008975006672679517,
+   0.010868668393800206,
+   0.012826682134964351
+  ]
+ },
+ "C2_bp_from_logit-C2_exact_from_logit": {
+  "fmax": [
+   -0.0012189317162202896,
+   -0.00044333926295830883,
+   0.00048759424630175904
+  ],
+  "micro_ap": [
+   -0.00709728146989512,
+   -0.006213356031257111,
+   -0.005356448840304798
+  ],
+  "brier": [
+   7.521343165230472e-05,
+   8.60307184313994e-05,
+   9.749021437078496e-05
+  ],
+  "logloss": [
+   0.0026320221587874237,
+   0.003065758596996062,
+   0.003554847722809426
+  ]
+ },
+ "C2_bp_from_logit-C2_exact_adam": {
+  "fmax": [
+   -0.04250995022195661,
+   -0.03685280612091735,
+   -0.03160973680440082
+  ],
+  "micro_ap": [
+   -0.09400205953450362,
+   -0.08683971310409988,
+   -0.08003343395033415
+  ],
+  "brier": [
+   0.0015232790295396875,
+   0.0016563135451575306,
+   0.00181136594026506
+  ],
+  "logloss": [
+   0.015361059771779415,
+   0.01681492938382593,
+   0.01861829172693889
+  ]
+ },
+ "C2_bp_from_theta_star-isotonic": {
+  "fmax": [
+   -0.0008501286293390336,
+   0.004526800070153325,
+   0.009710730431547692
+  ],
+  "micro_ap": [
+   -0.029956231917896835,
+   -0.020754009290222697,
+   -0.010890832821508689
+  ],
+  "brier": [
+   -0.0003594725161328152,
+   -0.00019264648242963388,
+   -2.7543550013427873e-05
+  ],
+  "logloss": [
+   0.0069323901922082095,
+   0.008824784604126088,
+   0.010825127684678538
+  ]
+ },
+ "C2_bp_from_logit-isotonic": {
+  "fmax": [
+   -0.032524464126283334,
+   -0.027568260115722776,
+   -0.02287749422151448
+  ],
+  "micro_ap": [
+   -0.0683811337092255,
+   -0.06242811816973637,
+   -0.056022267458383464
+  ],
+  "brier": [
+   0.000770520953054606,
+   0.0009234535714641775,
+   0.0010769836338773205
+  ],
+  "logloss": [
+   0.013326033760247798,
+   0.014782184750418634,
+   0.01654211970994771
+  ]
+ },
+ "C2_exact_adam-isotonic": {
+  "fmax": [
+   0.00459312809597775,
+   0.00916213234718749,
+   0.014009487686703901
+  ],
+  "micro_ap": [
+   0.01960726023546936,
+   0.02450661061298548,
+   0.029875047052250116
+  ],
+  "brier": [
+   -0.0008419161974781934,
+   -0.0007331754814181735,
+   -0.0006317486694954858
+  ],
+  "logloss": [
+   -0.002399242797539619,
+   -0.002045631435596537,
+   -0.001745593130085562
+  ]
+ },
+ "C2_exact_adam-C2_lbfgs_p45": {
+  "fmax": [
+   -0.0005831787483137369,
+   -6.410913089427428e-05,
+   0.0005590971947191019
+  ],
+  "micro_ap": [
+   -0.00039156125413322695,
+   -0.00022477086836714122,
+   -7.968540374571623e-05
+  ],
+  "brier": [
+   1.1666679514475524e-06,
+   3.9110740520393455e-06,
+   7.18194376539351e-06
+  ],
+  "logloss": [
+   -2.801054010100022e-05,
+   -8.68767771506837e-06,
+   7.976890270419179e-06
+  ]
+ }
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7v2_c2_exact_vs_logodds_bp.py --ns go_cc --input fused --steps 300 --lr 0.05 --bootstrap 1000"
+	User time (seconds): 7578.89
+	System time (seconds): 66.55
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:07:26
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 427760
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 468
+	Minor (reclaiming a frame) page faults: 31749405
+	Voluntary context switches: 6443
+	Involuntary context switches: 4191
+	Swaps: 0
+	File system inputs: 189230
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p4_7v2_c2_exact_vs_logodds_bp_go_cc_fused_20261022-105537.log

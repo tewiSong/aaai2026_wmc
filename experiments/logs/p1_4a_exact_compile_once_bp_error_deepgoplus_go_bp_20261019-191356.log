@@ -1,0 +1,33 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_4a_exact_compile_once_bp_error_deepgoplus.py
+# sha256 : 5d10c2c4ec45dd88e1f400ae4bb22d124d61959f1ad47bea3ea785974bf3f210
+# args   : --ns go_bp --compile-timeout-hours 46
+# host   : nid002383   slurm_job: 22969414
+# start  : 2026-10-19T19:13:56+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+{"theory": "dgp_go_bp", "terms": 4474, "edges": 7456, "proteins": 3874, "compile": {"failed": "RuntimeError('d4 failed rc=-11:      0 | \\nc  610435072 |  106470.22 | 1284576732 |  305217551 | 1457486761 |     154788 |  168532126 | 1453239328 |          0 |  305217551 |    64458064 |          0 | \\nc unitLits 4291821569 17167286276 Bytes\\nc  610451456 |  106473.04 | 1284606407 |  305225743 | 1"}}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_4a_exact_compile_once_bp_error_deepgoplus.py --ns go_bp --compile-timeout-hours 46"
+	User time (seconds): 105968.60
+	System time (seconds): 134.79
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 29:36:03
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 158464180
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 710926
+	Minor (reclaiming a frame) page faults: 30806726
+	Voluntary context switches: 723369
+	Involuntary context switches: 1611189
+	Swaps: 0
+	File system inputs: 5984704
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-21T00:50:04+03:00   exit: 0

@@ -1,0 +1,4 @@
+5c71e3e21ec6453bb7a5c87a3ed614b352e112d520f05d326cdc388ab5abe022  /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/data/raw/uniprot_2021_04/uniprot_sprot-only2021_04.tar.gz
+1f0cbe1108ba852e2bed6c2b78d715076c35426a419cddf80caea3e8d6aebbdc  /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/data/raw/uniprot_2021_04/uniprot_sprot.dat.gz
+44d8a42fff557315baeb04cd41c184eee86e61762a2f202ff9979b884660dd4b  /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/data/raw/uniprot_2021_04/uniprot_sprot.fasta.gz
+52d19c3655030c4d6bb88087b58c431a65effd35eb19480d42a784c4e3b41b77  /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/diamond

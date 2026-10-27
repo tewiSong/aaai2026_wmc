@@ -1,0 +1,61 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_4_c2_term_offsets_vs_term_platt_diagnostic.py
+# sha256 : b6ad78e76983f3fd8725c891e7787a7831cb12d79dfbf929fb1bf7c0a8e60d2f
+# args   : --ns go_mf --input fused --workers 32 --bootstrap 1000
+# host   : nid002587   slurm_job: 23148482
+# start  : 2026-10-25T13:24:22+02:00
+# sif    : 6b6e8a4c4dd7cefe
+
+theta* (term Platt inputs) {'seconds': 1500.3, 'err_max': 1.3542102617725149e-05}
+bias 0.001 {'inner_val_nll': 10.314320104226143, 'converged': True, 'iterations': 573}
+bias 0.01 {'inner_val_nll': 10.24394118405411, 'converged': True, 'iterations': 231}
+bias 0.1 {'inner_val_nll': 10.263587143488694, 'converged': True, 'iterations': 139}
+bias 1.0 {'inner_val_nll': 10.288793212496836, 'converged': True, 'iterations': 171}
+bias {"inner_val": {"0.001": {"inner_val_nll": 10.314320104226143, "converged": true, "iterations": 573}, "0.01": {"inner_val_nll": 10.24394118405411, "converged": true, "iterations": 231}, "0.1": {"inner_val_nll": 10.263587143488694, "converged": true, "iterations": 139}, "1.0": {"inner_val_nll": 10.288793212496836, "converged": true, "iterations": 171}}, "lambda_chosen": 0.01, "converged": true, "ite
+affine 0.001 {'inner_val_nll': 10.521515631863467, 'converged': True, 'iterations': 595}
+affine 0.01 {'inner_val_nll': 10.246675583062387, 'converged': True, 'iterations': 321}
+affine 0.1 {'inner_val_nll': 10.184105871041622, 'converged': True, 'iterations': 233}
+affine 1.0 {'inner_val_nll': 10.244781837352622, 'converged': True, 'iterations': 199}
+affine {"inner_val": {"0.001": {"inner_val_nll": 10.521515631863467, "converged": true, "iterations": 595}, "0.01": {"inner_val_nll": 10.246675583062387, "converged": true, "iterations": 321}, "0.1": {"inner_val_nll": 10.184105871041622, "converged": true, "iterations": 233}, "1.0": {"inner_val_nll": 10.244781837352622, "converged": true, "iterations": 199}}, "lambda_chosen": 0.1, "converged": true, "ite
+on_term_platt {'converged': True, 'iterations': 235, 'seconds': 71.1, 'nll': 9.298083853387181}
+isotonic                   fmax 0.68819  micro_ap 0.66222  brier 0.00724  logloss 0.02972  ece 0.00416  abs_bias_all 0.00449  abs_bias_pos_terms 0.00477  abs_log_ratio_pos_terms 0.42551
+term_platt_iso             fmax 0.67568  micro_ap 0.66011  brier 0.00684  logloss 0.02826  ece 0.00201  abs_bias_all 0.00217  abs_bias_pos_terms 0.00225  abs_log_ratio_pos_terms 0.39537
+C2                         fmax 0.70413  micro_ap 0.68105  brier 0.00639  logloss 0.02718  ece 0.00140  abs_bias_all 0.00203  abs_bias_pos_terms 0.00205  abs_log_ratio_pos_terms 0.33388
+C2_term_bias               fmax 0.69424  micro_ap 0.67334  brier 0.00652  logloss 0.02735  ece 0.00114  abs_bias_all 0.00194  abs_bias_pos_terms 0.00197  abs_log_ratio_pos_terms 0.34214
+C2_term_affine             fmax 0.69816  micro_ap 0.67810  brier 0.00647  logloss 0.02715  ece 0.00139  abs_bias_all 0.00206  abs_bias_pos_terms 0.00210  abs_log_ratio_pos_terms 0.35361
+C2_on_term_platt           fmax 0.68099  micro_ap 0.66171  brier 0.00672  logloss 0.02790  ece 0.00150  abs_bias_all 0.00231  abs_bias_pos_terms 0.00237  abs_log_ratio_pos_terms 0.35958
+term_platt_iso_shifted_w0  fmax 0.67506  micro_ap 0.66009  brier 0.00685  logloss 0.02826  ece 0.00255  abs_bias_all 0.00216  abs_bias_pos_terms 0.00220  abs_log_ratio_pos_terms 0.35269
+C2_term_bias - term_platt_iso        fmax [0.0117, 0.0191, 0.0271]  ap [0.0047, 0.013, 0.0215]  logloss [-0.00131, -0.00091, -0.00051]
+C2_term_bias - C2                    fmax [-0.0145, -0.0096, -0.005]  ap [-0.0124, -0.0079, -0.0035]  logloss [3e-05, 0.00018, 0.00033]
+C2_term_bias - isotonic              fmax [-0.0016, 0.0057, 0.0137]  ap [0.0004, 0.0107, 0.0201]  logloss [-0.0029, -0.00237, -0.00187]
+C2_term_affine - term_platt_iso      fmax [0.015, 0.0225, 0.0303]  ap [0.0093, 0.018, 0.0261]  logloss [-0.00147, -0.00111, -0.00072]
+C2_term_affine - C2                  fmax [-0.011, -0.0062, -0.0013]  ap [-0.006, -0.003, -0.0001]  logloss [-0.00027, -2e-05, 0.0002]
+C2_term_affine - isotonic            fmax [0.0023, 0.0094, 0.0173]  ap [0.0064, 0.0157, 0.0252]  logloss [-0.00313, -0.00256, -0.00207]
+C2_on_term_platt - term_platt_iso    fmax [0.0025, 0.0054, 0.0084]  ap [-0.0026, 0.0019, 0.0061]  logloss [-0.00055, -0.00036, -0.00019]
+C2_on_term_platt - C2                fmax [-0.0317, -0.0233, -0.0151]  ap [-0.0277, -0.019, -0.0107]  logloss [0.00039, 0.00072, 0.00107]
+C2_on_term_platt - isotonic          fmax [-0.016, -0.008, 0.0007]  ap [-0.0048, -0.0006, 0.0036]  logloss [-0.0023, -0.00181, -0.00139]
+C2 - term_platt_iso                  fmax [0.02, 0.0288, 0.0374]  ap [0.0127, 0.0211, 0.0289]  logloss [-0.00151, -0.00108, -0.00067]
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_4_c2_term_offsets_vs_term_platt_diagnostic.py --ns go_mf --input fused --workers 32 --bootstrap 1000"
+	User time (seconds): 65168.99
+	System time (seconds): 120.81
+	Percent of CPU this job got: 1773%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:01:22
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 576028
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 471
+	Minor (reclaiming a frame) page faults: 27832512
+	Voluntary context switches: 3130220
+	Involuntary context switches: 182261
+	Swaps: 0
+	File system inputs: 189602
+	File system outputs: 24
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-25T14:25:49+02:00   exit: 0

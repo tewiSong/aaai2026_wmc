@@ -1,0 +1,112 @@
+{
+  "test_proteins": 3874,
+  "vocabulary": 5862,
+  "go_cc": {
+    "vocabulary_terms": 632,
+    "projected_edges": 733,
+    "pct_multiparent": 15.66,
+    "unpredicted_ancestor_terms": 0,
+    "vocab_terms_not_in_go2021": 5230,
+    "score_sum_quantiles": [
+      5.42,
+      10.47,
+      18.61
+    ],
+    "min_score_median": 1.8873113731388003e-05,
+    "n_intermediate_quantiles": [
+      18.0,
+      30.0,
+      53.0
+    ],
+    "frac_edges_violated_by_scores": 0.0989,
+    "certified_core_size_for_delta": {
+      "0.001": {
+        "median": 615.0,
+        "p90": 624.0,
+        "max": 628
+      },
+      "0.01": {
+        "median": 558.0,
+        "p90": 587.0,
+        "max": 606
+      },
+      "0.1": {
+        "median": 371.5,
+        "p90": 452.4000000000001,
+        "max": 508
+      }
+    }
+  },
+  "go_mf": {
+    "vocabulary_terms": 730,
+    "projected_edges": 923,
+    "pct_multiparent": 24.79,
+    "unpredicted_ancestor_terms": 0,
+    "vocab_terms_not_in_go2021": null,
+    "score_sum_quantiles": [
+      2.82,
+      5.12,
+      10.05
+    ],
+    "min_score_median": 7.130845915526152e-06,
+    "n_intermediate_quantiles": [
+      8.0,
+      17.0,
+      35.0
+    ],
+    "frac_edges_violated_by_scores": 0.1063,
+    "certified_core_size_for_delta": {
+      "0.001": {
+        "median": 702.0,
+        "p90": 717.0,
+        "max": 725
+      },
+      "0.01": {
+        "median": 621.5,
+        "p90": 663.1,
+        "max": 701
+      },
+      "0.1": {
+        "median": 396.0,
+        "p90": 475.30000000000007,
+        "max": 585
+      }
+    }
+  },
+  "go_bp": {
+    "vocabulary_terms": 4474,
+    "projected_edges": 7456,
+    "pct_multiparent": 49.62,
+    "unpredicted_ancestor_terms": 1,
+    "vocab_terms_not_in_go2021": null,
+    "score_sum_quantiles": [
+      16.97,
+      30.18,
+      70.03
+    ],
+    "min_score_median": 1.1624511444097152e-05,
+    "n_intermediate_quantiles": [
+      50.0,
+      101.0,
+      234.0
+    ],
+    "frac_edges_violated_by_scores": 0.0946,
+    "certified_core_size_for_delta": {
+      "0.001": {
+        "median": 4444.0,
+        "p90": 4461.0,
+        "max": 4470
+      },
+      "0.01": {
+        "median": 4325.5,
+        "p90": 4391.1,
+        "max": 4443
+      },
+      "0.1": {
+        "median": 3791.0,
+        "p90": 4044.1,
+        "max": 4290
+      }
+    }
+  }
+}

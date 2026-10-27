@@ -1,0 +1,42 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_1_selftest_hot_core_hybrid.py
+# sha256 : 5ed5338ed8ca55f600d808cf83fe7026d7628b94abd4c384f49045fd85ba70e1
+# args   : 
+# host   : uan04   slurm_job: none
+# start  : 2026-10-23T10:25:04+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+(1)(2) passed; worst approximate-core error on random 14-node DAGs 0.114; max gap between the moment-matched fixed point and the low-start fixed point 0.184; moment-matched fixed point not reproduced by warm-started iteration (unstable) in 5/90 converged cases
+protein 2 tau 0.03: core 16, |hyb(theta*) - exact| max 3.80e-02 (iters 25, conv True); hybrid MM conv False iters 50000, |exact(theta_hyb) - target| max 1.00e+00; |theta_hyb - theta*| median 1.33e+00; low-start at theta_hyb vs target 1.23e-01
+protein 2 tau 0.01: core 60, |hyb(theta*) - exact| max 3.07e-02 (iters 41, conv True); hybrid MM conv False iters 50000, |exact(theta_hyb) - target| max 1.00e+00; |theta_hyb - theta*| median 1.32e+00; low-start at theta_hyb vs target 1.04e-01
+protein 2 tau 0.003: core 187, |hyb(theta*) - exact| max 1.76e-02 (iters 500, conv False); hybrid MM conv False iters 50000, |exact(theta_hyb) - target| max 1.00e+00; |theta_hyb - theta*| median 1.28e+00; low-start at theta_hyb vs target 5.06e-02
+protein 4 tau 0.03: core 34, |hyb(theta*) - exact| max 8.31e-02 (iters 26, conv True); hybrid MM conv False iters 50000, |exact(theta_hyb) - target| max 1.00e+00; |theta_hyb - theta*| median 1.16e+00; low-start at theta_hyb vs target 1.30e-01
+protein 4 tau 0.01: core 99, |hyb(theta*) - exact| max 3.55e-02 (iters 500, conv False); hybrid MM conv False iters 50000, |exact(theta_hyb) - target| max 1.00e+00; |theta_hyb - theta*| median 1.14e+00; low-start at theta_hyb vs target 8.53e-02
+protein 4 tau 0.003: core 253, |hyb(theta*) - exact| max 3.02e-02 (iters 500, conv False); hybrid MM conv False iters 50000, |exact(theta_hyb) - target| max 1.00e+00; |theta_hyb - theta*| median 1.11e+00; low-start at theta_hyb vs target 4.70e-02
+protein 8 tau 0.03: core 11, |hyb(theta*) - exact| max 1.47e-01 (iters 38, conv True); hybrid MM conv False iters 50000, |exact(theta_hyb) - target| max 1.00e+00; |theta_hyb - theta*| median 1.18e+00; low-start at theta_hyb vs target 6.08e-02
+protein 8 tau 0.01: core 36, |hyb(theta*) - exact| max 1.43e-01 (iters 38, conv True); hybrid MM conv False iters 50000, |exact(theta_hyb) - target| max 1.00e+00; |theta_hyb - theta*| median 1.21e+00; low-start at theta_hyb vs target 4.91e-02
+protein 8 tau 0.003: core 102, |hyb(theta*) - exact| max 1.30e-01 (iters 39, conv True); hybrid MM conv False iters 50000, |exact(theta_hyb) - target| max 1.00e+00; |theta_hyb - theta*| median 1.22e+00; low-start at theta_hyb vs target 3.92e-02
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_1_selftest_hot_core_hybrid.py"
+	User time (seconds): 114.16
+	System time (seconds): 4.62
+	Percent of CPU this job got: 102%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:55.71
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 101816
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 324
+	Minor (reclaiming a frame) page faults: 323726
+	Voluntary context switches: 7930
+	Involuntary context switches: 7435
+	Swaps: 0
+	File system inputs: 193560
+	File system outputs: 1992
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-23T10:27:05+03:00   exit: 0

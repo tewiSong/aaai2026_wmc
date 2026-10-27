@@ -1,0 +1,21 @@
+{
+ "go_cc": {
+  "new_exp_in_ns": 58505,
+  "excluded_had_exp_2021": 56639,
+  "excluded_identical_sequence": 17,
+  "excluded_id_overlap_deepgoplus": 11,
+  "excluded_no_nonroot_label_in_vocab": 0,
+  "targets": 1838,
+  "labels_per_target_median": 9.0
+ },
+ "go_mf": {
+  "new_exp_in_ns": 44846,
+  "excluded_had_exp_2021": 43055,
+  "excluded_identical_sequence": 13,
+  "excluded_id_overlap_deepgoplus": 15,
+  "excluded_no_nonroot_label_in_vocab": 23,
+  "targets": 1740,
+  "labels_per_target_median": 6.0
+ },
+ "fasta_sequences": 2837
+}

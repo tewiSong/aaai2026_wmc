@@ -1,0 +1,114 @@
+{
+  "date": "2026-10-20",
+  "scope": "Additional audit of CNN+DIAMOND scores on the SAME retained vocabulary.\n\nThis does not reproduce the official full-label DeepGOPlus benchmark: its\nDIAMOND component also predicts labels outside the CNN vocabulary. The check\nisolates whether the P4 negative result extends to the release's hybrid scores\nunder the exact same ontology and vocabulary-restricted evaluation task.\n",
+  "namespaces": {
+    "go_cc": {
+      "proteins": 2909,
+      "terms_evaluated": 631,
+      "alpha": 0.52,
+      "hybrid_root_excluded_metrics": {
+        "hybrid_raw": {
+          "fmax": 0.698566929247774,
+          "sequential_ap": 0.6735166753265326,
+          "grouped_micro_ap": 0.6735165536145324,
+          "brier": 0.0114033166240643,
+          "ece": 0.003915002256513482,
+          "all_distinct_score_fmax": {
+            "fmax": 0.6989290461601512,
+            "threshold": 0.24101353994076533
+          }
+        },
+        "hybrid_max_closure": {
+          "fmax": 0.7000053709176216,
+          "sequential_ap": 0.6733230019407475,
+          "grouped_micro_ap": 0.6733244302234925,
+          "brier": 0.01137422665700694,
+          "ece": 0.0036986164644412555,
+          "all_distinct_score_fmax": {
+            "fmax": 0.70037637362066,
+            "threshold": 0.24109841435824542
+          }
+        },
+        "hybrid_exact_wmc": {
+          "fmax": 0.6761733416976469,
+          "sequential_ap": 0.626436582074238,
+          "grouped_micro_ap": 0.6264127981092992,
+          "brier": 0.012223084343880038,
+          "ece": 0.00798414381793085,
+          "all_distinct_score_fmax": {
+            "fmax": 0.6764704304426392,
+            "threshold": 0.22419483597823123
+          }
+        }
+      },
+      "cnn_all_score_fmax": {
+        "raw": {
+          "fmax": 0.6592257214928238,
+          "threshold": 0.2613583207130432
+        },
+        "max_closure": {
+          "fmax": 0.6619931144207857,
+          "threshold": 0.2661336362361908
+        },
+        "exact_wmc": {
+          "fmax": 0.644437806836913,
+          "threshold": 0.22608605273108046
+        }
+      }
+    },
+    "go_mf": {
+      "proteins": 2129,
+      "terms_evaluated": 729,
+      "alpha": 0.67,
+      "hybrid_root_excluded_metrics": {
+        "hybrid_raw": {
+          "fmax": 0.6812988062483325,
+          "sequential_ap": 0.6508073677916492,
+          "grouped_micro_ap": 0.6508073512840313,
+          "brier": 0.007745650735952401,
+          "ece": 0.004627059589471928,
+          "all_distinct_score_fmax": {
+            "fmax": 0.6817204816137373,
+            "threshold": 0.17797540253690136
+          }
+        },
+        "hybrid_max_closure": {
+          "fmax": 0.6819977604873818,
+          "sequential_ap": 0.6518481398047795,
+          "grouped_micro_ap": 0.6518569310345937,
+          "brier": 0.00771435638752873,
+          "ece": 0.004484067437951474,
+          "all_distinct_score_fmax": {
+            "fmax": 0.6825728367761131,
+            "threshold": 0.17830461861142854
+          }
+        },
+        "hybrid_exact_wmc": {
+          "fmax": 0.6252067594870173,
+          "sequential_ap": 0.571504779225688,
+          "grouped_micro_ap": 0.5715028658314597,
+          "brier": 0.00862043741889274,
+          "ece": 0.007470466574676004,
+          "all_distinct_score_fmax": {
+            "fmax": 0.625873686604288,
+            "threshold": 0.08196607305266325
+          }
+        }
+      },
+      "cnn_all_score_fmax": {
+        "raw": {
+          "fmax": 0.4953090242057011,
+          "threshold": 0.1277923285961151
+        },
+        "max_closure": {
+          "fmax": 0.5009822873356986,
+          "threshold": 0.14098405838012695
+        },
+        "exact_wmc": {
+          "fmax": 0.4597850557259844,
+          "threshold": 0.06495328190334786
+        }
+      }
+    }
+  }
+}

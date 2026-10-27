@@ -1,0 +1,62 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p0_4_determinism_profile_of_treewidth_bags.py
+# sha256 : 450a0b2c1bf3b6f733d1bc3d8e209239e3f019541df2710f5e0539fb72ca0be5
+# args   : --ontology dgp_go_bp --heuristic min-fill
+# host   : nid002564   slurm_job: 22974189
+# start  : 2026-10-19T23:23:48+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+{
+  "ontology": "dgp_go_bp",
+  "heuristic": "min-fill",
+  "bags_analysed": 325,
+  "bags_total": 325,
+  "seconds": 1.1,
+  "max_bag_size": 62,
+  "max_log2_states": 41.909,
+  "max_log2_states_lower_bound": 33,
+  "max_dilworth_width": 33,
+  "exact_counted_fraction": 1.0,
+  "note": "dense JT cost ~ 2^max_bag_size; determinism-aware cost ~ 2^max_log2_states (log2_chain_bound is a rigorous upper bound on log2 #up-sets)"
+}
+largest bags (size, width, log2 bound, log2 exact):
+     62    31     47.16 41.38
+     61    31     46.34 41.38
+     58    31     45.34 41.072
+     57    24     39.87 30.009
+     57    30     44.34 40.072
+     56    24     39.55 29.765
+     56    33     45.44 41.909
+     56    30     43.76 39.487
+     55    23     38.39 29.156
+     55    32     44.09 40.825
+     55    32     44.27 40.909
+     55    30     43.34 38.91
+     54    23     37.87 28.668
+     54    32     43.68 40.24
+     54    32     43.68 40.324
+written /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/results/p0_4_determinism_dgp_go_bp_min-fill.json
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p0_4_determinism_profile_of_treewidth_bags.py --ontology dgp_go_bp --heuristic min-fill"
+	User time (seconds): 1.64
+	System time (seconds): 1.01
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:02.67
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 140704
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 261
+	Minor (reclaiming a frame) page faults: 50649
+	Voluntary context switches: 5625
+	Involuntary context switches: 57
+	Swaps: 0
+	File system inputs: 114468
+	File system outputs: 72
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-19T23:23:56+03:00   exit: 0

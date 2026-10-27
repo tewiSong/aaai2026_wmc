@@ -1,0 +1,66 @@
+{
+ "theory": "dgp2_go_mf",
+ "input": "cnn",
+ "proteins": 2129,
+ "metrics": {
+  "raw": {
+   "fmax": 0.49484416381530555,
+   "micro_ap": 0.44255465975437874,
+   "brier": 0.010087583158124672,
+   "ece": 0.005143473159903185,
+   "violation_rate": 0.11018738857503198
+  },
+  "max_closure": {
+   "fmax": 0.5003998125745774,
+   "micro_ap": 0.4466938745239184,
+   "brier": 0.009965501367243414,
+   "ece": 0.004667679925411827,
+   "violation_rate": 0.0
+  },
+  "isotonic": {
+   "fmax": 0.4978205860643961,
+   "micro_ap": 0.4458490998770037,
+   "brier": 0.010069122902752598,
+   "ece": 0.005158012190186472,
+   "violation_rate": 3.8925753018692144e-05
+  },
+  "exact_wmc": {
+   "fmax": 0.4590237248836069,
+   "micro_ap": 0.3697896954439323,
+   "brier": 0.010801826662067363,
+   "ece": 0.009546542436639162,
+   "violation_rate": 0.0
+  },
+  "bp": {
+   "fmax": 0.45808979395860505,
+   "micro_ap": 0.36639090522126033,
+   "brier": 0.010814818878698493,
+   "ece": 0.009564028908360661,
+   "violation_rate": 0.0
+  }
+ }
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_1b_downstream_consistency_methods_deepgoplus.py --ns go_mf --input cnn --bootstrap 1000"
+	User time (seconds): 2134.11
+	System time (seconds): 88.27
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 37:02.94
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 337200
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 419
+	Minor (reclaiming a frame) page faults: 34823552
+	Voluntary context switches: 5894
+	Involuntary context switches: 10712
+	Swaps: 0
+	File system inputs: 159302
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p4_1b_downstream_consistency_methods_deepgoplus_go_mf_cnn_20261020-164523.log

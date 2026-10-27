@@ -1,0 +1,73 @@
+inst 0 n=1001 raw:2139     BP mae=8.83e-14 max=4.28e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 0 n=1001 raw:5928     BP mae=2.13e-13 max=4.83e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 0 n=1001 raw:804      BP mae=1.16e-13 max=4.61e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 0 n=1001 raw:2329     BP mae=2.40e-13 max=1.16e-10 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 0 n=1001 raw:4968     BP mae=1.22e-13 max=5.37e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 0 n=1001 raw:4971     BP mae=1.94e-13 max=6.91e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 0 n=1001 raw:3753     BP mae=2.15e-14 max=1.84e-11 conv=True | Gibbs mae=9.41e-09 max=9.42e-06 | exact 0.01s
+inst 0 n=1001 raw:4033     BP mae=7.39e-14 max=6.03e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 0 n=1001 raw:5979     BP mae=4.43e-14 max=2.71e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 0 n=1001 raw:246      BP mae=4.65e-14 max=2.66e-11 conv=True | Gibbs mae=1.02e-09 max=1.01e-06 | exact 0.01s
+inst 0 n=1001 raw:760      BP mae=2.16e-14 max=1.88e-11 conv=True | Gibbs mae=1.03e-09 max=1.02e-06 | exact 0.01s
+inst 0 n=1001 raw:5883     BP mae=2.64e-14 max=1.79e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 1 n=1000 raw:2329     BP mae=2.18e-13 max=8.74e-11 conv=True | Gibbs mae=1.00e-09 max=1.00e-06 | exact 0.01s
+inst 1 n=1000 raw:1264     BP mae=1.22e-14 max=7.73e-12 conv=True | Gibbs mae=1.00e-09 max=1.00e-06 | exact 0.01s
+inst 1 n=1000 raw:6439     BP mae=2.36e-14 max=1.73e-11 conv=True | Gibbs mae=1.00e-09 max=1.00e-06 | exact 0.01s
+inst 1 n=1000 raw:6559     BP mae=1.93e-14 max=1.25e-11 conv=True | Gibbs mae=9.42e-09 max=9.42e-06 | exact 0.01s
+inst 1 n=1000 raw:493      BP mae=3.54e-14 max=2.72e-11 conv=True | Gibbs mae=1.00e-09 max=1.00e-06 | exact 0.01s
+inst 1 n=1000 raw:2901     BP mae=1.27e-13 max=1.96e-11 conv=True | Gibbs mae=1.00e-09 max=1.00e-06 | exact 0.01s
+inst 1 n=1000 raw:1814     BP mae=3.82e-14 max=1.30e-11 conv=True | Gibbs mae=1.22e-09 max=1.11e-06 | exact 0.01s
+inst 1 n=1000 raw:199      BP mae=5.84e-14 max=4.89e-11 conv=True | Gibbs mae=1.00e-09 max=1.00e-06 | exact 0.01s
+inst 1 n=1000 raw:3244     BP mae=3.37e-14 max=2.21e-11 conv=True | Gibbs mae=1.00e-09 max=1.00e-06 | exact 0.01s
+inst 1 n=1000 raw:5622     BP mae=6.26e-14 max=5.91e-11 conv=True | Gibbs mae=1.00e-09 max=1.00e-06 | exact 0.01s
+inst 1 n=1000 raw:2742     BP mae=4.90e-14 max=3.88e-11 conv=True | Gibbs mae=1.00e-09 max=1.00e-06 | exact 0.01s
+inst 1 n=1000 raw:1386     BP mae=8.62e-14 max=5.16e-11 conv=True | Gibbs mae=1.00e-09 max=1.00e-06 | exact 0.01s
+inst 2 n=1001 raw:3313     BP mae=7.81e-14 max=2.40e-11 conv=True | Gibbs mae=9.41e-09 max=9.42e-06 | exact 0.01s
+inst 2 n=1001 raw:4169     BP mae=7.86e-14 max=2.42e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 2 n=1001 raw:5965     BP mae=1.08e-13 max=3.36e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 2 n=1001 raw:5928     BP mae=1.34e-13 max=3.33e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 2 n=1001 raw:6856     BP mae=6.46e-14 max=2.99e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 2 n=1001 raw:493      BP mae=3.45e-14 max=2.72e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 2 n=1001 raw:1021     BP mae=6.51e-14 max=1.61e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 2 n=1001 raw:3665     BP mae=7.52e-13 max=4.80e-10 conv=True | Gibbs mae=9.41e-09 max=9.42e-06 | exact 0.01s
+inst 2 n=1001 raw:382      BP mae=3.91e-14 max=3.47e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 2 n=1001 raw:5333     BP mae=3.28e-14 max=1.80e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 2 n=1001 raw:7505     BP mae=5.94e-14 max=4.01e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 2 n=1001 raw:5047     BP mae=2.16e-14 max=1.85e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 3 n=1001 raw:1264     BP mae=1.50e-14 max=7.73e-12 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 3 n=1001 raw:6439     BP mae=2.72e-14 max=1.73e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 3 n=1001 raw:6559     BP mae=2.37e-14 max=1.25e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 3 n=1001 raw:1667     BP mae=1.45e-13 max=4.19e-11 conv=True | Gibbs mae=9.41e-09 max=9.42e-06 | exact 0.01s
+inst 3 n=1001 raw:3645     BP mae=2.83e-14 max=1.82e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 3 n=1001 raw:4870     BP mae=1.30e-13 max=3.82e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 3 n=1001 raw:3466     BP mae=5.30e-15 max=3.61e-12 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 3 n=1001 raw:3480     BP mae=1.22e-13 max=5.90e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 3 n=1001 raw:3380     BP mae=2.46e-14 max=2.17e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 3 n=1001 raw:7516     BP mae=3.72e-14 max=1.97e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+inst 3 n=1001 raw:1706     BP mae=4.20e-14 max=1.70e-11 conv=True | Gibbs mae=1.05e-09 max=1.03e-06 | exact 0.01s
+inst 3 n=1001 raw:6208     BP mae=1.48e-13 max=2.54e-11 conv=True | Gibbs mae=9.99e-10 max=1.00e-06 | exact 0.01s
+written /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/results/p1_0a_go_mf_1000_diamond_raw.json
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_0a_hardness_bp_gibbs_vs_exact_d4.py --ontology go_mf --subgraph-size 1000 --n-subgraphs 4 --diamond /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/data/scores/diamondscore_go_mf.npz --diamond-key raw --proteins 12 --gibbs-sweeps 3000 --d4-timeout 3600 --seed 3 --tag diamond_raw"
+	User time (seconds): 81.08
+	System time (seconds): 1.22
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:22.43
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 61988
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 411
+	Minor (reclaiming a frame) page faults: 46577
+	Voluntary context switches: 5821
+	Involuntary context switches: 147
+	Swaps: 0
+	File system inputs: 122856
+	File system outputs: 104
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p1_0a_hardness_bp_gibbs_vs_exact_d4_go_mf_1000_raw_20261019-104811.log

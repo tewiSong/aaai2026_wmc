@@ -1,0 +1,34 @@
+{
+  "ontology": "uberon",
+  "terms": 14975,
+  "clauses": 19387,
+  "timeout_hours": 46.0,
+  "compile": {
+    "failed": "RuntimeError('d4 failed rc=-11: 552308051 |          0 |   88170509 |    24651456 |          0 | \\nc  176357376 |  138641.44 |  498293874 |   88178701 |  560624057 |     108896 |   54370823 |  552736690 |          0 |   88178701 |    24653344 |          0 | \\nc  176373760 |  138654.12 |  498340909 |   88186895 |  560677148 |     108898 |   54742300 |  553155201 |          0 |   88186895 |    24655034 |          0 | \\nc unitLits 4288675841 17154703364 Bytes\\nc  176390144 |  138671.90 |  498389358"
+  },
+  "compile_peak_rss_gb_children": 106.52
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_1_d4_compile_full_ontology_exact_gate.py --ontology uberon --timeout-hours 46"
+	User time (seconds): 137328.05
+	System time (seconds): 401.50
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 38:36:14
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 111693776
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1898959
+	Minor (reclaiming a frame) page faults: 16006891
+	Voluntary context switches: 1921439
+	Involuntary context switches: 1193205
+	Swaps: 0
+	File system inputs: 16042460
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p1_1_d4_compile_full_ontology_exact_gate_uberon_20261019-104816.log

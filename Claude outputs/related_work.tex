@@ -1,0 +1,230 @@
+% ============================================================
+%  REWRITTEN: Related Work
+%  Target: JAIR
+%  Changes from AAAI version:
+%   - Expanded from 3 short paragraphs to 5 subsections (~3 pages)
+%   - Adds coverage of WMC competition solvers (E4 context)
+%   - Adds Goral et al. 2024, Onaka et al. 2025 (AI Reviewer request)
+%   - Clearly distinguishes our approach from compositional WMC
+%   - Adds ontology-based prediction subsection
+% ============================================================
+
+\section{Related Work}
+\label{sec:related-work}
+
+
+% ────────────────────────────────────────────────────────────
+\subsection{Constrained and Ontology-Based Prediction}
+% ────────────────────────────────────────────────────────────
+
+Hierarchical multi-label classification (HMC) requires that positive
+predictions respect a taxonomic parent-child ordering: a label assigned
+to any node must also be assigned to all its ancestors
+\citep{silla2011survey}. Methods for enforcing this constraint range
+from architecture design---encoding hierarchy into the classifier
+structure \citep{giunchiglia2020chmcnn}---to constraint-aware losses
+such as semantic loss \citep{xu2018semanticloss} and SPL \citep{ahmed2022spl},
+to posterior regularization \citep{ganchev2010posterior} and
+constrained decoding \citep{diligenti2017semantic}.
+Correction methods applied at inference time to fixed predictor outputs
+include upward max-closure, which propagates positive predictions
+upward to all ancestors \citep{obozinski2008consistent}, and
+sum-product belief propagation over the constraint graph
+\citep{giunchiglia2020chmcnn}.
+
+In protein-function prediction, methods such as DeepGO
+\citep{kulmanov2018deepgo}, DeepGOZero \citep{kulmanov2022deepgozero},
+and DeepGOCNN \citep{kulmanov2020deepgoplus} assign per-term scores
+evaluated under the CAFA framework \citep{radivojac2013cafa,zhou2019cafa3}.
+Post-processing methods---including max-closure and loopy BP---are
+applied to improve constraint satisfaction after training. Our work
+studies WMC as a plug-in inference layer in this setting, targeting
+the same fixed-score correction objective while returning a fully
+normalized posterior rather than a constraint-satisfying point estimate.
+
+
+% ────────────────────────────────────────────────────────────
+\subsection{Exact Weighted Model Counting}
+% ────────────────────────────────────────────────────────────
+
+Weighted model counting computes the sum of weights of satisfying
+assignments of a Boolean formula \citep{chavira2008wmc}. It generalizes
+model counting (\#SAT) to real-valued weights and underlies probabilistic
+inference in graphical models, Bayesian networks, and probabilistic
+logic programs \citep{fierens2015problog,de2007probfoil}.
+
+Knowledge compilation translates a formula into a tractable circuit
+representation that supports WMC in linear time in the circuit size.
+Representative target languages include binary decision diagrams (BDDs),
+deterministic decomposable negation normal form (d-DNNF)
+\citep{darwiche2002kcmap}, and sentential decision diagrams (SDDs)
+\citep{darwiche2011sdd}. Compilation cost is exponential in treewidth,
+and the resulting circuit may be exponential in the formula size in the
+worst case. Variable elimination approaches such as ADDMC
+\citep{dudek2020addmc}, DPMC \citep{dudek2020dpmc}, and
+sharpSAT-TD process the formula directly, avoiding a separate
+compilation step. The d4 compiler \citep{lagniez2017improved}
+interleaves clause learning with compilation and performs competitively
+on industrial instances. These solvers are evaluated annually at the
+Model Counting Competition \citep{fichte2021mcc}; we include ADDMC,
+DPMC, and d4 in our experimental comparison.
+
+All of these methods treat the full variable set monolithically: they
+do not exploit ontology-specific structure (sparse DAG, large scale,
+predictor-valued weights) to partition computation. The regime targeted
+by ontology-conditioned WMC---hundreds of thousands of variables,
+moderately simple logical structure, real-valued weights changing at
+each inference call---is distinct from the small-to-medium Boolean
+instances that dominate benchmark suites.
+
+
+% ────────────────────────────────────────────────────────────
+\subsection{Compositional and Modular Model Counting}
+% ────────────────────────────────────────────────────────────
+
+Compositional WMC decomposes a formula into independent or loosely
+coupled components and recombines their counts, reducing cost when
+the formula is nearly disconnected \citep{dal2017partitioned,
+dal2021compositional}. Dal et al.\ \citeyearpar{dal2021compositional}
+generalize this to approximate probabilistic inference in Bayesian
+networks, communicating between components through separator variables
+with a product approximation. Ontology modularity, studied in the
+knowledge-representation community, identifies logically meaningful
+decompositions based on the import closure or atomic decomposition of
+a description logic ontology \citep{cuencagrau2008modular,
+delvescovo2011atomic}; these decompositions are defined at the
+ontology level and do not account for predictor-weighted inference.
+
+Our framework specializes compositional WMC to predictor-weighted
+ontology theories. Three aspects distinguish it from prior compositional
+approaches. \emph{First}, the module decomposition is driven by the
+structural width of the constraint graph under the given predictor
+weights, not by logical or semantic criteria---the core-selection
+algorithm responds to the elimination order induced by the weighted
+theory at inference time. \emph{Second}, our separator factors are
+\emph{joint} over all boundary variables, retaining the full dependence
+that the eliminated module induces on the rest of the ontology; prior
+compositional approaches use factored or independence approximations
+at wide separators. \emph{Third}, we provide a practical construction
+for wide-boundary separators via oracle queries and TT fitting---a regime
+($|B_j|$ in the hundreds to thousands) not addressed by existing
+compositional methods. Dal et al.\ \citeyearpar{dal2021compositional}
+explicitly note that their approach is limited to small separators.
+
+
+% ────────────────────────────────────────────────────────────
+\subsection{Tensor-Based Inference and Model Counting}
+% ────────────────────────────────────────────────────────────
+
+Low-rank tensor representations support efficient operations on
+high-dimensional probability distributions. Tensor-train (TT)
+decompositions \citep{oseledets2011tt} and cross-approximation
+algorithms \citep{oseledets2010ttcross} provide compact representations
+of functions over exponentially many inputs. In graphical models,
+tensor-network contractions have been used for marginal inference
+\citep{novikov2014mrf} and as an alternative to belief propagation
+\citep{wrigley2017tensorbp}. Ducamp et al.\ \citeyearpar{ducamp2020lowrank}
+apply low-rank decompositions to potential functions in Bayesian networks.
+
+In model counting, Goral et al.\ \citeyearpar{goral2024semiring} introduce
+semiring extensions that encompass WMC and weighted counting variants,
+establishing algebraic foundations for combining tensor operations with
+counting. Onaka et al.\ \citeyearpar{onaka2025ttkc} directly compare
+tensor-train representations with ordered binary decision diagrams (OBDDs)
+for knowledge compilation, finding that TTs achieve competitive size on
+certain formula families. These works compile a static formula into a TT
+or tensor-network representation. Our framework differs in two respects:
+we do not compile the full formula but query the separator factor
+pointwise using a boundary-clamped WMC oracle, and we project logical
+support separately so that the TT fit is required only over the
+interior of the feasible set---reducing the dynamic range of the fitted
+function and making low-rank approximation more effective.
+
+The use of nonnegative TT decompositions with alternating least-squares
+fitting \citep{lee2001nmf} ensures that the separator factor represents
+a nonnegative function, consistent with its interpretation as a
+(unnormalized) marginal likelihood. This nonnegativity constraint, absent
+in standard TT-SVD decompositions, is important for preserving the
+probabilistic semantics of the WMC posterior.
+
+
+% ────────────────────────────────────────────────────────────
+\subsection{Message Passing and Approximate Inference}
+% ────────────────────────────────────────────────────────────
+
+Belief propagation (BP) \citep{pearl1988probabilistic} is exact on
+trees and provides an efficient but approximate alternative to junction-tree
+inference on graphs with cycles. On ontology graphs, loopy BP passes
+messages along is-a edges, but reconvergent paths cause double-counting
+of shared evidence; the resulting fixed-point marginals differ from
+the globally normalized WMC posterior (Section~\ref{sec:local-reconvergence}).
+Damped and synchronous BP variants \citep{murphy1999loopy} improve
+convergence but do not correct the fundamental reconvergence error.
+Our framework retains exact message passing where the structure permits
+(inside each module and over the reduced core) while using joint
+separator factors to handle reconvergent interfaces between modules.
+
+Expectation propagation \citep{minka2001ep} and variational methods
+\citep{wainwright2008graphical} provide alternative approximation
+schemes but do not directly minimize the error in the WMC normalizer.
+For fixed predictor scores and hard logical constraints, the
+WMC posterior is the unique target, and any approximation is measured
+by its deviation from that posterior---the criterion tracked by our
+TV-distance stability bound (Proposition~\ref{prop:boundary-error}).
+
+
+% ────────────────────────────────────────────────────────────
+% ---- BIBLIOGRAPHY ENTRIES TO ADD (not in original .bib) ----
+%
+% @inproceedings{goral2024semiring,
+%   author    = {Goral, Andreas and Giesen, Joachim and Blacher, Mark and
+%                Staudt, Christian and Klaus, Jonas},
+%   title     = {Model Counting and Sampling via Semiring Extensions},
+%   booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+%   volume    = {38},
+%   number    = {18},
+%   pages     = {20395--20403},
+%   year      = {2024}
+% }
+%
+% @inproceedings{onaka2025ttkc,
+%   author    = {Onaka, Ryoma and Nakamura, Kengo and Nishino, Masaaki and
+%                Yasuda, Norihito},
+%   title     = {Tensor Decomposition Meets Knowledge Compilation:
+%                A Study Comparing Tensor Trains with {OBDDs}},
+%   booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+%   volume    = {39},
+%   number    = {14},
+%   pages     = {15109--15117},
+%   year      = {2025}
+% }
+%
+% @article{lagniez2017improved,
+%   author    = {Lagniez, Jean-Marie and Marquis, Pierre},
+%   title     = {An Improved Decision-{DNNF} Compiler},
+%   journal   = {Proceedings of the International Joint Conference on
+%                Artificial Intelligence},
+%   pages     = {667--673},
+%   year      = {2017}
+% }
+%
+% @inproceedings{fichte2021mcc,
+%   author    = {Fichte, Johannes Klaus and Hecher, Markus and Hamiti, Florim},
+%   title     = {The Model Counting Competition 2020},
+%   booktitle = {ACM Journal of Experimental Algorithmics},
+%   volume    = {26},
+%   year      = {2021}
+% }
+%
+% @article{lee2001nmf,
+%   author    = {Lee, Daniel D. and Seung, H. Sebastian},
+%   title     = {Algorithms for Non-negative Matrix Factorization},
+%   journal   = {Advances in Neural Information Processing Systems},
+%   volume    = {13},
+%   year      = {2001}
+% }
+%
+% @inproceedings{dal2017partitioned,
+%   [already in references.bib as dal2017]
+% }
+% ---- END OF BIB ENTRIES ----

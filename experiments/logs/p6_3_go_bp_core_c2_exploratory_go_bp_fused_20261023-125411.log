@@ -1,0 +1,54 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_3_go_bp_core_c2_exploratory.py
+# sha256 : 5053d4b47bd6530fbc7b07b0d04cf505c9ceb1c5da3321ea074f58ecddefae49
+# args   : --input fused --workers 32 --bootstrap 1000
+# host   : nid002514   slurm_job: 23105446
+# start  : 2026-10-23T12:54:11+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+cores {"build_seconds": 1065.6, "size": [135.0, 301.0, 726.0, 1360.0], "tau_counts": {"0.01": 2930, "0.02": 29, "0.03": 9, "0.05": 4, "0.1": 0, "0.2": 0, "0.3": 1}, "proteins_with_fallback": 43, "compile_seconds": [0.4, 3.1124000000000116, 82.175], "cold_odds_mass": [2.279252838612943, 3.5655107168487916, 5.313089697662401], "circuit_edges": [3521.0, 69580.40000000015, 1950705.0]}
+mm {"seconds": 24958.5, "err_median": 4.449554824981217e-06, "err_max": 0.00014436398074874068}
+fit {"seconds": 1106.9, "converged": true, "iterations": 348, "nll": 32.671056286906115, "w": [3.9324, -0.0088, 0.0104, 0.0122, -0.0507, 0.0466, -0.0758, -0.0719, 0.0332, 0.0645, -0.0682, 0.0904, -0.0083, 0.0533, -0.0529, -0.0396, -0.0631, 0.0597, 0.0208, -0.5103, 0.5048, -0.0347, -0.1459, 0.1496, 0.058
+raw                          fmax 0.53951  micro_ap 0.43002  brier 0.00813  logloss 0.03511  ece 0.00185
+max_closure                  fmax 0.54064  micro_ap 0.43059  brier 0.00812  logloss 0.03499  ece 0.00174
+isotonic                     fmax 0.53971  micro_ap 0.43045  brier 0.00812  logloss 0.03507  ece 0.00186
+depth_platt_iso              fmax 0.53733  micro_ap 0.43265  brier 0.00811  logloss 0.03449  ece 0.00072
+term_platt_iso               fmax 0.53132  micro_ap 0.43972  brier 0.00807  logloss 0.03432  ece 0.00097
+neighbor_lr_iso              fmax 0.53202  micro_ap 0.43495  brier 0.00810  logloss 0.03436  ece 0.00070
+same_features_lr_iso         fmax 0.53727  micro_ap 0.43268  brier 0.00812  logloss 0.03449  ece 0.00074
+theta_star_feature_lr_iso    fmax 0.53711  micro_ap 0.43258  brier 0.00811  logloss 0.03447  ece 0.00070
+whole_vector_pca32_lr_iso    fmax 0.53776  micro_ap 0.43874  brier 0.00806  logloss 0.03425  ece 0.00073
+C2_core                      fmax 0.53821  micro_ap 0.44532  brier 0.00800  logloss 0.03467  ece 0.00149
+C2_core - raw                        fmax [-0.0051, -0.0012, 0.0027]  ap [0.0088, 0.0149, 0.0211]
+C2_core - max_closure                fmax [-0.0061, -0.0023, 0.0015]  ap [0.008, 0.0143, 0.0211]
+C2_core - isotonic                   fmax [-0.0056, -0.0016, 0.0021]  ap [0.0084, 0.0145, 0.0207]
+C2_core - depth_platt_iso            fmax [-0.003, 0.0008, 0.0046]  ap [0.0071, 0.0124, 0.018]
+C2_core - term_platt_iso             fmax [0.0027, 0.0067, 0.0107]  ap [0.0005, 0.0054, 0.0106]
+C2_core - neighbor_lr_iso            fmax [0.0028, 0.0063, 0.0096]  ap [0.0049, 0.0101, 0.0155]
+C2_core - same_features_lr_iso       fmax [-0.0029, 0.0008, 0.0046]  ap [0.0071, 0.0123, 0.018]
+C2_core - theta_star_feature_lr_iso  fmax [-0.0027, 0.0011, 0.0047]  ap [0.0071, 0.0125, 0.0182]
+C2_core - whole_vector_pca32_lr_iso  fmax [-0.003, 0.0006, 0.0041]  ap [0.0015, 0.0064, 0.0112]
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_3_go_bp_core_c2_exploratory.py --input fused --workers 32 --bootstrap 1000"
+	User time (seconds): 745431.20
+	System time (seconds): 5897.23
+	Percent of CPU this job got: 1546%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 13:29:41
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 17702992
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 520
+	Minor (reclaiming a frame) page faults: 510435436
+	Voluntary context switches: 743734
+	Involuntary context switches: 560009
+	Swaps: 0
+	File system inputs: 269820
+	File system outputs: 24
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-24T02:23:58+03:00   exit: 0

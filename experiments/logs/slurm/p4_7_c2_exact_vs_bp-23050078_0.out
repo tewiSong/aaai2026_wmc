@@ -1,0 +1,142 @@
+{"theory": "dgp2_go_cc", "input": "cnn", "stage": "exploratory split", "steps": 300, "lr": 0.05, "proteins_fit": 1456, "proteins_eval": 1456, "bp_variant": "exact theta*, BP training+prediction"}
+isotonic                 fmax 0.66256  micro_ap 0.59680  brier 0.01276  logloss 0.05015  ece 0.00361
+C2_exact_adam            fmax 0.66548  micro_ap 0.61773  brier 0.01226  logloss 0.04891  ece 0.00084
+C2_bp                    fmax 0.50895  micro_ap 0.21069  brier 0.03871  logloss 0.16962  ece 0.04298
+C2_bp_train_exact_pred   fmax 0.60001  micro_ap 0.38615  brier 0.02337  logloss 0.08955  ece 0.03478
+C2_lbfgs_p45             fmax 0.66539  micro_ap 0.61790  brier 0.01225  logloss 0.04892  ece 0.00071
+{
+ "C2_bp-C2_exact_adam": {
+  "fmax": [
+   -0.16950537967131046,
+   -0.15677052309409073,
+   -0.14411453068536606
+  ],
+  "micro_ap": [
+   -0.42200606099895677,
+   -0.406921042856559,
+   -0.39310028669772684
+  ],
+  "brier": [
+   0.024843723605714407,
+   0.02646822687332406,
+   0.027949760719496324
+  ],
+  "logloss": [
+   0.11329023188926131,
+   0.12074169760342532,
+   0.12785818438507185
+  ]
+ },
+ "C2_bp-isotonic": {
+  "fmax": [
+   -0.166645046585115,
+   -0.1536772500902217,
+   -0.1410980239658355
+  ],
+  "micro_ap": [
+   -0.4020706731882736,
+   -0.3861579980205735,
+   -0.37098324687074025
+  ],
+  "brier": [
+   0.024347995980886605,
+   0.025963335189590347,
+   0.027473109658687284
+  ],
+  "logloss": [
+   0.11203223044687408,
+   0.11947302146317663,
+   0.1266342473631889
+  ]
+ },
+ "C2_exact_adam-isotonic": {
+  "fmax": [
+   0.0001821312854764696,
+   0.0030268879553162487,
+   0.00594170691137508
+  ],
+  "micro_ap": [
+   0.01664919218317392,
+   0.020931492624002346,
+   0.02485447230256135
+  ],
+  "brier": [
+   -0.0005806361487041489,
+   -0.0005013646989330068,
+   -0.0004290482475226768
+  ],
+  "logloss": [
+   -0.0015044306140654302,
+   -0.0012362412278852028,
+   -0.0009853396138837117
+  ]
+ },
+ "C2_bp_train_exact_pred-C2_bp": {
+  "fmax": [
+   0.07879569564424586,
+   0.09084341903828302,
+   0.1031987827892997
+  ],
+  "micro_ap": [
+   0.16059203271508718,
+   0.17563566762000427,
+   0.191651092221294
+  ],
+  "brier": [
+   -0.01678276495624962,
+   -0.015366176553149884,
+   -0.013877198978314064
+  ],
+  "logloss": [
+   -0.08609367510999572,
+   -0.08003021238990692,
+   -0.07395159147364254
+  ]
+ },
+ "C2_exact_adam-C2_lbfgs_p45": {
+  "fmax": [
+   -0.0007288014033992429,
+   0.00028848934542469173,
+   0.001315335831859951
+  ],
+  "micro_ap": [
+   -0.0007628172153885144,
+   -0.00015810827041007336,
+   0.0004068890540628615
+  ],
+  "brier": [
+   -8.875692793031434e-06,
+   3.0619297970253465e-06,
+   1.562236640653882e-05
+  ],
+  "logloss": [
+   -6.595034573088597e-05,
+   -8.145663141754383e-06,
+   4.8697532193090776e-05
+  ]
+ }
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7_c2_exact_vs_bp_inference.py --ns go_cc --input cnn --steps 300 --lr 0.05 --bootstrap 1000"
+	User time (seconds): 14234.43
+	System time (seconds): 61.11
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:58:18
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 393704
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 328
+	Minor (reclaiming a frame) page faults: 29867822
+	Voluntary context switches: 6850
+	Involuntary context switches: 165866
+	Swaps: 0
+	File system inputs: 160782
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p4_7_c2_exact_vs_bp_inference_go_cc_cnn_20261022-000403.log

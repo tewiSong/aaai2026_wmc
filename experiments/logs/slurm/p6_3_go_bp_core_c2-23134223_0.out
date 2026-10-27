@@ -1,0 +1,46 @@
+cores {"build_seconds": 1357.1, "size": [264.2, 447.0, 807.0, 1449.0], "tau_counts": {"0.01": 2858, "0.02": 84, "0.03": 14, "0.05": 11, "0.1": 5, "0.2": 0, "0.3": 0, "0.5": 0, "0.7": 1, "0.9": 0, "0.99": 0, "1.0": 0}, "proteins_with_fallback": 115, "compile_seconds": [0.389, 5.329600000000005, 93.32], "cold_odds_mass": [4.67306099293045, 6.711301681951497, 9.108772336639655], "circuit_edges": [11175.0, 167339.40000000005, 1997045.0]}
+mm {"seconds": 37704.3, "err_median": 3.0072993873475617e-06, "err_max": 7.559146816671358e-05}
+fit {"seconds": 2757.2, "converged": true, "iterations": 665, "nll": 43.9227744315641, "w": [2.0896, 0.5973, 0.919, -0.0509, -0.2743, 0.229, -0.122, -0.2271, 0.1791, 0.0786, -0.1883, 0.1979, 0.0159, -0.161, 0.1705, -0.1044, -0.1701, 0.137, 0.0038, -0.3872, 0.3941, -0.0228, -0.0666, 0.0593, 0.191, -0.507
+raw                          fmax 0.41311  micro_ap 0.31917  brier 0.00912  logloss 0.04001  ece 0.00270
+max_closure                  fmax 0.41740  micro_ap 0.32165  brier 0.00910  logloss 0.03981  ece 0.00240
+isotonic                     fmax 0.41459  micro_ap 0.32113  brier 0.00911  logloss 0.03989  ece 0.00269
+depth_platt_iso              fmax 0.41309  micro_ap 0.32257  brier 0.00906  logloss 0.03945  ece 0.00062
+term_platt_iso               fmax 0.41387  micro_ap 0.33544  brier 0.00894  logloss 0.03877  ece 0.00031
+neighbor_lr_iso              fmax 0.41251  micro_ap 0.32590  brier 0.00903  logloss 0.03935  ece 0.00060
+same_features_lr_iso         fmax 0.41342  micro_ap 0.32263  brier 0.00906  logloss 0.03945  ece 0.00062
+theta_star_feature_lr_iso    fmax 0.41333  micro_ap 0.32264  brier 0.00906  logloss 0.03945  ece 0.00062
+whole_vector_pca32_lr_iso    fmax 0.41235  micro_ap 0.33189  brier 0.00898  logloss 0.03909  ece 0.00067
+C2_core                      fmax 0.41442  micro_ap 0.33083  brier 0.00900  logloss 0.03938  ece 0.00110
+C2_core - raw                        fmax [-0.0012, 0.0014, 0.0041]  ap [0.0032, 0.0115, 0.0189]
+C2_core - max_closure                fmax [-0.0058, -0.0031, -0.0004]  ap [0.0007, 0.009, 0.0166]
+C2_core - isotonic                   fmax [-0.0027, -0.0004, 0.0024]  ap [0.0012, 0.0096, 0.0171]
+C2_core - depth_platt_iso            fmax [-0.0011, 0.0012, 0.0036]  ap [0.0001, 0.0082, 0.0153]
+C2_core - term_platt_iso             fmax [-0.0028, 0.0003, 0.0037]  ap [-0.0125, -0.0047, 0.0021]
+C2_core - neighbor_lr_iso            fmax [-0.0003, 0.002, 0.0046]  ap [-0.0028, 0.0049, 0.0115]
+C2_core - same_features_lr_iso       fmax [-0.0013, 0.001, 0.0034]  ap [0.0, 0.0082, 0.0152]
+C2_core - theta_star_feature_lr_iso  fmax [-0.0013, 0.0011, 0.0034]  ap [-0.0001, 0.0081, 0.0153]
+C2_core - whole_vector_pca32_lr_iso  fmax [-0.0004, 0.002, 0.0048]  ap [-0.0081, -0.0011, 0.0054]
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_3_go_bp_core_c2_exploratory.py --input cnn --workers 64 --bootstrap 1000"
+	User time (seconds): 2321090.44
+	System time (seconds): 26434.69
+	Percent of CPU this job got: 3708%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 17:34:55
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 24511884
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 628
+	Minor (reclaiming a frame) page faults: 1351390637
+	Voluntary context switches: 1407744
+	Involuntary context switches: 3338803
+	Swaps: 0
+	File system inputs: 345446
+	File system outputs: 24
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p6_3_go_bp_core_c2_exploratory_go_bp_cnn_20261024-160902.log

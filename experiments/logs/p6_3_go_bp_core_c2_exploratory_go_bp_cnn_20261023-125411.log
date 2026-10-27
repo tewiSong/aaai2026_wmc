@@ -1,0 +1,61 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_3_go_bp_core_c2_exploratory.py
+# sha256 : 5053d4b47bd6530fbc7b07b0d04cf505c9ceb1c5da3321ea074f58ecddefae49
+# args   : --input cnn --workers 32 --bootstrap 1000
+# host   : nid002552   slurm_job: 23105448
+# start  : 2026-10-23T12:54:11+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/opt/cotainr/conda/envs/conda_container_env/lib/python3.11/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "/opt/cotainr/conda/envs/conda_container_env/lib/python3.11/multiprocessing/pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_3_go_bp_core_c2_exploratory.py", line 89, in build_adaptive
+    raise RuntimeError(f"protein {k}: no core on the ladder compiled: {tried}")
+RuntimeError: protein 1577: no core on the ladder compiled: [(0.01, 4314, 'too_large'), (0.02, 4027, 'too_large'), (0.03, 3767, 'too_large'), (0.05, 3396, 'too_large'), (0.1, 2723, 'too_large'), (0.2, 2028, 'too_large'), (0.3, 1593, 'too_large')]
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_3_go_bp_core_c2_exploratory.py", line 217, in <module>
+    main()
+  File "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_3_go_bp_core_c2_exploratory.py", line 133, in main
+    built = pool.map(build_adaptive, tasks, chunksize=4)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/cotainr/conda/envs/conda_container_env/lib/python3.11/multiprocessing/pool.py", line 367, in map
+    return self._map_async(func, iterable, mapstar, chunksize).get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/cotainr/conda/envs/conda_container_env/lib/python3.11/multiprocessing/pool.py", line 774, in get
+    raise self._value
+RuntimeError: protein 1577: no core on the ladder compiled: [(0.01, 4314, 'too_large'), (0.02, 4027, 'too_large'), (0.03, 3767, 'too_large'), (0.05, 3396, 'too_large'), (0.1, 2723, 'too_large'), (0.2, 2028, 'too_large'), (0.3, 1593, 'too_large')]
+Command exited with non-zero status 1
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_3_go_bp_core_c2_exploratory.py --input cnn --workers 32 --bootstrap 1000"
+	User time (seconds): 20051.07
+	System time (seconds): 378.54
+	Percent of CPU this job got: 2235%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 15:13.68
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 966020
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 447
+	Minor (reclaiming a frame) page faults: 14834346
+	Voluntary context switches: 35035
+	Involuntary context switches: 33407
+	Swaps: 0
+	File system inputs: 343312
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
+
+# end    : 2026-10-23T13:09:30+03:00   exit: 1

@@ -1,0 +1,127 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_6_ablation_same_features_without_wmc.py
+# sha256 : 8a10b222f2661cceca50513e20d00054e03174ca4a2b7bc491240b724a24f4ee
+# args   : --ns go_mf --input fused --bootstrap 1000
+# host   : nid002539   slurm_job: 23038917
+# start  : 2026-10-21T18:46:37+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+C2                           fmax 0.70409  micro_ap 0.68090  brier 0.00639  logloss 0.02721  ece 0.00142
+same_features_lr_iso         fmax 0.68240  micro_ap 0.65925  brier 0.00679  logloss 0.02837  ece 0.00201
+same_features_lr             fmax 0.68260  micro_ap 0.65901  brier 0.00679  logloss 0.02840  ece 0.00200
+same_plus_neighbors_lr_iso   fmax 0.68652  micro_ap 0.66714  brier 0.00671  logloss 0.02812  ece 0.00207
+isotonic                     fmax 0.68819  micro_ap 0.66222  brier 0.00724  logloss 0.02972  ece 0.00416
+{
+ "same_features_lr_iso": {
+  "fmax": [
+   0.015375132627875357,
+   0.021784075699611216,
+   0.027887125627106695
+  ],
+  "micro_ap": [
+   0.013379258771551442,
+   0.02164712893129639,
+   0.029309548184574503
+  ],
+  "brier": [
+   -0.0004852437402869304,
+   -0.0003987945123857671,
+   -0.00031399053180589847
+  ],
+  "logloss": [
+   -0.0015150359933872957,
+   -0.0011592461511081252,
+   -0.000788731909708927
+  ]
+ },
+ "same_features_lr": {
+  "fmax": [
+   0.015463901361684846,
+   0.021799851431569595,
+   0.02777534552085412
+  ],
+  "micro_ap": [
+   0.013668204905474341,
+   0.021879763049676038,
+   0.02957881671464505
+  ],
+  "brier": [
+   -0.00048705561115135936,
+   -0.0004006350824143244,
+   -0.0003163182811972175
+  ],
+  "logloss": [
+   -0.0015505649141113798,
+   -0.001198577710486256,
+   -0.0008232406759204496
+  ]
+ },
+ "same_plus_neighbors_lr_iso": {
+  "fmax": [
+   0.011994043320614675,
+   0.018064911829027308,
+   0.023493437588946006
+  ],
+  "micro_ap": [
+   0.006518399747782161,
+   0.013743288020523381,
+   0.020420458607452986
+  ],
+  "brier": [
+   -0.0003953344904637335,
+   -0.0003164065125802083,
+   -0.0002373680159460021
+  ],
+  "logloss": [
+   -0.001246455099924342,
+   -0.0009093934446075813,
+   -0.0005584191893348632
+  ]
+ },
+ "isotonic": {
+  "fmax": [
+   0.008573416354404104,
+   0.015508122362771215,
+   0.022289571159235223
+  ],
+  "micro_ap": [
+   0.009957737915201556,
+   0.018500995374299056,
+   0.02666687880546864
+  ],
+  "brier": [
+   -0.0009814042364310082,
+   -0.0008445411693223759,
+   -0.0007103575677860244
+  ],
+  "logloss": [
+   -0.0030202777952733745,
+   -0.0025131786604626633,
+   -0.00203363913705749
+  ]
+ }
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_6_ablation_same_features_without_wmc.py --ns go_mf --input fused --bootstrap 1000"
+	User time (seconds): 1295.90
+	System time (seconds): 51.61
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 22:28.00
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 520560
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 330
+	Minor (reclaiming a frame) page faults: 22220948
+	Voluntary context switches: 6643
+	Involuntary context switches: 2001
+	Swaps: 0
+	File system inputs: 184752
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-21T19:09:11+03:00   exit: 0

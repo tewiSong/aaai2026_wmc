@@ -1,0 +1,39 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_5_go_bp_core_tau_sensitivity.py
+# sha256 : 6794b753edb7082b484388072d246d39f14531c46e16ac6b0c8834672dfe96b5
+# args   : --input fused --sample 8 --bootstrap 5 --workers 8 --max-core 300 --max-edges 200000
+# host   : uan04   slurm_job: none
+# start  : 2026-10-25T13:50:45+02:00
+# sif    : 6b6e8a4c4dd7cefe
+
+{"theory": "dgp2_go_bp", "input": "fused", "proteins": 8, "lower_taus": [0.001, 0.002, 0.003, 0.005, 0.007], "build_seconds": 0.7, "proteins_with_larger_core": 4, "tau_a_counts": {"0.01": 5, "0.03": 1, "0.1": 1, "0.2": 1}, "tau_b_counts": {"0.002": 1, "0.005": 1, "0.007": 2}, "core_size_a": [85.4, 145.5, 209.1, 219.0], "core_size_b": [200.7, 229.5, 250.6, 259.0], "cold_odds_mass_a": [1.7645473472050126, 3.049447211425626, 3.5477260621801605], "cold_odds_mass_b": [1.1562350559216035, 2.581159197998021, 3.1730229133179066]}
+core_A_P6.3      fmax 0.74941  micro_ap 0.77284  brier 0.00269  logloss 0.01169  ece 0.00324
+core_B_larger    fmax 0.74941  micro_ap 0.77221  brier 0.00269  logloss 0.01175  ece 0.00330
+isotonic         fmax 0.71213  micro_ap 0.76094  brier 0.00314  logloss 0.01270  ece 0.00318
+max|B-A| per protein q50/90/99/max [0.01289, 0.02143, 0.02453, 0.02487]
+B - A          fmax [0.0, 0.0, 0.0]  micro_ap [-0.0021, -0.00038, -3e-05]  brier [0.0, 1e-05, 1e-05]  logloss [5e-05, 7e-05, 8e-05]
+A - isotonic   fmax [-0.08001, 0.02396, 0.05748]  micro_ap [-0.0233, 0.10636, 0.13049]  brier [-0.00116, -0.00029, 0.00023]  logloss [-0.0024, -0.00095, 0.00039]
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_5_go_bp_core_tau_sensitivity.py --input fused --sample 8 --bootstrap 5 --workers 8 --max-core 300 --max-edges 200000"
+	User time (seconds): 118.49
+	System time (seconds): 3.71
+	Percent of CPU this job got: 238%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:51.30
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 805408
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 354
+	Minor (reclaiming a frame) page faults: 176862
+	Voluntary context switches: 7978
+	Involuntary context switches: 2441
+	Swaps: 0
+	File system inputs: 267118
+	File system outputs: 1008
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-25T13:51:43+02:00   exit: 0

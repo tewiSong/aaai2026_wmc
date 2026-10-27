@@ -1,0 +1,59 @@
+{
+ "theory": "dgp2_go_bp",
+ "input": "cnn",
+ "proteins": 2973,
+ "metrics": {
+  "raw": {
+   "fmax": 0.41329461452107585,
+   "micro_ap": 0.3178268988845986,
+   "brier": 0.009120680455458736,
+   "ece": 0.002631491050039369,
+   "violation_rate": 0.09569021774471521
+  },
+  "max_closure": {
+   "fmax": 0.4168876968607891,
+   "micro_ap": 0.3210824204258249,
+   "brier": 0.00910033351275018,
+   "ece": 0.0023774015202306766,
+   "violation_rate": 0.0
+  },
+  "isotonic": {
+   "fmax": 0.4151309131182733,
+   "micro_ap": 0.31996390626999693,
+   "brier": 0.009100736378872243,
+   "ece": 0.0026023318877298166,
+   "violation_rate": 1.9005979145282111e-06
+  },
+  "bp": {
+   "fmax": 0.38507717578671646,
+   "micro_ap": 0.2687639066875072,
+   "brier": 0.009811283545609438,
+   "ece": 0.008266119924402406,
+   "violation_rate": 0.0
+  }
+ }
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_1b_downstream_consistency_methods_deepgoplus.py --ns go_bp --input cnn --bootstrap 1000"
+	User time (seconds): 20246.02
+	System time (seconds): 609.23
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 5:47:48
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 2130420
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 512
+	Minor (reclaiming a frame) page faults: 46289483
+	Voluntary context switches: 8610
+	Involuntary context switches: 1032749
+	Swaps: 0
+	File system inputs: 399986
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p4_1b_downstream_consistency_methods_deepgoplus_go_bp_cnn_20261020-164523.log

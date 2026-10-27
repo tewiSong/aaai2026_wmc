@@ -1,0 +1,2622 @@
+PDF PAGE 1
+Statistics and Computing (2020) 30:603–625
+https://doi.org/10.1007/s11222-019-09910-z
+Approximation and sampling of multivariate probability distributions
+in the tensor train decomposition
+Sergey Dolgov 1 · Karim Anaya-Izquierdo 1 · Colin Fox 2 · Robert Scheichl 3
+Received: 2 July 2019 / Accepted: 17 October 2019 / Published online: 2 November 2019
+© The Author(s) 2019
+Abstract
+General multivariate distributions are notoriously expensive to sample from, particularly the high-dimensional posterior
+distributions in PDE-constrained inverse problems. This paper develops a sampler for arbitrary continuous multivariate
+distributions that is based on low-rank surrogates in the tensor train format, a methodology that has been exploited for
+many years for scalable, high-dimensional density function approximation in quantum physics and chemistry. We build upon
+recent developments of the cross approximation algorithms in linear algebra to construct a tensor train approximation to the
+target probability density function using a small number of function evaluations. For sufﬁciently smooth distributions, the
+storage required for accurate tensor train approximations is moderate, scaling linearly with dimension. In turn, the structure
+of the tensor train surrogate allows sampling by an efﬁcient conditional distribution method since marginal distributions are
+computable with linear complexity in dimension. Expected values of non-smooth quantities of interest, with respect to the
+surrogate distribution, can be estimated using transformed independent uniformly-random seeds that provide Monte Carlo
+quadrature or transformed points from a quasi-Monte Carlo lattice to give more efﬁcient quasi-Monte Carlo quadrature.
+Unbiased estimates may be calculated by correcting the transformed random seeds using a Metropolis–Hastings accept/reject
+step, while the quasi-Monte Carlo quadrature may be corrected either by a control-variate strategy or by importance weighting.
+We show that the error in the tensor train approximation propagates linearly into the Metropolis–Hastings rejection rate and the
+integrated autocorrelation time of the resulting Markov chain; thus, the integrated autocorrelation time may be made arbitrarily
+close to 1, implying that, asymptotic in sample size, the cost per effectively independent sample is one target density evaluation
+plus the cheap tensor train surrogate proposal that has linear cost with dimension. These methods are demonstrated in three
+computed examples: ﬁtting failure time of shock absorbers; a PDE-constrained inverse diffusion problem; and sampling from
+the Rosenbrock distribution. The delayed rejection adaptive Metropolis (DRAM) algorithm is used as a benchmark. In all
+computed examples, the importance weight-corrected quasi-Monte Carlo quadrature performs best and is more efﬁcient than
+DRAM by orders of magnitude across a wide range of approximation accuracies and sample sizes. Indeed, all the methods
+developed here signiﬁcantly outperform DRAM in all computed examples.
+Keywords Multivariate distributions · Surrogate models · Tensor decomposition · MCMC · Importance weights
+B Sergey Dolgov
+s.dolgov@bath.ac.uk
+Karim Anaya-Izquierdo
+K.Anaya-Izquierdo@bath.ac.uk
+Colin Fox
+colin.fox@otago.ac.nz
+Robert Scheichl
+r.scheichl@uni-heidelberg.de
+1 University of Bath, Bath, UK
+2 University of Otago, Dunedin, New Zealand
+3 University of Heidelberg, Heidelberg, Germany
+1 Introduction
+We present an algorithm for efﬁcient MCMC when the tar-
+get distribution is a continuous multivariate distribution with
+known, tractable probability density function (PDF) π(x)
+deﬁned for x in a region in Rd . Beyond a ﬁxed function
+approximation phase that has cost that scales linearly with
+dimension d, independent draws fromπ cost (a fraction more
+than) one function evaluation per independent sample. We
+give a basic form of the algorithm that generates random sam-
+ples from π and variants that allow efﬁcient quadrature using
+123
+
+PDF PAGE 2
+604 Statistics and Computing (2020) 30:603–625
+quasi-Monte Carlo constructions and/or importance weight-
+ing.
+There are currently few general-purpose options for sam-
+pling from multivariate distributions with no special form,
+particularly if one is seeking a black box sampler that does
+not require case-speciﬁc tuning. We commonly encounter
+such distributions as the posterior distribution in a Bayesian
+analysis of a nonlinear inverse problem (Fox and Nicholls
+1997; Fox et al. 2013; Dodwell et al. 2015) (also see the
+example in Sect. 5.3), or as the marginal posterior distri-
+bution over hyperparameters in a linear Gaussian inverse
+problem (Fox and Norton2016) ,s e ea l s oN o r t o ne ta l .(2018).
+This work is motivated by the desire to compute inference in
+those examples, though the samplers and quadrature meth-
+ods we present here are applicable to arbitrary continuous
+distributions, which could be non-Gaussian, or multimodal,
+and unnormalized; for example, see the example in Sect. 5.1.
+In target applications, the aim of sampling is often to imple-
+ment Monte Carlo integration to compute summary statistics
+of the posterior distribution over an unobserved quantity of
+interest (QoI). For applications in inverse problems, the state
+variable is typically high-dimensional, thus requiring com-
+putation of high-dimensional quadratures (Stuart2010), even
+when the QoI is low-dimensional.
+Efﬁcient black box samplers exist for some special classes
+of distributions. Most notable amongst multivariate distribu-
+tions are multivariate normal (MVN) distributions, with ﬁxed
+covariance or precision matrix, for which efﬁcient, automatic
+sampling is available using stochastic variants of efﬁcient
+algorithms for solving systems of equations in the covari-
+ance or precision matrix; methods based on direct solvers,
+using Cholesky factoring, can be found in Rue ( 2001) and
+Rue and Held ( 2005), while more recently samplers based
+on accelerated iterative solvers have been developed; see
+Fox and Parker ( 2017) and references therein. For non-
+Gaussian distributions, virtually all samplers are variants of
+Metropolis–Hastings (MH) MCMC with a random walk pro-
+posal, of which there are many variants (Brooks et al. 2011).
+These algorithms are geometrically convergent, at best, so
+they can be very slow for our target applications. Two black
+box versions are the delayed acceptance adaptive Metropolis
+(DRAM) (Haario et al. 2006) and the t-walk (Christen and
+Fox 2010). Both of these algorithms require multiple evalu-
+ations of the target PDF per effectively independent output
+sample, with that number growing roughly linearly or worse
+with dimension, even for simple distributions such as MVN
+[see Norton et al. ( 2018) for the cost of these algorithms].
+Computational sampling from univariate distributions is
+effectively a solved problem due to developments of the
+adaptive rejection sampler (ARS) (Gilks and Wild 1992),
+such as independent doubly adaptive rejection Metropolis
+sampling (IA
+2RMS) (Martino et al. 2015). These algorithms
+approximate the univariate PDF using simple functions, with
+the approximation improving (adaptively) as the algorithm
+progresses to achieve efﬁcient sampling. The ARS, which
+is restricted to log-convex PDFs, builds a piecewise lin-
+ear upper bound to the log of the PDF and hence bounds
+the PDF, to give an efﬁcient proposal in a rejection sam-
+pler.
+1 The IA2RMS has no restriction on the PDF and uses
+a sequence of simple function approximations to the PDF
+or log PDF, such as piecewise constant or piecewise linear
+approximations that converge in distribution to the PDF as
+the algorithm progresses. Sampling from these approxima-
+tions is easy in this univariate case, whether approximating
+the PDF or log PDF, using the inverse cumulative transforma-
+tion method (Devroye 1986; Johnson 1987; Hörmann et al.
+2004), with samples providing independence proposals to a
+Metropolis–Hastings accept/reject step that ensures the cor-
+rect equilibrium distribution. Distributional convergence of
+the approximation implies that, asymptotic in sample size,
+just one PDF evaluation is required per independent sam-
+ple.
+2
+The sampler developed here is inspired, to some extent, by
+IA2RMS, in that it uses function approximation methods to
+approximate the multivariate PDF in a way that then allows
+cheap simulation from the approximation. Speciﬁcally, we
+use an interpolation in tensor train (TT) representation that
+may be made arbitrarily accurate, with sampling via the con-
+ditional distribution method that is the multivariate extension
+of inverse cumulative transformation sampling for univariate
+distributions (Johnson 1987). The conditional distribution
+method requires computing integrals of the multivariate
+PDF π(x
+1,..., xd), over subsets of variables xk,..., xd
+for k = 2,..., d, in order to obtain univariate marginal–
+conditional distributions. Per se, this problem is as difﬁcult
+as the original quadrature. By using the TT decomposi-
+tion (Oseledets 2011b), this integration can be performed
+efﬁciently, and each univariate marginal-conditional distribu-
+tion can then be easily sampled using its inverse cumulative
+distribution function (CDF). Since the inverse cumulative
+transform is isoprobabilistic, the resulting samples are exact
+for the interpolated probability tensor, which is, however, an
+approximation to the original target PDF. We provide bounds
+on the sampling error based on the approximation errors of
+the TT decomposition and discretization, and thus are able
+to trade accuracy for compute time.
+An accurate approximation to the PDF allows the almost
+exact samples to be used directly, while a less expensive
+approximation may be used to produce independence propos-
+als for a MH accept/reject step that ‘corrects’ the distribution.
+1 Meyer et al. ( 2008) used piecewise quadratic approximations to the
+log PDF giving piecewise Gaussian approximated PDF.
+2 The MA TLAB package for IA 2RMS available at http://a2rms.
+sourceforge.net/ is far more expensive than this minimal theoretical
+cost, besides not being robust.
+123
+
+PDF PAGE 3
+Statistics and Computing (2020) 30:603–625 605
+The conditional distribution sampler may also be seeded
+with quasi-Monte Carlo points in the unit cube to implement
+quasi-Monte Carlo quadrature that is corrected by a mul-
+tilevel MCMC scheme or by importance weighting. These
+variants are discussed in Sect.4. We ﬁnd that the combination
+of quasi-Monte Carlo seed points combined with importance-
+weighted quadrature gives the best performance in computed
+examples.
+The attraction of approximating the PDF in TT format
+is that the computational cost of the construction, the stor-
+age requirements and the operations required for conditional
+distribution method sampling from the distributional approx-
+imation all scale linearly with dimension; see Sect. 3.I n
+contrast, direct calculation or naïve representations lead to
+exponential cost for each of these tasks. This is a remarkable
+feature of the TT representation, and this is why the recent
+introduction of low-rank hierarchical tensor methods, such
+as TT (Oseledets and Tyrtyshnikov2010; Oseledets 2011a, b,
+2013), is a signiﬁcant development in scientiﬁc computing
+for multidimensional problems.
+Thus, the basic sampler we present here differs from
+IA
+2RMS in two important aspects (beyond being able to han-
+dle multivariate distributions): we approximate the PDF and
+not the log PDF, and the sampler is not adaptive. The PDF is
+approximated because operations available on the TT repre-
+sentation that have cost that scales linearly with dimension
+include those required for performing the conditional dis-
+tribution sampling (see Sect. 3), while it is not clear how
+to perform sampling when the log PDF is approximated in
+the multivariate case. Further, current methods for TT repre-
+sentation do not include convenient and cheap schemes for
+updating a TT representation using a single new evaluation.
+Hence, the algorithm we present consists of two steps: in a
+set-up phase, the TT approximation to π(·) is constructed;
+then, that ﬁxed approximation is used to generate samples.
+Hence, unlike the univariate samplers mentioned above, the
+TT approximation and samplers presented here are restricted
+to distributions with bounded, known support. While it is
+simple to deﬁne coordinate transformations R ↦→[ 0, 1] to
+represent a distribution on the (bounded) unit cube, efﬁcient
+sampling still requires locating the appreciable support of the
+distribution; indeed, that is often a signiﬁcant task when per-
+forming sampling. We do not consider such transformations
+here. Despite this restriction, the method advances sample-
+based inference in some problems of substantial interest, as
+shown in the computed examples in Sect. 5.
+Approximation of the multivariate target distribution can
+be recommended for the following two cases: ﬁrst, the quan-
+tity of interest may be very poorly representable in the TT
+format, and hence, direct tensor product integration of the
+QoI, as suggested in Eigel et al. ( 2018), is not possible. The
+most remarkable example is the indicator function, which
+occurs in the computation of the probability of an event. If
+the jump of the indicator function is not aligned to the coor-
+dinate axes, the cost of its TT approximation might grow
+exponentially in the number of variables. Then, Monte Carlo
+quadrature becomes the only possibility, with the quadrature
+error depending on the particular distribution of the samples.
+When the target density function admits a TT approxima-
+tion with a modest storage, the cumulative transform method
+can produce optimally distributed samples at a low cost. Sec-
+ondly, even when a fast growth of the TT storage prevents
+accurate computation of the density function, the TT surro-
+gate distributed samples can still be used as proposals in the
+MH algorithm or with importance weighting. Even a crude
+approximation to the PDF with 10% error can produce the
+acceptance rate of 90% and the integrated autocorrelation
+time of 1.2, which is close enough to the best possible prac-
+tical MCMC. The relationship between approximation error
+and acceptance rate is formalized in Sect. 4.2.
+The paper is structured as follows: in Sect.2,w er e v i e wt h e
+conditional sampling method used to sample from the multi-
+variate TT-interpolated approximation. Some background on
+the TT decomposition is presented in Sect.3. A metropolized
+algorithm that uses the TT surrogate for sampling from the
+target distribution is presented in Sect. 4, as well as methods
+for unbiased quadrature that utilize a two-level algorithm,
+importance weighting and quasi-Monte Carlo seed points.
+Several numerical examples are presented in Sect.5: Sect. 5.1
+shows posterior estimation of a shock absorber failure prob-
+ability; Sect. 5.2 demonstrates efﬁcient sampling when the
+Rosenbrock function is the log target density, which is a
+synthetic ‘banana-shaped’ PDF that presents difﬁculties to
+random walk MCMC samplers; and Sect. 5.3 demonstrates
+posterior inference in a classical inverse problem in subsur-
+face ﬂow. In each of the numerical examples, scaling for the
+TT-based sampling and quadrature is shown, in comparison
+with DRAM (Haario et al. 2006), as well as (in Sect. 5.3)
+with direct quasi-Monte Carlo quadrature.
+2 Conditional distribution sampling method
+The conditional distribution method(Devroye 1986; Johnson
+1987; Hörmann et al. 2004) reduces the task of generating a
+d-dimensional random vector into a sequence of d univariate
+generation tasks.
+Let (X1,..., Xd) be a continuous random vector with a
+probability density function π(x1,..., xd). To simplify the
+presentation, we assume in this section that π is normalized.
+The density function can be written as a product of condi-
+tional densities,
+π(x1,..., xd) = π1(x1)π2(x2|x1)··· πd(xd|x1 ..., xd− 1),
+123
+
+PDF PAGE 4
+606 Statistics and Computing (2020) 30:603–625
+where πk(xk|x1 ..., xk− 1) is a conditional density given by
+πk(xk|x1 ..., xk− 1) = pk(x1,..., xk)
+pk− 1(x1 ..., xk− 1), (1)
+in terms of the marginal densities,
+pk =
+∫
+π(x1,..., xk− 1, xk, xk+1,..., xd)dxk+1 ··· dxd,
+(2)
+where k = 1,..., d. To simplify the notation we set
+p0 = 1. The conditional distribution method then generates
+(x1,..., xd) ∼ π by sampling from each of the univariate
+conditional densities in turn:
+for k = 1, 2,..., d do
+Generate xk ∼ πk(xk|x1 ..., xk− 1).
+end for
+This follows by straightforward manipulation of the deﬁ-
+nitions of marginal and conditional distributions.
+To generate the univariate samples in the algorithm above,
+we use the inverse cumulative transformation method. Thus,
+our algorithm coincides with the inverse Rosenblatt trans-
+formation (Rosenblatt 1952)f r o mt h e d-dimensional unit
+cube to the state space of π. The standard conditional
+distribution method uses independent samples distributed
+uniformly in the unit cube as seeds for the transforma-
+tion to produce independent draws from π. This generalizes
+the inverse cumulative transformation method for univariate
+distributions. Later, we will also use quasi-random points
+to implement quasi-Monte Carlo quadrature for evaluating
+expectations with respect to π.
+When the analytic inverse of each univariate cumula-
+tive distribution function is not available, a straightforward
+numerical procedure is to discretize the univariate density
+on a grid, with approximate sampling carried out using a
+polynomial interpolation. In that case, the normalization, i.e.
+the denominator in ( 1), is not necessary as normalization of
+the numerical approximation is evaluated, allowing sampling
+from an unnormalized marginal density ( 2), directly.
+The main difﬁculty with the conditional distribution
+method for multivariate random generation is obtaining
+all necessary marginal densities, which requires the high-
+dimensional integral over x
+k+1 ... xd in (2). In general, this
+calculation can be extremely costly. Even a simple discretiza-
+tion of the argument of the marginal densities ( 2), or the
+conditional–marginal densities (1), leads to exponential cost
+with dimension.
+To overcome this cost, we precompute an approximation
+of π(x
+1,..., xd) in a compressed representation that allows
+fast computation of integrals in (2) and subsequent sampling
+from the conditionals in (1). In the next sections, we introduce
+the TT decomposition and the related TT-cross algorithm
+(Oseledets and Tyrtyshnikov2010) for building a TT approx-
+imation to π. Moreover, we show that the separated form of
+the TT representation allows an efﬁcient integration in ( 2),
+with cost that scales linearly with dimension.
+3 TT approximation of the target
+distribution
+Tensor decompositions trace back to the low-rank skeleton
+decompositions of matrices, which can in turn be computed
+by the singular value decomposition (SVD). Any matrix
+P ∈ R
+n×m (e.g. a bivariate discrete distribution) admits a
+SVD P = UΣ V⊤, where U, V are orthonormal matrices of
+singular vectors and Σ is a diagonal matrix of non-negative
+singular values. If the matrix is of low rank, r := rank P <
+min(m, n), the bottom right corner of Σ is zero, so we can
+truncate the SVD toUr Σ r V⊤
+r , where Ur , Vr contain only the
+ﬁrst r columns and Σ r contains only the principal r × r sub-
+matrix. However, we can also approximate the given matrix
+P by a truncated decomposition of lower rank; the Eckart–
+Y oung theorem (Golub and V an Loan 2013) ensures the
+optimality of the rank-r SVD approximation among all pos-
+sible rank- r approximations. Naturally, Ur and Vr contain
+only (n+m)r elements in contrast to nm elements in P.T h i s
+process can be extended to build low-rank decompositions
+of multivariate distributions, which we will describe next.
+3.1 Interpolated TT decomposition
+Throughout the paper, we approximate the target PDF by an
+interpolated TT decomposition (Oseledets 2011b),
+π(x1,..., xd) ≈˜π(x1,..., xd)
+=
+r0,...,rd∑
+α0,...,αd=1
+π(1)
+α0,α1 (x1)π(2)
+α1,α2 (x2)··· π(d)
+αd− 1,αd (xd), (3)
+that is a sum of products of the univariate functions
+π(k)
+αk− 1,αk (xk), k = 1, 2,..., d indexed by αk = 1,..., rk .
+The rk , k = 0,..., d, are called TT ranks, with r0 = rd = 1
+(because π is scalar-valued), but r1,..., rd− 1 can be larger.
+The efﬁciency of this representation relies on the TT ranks
+being bounded by some (smallish) number r , as discussed
+later.
+The TT decomposition natively represents a tensor, or
+d-dimensional array of values. The function approximation
+(3) is obtained by ﬁrst approximating the tensor that results
+from discretizing the PDF π(x
+1,..., xd) by collocation on
+a tensor product of univariate grids. Let xik
+k ∈ R, with
+ik = 1,..., nk and x1
+k < ··· < xnk
+k , deﬁne independent
+univariate grids in each variable, and let ˆπ(i1, i2,..., id) =
+π(xi1
+1 , xi2
+2 ,..., xid
+d ). The TT representation is
+123
+
+PDF PAGE 5
+Statistics and Computing (2020) 30:603–625 607
+ˆπ(i1, i2,..., id)
+=
+r0,...,rd∑
+α0,...,αd=1
+ˆπ(1)
+α0,α1 (i1) ˆπ(2)
+α1,α2 (i2)··· ˆπ(d)
+αd− 1,αd (id) (4)
+with TT blocks ˆπ(k). Each TT block is a collection of rk− 1rk
+vectors of length nk , i.e. ˆπ(k)(ik) = π(k)(xik
+k ) is a three-
+dimensional tensor of size rk− 1 × nk × rk . If we assume that
+all nk ≤ n and rk ≤ r for some uniform bounds n, r ∈ N,
+the storage cost of ( 4) can be estimated by dnr 2 which is
+linear in the number of variables. In contrast, the number of
+elements in the tensor of nodal values ˆπ(i1,..., id) grows
+exponentially in d and quickly becomes prohibitively large
+with increasing d.
+The continuous approximation ofπ (3) is given by a piece-
+wise polynomial interpolation of nodal values or TT blocks.
+For example, in the linear case we have
+π
+(k) = xk − xik
+k
+xik+1
+k − xik
+k
+·ˆπ(k)(ik + 1) + xik+1
+k − xk
+xik+1
+k − xik
+k
+·ˆπ(k)(ik),
+for xik
+k ≤ xk ≤ xik+1
+k , which induces the corresponding
+multilinear approximation ˜π of π in (3).
+If the individual terms π(k)
+αk− 1,αk (xk) are normalized PDFs,
+the TT approximation in ( 3) may be viewed as a mixture
+distribution. However, the TT decomposition can be more
+general and may also include negative terms. Moreover, at
+some locations whereπ(x) is close to zero the whole approx-
+imation ˜π(x) may take (small) negative values. This will be
+circumvented by explicitly taking absolute values in the con-
+ditional distribution sampling method; see Sec. 4.1.
+The interpolated TT approximation to π in ( 3) required
+several choices. First a coordinate system must be chosen,
+then an ordering of coordinates, then a rectangular region
+that contains the (appreciable) support of the PDF and then
+univariate grids for each coordinate within the rectangular
+region. Each of these choices affects the TT ranks and hence
+the efﬁciency of the TT representation in terms of storage size
+versus accuracy of the approximation that is also chosen;
+see later. In this sense, the sampler that we develop is not
+‘black box’. However, as we demonstrate in the computed
+examples, an unsophisticated choice for each of these steps
+already leads to a computational method for sampling and
+evaluating expectations that is substantially more efﬁcient
+than existing MCMC algorithms. Smart choices for each of
+these steps could lead to further improvements.
+The rationale behind the independent discretization of
+all variables is the rapid convergence of tensor product
+Gaussian quadrature rules. If π(x) is analytic with respect
+to all variables, the error of the Gaussian quadrature con-
+verges exponentially in n. A straightforward summation of
+n
+d quadrature terms would imply a cost of O(| log ε|d) for
+accuracyε. In contrast, the TT ranks often depend logarithmi-
+cally onεunder the same assumptions onπ(x) (Tyrtyshnikov
+2003; Khoromskij 2006; Schneider and Uschmajew 2013),
+leading to O(d| log ε|3) cost of the TT integration, since
+the integration of the TT decomposition factorizes into one-
+dimensional integrals over the TT blocks. This can also be
+signiﬁcantly cheaper than the O(ε
+− 2) cost of Monte Carlo
+quadrature.
+In general, it is difﬁcult to deduce sharp bounds for the
+TT ranks. Empirically, low ranks occur in the situation of
+‘weakly’ dependent variables. For example, if x1,..., xd
+correspond to independent random quantities, the PDF fac-
+torizes into a single product of univariate densities, which
+corresponds to the simplest case, r = 1i n( 3). Thus, a
+numerical algorithm that can robustly reveal the ranks is
+indispensable.
+3.2 TT-cross approximation
+A quasi-optimal approximation of ˆπ for a given TT rank,
+in the Frobenius norm, is available via the truncated singular
+value decomposition (SVD) (Oseledets2011b). However, the
+SVD requires storage of the full tensor which is not affordable
+in many dimensions. A practical method needs to be able to
+compute the representation ( 3)u s i n gonly a few evaluations
+of π. A workhorse algorithm of this kind is the alternating
+TT-cross method (Oseledets and Tyrtyshnikov 2010). That
+builds on the skeleton decomposition of a matrix (Goreinov
+et al. 1997). It represents an n × m matrix P of rank r as the
+cross (in MA TLAB-like notation)
+P = P(:, J )P(I, J )
+− 1 P(I,:) (5)
+of r columns and rows, where I and J are two index sets
+of cardinality r such that P(I, J ) (the intersection matrix)
+is non-singular. If r ≪ n, m, this decomposition requires
+computing only (n + m − r)r ≪ nm elements of the original
+matrix. The SVD may be used for choosing the cross ( 5),
+though with greater cost, as noted above.
+The TT-cross approximation may now be constructed
+by reducing the sequence of unfolding matrices ˆπk =
+[ˆπ(i1,..., ik; ik+1,..., id)] that have the ﬁrst k indices
+grouped together to index rows and the remaining indices
+grouped to index columns. We begin with ˆπ
+1.
+We start with a set I>1 ={ (iα1
+2 ,..., iα1
+d )}r1
+α1=1 of r1
+(d − 1)-tuples such that ˆπ(:, I>1) forms a ‘good’ basis
+for the rows of ˆπ1 (in the i1 variable) and choose a set
+I<2 ={ iα1
+1 }r1
+α1=1 of r1 row indices such that the volume
+(the modulus of the determinant) of the r1 × r1 submatrix
+ˆπ(I<2, I>1) is maximized. This can be achieved in O(nr 2
+1 )
+operations using themaxvol algorithm (Goreinov et al.2010).
+The ﬁrst discrete TT block ˆπ(1) is then assembled from the
+rectangular n × r1 matrix ˆπ(:, I>1) ˆπ(I<2, I>1)− 1, and the
+123
+
+PDF PAGE 6
+608 Statistics and Computing (2020) 30:603–625
+reduced tensor [ˆπ>1(α1, i2,..., id)]=[ ˆπ(iα1
+1 , i2,..., id)]
+is passed on to the next step of the TT-cross. In a practical
+algorithm, to ensure numerical stability all these operations
+are actually carried out using QR decompositions of the
+matrices (Oseledets and Tyrtyshnikov 2010).
+In the kth step, we assume that we are given the reduc-
+tion ˆπ
+>k− 1(αk− 1, ik,..., id) from the previous step, as
+well as two sets I<k ={ (iαk− 1
+1 ,..., iαk− 1
+k− 1 )}rk− 1
+αk− 1=1 and
+I>k ={ (iαk
+k+1,..., iαk
+d )}rk
+αk=1 containing, resp., rk− 1 (k −
+1)-tuples and rk (d − k)-tuples. The unfolding tensor
+[ˆπ>k− 1(αk− 1, ik; I>k)] can then be seen as a rk− 1n × rk
+rectangular matrix and the maxvol algorithm can be applied
+again to produce a set of row positions{ααk
+k− 1, iαk
+k }rk
+αk=1, which
+upon replacingααk
+k− 1 with the corresponding indices fromI<k
+leads to the next index setI<k+1 ={ (iαk
+1 ,..., iαk
+k )}rk
+αk=1.T h e
+induction is completed by taking ˆπ(d) =ˆπ>d− 1.
+This process can be also organized in the form of a binary
+tree, which gives rise to the so-called hierarchical Tucker
+cross algorithm (Ballani and Grasedyck 2015). In total, we
+need O(dnr 2) evaluations ofπ and O(dnr 3) additional oper-
+ations for the computation of the maximum volume matrices.
+The choice of the univariate grids, x1
+k < ··· < xnk
+k , and
+of the initial index sets I>k can be crucial. In this paper,
+we found that a uniform grid in each coordinate was sufﬁ-
+cient, with even relatively coarse grids resulting in efﬁcient
+sampling algorithms; see the numerical examples for details.
+Given any easy to sample reference distribution (e.g. uni-
+form or Gaussian), it seems reasonable to initialize I
+>k with
+independent realizations of that distribution. (We could also
+expand the grids with reference samples, though we did not
+do that.) If the target function π admits an exact TT decom-
+position with TT ranks not greater than r
+1,..., rd− 1, and
+all unfolding matrices have ranks not smaller than the TT
+ranks of π, the cross iteration outlined above reconstructs ˆπ
+exactly (Oseledets and Tyrtyshnikov2010). This is still a rare
+exception though, since most functions have inﬁnite exact TT
+ranks, even if they can be approximated by a TT decompo-
+sition with a small error and low ranks. Nevertheless, the
+cross iteration, initialized with slightly overestimated values
+r
+1,..., rd− 1, can deliver a good approximation, if a function
+is regular enough (Ballani and Grasedyck 2015; Dolgov and
+Scheichl 2019).
+This might be not the case for localized probability den-
+sity functions. For example, for a heavy-tailed function
+(1 + x2
+1 +···+ x2
+d)− 1/2 one might try to produce I>k from
+a uniform distribution in a cube [0, a]d with a sufﬁciently
+large a. However, since this function is localized in an expo-
+nentially small volume [0,ε]d , uniform index sets deliver a
+poor TT decomposition, worse for larger a and d.
+Algorithm 1 TT-cross algorithm for TT approximation ofπ.
+Input: Initial index sets I>k , rank increasing parameter ρ ≥ 0, relative
+stopping tolerance δ> 0 and/or maximum number of iterations
+itermax.
+Output: TT blocks of an approximation ˜π(x) ≈ π(x).
+1: while iter < itermax and ∥˜πiter −˜πiter− 1∥ >δ∥˜πiter∥ do
+2: for k = 1, 2,..., d do ⊿ Forward iteration
+3: (Optionally) prepare enrichment set Iaux
+>k .
+4: Compute rk− 1n × rk unfolding ˆπ(I<k, ik; I>k).
+5: Compute I<k+1 by maxvol alg. and truncate.
+6: end for
+7: for k = d, d − 1,..., 1 do ⊿ Backward iteration
+8: (Optionally) prepare enrichment set Iaux
+<k .
+9: Compute rk− 1 × nrk unfolding ˆπ(I<k ; ik, I>k).
+10: Compute I>k− 1 by maxvol alg. and truncate.
+11: end for
+12: end while
+In this situation, it is crucial to use ﬁne grids and
+reﬁne the sets I<k, I>k by conducting several TT-cross
+iterations, going back and forth over the TT blocks and
+optimizing the sets by the maxvol algorithm. For example,
+after computing ˆπ
+(d) =ˆ π>d− 1, we ‘reverse’ the algo-
+rithm and consider the unfolding matrices with indices
+{(i
+αd− 1
+1 ,..., iαd− 1
+d− 1 )}rd− 1
+αd− 1=1 = I<d . Applying the maxvol
+algorithm to the columns of a rd− 1 ×n matrix ˆπ(d), we obtain
+a reﬁned set of points I>d− 1 ={ iαd− 1
+d }rd− 1
+αd− 1=1. The recursion
+continues from k = d to k = 1, optimizing the right sets
+I>k , while taking the left sets I<k from the previous (for-
+ward) iteration. After several iterations, both I<k and I>k
+will be optimized to the particular target function, even if the
+initial index sets gave a poor approximation.
+This adaptation of points goes hand in hand with theadap-
+tation of ranks . If the initial ranks r1,..., rd− 1 were too
+large for the desired accuracy, they can be reduced. However,
+we can also increase the ranks by computing the unfolding
+matrix
+[
+ˆπ(I
+<k, ik; iαk
+k+1,..., iαk
+d )
+]
+on some enriched index
+set {(iαk
+k+1,..., iαk
+d )}rk+ρ
+αk=1, by augmenting the original index
+set I>k with an auxiliary set Iaux
+>k and increasing the kth
+TT rank from rk to rk + ρ. The auxiliary set can be cho-
+sen at random (Oseledets 2011a) or using a surrogate for
+the error (Dolgov and Savostyanov 2014). The pseudocode
+of the entire TT-cross method is listed in Algorithm 1.F o r
+uniformity, we let I<1 = I>d =∅ .
+Systematically using the enrichment scheme, we can even
+employ a different approach moving away from truncating
+ranks. Instead, we start with a low-rank initial guess and
+increase the ranks until the desired accuracy is met. We have
+found that this approach is often more accurate in numerical
+experiments. The relative cost of the two approaches depends
+on the application.
+123
+
+PDF PAGE 7
+Statistics and Computing (2020) 30:603–625 609
+4 Sampling algorithms based on TT
+Surrogates
+4.1 Conditional distribution sampling (TT-CD)
+One of the main contributions of this paper is to show that
+conditional distribution method is feasible, and efﬁcient,
+once a PDF has been put into TT format. This section presents
+those calculations.
+First, we describe the computation of the marginal PDFs
+pk , deﬁned in ( 2), given π in a TT format ( 3). Note that
+integrals over the variable x p appear in all conditionals ( 2)
+with k < p. The TT format allows to compute the rk− 1 × 1
+vector Pk required for evaluating the marginal PDF pk− 1 by
+the following algorithm.
+1: Initialize Pd+1 = 1
+2: for k = d, d − 1,..., 2 do
+3: (Pk)αk− 1 =
+rk∑
+αk=1
+(
+∫
+R
+π(k)
+αk− 1,αk (xk)dxk
+)
+(Pk+1)αk
+4: end for
+Since π(k)(xk) ∈ Rrk− 1×rk for each ﬁxed xk , the integral∫
+π(k)(xk)dxk is a rk− 1 × rk matrix, where αk− 1 is the row
+index and αk is the column index. Hence, we can write Line
+3 as the matrix–vector product,
+Pk =
+( ∫
+R
+π(k)(xk)dxk
+)
+Pk+1.
+Assuming n quadrature points for each xk , and the uniform
+rank bound rk ≤ r , the asymptotic complexity of this algo-
+rithm is O(dnr 2).
+The ﬁrst marginal PDF is approximated by p∗
+1(x1) =
+|π(1)(x1)P2|. We take the absolute value because the TT
+approximation ˜π (and hence, π(1)(x1)P2) may be negative
+at some locations. In the kth step of the sampling procedure,
+the marginal PDF also requires the ﬁrst k − 1 TT blocks,
+restricted to the components of the sample that are already
+determined,3
+p∗
+k (xk) =
+⏐⏐
+⏐π
+(1)(x1)··· π(k− 1)(xk− 1)π(k)(xk)Pk+1
+⏐⏐
+⏐.
+However, since the loop goes sequentially from k = 1t o
+k = d, the sampled TT blocks can be accumulated in the
+same fashion as the integrals P
+k . Again, we take the absolute
+value to ensure positivity. The overall method for drawing N
+samples is written in Algorithm 2. Note that if ˜π is negative
+at any points, the actual densityπ∗ at xℓ, which is the product
+of marginal PDFs computed in each step, may slightly differ
+from ˜π.
+3 Here again, we treat π(k)(xk) as a rk− 1 × rk matrix, such that the
+product is valid.
+Algorithm 2 CD sampling from a TT decomposition of a
+PDF
+Input: TT blocks π(1),...,π (d) of the approximation ˜π, uniformly
+distributed seeds {(qℓ
+1,..., qℓ
+d)}N
+ℓ=1 ∼ U(0, 1)d .
+Output: π∗-distributed samples{(xℓ
+1,..., xℓ
+d)}N
+ℓ=1,a sw e l la sP D Fv a l -
+ues π∗(xℓ) = p∗
+1(xℓ
+1) ··· p∗
+d(xℓ
+d).
+1: Initialize Pd+1 = 1.
+2: for k = d, d − 1,..., 2 do
+3: Compute Pk =
+∫
+R π(k)(xk)dxk · Pk+1.
+4: end for
+5: Initialize Φ1 = 1 ∈ RN .
+6: for k = 1, 2,..., d do
+7: Prepare deterministic part Ψk(xk) = π(k)(xk)Pk+1.
+8: for ℓ = 1,..., N do
+9: Compute marginal PDF p∗
+k (xk) = |Φk(ℓ,:)Ψk(xk)|,
+10: marginal CDF Ck(xk) =
+∫ xk
+−∞ p∗
+k (yk)dyk/
+∫
+p∗
+k dxk .
+11: Sample xk component, xℓ
+k = C− 1
+k (qℓ
+k ).
+12: Compute Φk+1(ℓ,:) = Φk(ℓ,:)π(k)(xℓ
+k ).
+13: end for
+14: end for
+The error induced by taking the absolute values in Line 9 of
+Algorithm 2 is of the order of the TT approximation error. The
+approximate marginal probability ˜pk(xk) = Φk(ℓ,:)Ψk(xk)
+is produced from ˜π(x) by integration; hence, if π(x) −
+˜π(x) = O(ε) due to the TT approximation, we also have
+|˜pk(xk) − pk(xk)|≤ Cε∥ pk∥∞ for the marginals, for some
+C > 0 independent of ε, where ∥ pk∥∞ := ess supξk pk(ξk).
+Then, for all xk that satisfy pk(xk) ≥ Cε∥ pk∥∞ ,w eh a v e
+˜pk(xk) ≥ Cε∥ pk∥∞ −| pk(xk) −˜ pk(xk)|≥ 0.
+Hence, ˜pk can only be negative where pk is small and we
+have − Cε∥ pk∥∞ ≤˜ pk(xk) ≤ 0. The error in taking the
+modulus in Line 9 of Algorithm 2 can then be estimated as
+follows:
+| p∗
+k (xk) −˜ pk(xk)|≤
+{ 2Cε∥ pk∥∞ , for ˜pk(xk)< 0,
+0, otherwise.
+The sample-independent prefactor of the marginal PDF in
+Line 7 requires O(dnr 2) operations. The marginal PDF in
+Line 9 can then be computed with O(dNn r ) cost. The cost
+of the CDF computation in Line 10 depends on the quadra-
+ture scheme used. For a piecewise spline approximation or
+for the barycentric Gauss formula, the cost for both C
+k and
+C− 1
+k is O(dNn ). The complexity of computing the condi-
+tional PDF values Φk+1 depends on how ˜π is interpolated
+onto xℓ
+k . Global Lagrange interpolation requires O(nr 2) cost
+per sample, whereas local interpolation is independent of n,
+requiring only O(r 2) operations. In our numerical experi-
+ments, we have found piecewise linear interpolation on a
+uniform grid to be sufﬁcient. In summary, the total complex-
+ity is
+O
+(
+dr(nr + N(n + r))
+)
+. (6)
+123
+
+PDF PAGE 8
+610 Statistics and Computing (2020) 30:603–625
+4.2 Metropolis–Hastings correction (TT-MH)
+For the TT-CD sampling procedure in Algorithm2 to be fast,
+the TT ranks r should be as small as possible. Since the joint
+PDF is typically a complicated multivariate function, its TT
+ranks may grow fast with the increasing accuracy. On the
+other hand, low accuracy is typically sufﬁcient if we ‘cor-
+rect’ the distribution using the Metropolis–Hastings (MH)
+algorithm to ensure that the samples are distributed accord-
+ing to the target distribution π. Thus, we ﬁrst propose to use
+a coarse TT approximation together with TT-CD sampling
+as independence proposals in a MH algorithm.
+4
+When the current state is x and the new proposal is x′,t h e
+next state is determined by the stochastic iteration that ﬁrst
+computes the Metropolis–Hastings ratio
+h(x, x′) = π(x′)
+π(x)
+π∗(x)
+π∗(x′),
+and the proposal is accepted with probability
+α(x, x′) = min(h(x, x′), 1), (7)
+putting the new state x = x′; otherwise, x′ is rejected and
+the chain remains at x. Note that in the actual computations
+we calculate h(x, x′) using the log-densities log π(x) and
+log π∗(x) = log p∗
+1(x1)+···+ log p∗
+d(xd) (see Algorithm 2)
+for stability reasons.
+As efﬁciency indicators of this MH algorithm for esti-
+mating the expected value Eπ g of some functional g(x),
+we consider the acceptance rate and the integrated autocor-
+relation time. In this section, we study how they depend
+on the approximation error in the PDF. Throughout we
+must assume that π is absolutely continuous with respect
+to π
+∗, which guarantees reversibility with respect to π (Tier-
+ney 1998), and that we can evaluate the importance ratio
+w(x) = π(x)/π∗(x). We require that w∗ ≡∥ w∥∞ < ∞ ,
+which is equivalent to uniform geometric convergence (and
+ergodicity) of the chain (Roberts and Rosenthal 2011). (The
+essential supremum may be taken with respect to π or π∗.)
+To simplify the presentation in this subsection, we assume
+again (without loss of generality) that the density is normal-
+ized.
+Lemma 1 Suppose thatπ(x) is normalized and that the mean
+absolute error in the TT-CD sampling density satisﬁes
+∫
+|π∗(x) − π(x)|dx ≤ ε/2.
+4 A more simple scheme may be to use a multiple of π∗ to bound π
+and then use a rejection algorithm. However, as noted in Liu (1996), the
+MH is more statistically efﬁcient.
+Then the rejection rate is bounded by ε, i.e.
+E
+[
+1 − α(x, x′)
+]
+≤ ε,
+where the expectation is taken over the chain.
+Proof Using ergodicity of the chain,
+E
+[
+1 − α(x, x′)
+]
+=
+∫∫ [
+1 − α(x, x′)
+]
+π(x)π∗(x′)dxdx′.
+Since 1 − α ≤| 1 − h|,
+[
+1 − α(x, x′)
+]
+π(x)π∗(x′) ≤| π(x)π∗(x′) − π(x′)π∗(x)|
+≤ π(x)|π∗(x′) − π(x′)|
++ π(x′)|π∗(x) − π(x)|,
+where the second step uses the triangle inequality. Integrating
+both sides with respect to x and x′, we obtain the claim of
+the lemma. ⊓⊔
+This lemma indicates that the rejection rate decreases
+proportionally to ε, where εis the total error due to approx-
+imating π by a low-rank TT decomposition ˜π, interpolating
+discrete values of ˜π on a grid, and taking the absolute values
+in Algorithm 2,L i n e9 .
+Lemma 1 assumed a mean absolute error. We need the
+stronger statement of local relative error, which is w∗ < ∞ ,
+to bound the integrated autocorrelation time (IACT) (Wolff
+2004), deﬁned as
+τ=
+(
+1 + 2
+∞∑
+t=1
+ρgg(t)
+)
+, (8)
+whereρgg(t) is the autocorrelation coefﬁcient for the chain in
+statistic g at lag t. Deﬁned like this, τ≥ 1 can be considered
+as a reduction factor in the efﬁciency of a particular MCMC
+chain compared to an ideal independent chain, asymptoti-
+cally as the length of the chain goes to inﬁnity. Note that
+w
+∗ < ∞ implies that TT-MH is uniformly ergodic, but
+conversely the MCMC is not even geometrically ergodic if
+w
+∗ =∞ (Mengersen and Tweedie 1996,T h m .2 . 1 ) .
+Lemma 2 When w∗ < ∞ , for any g ∈ L2(π),
+τ≤ 1 + a
+1 − a ,
+where a = 1 − 1/w∗.
+Proof Without loss of generality, we may consider g ∈
+L2
+0(π), i.e. Eπ[g]= 0 (see, for example, Mira and Geyer
+1999). Consider the transition kernel
+Pa(x, dy) = (1 − a)π(dy) + aδx(dy).
+123
+
+PDF PAGE 9
+Statistics and Computing (2020) 30:603–625 611
+(This is the chain that proposes from π and accepts with
+probability (1 − a).) Pa has a simple spectrum, consisting
+of 1, with right eigenvector 1, and a for the orthogonal com-
+pliment. Hence, the asymptotic variance in a central limit
+theorem (CLT) for the chain in g ∈ L2
+0(π) induced by Pa
+may be evaluated using the spectral measure (see, for exam-
+ple, Mira and Geyer 1999; Häggström and Rosenthal 2007),
+which reads Eg(S) = δa(S) in this case, giving IACT equal
+to (1+a)/(1− a). The transition kernel for the TT-MH chain
+is (Smith and Tierney 1996,T h m .1&L e m .3 )
+P(x, dy) = min(1/w(x), 1/w(y))π(dy) + λ(w(x))δx(dy),
+with λ given by Smith and Tierney ( 1996, Eq (5)). Since
+min(1/w(x), 1/w(y)) ≥ 1/w∗, P dominates Pa , in the sense
+of Peskun ordering (Tierney1998; Mira and Geyer1999), i.e.
+the off-diagonal terms in P are greater or equal than those in
+Pa , and hence, the IACT using P is less or equal than that
+using Pa (Mira and Geyer 1999, Thm 3.4). ⊓⊔
+For discrete state spaces, the result in Lemma 2 follows
+directly from Mira (2001, Eqn. (2.1)), while one could argue
+that this is sufﬁcient for practical computation since comput-
+ers are ﬁnite-dimensional.
+The TT-cross method tends to introduce a more or less
+uniform error of magnitude ε on average . For regions
+where π(x) ≫ ε, this leads to a bounded importance ratio
+w(x) ≤ 1 + O(ε). When π(x) ≪ ε, we will typically have
+π
+∗(x) = O(ε) and w(x)< 1. However, if π(x) ≈ ε and a
+negative error of order εis committed, the two may cancel,
+resulting in a small π∗(x) and consequently in a large w(x).
+Numerical experiments demonstrate that w∗ − 1 can indeed
+be much larger than the L1-norm error used in Lemma 1
+(see Fig. 1). However, these cancellations (and hence the
+equality in min (1/w(x), 1/w(y)) ≥ 1/w∗) seem to be rare
+(see Fig. 2). Moreover, the practical IACT tends to be much
+smaller than the upper bound given by Lemma 2.
+4.3 QMC samples and importance weights (TT-qIW)
+Due to the central limit theorem, the rate of convergence of
+the statistical error of a Monte Carlo estimator for Eπ g,a s
+the number of samples N →∞ , is limited to O(N− 1/2).
+The IACT of the chain induced by a MH sampler, such as
+the TT-MH sampler in the previous section, only affects the
+constant in this estimate.
+Thus, it is tempting to use more structured quadrature
+points to obtain a better convergence rate. For example, the
+TT approximation of π provides the possibility to reduce the
+inherent multivariate integrals to a sequence of univariate
+integrals, as we did when forming the marginal distributions
+in Sec. 4.1, and use, for example, Gauss quadrature. Another
+option is to note that the TT-CD map is also well deﬁned for
+other seed points, such as those taken from a quasi-Monte
+Carlo (QMC) rule, that is, {(qℓ
+1,..., qℓ
+d)}N
+ℓ=1 in Algorithm 2
+are taken from a QMC lattice in [0, 1]d , rather than i.i.d.
+samples from U(0, 1)d . Under certain assumptions on the
+smoothness of the quantity of interest, the QMC quadrature
+can give an error that converges with order N
+− 1 instead of
+N− 1/2 when N →∞ (Niederreiter 1978; Dick et al. 2013).
+However, both those approaches provide estimates forEπ∗g,
+which are biased due to the TT approximation, and this bias
+cannot be ‘corrected’ using a MH step, as for i.i.d. seeds. On
+the other hand, there are no suitable convergence results for
+MH algorithms based on QMC proposals.
+A classical way to remove the bias in the estimate is
+via importance re-weighting. Writing the expectation as an
+integral, then multiplying and dividing by the approximate
+density function, gives
+E
+π g = 1
+Z
+∫
+g(x)π(x)dx = 1
+Z
+∫
+g(x)w(x)π ∗(x)dx, (9)
+where Z =
+∫
+π(x)dx is the normalization constant and
+w(x) = π(x)/π∗(x) is the importance weight . That is,
+the expectation of g with respect to π equals the expecta-
+tion of the weighted function g(x)w(x) with respect to the
+approximate density π∗. The normalization constant can be
+rewritten as Z =
+∫
+w(x)π∗(x)dx . S i m i l a r l yt o(7), we calcu-
+late w(x) = exp(log π(x) − logπ∗(x)) using log-densities
+in practice.
+Thus, given a set of samples{xℓ}N
+ℓ=1 ∼ π∗ produced using
+the TT-CD algorithm, either from a set of i.i.d. samples on
+[0, 1]d or from a QMC lattice, we compute
+Eπ g ≈ 1
+˜Z
+(
+1
+N
+N∑
+ℓ=1
+g(xℓ)w(xℓ)
+)
+, ˜Z := 1
+N
+N∑
+ℓ=1
+w(xℓ).
+(10)
+Note that, since xℓ ∼ π∗, the weight w(xℓ)< ∞ with prob-
+ability 1, and hence, the importance quadrature ( 10)i sw e l l
+deﬁned. The convergence depends on the distance between
+|π
+∗−π| and on the choice of samplesxℓ. Most importantly, if
+the seeds{qℓ} for the TT-CD samples{xℓ} in Algorithm 2 are
+chosen according to a randomized QMC rule, and the inte-
+grand g(x)w(x) is sufﬁciently smooth, we can expect a rate
+of convergence close to O(N
+− 1), the estimator is unbiased,
+and under the right smoothness assumptions, the convergence
+rate is dimension independent (Dick et al. 2013).
+4.4 Multilevel acceleration
+Following recent works on multilevel MCMC (Hoang et al.
+2013; Dodwell et al. 2015), we can also use the (cheap) sur-
+rogate π∗ as a type of control variate to achieve variance
+reduction in the estimator.
+123
+
+PDF PAGE 10
+612 Statistics and Computing (2020) 30:603–625
+In addition to π∗, we may also have a cheap ‘surrogate’ ˜g
+for the integrand g. For example, in Sect. 5.3, we will build a
+TT surrogate ˜uh(θ)of the FE solution uh(θ)of the stochastic
+diffusion equation, as a function of the stochastic parameters
+θ, that allows for a cheap approximation˜g(θ)= φ(˜uh) of any
+functional g(θ)= φ(uh) of the PDE solution, without having
+to solve the PDE for each sample. Otherwise, let ˜g = g.
+To exploit the multilevel ideas, we observe that
+Eπ g = Eπ∗ ˜g +
+[
+Eπ g − Eπ∗ ˜g
+]
+(11)
+= Eπ∗ ˜g + Eπ∗
+[ 1
+Eπ∗w gw −˜g
+]
+. (12)
+As in the previous section, given a set of N0 samples
+{xℓ}N0
+ℓ=1 ∼ π∗ produced using the TT-CD algorithm, the ﬁrst
+term in ( 11) and ( 12) can be estimated by
+Eπ∗ ˜g ≈ 1
+N0
+N0∑
+ℓ=1
+˜g(xℓ). (13)
+Since the expected value in (13) is with respect toπ∗,n oM H
+correction is necessary. Moreover, we can use, as in Sect.4.3,
+QMC seed points {qℓ}⊂[ 0, 1]d for the TT-CD samples{xℓ}
+in Algorithm 2, leading to a much faster convergence of the
+estimator with respect to N0. Alternatively, if both ˜π and
+˜g are represented in the TT format, ( 13) can be computed
+without sampling as the dot product of TT tensors as in Eigel
+et al. ( 2018).
+In fact, if the evaluation of ˜g is signiﬁcantly faster than the
+evaluation of g, as in the stochastic diffusion problem below,
+the cost of estimating the ﬁrst term in ( 11) and (12) becomes
+entirely negligible.
+To estimate the second term in ( 11) and ( 12), we now
+proceed as in Sects. 4.2 and 4.3, respectively.
+First consider a set of i.i.d. samples {xℓ}N1
+ℓ=1 ∼ π∗,
+computed using Algorithm 2, and let {xℓ
+MH}N1
+ℓ=1 be the
+Markov chain of samples distributed according to π after
+Metropolis–Hastings ‘correction’ of{xℓ}N1
+ℓ=1 using the accep-
+tance probability deﬁned in ( 7). We can deﬁne the following
+unbiased estimator:
+Eπ g − Eπ∗ ˜g ≈ 1
+N1
+N1∑
+ℓ=1
+g(xℓ
+MH) −˜g(xℓ). (14)
+If π∗ ≈ π and ˜g ≈ g, the pairs of samples (˜g(xℓ), g(xℓ
+MH))
+are strongly, positively correlated, and thus, the variance of
+g(xℓ
+MH)−˜g(xℓ) is much smaller than the variance ofg(xℓ
+MH).
+As a consequence, the number of samples N1 necessary to
+achieve a prescribed statistical error can be chosen signiﬁ-
+cantly smaller than in Sect. 4.2.
+Alternatively, consider now the second term in ( 12) and
+let {xℓ}N1
+ℓ=1 be obtained via Algorithm 2 from a set of N1
+randomized QMC seed points {qℓ}N1
+ℓ=1 ⊂[ 0, 1]d . Then we
+can deﬁne the following unbiased estimator:
+Eπ∗
+[ 1
+Eπ∗w gw −˜g
+]
+≈ 1
+N1
+N1∑
+ℓ=1
+1
+˜Z
+g(xℓ)w(xℓ) −˜g(xℓ).
+(15)
+Again, if π∗ ≈ π and ˜g ≈ g then w ≈ 1 and the
+variance of g(xℓ)w(xℓ)/ ˜Z −˜ g(xℓ) is small, so that the
+number of samples N1 can be chosen signiﬁcantly smaller
+than the number N of samples in ( 10). Moreover, since
+˜Z = 1 + 1
+N1
+∑N1
+ℓ=1(w(xℓ) − 1) and Vπ∗[w − 1] is small,
+a small value for N1 is also sufﬁcient for the calculation of
+˜Z in ( 10). If gw/ ˜Z −˜g is sufﬁciently smooth, the rate of
+convergence of the sampling error as N1 →∞ should again
+be close to O(N− 1
+1 ). However, in contrast to the estimator in
+(10), we do not observe that better rate of convergence for
+the difference estimator in ( 15).
+It would be possible to further optimize the complexity of
+the estimators in ( 13), ( 14) and ( 15) by a judicious choice
+of the TT accuracy ε, as well as the numbers of samples
+N0 and N1, There is of course also scope for full multilevel
+estimators as in Hoang et al. (2013); Dodwell et al. (2015). In
+particular, the values of N0 and N1 can be determined by an
+adaptive greedy procedure (Kuo et al.2017), which compares
+empirical variances and costs of the two levels and doubles
+Nℓ on the level that has the maximum proﬁt. However, we
+will not consider this further and leave it for future works.
+5 Numerical examples
+5.1 Shock absorber reliability
+In this section, we demonstrate our algorithm on a problem of
+reliability estimation of a shock absorber. The time to failure
+of a type of shock absorber depends on some environmental
+conditions (covariates) such as humidity and temperature. We
+use data (O’Connor and Kleyner 2012) on the distance (in
+kilometres) to failure for 38 vehicle shock absorbers. Since
+there were no values of any covariates in this example, the
+values of D covariates were synthetically generated from
+the standard normal distribution as this would correspond to
+the case in which the covariates have been standardized to
+have zero mean and variance equal to one. The accelerated
+failure time regression model (Meeker and Escobar 1998)i s
+widely used for reliability estimation with covariates. We use
+an accelerated failure time Weibull regression model, which
+was described as reasonable for these data in Meeker and
+Escobar (1998), where the density of time to failure is of the
+form
+123
+
+PDF PAGE 11
+Statistics and Computing (2020) 30:603–625 613
+f (t|θ1,θ2) = θ2
+θ1
+( t
+θ1
+) θ2− 1
+exp
+(
+−
+( t
+θ1
+) θ2
+)
+and where θ1,θ2 are unknown scale and shape hyperparam-
+eters, respectively. The covariates are assumed to affect the
+failure time distribution only through the scale parameter θ
+1,
+via a standard logarithmic link function, that is
+θ1(β0,...,β D) = exp
+(
+β0 +
+D∑
+k=1
+βk xk
+)
+,
+where xk are the covariates. The D + 2 unknown parameters
+β0,...,β D and θ2 must be inferred from the observation
+data on the covariates xk and the failure times, which in this
+example are subject to right censoring (marked with +). The
+set T f of failure times is given by:
+6700 6950 + 7820+ 8790+ 9120
+9660+ 9820+ 11310+ 11690+ 11850+
+11880+ 12140+ 12200 12870 + 13150
+13330+ 13470+ 14040+ 14300 17520
+17540+ 17890+ 18420+ 18960+ 18980+
+19410+ 20100 20100 + 20150+ 20320+
+20900 22700 23490 + 26510 27410 +
+27490 27890 + 28100+
+To perform Bayesian inference on the unknown param-
+eters, we use the prior speciﬁcations in Gutierrez-Pulido
+et al. ( 2005), namely an s-normal Gamma distribution
+π0(β0,...,β D,θ2) given by
+π0 = 1
+Z θα− 0.5
+2
+D∏
+k=0
+exp
+(
+− θ2(βk − mk)2
+2σ2
+k
+)
+exp(−γθ2),
+where γ = 2.2932, α = 6.8757, m0 = log(30796), σ2
+0 =
+0.1563, m1 =···= m D = 0, σ1 =···= σD = 1 and Z is
+the normalization constant. The parameter ranges
+[m0 − 3σ0, m0 + 3σ0]×[ m1 − 3σ1, m1 + 3σ1]D ×[ 0, 13]
+are large enough to treat the probability outside as negligible.
+The (unnormalized) Bayesian posterior density function
+is given by a product of Weibull probabilities, evaluated at
+each observation in T f , and the prior distribution, i.e.
+π(β,θ2) = π0(β, θ2)
+∏
+t∈T f
+P(t|θ1(β), θ2),
+where
+P(t|θ1,θ2) =
+⎧
+⎨
+⎩
+f (t|θ1,θ2) if t is not censored,
+exp
+(
+−
+(
+t
+θ1
+) θ2
+)
+if t is censored.
+The formula for the censored case arises from the fact that
+the contribution of a censored measurement is the probability
+that t exceeds the measured value, that is,P(t ≥ t
++|θ1,θ2) =∫ ∞
+t+ f (t|θ1,θ2)dt . We introduce n uniform discretization
+points in β0,...,β D and θ2 and compute the TT-cross
+approximation of the discretized density π(β0,...,β D,θ2).
+We consider two quantities of interest, the right 95% mean
+quantile and the right 95% quantile of the mean distribution,
+i.e.
+⟨q( f )⟩= 1
+N
+N∑
+i=1
+θi
+1 log1/θi
+2 (1/0.05), and
+q(⟨ f ⟩) = t s.t. 1
+N
+N∑
+i=1
+∫ t
+0
+f (s|θi
+1,θi
+2)ds = 0.95,
+(16)
+respectively. The nonlinear constraint in the computation
+of the second quantile is solved by Newton’s method. To
+estimate the quadrature error, we perform 32 runs of each
+experiment and compute an average relative error over all
+runs, i.e.
+E
+q = 1
+32
+32∑
+ι=1
+⏐⏐⏐q(⟨ f ⟩ι) − 1
+32
+∑32
+ℓ=1 q(⟨ f ⟩ℓ)
+⏐⏐⏐
+1
+32
+∑32
+ℓ=1 q(⟨ f ⟩ℓ)
+, (17)
+where ιand ℓ enumerate different runs.
+The error in the mean quantile is estimated similarly, and
+then, the average of those two error estimates is used in all
+our convergence studies. We used quantiles as the quantity
+of interest in order to illustrate that the TT surrogate captures
+the tails correctly.
+5.1.1 Accuracy of TT approximation and CD sampler
+We start by analysing the TT-MH sampling procedure, as
+described in Sect. 4.2. First, we consider how the errors in ˜π
+due to the tensor approximation and discretization propagate
+into the quality of the MCMC chain produced by the MH
+algorithm, i.e. the rate of rejections and the integrated auto-
+correlation time. The chain length is always set to N = 2
+20,
+and the results are averaged over 32 runs. We choose a rel-
+atively low dimensionality D = 2, since it allows us to
+approximate π up to a high accuracy.
+In Fig. 1, we vary the number of grid points n, ﬁxing
+the relative stopping tolerance for the TT-cross algorithm
+at δ = 10
+− 5, as well as benchmarking the algorithm for
+123
+
+PDF PAGE 12
+614 Statistics and Computing (2020) 30:603–625
+456789
+10−3
+10−2
+10−1
+100
+log2 n
+error indicators
+rej. rate
+τ − 1
+EL1
+C · n−2
+456789
+0
+1
+2
+3
+4
+5
+log2 n
+#evaluations (millions)
+#evals
+100
+150
+200
+TT rank
+TT rank
+−5 −4 −3 −2 −1010−6
+10−5
+10−4
+10−3
+10−2
+10−1
+100
+log10 δ
+error indicators
+rej. rate
+τ − 1
+EL1
+ETT
+δ
+−5 −4 −3 −2 −10
+0
+1
+2
+3
+4
+5
+log10 δ
+#evaluations (millions)
+#evals
+50
+100
+150
+200
+TT rank
+TT rank
+Fig. 1 Shock absorber example ( D = 2): rejection rate, IACT and estimated errors (left), numbers of evaluations of π and maximal TT ranks for
+TT-cross (right) plotted against the grid size n in each direction (top) and against the relative TT error tolerance δ(bottom)
+different thresholds δ, ﬁxing n = 512. We track the relative
+empirical standard deviation of the TT approximation,
+ETT =
+
+√
+1
+31
+32∑
+ι=1
+
+ ˜π
+ι− 1
+32
+32∑
+ℓ=1
+˜πℓ
+
+
+2
+F
+/
+
+
+1
+32
+32∑
+ℓ=1
+˜πℓ
+
+
+2
+F
+, (18)
+that can be computed exactly in the TT representation, as
+well as an importance-weighted QMC approximation to the
+L1-norm error used in Lemma 1,
+EL1 = 1
+N
+N∑
+ℓ=1
+⏐⏐
+⏐w(x
+ℓ) − 1
+⏐⏐
+⏐ ≈
+∫ ⏐⏐π(x) − π
+∗(x)
+⏐⏐ dx. (19)
+As shown in Lemma 1, the rejection rate is expected to be
+proportional to the approximation error in L1 norm, as this
+error goes to zero. The TT approximation is computed on a
+tensor grid with n vertices and uses linear interpolation to
+evaluate ˜π at intermediate values. Thus, it can be expected
+that the convergence of the interpolation error, as n →∞ ,
+should be of O(n
+− 2), provided π is sufﬁciently smooth. Fig-
+ure 1 (top left) shows that the rejection rate converges with
+O(n− 2), suggesting that this is the case here. Figure 1 (bot-
+tom left) also suggests that the rejection rate is proportional
+to the TT approximation error when it is greater than the
+interpolation error.
+The behaviour of the importance ratio and the integrated
+autocorrelation time (IACT) is more complicated. The IACT
+τ is tracked in Fig. 1 as well, while the essential supremum
+w∗ of the importance ratio is shown in Table 1.T h eT T -
+cross algorithm tries to reduce the average approximation
+error. Pointwise relative error, however, is not guaranteed
+to be bounded. Although w
+∗ → 1a s δ → 0, it is orders
+of magnitude larger than EL1 . Regardless, Lemma 2 seems
+to give a too pessimistic estimate for the IACT, as the actual
+valueτ− 1 is much smaller thanw∗− 1 and behaves similarly
+123
+
+PDF PAGE 13
+Statistics and Computing (2020) 30:603–625 615
+Table 1 Shock absorber example ( D = 2), maximal importance ratios
+for ﬁxed δ = 10− 5 and varying n (top) and for ﬁxed n = 512 and
+varying δ(bottom)
+n 32 64 128 256 512
+w∗ 2.49 1.57 2.04 1.79 2.87
+δ 10− 1 10− 2 10− 3 10− 4 10− 5
+w∗ 80.5 50.0 15.6 5.63 2.87
+−3 −2 −10 1 2 30
+1
+2
+3
+log10 |w(x) − 1|
+counts (millions)
+Fig. 2 Shock absorber example ( D = 2), distribution of pointwise
+errors |w − 1| over 107 samples, n = 64, δ= 10− 3
+to the rejection rate. The reason for this is that very large
+values of w are quite rare, as we show in Fig. 2.
+The complexity of the TT-cross algorithm (in terms of both
+the number of evaluations of π and the computational time)
+grows only very mildly (sublinearly) with δ and n (notice
+the log-polynomial scale in Fig. 1, right). This makes the TT
+approach also well scalable for high accuracies.
+5.1.2 Convergence studies and comparison with DRAM
+Now we investigate the convergence of the quantiles and
+compare TT-MH with the delayed rejection adaptive Metropo-
+lis (DRAM) algorithm (Haario et al. 2006). The initial
+covariance for DRAM is chosen to be the identity matrix.
+In order to eliminate the effect of the burn-in period, we do
+not include the ﬁrst N /4 elements of the DRAM chain in
+the computation of the quantiles. However, we will study the
+actual burn-in time empirically to have a fairer comparison
+of the ‘set-up cost’ of the two methods.
+First, in Table 2,w eﬁ x D = 6 covariates and vary the
+discretization grid n and the TT approximation threshold δ.
+We present the rejection rates and the IACTs for TT-MH,
+with n = 12, 16 and 32 grid points in each direction, using
+values of δ = 0.5 and δ = 0.05, as well as for DRAM. In
+Table 2 Comparison of TT-MH and DRAM; rejection rate, IACT and
+number of function evaluations to set up TT-cross and to burn in DRAM
+for the shock absorber ( D = 6)
+TT-MH DRAM
+n
+δ
+rej. rate 0.5
+τ 24.85
+Nsetup
+12 16 16 32
+0.50 .50 .05 0 .05
+0.61 0.33 0.28 0.12
+13.76 4.24 2.94 2.15
+35158 44389 101564 221116 49200
+addition, we also give the set-up cost in terms of numbers of
+evaluations ofπ, i.e. the number of points needed to construct
+the TT approximation via the TT-cross algorithm for TT-MH
+and the burn-in in DRAM. The latter is estimated as the point
+of stabilization of 6 moments of β and θ2, approximated by
+averaging over 214 random initial guesses. The coarsest TT
+approximation requires about 4 · 104 evaluations, whereas
+DRAM needs a burn-in of about 5 · 104 steps.
+Next, in Fig.3 (left) we show the estimateEq of the quadra-
+ture error deﬁned in ( 17) for the two quantities of interest in
+(16), versus the total number N of samples in the MCMC
+chain, which is varied from 2 10 to 223. We see that both MH
+methods (i.e. TT-MH and DRAM) converge with a rate of
+N− 1/2, as expected. To keep the set-up cost of the TT approxi-
+mation low, we only consider fairly crude TT approximations
+(as in Table 2). However, all our approximations deliver a
+smaller sampling error for TT-MH than for DRAM when
+measured against the number of samples and an even greater
+reduction when plotted against CPU time (Fig.3, right). More
+accurate TT approximations require more evaluations of π
+during the set-up in TT-cross, up to 2 .5 · 10
+5 for δ = 0.05
+and n = 32. This set-up cost is clearly visible in the vertical
+offset of the curves in Fig. 3 (right). Notice that only N /4 ini-
+tial DRAM samples are discarded in Fig. 3, which is much
+smaller than the actual burn-in for N < 105. The reason for
+this is that we want to compare the methods based on their
+best possible performance for the desired quadrature error
+Eq , regardless of the actual distribution the samples belong
+to for small N . Therefore, DRAM has zero set-up cost in
+Fig. 3 (right) in the limit of N → 1. In spite of that, TT-MH
+is much faster than DRAM for the same number of evalu-
+ations, which yields a signiﬁcant difference in terms of the
+total CPU time.
+There are several reasons for this. For higher TT accura-
+cies, the gains are mainly due to the signiﬁcantly lower IACT
+of TT-MH, leading to a much better statistical efﬁciency of
+the MCMC chain. But also for low TT accuracies, the IACT
+of the TT-MH algorithm is still a fraction of that for DRAM.
+A further reason is the vectorization that is exploited in TT-
+cross, where a block of O(nr
+2) samples is evaluated in each
+step. In DRAM, the function needs to be evaluated point by
+point in order to perform the rejection. Therefore, the num-
+123
+
+PDF PAGE 14
+616 Statistics and Computing (2020) 30:603–625
+34567
+10−4
+10−3
+10−2
+10−1
+log10 N
+Eq
+n, δ=1 6, 0.5,MH
+n, δ=1 6, 0.5,qIW
+n, δ=3 2, 0.05,MH
+n, δ=3 2, 0.05,qIW
+DRAM
+N −0.5
+01234
+10−4
+10−3
+10−2
+10−1
+log10 CPU time
+Eq
+n, δ=1 6, 0.5,MH
+n, δ=1 6, 0.5,qIW
+n, δ=3 2, 0.05,MH
+n, δ=3 2, 0.05,qIW
+DRAM
+C ·W −0.5
+Fig. 3 Shock absorber example ( D = 6): sampling error versus chain length (left) and versus total CPU time (right) for different choices of n and
+δin the TT-cross method
+100 101
+10−4
+10−3
+D
+Eq
+TT-MH
+DRAM
+100 101
+104
+105
+106
+14
+16
+18 18 19 17 17 17
+D
+Nproposal
+TT-MH
+DRAM
+100 101
+101
+102
+D
+τ
+TT-MH
+DRAM
+Fig. 4 Shock absorber example: error (left), number of π evaluations during the proposal stage (middle) and IACT (right), for different numbers
+of covariates and n = 16, δ= 0.05, N = 222. Numbers above points in the middle plot denote TT ranks
+ber of distinct calls to π in TT-cross is much smaller than N ,
+reducing the corresponding overhead in MA TLAB. In com-
+piled languages (C, Fortran) on a single CPU, the difference
+may be less signiﬁcant. However, parallel implementations
+will also beneﬁt from the blocking, especially when each
+sample is expensive. More accurate TT approximations are
+worthwhile to compute if a highly accurate estimate of the
+expected value is required, since in that case the length of
+the MCMC chain will dominate the number of samples in
+the set-up phase.
+In Fig. 3, we also present results with the TT-qIW
+approach described in Sec. 4.3, where the approximate den-
+sity π
+∗ is used as an importance weight and where the
+expected value and the normalizing constant are estimated
+via QMC quadrature. In particular, we use a random-
+ized rank-1 lattice rule with product weight parameters
+γ
+k = 1/k2. The generating vector was taken from the ﬁle
+lattice-39102-1024-1048576.3600, available at
+http://web.maths.unsw.edu.au/~fkuo/. Due to the non-smooth
+dependence of quantiles on the covariates, the rate of conver-
+gence for TT-qIW with respect to N is not improved in this
+example, but in absolute terms it consistently outperforms
+TT-MH, leading to even bigger gains over DRAM.
+Finally, we ﬁx the TT and the MCMC parameters to n =
+16, δ= 0.05 and N = 2
+22 and vary the number of covariates
+D, and hence, the total dimensionality d = D + 2. In Fig. 4,
+we show the error in the quantiles, the number of evaluations
+of π, as well as the autocorrelation times and TT ranks. We
+see that the TT ranks are almost independent of d, and the
+TT-MH approach remains more efﬁcient than DRAM over a
+wide range of dimensions.
+5.2 Rosenbrock function
+As a benchmark example with particularly long tails (and
+hence potentially large autocorrelation times in MCMC),
+123
+
+PDF PAGE 15
+Statistics and Computing (2020) 30:603–625 617
+−0.6 −0.4 −0.20 0 .20 .4
+−0.6
+−0.4
+−0.2
+0
+0.2
+0.4
+−0.8 −0.6 −0.4 −0.20 0 .20 .4
+−4
+−2
+0
+−5 −4 −3 −2 −10
+−100
+−50
+0
+TT-MH
+DRAM
+Fig. 5 Rosenbrock function ( d = 32): N = 217 samples projected to the (θ1,θ2) (left), the (θ30,θ31) (middle) and the (θ31,θ32)-plane (right);
+TT-MH (blue) and DRAM (red). (Color ﬁgure online)
+Table 3 Rosenbrock function example: IACT
+d 2481 6 3 2
+TT-MH 1.096 1.080 1.100 1.079 1.084
+DRAM 61.54 26.63 45.01 84.02 169.57
+we consider the PDF induced by the Rosenbrock function
+π(θ)∝ exp
+(
+− 1
+2 r(θ)
+)
+, where
+r(θ)=
+d− 1∑
+k=1
+[
+θ2
+k +
+(
+θk+1 + 5 · (θ2
+k + 1)
+) 2]
+. (20)
+The dimension d can be increased arbitrarily. The parameters
+for the TT approximation are chosen to be δ= 3 · 10− 3 and
+n = 128 for θ1,...,θ d− 2, n = 512 for θd− 1 and n = 4096
+for θd . Each θk is restricted to a ﬁnite interval [− ak, ak],
+where ad = 200, ad− 1 = 7 and ak = 2 otherwise.
+Figure 5 shows certain projections of N = 217 sampling
+points produced with TT-MH and DRAM for d = 32. We
+see that although the density function is reasonably compact
+and isotropic in the ﬁrst variables, it is highly concentrated
+in the last variable. DRAM requires a signiﬁcant number of
+burn-in iterations, which are shown in Fig. 5 (middle and
+right) as the red cloud of samples that are not overlapped
+by blue ones. In order to eliminate the burn-in in DRAM,
+we compute 2
+20 samples and discard the ﬁrst quarter of the
+chain. The difference is even more signiﬁcant if we look at
+the integrated autocorrelation times in Table 3.F o rT T - M H ,
+the IACT stays close to 1 for all considered dimensions, while
+for DRAM it exceeds 100 for larger d.
+5.3 Inverse diffusion problem
+Finally, we use our new TT-CD sampler to explore the pos-
+terior distribution arising from a Bayesian formulation of an
+inﬁnite-dimensional inverse problem, as formalized in Stuart
+(2010).
+Let X and V be two inﬁnite-dimensional function spaces—
+it is sufﬁcient to consider separable Banach spaces—and let
+G : X → V be a (measurable and well posed) forward map.
+Consider the inverse problem of ﬁndingκ ∈ X , an input to G,
+given some noisy observations y ∈ R
+m0 of some functionals
+of the output u ∈ V . In particular, we assume a (measurable)
+observation operator Q : V → Rm0 , such that
+y = Q(G(κ))+ η,
+where η∈ Rm0 is a zero-mean random variable that denotes
+the observational noise. The inverse problem is clearly under-
+determined when m
+0 ≪ dim(X), and in most mathematical
+models, the inverse of the map G is ill-posed.
+We do not consider prior modelling in any detail and
+present here a stylized Bayesian formulation designed to
+highlight the computational structure and cost. We simply
+state a prior measureμ
+0, to modelκin the absence of observa-
+tions y. The posterior distribution μy over κ|y, the unknown
+coefﬁcients conditioned on observed data, is given by Bayes’
+theorem for general measure spaces,
+dμy
+dμ0
+(u) = 1
+Z L(κ), (21)
+where the left-hand side is the Radon–Nikodym derivative,L
+is the likelihood function and Z is the normalizing constant
+(Stuart 2010).
+For computing, we have to work with a ﬁnite-dimensional
+approximation κd ∈ Xd ⊂ X of the latent ﬁeld κ such that
+dim(Xd) = d ∈ N and deﬁne κd as a deterministic function
+of a d-dimensional parameter θ := (θ1,...,θ d). Typically,
+we require that κd → κ as d →∞ , but we will not focus
+on that convergence here and instead ﬁx d ≫ 1. To be able
+to apply the TT representation, we set θk ∈[ ak, bk] with
+ak < bk , for all k = 1,..., d, and then, κd maps the tensor
+123
+
+PDF PAGE 16
+618 Statistics and Computing (2020) 30:603–625
+product domain Γd := ∏d
+k=1[ak, bk] to Xd . We denote by
+π0(θ) and π(θ) = πy(θ) the probability density functions
+of the pullback measures of the prior and posterior measures
+μ0 and μy under the map κd : Γd → Xd , respectively,
+and specify that map so that π0(θ) = 1/|Γd|, i.e. the prior
+distribution over θ is uniform.
+We can then compute TT approximations of the posterior
+density π(θ) as in the previous examples by using Bayes’
+formula (21), i.e.
+π(θ)= 1
+Z L(κd(θ)), where Z =
+∫
+Γd
+L(κd(θ))dπ0(θ) .
+Consider some quantity of interest in the form of another
+functional F : V → R of the model output G(κd).T h e
+posterior expectation of F, conditioned on measured y, can
+be computed as
+Eπ [F(G(κd))] = Eπ0 [L(κd)F(G(κd))]
+Eπ0 [L(κd)] . (22)
+5.3.1 Stylized elliptic problem and parametrization
+As an example, we consider the forward map deﬁned by the
+stochastic diffusion equation
+−∇·
+(
+κd(θ)∇ u
+)
+= 0o n D := (0, 1)2, (23)
+with Dirichlet boundary conditions u|x1=0 = 1 and u|x1=1 =
+0, as well as homogeneous Neumann conditions other-
+wise (Scheichl et al. 2017), which depends on an unknown
+(parametrized) diffusion coefﬁcient κd ∈ Xd ⊂ L∞ (D).
+For this example, we take each of the parameters θk ,
+k = 1,..., d, to be uniformly distributed on [−
+√
+3,
+√
+3].
+Then, for any θ ∈ Γd and x = (x1, x2) ∈ D, the logarithm
+of the diffusion coefﬁcient at x is deﬁned by the following
+expansion:
+ln κd(θ,x) =
+d∑
+k=1
+θk
+√ ηk cos(2πρ1(k)x1) cos(2πρ2(k)x2),
+ρ1(k) = k − τ(k)(τ(k) + 1)
+2 ,ρ 2(k) = τ(k) − ρ1(k),
+τ(k) =
+⌊
+− 1
+2 +
+√
+1
+4 + 2k
+⌋
+and
+ηk = k−(ν+1)/K, K =
+d∑
+k=1
+k−(ν+1).
+(24)
+The expansion is similar to the one proposed in Eigel
+et al. ( 2014) and mimics the asymptotic behaviour of the
+Karhunen–Loève expansion of random ﬁelds with Matérn
+covariance function and smoothness parameter ν in two
+dimensions, in which the norms of the individual terms decay
+algebraically with the same rate. However, realizations do
+not have the same qualitative features and we use it purely
+to demonstrate the computational efﬁciency of our new TT
+samplers.
+To discretize the partial differential equation (PDE) in
+(23), we tessellate the spatial domain D with a uniform rect-
+angular grid T
+h with mesh size h. Then, we approximate the
+exact solution u ∈ V := H 1(D) that satisﬁes the Dirichlet
+boundary conditions with the continuous, piecewise bilinear
+ﬁnite element (FE) approximation uh ∈ Vh associated with
+Th . To ﬁnd uh , we solve the resulting Galerkin system using
+a sparse direct solver.
+For this example, we take the observations to be m0 noisy
+local averages of the PDE solution over some subsets Di ⊂
+D, i = 1,..., m0, i.e.
+Qi(G(θ))= 1
+|Di|
+∫
+Di
+uh(x,θ)dx, i = 1,..., m0 .
+We take observation noise to be additive, distributed as i.i.d.
+zero-mean Gaussian noise with variance σ2
+n , giving the like-
+lihood function,
+L(θ)= exp
+(
+− |Q(G(θ))− y|2
+2σ2n
+)
+,
+and posterior distribution π(θ) = 1
+Z L(θ), with the normal-
+ization constant Z =
+∫
+[−
+√
+3,
+√
+3]d L(θ)dθ.
+In our experiments, the sets Di are square domains with
+side length 2 /(√ m0 + 1), centred at the interior vertices
+of a uniform Cartesian grid on D =[ 0, 1]2 with grid size
+1/(√ m0 + 1), that form an overlapping partition of D.W e
+consider an academic problem with synthetic data for these
+m0 local averages from some ‘true’ valueθ∗. In particular, we
+evaluate the observation operator at θ∗ = (θ0,,θ 0,...,θ 0),
+for some ﬁxed 0 ̸= θ0 ∈ (−
+√
+3,
+√
+3), and synthesize
+data by then adding independent normally distributed noise
+η
+∗ ∼ N(0,σ 2
+n I), such that y = Q(G(θ∗)) + η∗.
+We consider two quantities of interest. The ﬁrst is the
+average ﬂux at x1 = 1. This can be computed as Teckentrup
+et al. (2013)
+F(G(θ))=−
+∫ 1
+0
+∫ 1
+0
+κd(x,θ)∇wh(x)∇ uh(x,θ)dx
+=−
+∫ 1
+0
+κd(x,θ) ∂uh(x,θ)
+∂n
+⏐⏐⏐⏐
+x1=1
+dx2,
+(25)
+where wh ∈ Vh is any FE function that satisﬁes the Dirichlet
+conditions at x1 = 0 and x1 = 1. This formula for the
+average ﬂux is a smooth function of θ, which ensures a fast
+convergence for QMC-based quadrature rules, with an order
+close to N
+− 1. However, we also consider the discontinuous
+123
+
+PDF PAGE 17
+Statistics and Computing (2020) 30:603–625 619
+Table 4 Default model and discretization parameters for the inverse
+diffusion example
+νσ 2
+n θ0 m0 hd δ n
+20 .01 1 .59 2 − 6 11 0 .13 2
+indicator function IF(θ)>1.5, to estimate the probability that
+the average ﬂux in ( 25) becomes larger than 1 .5, i.e.
+PF>1.5 = Prob(F(G(θ)) >1.5) = Eπ
+[
+IF(θ)>1.5
+]
+.
+As we shall see, the non-smoothness of IF(θ)>1.5 reduces the
+order of convergence of the QMC quadrature to the basic
+Monte Carlo rate N− 1/2. For the same reason, this function
+lacks a low-rank TT decomposition, and hence, we cannot
+compute its expectation using a tensor product quadrature
+directly. The mean ﬁeld ﬂux F|
+θ=0 = 1 (in the units used)
+and the probability PF>1.5 are both of the order of 0 .1.
+The default parameters used in the stochastic model and
+for function approximation are shown in Table 4. We will
+make it clear when we change any of those default parame-
+ters.
+The TT approximation ˜π can be computed directly by the
+TT-cross algorithm, as in the previous examples. For a TT
+tolerance ofδ= 0.1, this requires about 10
+4− 105 evaluations
+of π. However, since here the computation of each value of
+π(θ) involves the numerical solution of the PDE ( 23)t h i s
+leads to a signiﬁcant set-up time. This set-up time can be
+hugely reduced, by ﬁrst building a TT approximation˜u
+h(·,θ)
+of the FE solution uh(·,θ) and then using ˜uh(·,θ) in the TT-
+cross algorithm for building ˜π instead of uh(·,θ).
+It was shown in Dolgov and Scheichl (2019) that a highly
+accurate approximation of uh(·,θ) in the TT format can be
+computed using a variant of the TT-cross algorithm, the alter-
+nating least-squares cross (ALS-cross) algorithm, that only
+requires O(r) PDE solves, if the TT ranks to approximate
+u
+h(·,θ) up to the discretization error are bounded byr . More-
+over, the rank grows only logarithmically with the required
+accuracy. We will see, below, that r < 100 for this model
+problem for h = 2
+− 6, signiﬁcantly reducing the number of
+PDE solves required in the set-up phase.
+Since the observation operator Q consists of integrals of
+the PDE solution over subdomains of the spatial domain D,
+when applied to a function given in TT format it can be
+evaluated at a cost that is smaller than r PDE solves on Th
+without any increase in the TT rank (Dolgov and Scheichl
+2019). Finally, to compute an approximation ofπ via the TT-
+cross algorithm we use the signiﬁcantly cheaper TT surrogate
+Q(˜uh(·,θ) )in each evaluation of π(θ) instead of computing
+the actual FE solution uh(·,θ). Since ˜uh(·,θ) is accurate up
+to the FE discretization error in Vh —which in this model
+problem for h = 2− 6 is of O(10− 4)—this has essentially no
+impact on the accuracy of the resulting TT approximation ˜π
+(especially for TT accuracy δ= 0.1).
+5.3.2 Set-up cost and accuracy of TT approximation
+As in the shock absorber example, we test how the quality of
+the Markov chain produced by TT-MH depends on the error
+between ˜π and π.I nF i g .6 (left), we show the rejection rates,
+IACT and error estimates ( 18), ( 19) for different stopping
+tolerances δand grid sizes n. In the top plot, we ﬁx δ= 10
+− 3
+and vary n, while in the bottom plot, n is ﬁxed to 512 and
+δis varied. The other model parameters are set according to
+Table 4, and the chain length is N = 216. The behaviour is
+as in the shock absorber example and as predicted in Lemma
+1.
+In Fig. 6 (right), we demonstrate the beneﬁt of ﬁrst
+computing a TT approximation ˜u
+h(·,θ) of the FE solution
+uh(·,θ), as described in the previous subsection. We see that
+the TT ranks to approximate uh are signiﬁcantly smaller
+than the TT ranks to approximate the density π to the same
+accuracy. In both cases, the TT ranks are independent of n,
+for n sufﬁciently large, and they show only a logarithmic
+dependence on the TT accuracy δ. However, the growth is
+signiﬁcantly faster for π∗ than for ˜uh . For the default param-
+eters in Table4, the ranks of ˜uh(·,θ) and π∗(θ)are 26 and 82,
+respectively, and the numbers of function evaluations to build
+the TT surrogates are about 100 and about 53,000, respec-
+tively. The advantage is that with the surrogate ˜u
+h available
+those 53,000 evaluations of π,u s i n g˜uh instead of uh in the
+data misﬁt functional, are signiﬁcantly cheaper and the PDE
+only has to be actually solved 100 times.
+5.3.3 Convergence of the expected quantities of interest
+In this section, we investigate the convergence of estimates
+of the expected value of the quantities of interest and the
+computational complexity of the different methods. For the
+TT approximation of the density function π,w eﬁ x n = 32
+and δ = 0.1. For the TT approximation of u
+h , we choose
+a TT tolerance of 10 − 4, which is equal to the discretization
+error for h = 2− 6.
+To compute the posterior expectations of the QoIs in (22),
+we compare two approaches that use our TT-CD sampling
+procedure:
+[TT-MH] (Sec. 4.2) Metropolis–Hastings with indepen-
+dence proposals sampled via the TT-CD sampling
+procedure from the approximate distribution π
+∗.
+[TT-qIW] (Sec. 4.3) Using the approximate density π∗ as
+an importance weight and estimating the expected
+value and the normalizing constant via a random-
+ized QMC lattice rule.
+123
+
+PDF PAGE 18
+620 Statistics and Computing (2020) 30:603–625
+456789
+10−3
+10−2
+10−1
+100
+log2 n
+rej. rate
+τ − 1
+EL1
+C · n−2
+4567890
+100
+200
+300
+400
+log2 n
+TT rank ˜uh(·,θ)
+˜π(θ)
+10−3 10−2 10−1
+10−3
+10−2
+10−1
+δ
+rej. rate
+τ − 1
+EL1
+ETT
+δ
+10−3 10−2 10−10
+100
+200
+300
+δ
+TT rank ˜uh(·,θ)
+˜π(θ)
+Fig. 6 Inverse diffusion problem: rejection rate, IACT and errors (left), as well as maximal TT ranks for ˜uh(·,θ) and for ˜π(θ) (right) for different
+grid sizes n (top) and values of δ(bottom)
+Moreover, we test the two-level versions of both methods
+described in Sect. 4.4.
+To benchmark the TT approaches, we use again DRAM
+with the initial covariance chosen to be the identity and
+discard the ﬁrst N /4 samples. However, as a second bench-
+mark, we also compute the posterior expectation directly
+by applying QMC to the two terms in the ratio esti-
+mate ( QMC-rat), as deﬁned in ( 22) and analysed in
+Scheichl et al. ( 2017). The QMC method in TT-qIW
+is again the randomized rank-1 lattice rule with prod-
+uct weights γ
+k = 1/k2 and generating vector from the
+ﬁle lattice-39102-1024-1048576.3600 at http://
+web.maths.unsw.edu.au/~fkuo/. In order to reduce random
+ﬂuctuations in the results, we average 16 runs of each
+approach in each experiment. The rejection rate and the IACT
+for TT-MH and DRAM are shown in Table5. Notice that the
+autocorrelation times of DRAM for the coordinatesθand for
+the quantity of interest F differ signiﬁcantly, since the latter
+coordinates have a weaker inﬂuence on F.
+Table 5 Inverse diffusion problem: rejection rates and IACTs for TT-
+MH and DRAM; τθ and τF are the IACT for the parameter vectorθand
+f o rt h eQ o Ii n(25), respectively
+Rejection rate τθ τF
+TT-MH 0.0853 1.1964 1.1903
+DRAM 0.73 84.0 29.7
+In Fig. 7, we present the relative errors in the quantities
+of interest versus the chain length N together with reference
+slopes. For the expected value Eπ[F] of the ﬂux in Fig. 7
+(left), the QMC ratio estimator (QMC-rat) converges with
+a rate close to linear in 1/ N , so that it becomes competi-
+tive with the TT approaches for higher accuracies. However,
+by far the most effective approach is TT-qIW, where the TT
+approximation π
+∗ is used as an importance weight in a QMC
+ratio estimator. Asymptotically, the convergence rate for TT-
+qIW is also O(N− 1) for Eπ[F] and the effectivity of the
+estimator is almost two orders of magnitude better than that
+123
+
+PDF PAGE 19
+Statistics and Computing (2020) 30:603–625 621
+6 8 10 12 14 16 18 20
+10−5
+10−4
+10−3
+10−2
+10−1
+0.5
+1.0
+discr. error
+log2 N
+relative error for Eπ [F ]
+6 8 10 12 14 16 18 20
+10−3
+10−2
+10−1
+100
+0.5
+1.0
+log2 N
+relative error for PF> 1.5
+TT-MH
+TT-qIW
+DRAM
+QMC-rat
+MALA
+Fig. 7 Inverse diffusion problem: relative errors for the average ﬂux (left) and for the probability of the ﬂux exceeding 1 .5 (right) for different
+numbers of samples N
+of DRAM. All the other TT-based approaches and DRAM
+converge, as expected, with the standard MC order N− 1/2.
+For the non-smooth indicator function employed in PF>1.5
+in Fig. 7 (right), the relative performance of the different
+approaches is similar, although the QMC-rat estimator now
+also converges with the MC rate of order O(N− 1/2). Some-
+what surprisingly, the TT-qIW method seems to converge
+slightly better than O(N
+− 1/2) also for PF>1.5 and outper-
+forms all other approaches by an order of magnitude.
+The results in Fig. 7 are all computed for the same spa-
+tial resolution of the forward model. In a practical inverse
+problem, for the best efﬁciency, all errors (due to trunca-
+tion, discretization and sampling) are typically equilibrated.
+Thus, it is useful to estimate the spatial discretization error.
+We achieve this by computing the posterior expectations
+of the QoIs on three discretization grids (with TT-qIW and
+N = 2
+18) and by using these to estimate the error via Runge’s
+rule. The estimated error for h = 2− 6 is plotted as a hori-
+zontal dashed line in Fig. 7. We see that with the TT-qIW
+method N = 213 samples are sufﬁcient to obtain a sampling
+error of the order of the discretization error for Eπ[F], while
+all other approaches require at least N = 217 samples (up to
+N > 221 for DRAM).
+In addition to DRAM, we also consider a version of
+the Metropolis-adjusted Langevin (MALA) algorithm with
+adapted empirical covariance matrix as a preconditioner
+(Atchadé 2006). However, the latter components of the gra-
+dient are rather small and give little information about the
+geometry. This makes the MALA convergence comparable
+to that of DRAM. Moreover, each step of MALA is about
+twice more expensive than a step of DRAM due to the com-
+putation of the gradient of u
+h(·,θ) in ∇ logπ(θ) in addition
+to uh .
+In Fig. 8, we compare the approaches in terms of total CPU
+time. The horizontal offset for all the TT-based methods is the
+time needed to build the TT approximation ˜π. The error then
+initially drops rapidly. As soon as the number N of samples
+is big enough, the set-up cost becomes negligible and the
+relative performance of all the approaches is very similar
+to that in Fig. 7, since the computational time per sample
+is dominated by the PDE solve and all approaches that we
+are comparing evaluate π for each sample. It is possible to
+signiﬁcantly reduce this sampling cost, if we do not evaluate
+the exact π for each sample, e.g. by simply computing the
+expected value of the QoIs with respect to the approximate
+density π
+∗ using TT-CD and QMC quadrature. However, in
+that case the estimator will be biased and the amount of bias
+depends on the accuracy of the TT surrogateπ∗. In that case,
+the total cost is dominated by the set-up cost. (A more detailed
+study of the cost of the various stages of our TT approach is
+included in Fig. 11.)
+In Fig. 9, we include a more detailed study of the inﬂu-
+ence of the TT parameters n and δ. As expected, a more
+accurate TT surrogate provides a better proposal/importance
+weight and thus leads to a better performance, but it also
+leads to a higher set-up cost. So for lower accuracies, cruder
+approximations are better. However, the quality of the sur-
+rogate seems to be less important for Monte Carlo-based
+approaches. For the middle plot in Fig. 9, we used the impor-
+tance weighting method described in Sec. 4.3 with random
+Monte Carlo samples (TT-rIW). It converges with almost the
+same rate as TT-MH, which might be due to independence
+proposals. The quality of the surrogate seems to be signiﬁ-
+cantly more important for the QMC-based approaches, such
+as for TT-qIW (Fig.9, right), since the mapped QMC samples
+carry the PDF approximation error.
+123
+
+PDF PAGE 20
+622 Statistics and Computing (2020) 30:603–625
+101 102 103 104
+10−5
+10−4
+10−3
+10−2
+10−1
+discr. error
+CPU time
+relative error for Eπ [F ]
+TT-MH
+TT-qIW
+DRAM
+QMC-rat
+101 102 103 104
+10−3
+10−2
+10−1
+discr. error
+CPU time
+relative error for PF> 1.5
+Fig. 8 Inverse diffusion problem: relative errors in the mean ﬂux (left) and in the exceedance probability (right) plotted against the total CPU times
+(s)
+101 102 103 104
+10−5
+10−4
+10−3
+10−2
+10−1
+CPU time (TT-MH)
+101 102 103 104
+10−5
+10−4
+10−3
+10−2
+10−1
+CPU time (TT-rIW)
+101 102 103 104
+10−5
+10−4
+10−3
+10−2
+10−1
+CPU time (TT-qIW)
+n, δ=1 6, 0.5
+n, δ=3 2, 0.1
+n, δ=6 4, 0.01
+64, 0.01, 2L
+Fig. 9 Inverse diffusion problem: convergence of Eπ[F] (solid lines) and PF>1.5 (dashed lines) with TT-MH (left), TT-rIW (middle) and TT-qIW
+(right) for different choices of n and δ
+Another thing we study in Fig. 9 is the two-level ver-
+sions of TT-MH and of importance weighting described in
+Sect. 4.4. While the variance reduction and the induced cost
+reduction are signiﬁcant compared to the single-level quadra-
+ture in the case of i.i.d. seed points in Algorithm 2 (in both
+TT-MH and TT-rIW), the difference in the case of QMC
+seeds in TT-qIW is marginal. This is because the rate of con-
+vergence of the QMC quadrature drops to O(N
+− 1/2) when
+applied to the less smooth difference term in ( 15). In con-
+trast, the single-level QMC estimator ( 10) converges with a
+noticeably higher rate.
+We also benchmark the algorithms in a more challenging
+scenario of a smaller noise variance σ2
+n = 10− 3. Due to non-
+linearity of the forward model, the posterior density function
+is concentrated along a complicated high-dimensional mani-
+fold, for smaller σ
+n . This increases all complexity indicators:
+the ranks of the TT approximation, the IACT in TT-MH and
+in DRAM and the variances in the ratio estimators. Since
+the density function is more concentrated, we choose ﬁner
+parameters n = 64 and δ = 0.03 for the TT approxima-
+tion. Nevertheless, in Fig. 10 we see that even though the
+set-up cost is larger, the TT-based samplers are still all sig-
+niﬁcantly more efﬁcient than DRAM. Due to the stronger
+concentration ofπ, the performance of the basic ratio estima-
+tor QMC-rat is worse. On the other hand, the QMC estimator
+TT-qIW with TT importance weighting is again the most per-
+formant method. Note that it is the only method that reduces
+the quadrature error to the size of the discretization error
+within the considered limit of one million samples.
+Finally, we proﬁle the computational cost of all the various
+components in the TT approaches with respect to the total
+error (truncation, spatial discretization and quadrature). We
+vary the spatial mesh size h from 2
+− 5 to 2− 7 and estimate
+the convergence rate of the discretization error (Fig.11,l e f t ) .
+Then, we choose the other approximation parameters in order
+to equilibrate the errors. In particular, the number of random
+variables d and the number of samples N are chosen such
+that the KL truncation error in ( 24) and the quadrature error
+123
+
+PDF PAGE 21
+Statistics and Computing (2020) 30:603–625 623
+101 102 103 104
+10−4
+10−3
+10−2
+10−1
+discr. error
+CPU time
+relative error for Eπ [F ]
+TT-MH
+TT-qIW
+DRAM
+QMC-rat
+101 102 103 104
+10−3
+10−2
+10−1
+100
+discr. error
+CPU time
+relative error for PF> 1.5
+Fig. 10 Inverse diffusion problem: relative errors in the mean ﬂux (left) and in the exceedance probability (right) plotted against the total CPU
+times (s) for σ2
+n = 10− 3
+81 2 1 6 2 4
+10−4
+10−3
+d (log scale )
+relative discretisation error
+103
+104
+105
+# samples N
+101 102
+10−1
+100
+101
+102
+103
+104
+105
+106
+d (log scale)
+CPU time
+ALS-Cross(˜u) TT-Cross(˜π)
+TT-CD(xℓ) Exact π(xℓ)
+Fig. 11 Inverse diffusion problem: dimension ( d) dependence of discretization error and numbers of samples (left) and CPU times of the various
+algorithmic components in TT-qIW (right); solid lines with equilibrated errors, dashed lines with h = 2− 6 and N = 214 ﬁxed
+of the TT-qIW method are equal to the discretization error,
+respectively (see Fig. 11,l e f t ) .
+The solid lines in Fig. 11 (right) give the computational
+times necessary for the various components of our algorithm
+(with all errors equilibrated), as a function of d (and thus
+also as a function of h− 1 and N ): the ALS-cross algorithm to
+build the TT surrogate of uh , the TT-cross algorithm to build
+the TT surrogate ofπ, the TT-CD sampling procedure for the
+N samples xℓ, ℓ = 1,..., N , and the evaluation of π at the
+N samples. Clearly the N PDE solves in the evaluation of π
+are the dominant part and the complexity of these evaluations
+grows fairly rapidly due to the spatial mesh reﬁnement and
+the increase in N . The TT-cross algorithm for building ˜π
+(once a TT surrogate of the forward solution is available)
+and the cost of the TT-CD sampler depend on the dimension
+d and on the TT ranks of ˜π (which grow very mildly with d
+and h
+− 1).
+In addition, we also ran all the experiments with h = 2− 6
+and N = 214 ﬁxed, varying onlyd to explicitly see the growth
+with d. The timings for these experiments are plotted using
+dashed lines. The cost for the ALS-cross algorithm to build
+˜uh grows cubically in d, while the cost to build the TT surro-
+gate ˜π and the cost of the TT-CD sampling procedure grow
+linearly with d. Since the evaluation ofπ is dominated by the
+cost of the PDE solve, its cost does not grow with dimension.
+This shows that the TT-CD sampler is an extremely effective
+surrogate for high dimensions when the model admits a nat-
+ural extension in d (e.g. it converges as d →∞ ,o rt h e
+variables remain locally correlated).
+123
+
+PDF PAGE 22
+624 Statistics and Computing (2020) 30:603–625
+6 Conclusion
+We presented a method for computational inference based
+on function approximation of the target PDF. That task has
+traditionally been viewed as infeasible for general multivari-
+ate distributions due to the exponential growth in cost for
+grid-based representations. The advent of the tensor train
+representation, amongst other hierarchical representations,
+is a signiﬁcant development that circumvents that ‘curse
+of dimensionality’. Our main contributions here have been
+showing that the conditional distribution method can be
+implemented efﬁciently for PDFs represented in (interpo-
+lated) TT format and that quasi-Monte Carlo quadrature is
+both feasible and efﬁcient with bias correction through a
+control-variate structure or via importance weighting. The
+latter scheme was most efﬁcient across all computed exam-
+ples and parameter choices.
+We adapted existing tools for tensors, i.e. multidimen-
+sional arrays, in particular the TT-cross approximation
+scheme, and tools for basic linear algebra. We expect that
+substantial improvement could be achieved with algorithms
+tailored for the speciﬁc tasks required, such as function
+approximation, and the setting of coordinates and bounding
+region. Nevertheless, the algorithms presented are already
+very promising, providing sample-based inference that is
+more computationally efﬁcient than a benchmark MCMC,
+the DRAM MCMC. We demonstrated the algorithms in three
+stylized examples: a time-to-failure model; an inverse prob-
+lem; and sampling from a non-Gaussian PDF. Extensive
+computations showed that in each example the methods per-
+formed as theory predicts and that scaling with dimension is
+linear.
+We view the methods developed here as a promising
+development in Markov chain Monte Carlo methods. It
+is noteworthy, however, that our most efﬁcient algorithm
+(TT-qIW) neither implements a Markov chain for the basic
+sampler nor uses standard Monte Carlo quadrature. Instead,
+points from a randomized quasi-Monte Carlo (QMC) lattice
+are mapped into state space by the inverse Rosenblatt trans-
+form, implemented in the TT-CD algorithm, with unbiased
+estimates available via importance-weighted QMC quadra-
+ture. Nevertheless, the basic structure remains a proposal
+mechanism that is modiﬁed to produce a sequence of points
+that is ergodic for the target distribution.
+Numerical experiments were carried out in MA TLAB
+R2016b on an Intel Xeon E5-2650 CPU at the Balena High
+Performance Computing Service at the University of Bath,
+using one core per run. We implemented Algorithm 2 in
+MA TLAB and C+Python, using the TT-Toolbox in MA TLAB
+(Oseledets et al. 2011) and Python (available at http://github.
+com/oseledets/ttpy ), respectively. The code is available at
+http://github.com/dolgov/tt-irt ; we welcome suggestions or
+feedback from users.
+Acknowledgements SD is grateful for the support from the Engi-
+neering and Physical Sciences Research Council (EPSRC) through
+Fellowship EP/M019004/1. This research was started, while CF was
+Global Chair in the Institute for Mathematical Innovation (IMI) at the
+University of Bath.
+Open Access This article is distributed under the terms of the Creative
+Commons Attribution 4.0 International License ( http://creativecomm
+ons.org/licenses/by/4.0/), which permits unrestricted use, distribution,
+and reproduction in any medium, provided you give appropriate credit
+to the original author(s) and the source, provide a link to the Creative
+Commons license, and indicate if changes were made.
+References
+Atchadé, Y .F.: An adaptive version for the metropolis adjusted langevin
+algorithm with a truncated drift. Methodol. Comput. Appl. Probab.
+8(2), 235–254 (2006). https://doi.org/10.1007/s11009-006-8550-
+0
+Ballani, J., Grasedyck, L.: Hierarchical tensor approximation of output
+quantities of parameter-dependent PDEs. SIAM/ASA J. Uncer-
+tain. Quantif. 3(1), 852–872 (2015)
+Brooks, S., Gelman, A., Jones, G., Meng, X.L. (eds.): Handbook of
+Markov Chain Monte Carlo. CRC Press, Boca Raton (2011)
+Christen, J., Fox, C.: A general purpose sampling algorithm for con-
+tinuous distributions (the t-walk). Bayesian Anal. 5(2), 263–282
+(2010)
+Devroye, L.: Non-Uniform Random V ariate Generation. Springer,
+Berlin (1986)
+Dick, J., Kuo, F., Sloan, I.: High-dimensional integration: the quasi-
+Monte Carlo way. Acta Numer. 22, 133–288 (2013)
+Dodwell, T., Ketelsen, C., Scheichl, R., Teckentrup, A.: A hierarchical
+multilevel Markov chain Monte Carlo algorithm with applications
+to uncertainty quantiﬁcation in subsurface ﬂow. SIAM/ASA J.
+Uncertain. Quantif. 3(1), 1075–1108 (2015)
+Dolgov, S., Savostyanov, D.: Alternating minimal energy methods for
+linear systems in higher dimensions. SIAM J. Sci. Comput. 36(5),
+A2248–A2271 (2014)
+Dolgov, S., Scheichl, R.: A hybrid alternating least squares—TT cross
+algorithm for parametric PDEs. SIAM/ASA J. Uncertain. Quantif.
+7(1), 260–291 (2019)
+Eigel, M., Gittelson, C., Schwab, C., Zander, E.: Adaptive stochastic
+Galerkin FEM. Comput. Methods Appl. 270, 247–269 (2014)
+Eigel, M., Marschall, M., Schneider, R.: Sampling-free Bayesian inver-
+sion with adaptive hierarchical tensor representations. Inverse
+Probl. 34(3), 035010 (2018)
+Fox, C., Nicholls, G.: Sampling conductivity images via MCMC. In:
+The Art and Science of Bayesian Image Analysis, Leeds Annual
+Statistics Research Workshop, pp. 91–100 (1997)
+Fox, C., Norton, R.: Fast sampling in a linear-Gaussian inverse problem.
+SIAM/ASA J. Uncertain. Quantif. 4(1), 1191–1218 (2016)
+Fox, C., Parker, A.: Accelerated Gibbs sampling of normal distributions
+using matrix splittings and polynomials. Bernoulli 23(4B), 3711–
+3743 (2017)
+Fox, C., Haario, H., Christen, J.: Inverse problems. In: Damien, P .,
+Dellaportas, P ., Polson, N., Stephens, D. (eds.) Bayesian Theory
+and Applications, pp. 619–643. Oxford University Press, Oxford
+(2013)
+Gilks, W., Wild, P .: Adaptive rejection sampling for Gibbs sampling.
+Appl. Stat. 41, 337–348 (1992)
+Golub, G.H., V an Loan, C.F.: Matrix Computations, 4th edn. Johns
+Hopkins University Press, Baltimore (2013)
+123
+
+PDF PAGE 23
+Statistics and Computing (2020) 30:603–625 625
+Goreinov, S., Tyrtyshnikov, E., Zamarashkin, N.: A theory of pseu-
+doskeleton approximations. Linear Algebra Appl. 261(1–3), 1–21
+(1997)
+Goreinov, S., Oseledets, I., Savostyanov, D., Tyrtyshnikov, E., Zama-
+rashkin, N.: How to ﬁnd a good submatrix. In: Olshevsky, V .,
+Tyrtyshnikov, E. (eds.) Matrix Methods: Theory, Algorithms,
+Applications, pp. 247–256. World Scientiﬁc, Singapore (2010)
+Gutierrez-Pulido, H., Aguirre-Torres, V ., Christen, J.: A practical
+method for obtaining prior distributions in reliability. IEEE Trans.
+Reliab. 54(2), 262–269 (2005)
+Haario, H., Laine, M., Mira, A., Saksman, E.: DRAM: efﬁcient adaptive
+MCMC. Stat. Comput. 16(4), 339–354 (2006)
+Häggström, O., Rosenthal, J.: On variance conditions for Markov chain
+CLTs. Electron. Commun. Probab. 12, 454–464 (2007)
+Hoang, V .H., Schwab, C., Stuart, A.M.: Complexity analysis of acceler-
+ated MCMC methods for Bayesian inversion. Inverse Probl.29(8),
+085010 (2013)
+Hörmann, W., Leydold, J., Derﬂinger, G.: Automatic Nonuniform Ran-
+dom V ariate Generation. Springer, Berlin (2004)
+Johnson, M.: Multivariate Statistical Simulation. Wiley, New Y ork
+(1987)
+Khoromskij, B.: Structured rank- (r
+1,..., rd) decomposition of
+function-related operators in Rd . Comput. Methods Appl. Math.
+6(2), 194–220 (2006)
+Kuo, F., Scheichl, R., Schwab, C., Sloan, I., Ullmann, E.: Multilevel
+quasi-Monte Carlo methods for lognormal diffusion problems.
+Math. Comput. 86, 2827–2860 (2017)
+Liu, J.: Metropolized independent sampling with comparisons to rejec-
+tion sampling and importance sampling. Stat. Comput. 6(2),
+113–119 (1996)
+Martino, L., Read, J., Luengo, D.: Independent doubly adaptive rejec-
+tion Metropolis sampling within Gibbs sampling. IEEE Trans.
+Signal Process. 63(12), 3123–3138 (2015)
+Meeker, W., Escobar, L.: Statsitical Methods for Reliability Data. Wiley,
+New Y ork (1998)
+Mengersen, K.L., Tweedie, R.L.: Rates of convergence of the Hastings
+and Metropolis algorithms. Ann. Stat. 24(1), 101–121 (1996)
+Meyer, R., Cai, B., Perron, F.: Adaptive rejection Metropolis sampling
+using Lagrange interpolation polynomials of degree 2. Comput.
+Stat. Data Anal. 52(7), 3408–3423 (2008)
+Mira, A.: Ordering and improving the performance of Monte Carlo
+Markov chains. Stat. Sci. 16(4), 340–350 (2001)
+Mira, A., Geyer, C.J.: Ordering Monte Carlo Markov chains. Tech. Rep.
+632, Univ. of Minnesota (1999)
+Niederreiter, H.: Quasi-Monte Carlo methods and pseudo-random num-
+bers. Bull. Am. Math. Soc. 84(6), 957–1041 (1978)
+Norton, R., Christen, J., Fox, C.: Sampling hyperparameters in hier-
+archical models: improving on Gibbs for high-dimensional latent
+ﬁelds and large datasets. Commun. Stat. Simul. 47(9), 2639–2655
+(2018)
+O’Connor, P ., Kleyner, A.: Practical Reliability Engineering, 5th edn.
+Wiley, New Y ork (2012)
+Oseledets, I.: DMRG approach to fast linear algebra in the TT-format.
+Comput. Methods Appl. Math. 11(3), 382–393 (2011a)
+Oseledets, I.: Tensor-train decomposition. SIAM J. Sci. Comput.33(5),
+2295–2317 (2011b)
+Oseledets, I.: Constructive representation of functions in low-rank ten-
+sor formats. Constr. Approx. 37(1), 1–18 (2013)
+Oseledets, I., Tyrtyshnikov, E.: TT-cross approximation for multidimen-
+sional arrays. Linear Algebra Appl. 432(1), 70–88 (2010)
+Oseledets, I., Dolgov, S., Kazeev, V ., Savostyanov, D., Lebedeva, O.,
+Zhlobich, P ., Mach, T., Song, L.: TT-Toolbox (2011). https://
+github.com/oseledets/TT-Toolbox
+Roberts, G.O., Rosenthal, J.S.: Quantitative non-geometric convergence
+bounds for independence samplers. Methodol. Comput. Appl.
+Probab. 13(2), 391–403 (2011)
+Rosenblatt, M.: Remarks on a multivariate transformation. Ann. Math.
+Stat. 23(3), 470–472 (1952)
+Rue, H.: Fast sampling of Gaussian Markov random ﬁelds. J. R. Stat.
+Soc. B 63, 325–338 (2001)
+Rue, H., Held, L.: Gaussian Markov Random Fields: Theory and Appli-
+cations. Chapman & Hall, London (2005)
+Scheichl, R., Stuart, A., Teckentrup, A.: Quasi-Monte Carlo and multi-
+level Monte Carlo methods for computing posterior expectations in
+elliptic inverse problems. SIAM/ASA J. Uncertain. Quantif. 5(1),
+493–518 (2017)
+Schneider, R., Uschmajew, A.: Approximation rates for the hierarchical
+tensor format in periodic Sobolev spaces. J. Complex.30(2), 56–71
+(2013)
+Smith, R.L., Tierney, L.: Exact transition probabilities for the inde-
+pendence Metropolis sampler. Tech. rep., Univ. of North Carolina
+(1996)
+Stuart, A.: Inverse problems: a Bayesian perspective. Acta Numer. 19,
+451–559 (2010)
+Teckentrup, A., Scheichl, R., Giles, M., Ullmann, E.: Further analysis
+of multilevel Monte Carlo methods for elliptic PDEs with random
+coefﬁcients. Numer. Math. 125(3), 569–600 (2013)
+Tierney, L.: A note on Metropolis-Hastings kernels for general state
+spaces. Ann. Appl. Probab. 8
+(1), 1–9 (1998)
+Tyrtyshnikov, E.: Tensor approximations of matrices generated by
+asymptotically smooth functions. Sbornik Math 194(6), 941–954
+(2003)
+Wolff, U.: Monte Carlo errors with less errors. Comput. Phys. Commun.
+156(2), 143–153 (2004)
+Publisher’s Note Springer Nature remains neutral with regard to juris-
+dictional claims in published maps and institutional afﬁliations.
+123

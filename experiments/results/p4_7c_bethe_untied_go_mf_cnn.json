@@ -1,0 +1,10 @@
+{
+ "theory": "dgp2_go_mf",
+ "proteins": 0,
+ "skipped_float_ties": 30,
+ "bp_recovers_frac": NaN,
+ "bp_err_median": NaN,
+ "exact_at_bethe_err_median": NaN,
+ "theta_bethe_minus_true_median_max": NaN,
+ "min_gap_median": NaN
+}

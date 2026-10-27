@@ -1,0 +1,16 @@
+{
+  "ontology": "uberon",
+  "heuristic": "min-fill",
+  "terms": 14975,
+  "width": 45,
+  "complete": true,
+  "seconds": 0.11,
+  "paper_minfill_width": 46,
+  "n_bags_ge_bag_min": 163,
+  "bag_size_quantiles": {
+    "0.5": 26,
+    "0.9": 40,
+    "0.99": 45,
+    "1.0": 46
+  }
+}

@@ -1,0 +1,74 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_1b_downstream_consistency_methods_deepgoplus.py
+# sha256 : 7a58c1172afea488fea77cb9335dbdca792280efbb3714698b9fa9f233f9be76
+# args   : --ns go_mf --input fused --bootstrap 1000
+# host   : nid002541   slurm_job: 22997029
+# start  : 2026-10-20T16:45:23+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+{
+ "theory": "dgp2_go_mf",
+ "input": "fused",
+ "proteins": 2129,
+ "metrics": {
+  "raw": {
+   "fmax": 0.6811959719087562,
+   "micro_ap": 0.6504379507817758,
+   "brier": 0.007755841985012531,
+   "ece": 0.004633331304029361,
+   "violation_rate": 0.10828521677751857
+  },
+  "max_closure": {
+   "fmax": 0.6818951794571223,
+   "micro_ap": 0.65148847890191,
+   "brier": 0.007724543490246334,
+   "ece": 0.004490344255902462,
+   "violation_rate": 0.0
+  },
+  "isotonic": {
+   "fmax": 0.6809741792120619,
+   "micro_ap": 0.6509253053204325,
+   "brier": 0.007756086981640457,
+   "ece": 0.004641697979261249,
+   "violation_rate": 2.5431491972212203e-05
+  },
+  "exact_wmc": {
+   "fmax": 0.6250977031346395,
+   "micro_ap": 0.5711359178640776,
+   "brier": 0.008631276493580227,
+   "ece": 0.007480258005145573,
+   "violation_rate": 0.0
+  },
+  "bp": {
+   "fmax": 0.6228169596874713,
+   "micro_ap": 0.5657073128814484,
+   "brier": 0.008654838643059869,
+   "ece": 0.00749820767020403,
+   "violation_rate": 0.0
+  }
+ }
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_1b_downstream_consistency_methods_deepgoplus.py --ns go_mf --input fused --bootstrap 1000"
+	User time (seconds): 2158.64
+	System time (seconds): 85.16
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 37:24.79
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 337348
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 419
+	Minor (reclaiming a frame) page faults: 32600887
+	Voluntary context switches: 5926
+	Involuntary context switches: 58811
+	Swaps: 0
+	File system inputs: 149286
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-20T17:22:53+03:00   exit: 0

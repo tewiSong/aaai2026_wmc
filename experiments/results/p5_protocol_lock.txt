@@ -1,0 +1,3 @@
+P5_protocol_time_split_confirmation.md sha256 010c852e0a2a29b45e12e5dc237db3804e21b4afc88f3e0fdbcc1fc3a3728fd3
+locked 2026-10-22T14:08:23+03:00 by Claude, before any new-snapshot evaluation
+P5_protocol_amendment_1.md sha256 04b72b0c0dcfe4d4c7f6e1f4e1d4509ab05e6bd81be267e49ddd193872b35436 recorded 2026-10-22T21:43:31+03:00

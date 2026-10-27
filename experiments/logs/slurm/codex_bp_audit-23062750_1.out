@@ -1,0 +1,41 @@
+go_mf row 1060 {'production_1e-12': 0.09037, 'production_1e-15': 0.09037, 'logratio_step05': 0.09037, 'logratio_step01': 0.09037, 'reduced_production': 0.09037, 'reduced_logratio': 0.09037}
+go_mf row 838 {'production_1e-12': 0.9035, 'production_1e-15': 0.9035, 'logratio_step05': 0.09626, 'logratio_step01': 0.09626, 'reduced_production': 0.9035, 'reduced_logratio': 0.09626}
+go_mf row 627 {'production_1e-12': 0.99734, 'production_1e-15': 0.99734, 'logratio_step05': 0.05039, 'logratio_step01': 0.05039, 'reduced_production': 0.99734, 'reduced_logratio': 0.05039}
+go_mf row 2054 {'production_1e-12': 0.14482, 'production_1e-15': 0.14482, 'logratio_step05': 0.14482, 'logratio_step01': 0.14482, 'reduced_production': 0.14482, 'reduced_logratio': 0.14482}
+go_mf row 1444 {'production_1e-12': 0.08539, 'production_1e-15': 0.08539, 'logratio_step05': 0.08539, 'logratio_step01': 0.08539, 'reduced_production': 0.08539, 'reduced_logratio': 0.08539}
+go_mf row 802 {'production_1e-12': 0.06089, 'production_1e-15': 0.06089, 'logratio_step05': 0.06089, 'logratio_step01': 0.06089, 'reduced_production': 0.06089, 'reduced_logratio': 0.06089}
+go_mf row 1736 {'production_1e-12': 0.99851, 'production_1e-15': 0.99851, 'logratio_step05': 0.45798, 'logratio_step01': 0.45798, 'reduced_production': 0.99851, 'reduced_logratio': 0.45798}
+go_mf row 818 {'production_1e-12': 0.99723, 'production_1e-15': 0.99723, 'logratio_step05': 0.07477, 'logratio_step01': 0.07477, 'reduced_production': 0.99723, 'reduced_logratio': 0.07477}
+go_mf row 782 {'production_1e-12': 0.99781, 'production_1e-15': 0.99781, 'logratio_step05': 0.06457, 'logratio_step01': 0.06457, 'reduced_production': 0.99781, 'reduced_logratio': 0.06457}
+go_mf row 690 {'production_1e-12': 0.09162, 'production_1e-15': 0.09162, 'logratio_step05': 0.09162, 'logratio_step01': 0.09162, 'reduced_production': 0.09162, 'reduced_logratio': 0.09162}
+go_mf row 1185 {'production_1e-12': 0.97418, 'production_1e-15': 0.97418, 'logratio_step05': 0.10501, 'logratio_step01': 0.10501, 'reduced_production': 0.97418, 'reduced_logratio': 0.10501}
+go_mf row 159 {'production_1e-12': 0.05709, 'production_1e-15': 0.05709, 'logratio_step05': 0.05709, 'logratio_step01': 0.05709, 'reduced_production': 0.05709, 'reduced_logratio': 0.05709}
+go_mf row 1943 {'production_1e-12': 0.10248, 'production_1e-15': 0.10248, 'logratio_step05': 0.10248, 'logratio_step01': 0.10248, 'reduced_production': 0.10248, 'reduced_logratio': 0.10248}
+go_mf row 1558 {'production_1e-12': 0.99796, 'production_1e-15': 0.99796, 'logratio_step05': 0.04313, 'logratio_step01': 0.04313, 'reduced_production': 0.99796, 'reduced_logratio': 0.04313}
+go_mf row 1957 {'production_1e-12': 0.99766, 'production_1e-15': 0.99766, 'logratio_step05': 0.05325, 'logratio_step01': 0.05325, 'reduced_production': 0.99766, 'reduced_logratio': 0.05325}
+go_mf row 1807 {'production_1e-12': 0.99881, 'production_1e-15': 0.99881, 'logratio_step05': 0.07837, 'logratio_step01': 0.07837, 'reduced_production': 0.99881, 'reduced_logratio': 0.07837}
+{"production_1e-12": {"median_error": 0.938843440160547, "max_error": 0.9988114852157687, "converged_fraction": 1.0, "seconds": 1.675337314605713}, "production_1e-15": {"median_error": 0.9388434401605472, "max_error": 0.9988114852157776, "converged_fraction": 1.0, "seconds": 2.023545265197754}, "logratio_step05": {"median_error": 0.0818795037236782, "max_error": 0.4579813528272991, "converged_fraction": 1.0, "seconds": 0.18828463554382324}, "logratio_step01": {"median_error": 0.08187950372366735, "max_error": 0.45798135282729513, "converged_fraction": 1.0, "seconds": 0.9632401466369629}, "reduced_production": {"median_error": 0.9388434401605472, "max_error": 0.9988114852157776, "converged_fraction": 1.0, "seconds": 2.0203371047973633}, "reduced_logratio": {"median_error": 0.0818795037236782, "max_error": 0.4579813528272991, "converged_fraction": 1.0, "seconds": 0.18773317337036133}}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/journal_comparison/p4_7_bp_audit_2026_10_22.py --ns go_mf"
+	User time (seconds): 10.21
+	System time (seconds): 1.28
+	Percent of CPU this job got: 95%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:12.01
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 98932
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 383
+	Minor (reclaiming a frame) page faults: 70474
+	Voluntary context switches: 6621
+	Involuntary context switches: 143
+	Swaps: 0
+	File system inputs: 156848
+	File system outputs: 48
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p4_7_bp_audit_2026_10_22_case1_20261022-104355.log

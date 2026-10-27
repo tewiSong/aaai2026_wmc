@@ -1,0 +1,54 @@
+{
+ "args": {
+  "ontology": "go_bp",
+  "subgraph_size": 2000,
+  "n_subgraphs": 4,
+  "families": "uniform,beta22,beta0505,sparse",
+  "scores_per_family": 2,
+  "diamond": null,
+  "diamond_key": "prop",
+  "proteins": 12,
+  "d4_timeout": 3600.0,
+  "gibbs_sweeps": 3000,
+  "seed": 6,
+  "tag": ""
+ },
+ "instances": [
+  {
+   "instance": 0,
+   "terms": 2001,
+   "edges": 3638,
+   "pct_multiparent": 57.02,
+   "d4": {
+    "failed": "TimeoutExpired(['/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4', '-dDNNF', '/tmp/tmp25rwlgpd/i0.cnf', '-out=/tmp/tmp25rwlgpd/i0.nnf'], 3600.0)"
+   }
+  },
+  {
+   "instance": 1,
+   "terms": 2002,
+   "edges": 3427,
+   "pct_multiparent": 52.05,
+   "d4": {
+    "failed": "TimeoutExpired(['/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4', '-dDNNF', '/tmp/tmp25rwlgpd/i1.cnf', '-out=/tmp/tmp25rwlgpd/i1.nnf'], 3600.0)"
+   }
+  },
+  {
+   "instance": 2,
+   "terms": 2003,
+   "edges": 3558,
+   "pct_multiparent": 55.62,
+   "d4": {
+    "failed": "TimeoutExpired(['/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4', '-dDNNF', '/tmp/tmp25rwlgpd/i2.cnf', '-out=/tmp/tmp25rwlgpd/i2.nnf'], 3600.0)"
+   }
+  },
+  {
+   "instance": 3,
+   "terms": 2005,
+   "edges": 3570,
+   "pct_multiparent": 55.66,
+   "d4": {
+    "failed": "TimeoutExpired(['/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4', '-dDNNF', '/tmp/tmp25rwlgpd/i3.cnf', '-out=/tmp/tmp25rwlgpd/i3.nnf'], 3600.0)"
+   }
+  }
+ ]
+}

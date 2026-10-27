@@ -1,0 +1,1848 @@
+===== PDF PAGE 1 =====
+Artiﬁcial Intelligence 311 (2022) 103753
+Contents lists available at ScienceDirect
+Artiﬁcial Intelligence
+www.elsevier.com/locate/artint
+Approximate weighted model integration on DNF structures ✩
+Ralph Abboud∗, ˙Ismail ˙Ilkan Ceylan, Radoslav Dimitrov
+Department of Computer Science, University of Oxford, Wolfson Building, Parks Road, Oxford OX1 3QD, UK
+a r t i c l e i n f o a b s t r a c t
+Article history:
+Received 5 August 2021
+Received in revised form 9 May 2022
+Accepted 27 June 2022
+Available online 30 June 2022
+Keywords:
+Weighted model integration
+Weighted model counting
+Approximations
+Probabilistic inference
+Weighted model counting consists of computing the weighted sum of all satisfying 
+assignments of a propositional formula. Weighted model counting is well-known to be #P-
+hard for exact solving, but admits a fully polynomial randomized approximation scheme 
+when restricted to DNF structures. In this work, we study weighted model integration, a 
+generalization of weighted model counting which involves real variables in addition to 
+propositional variables, and pose the following question: Does weighted model integration 
+on DNF structures admit a fully polynomial randomized approximation scheme? Building 
+on classical results from approximate weighted model counting and approximate volume 
+computation, we show that weighted model integration on DNF structures can indeed be 
+approximated for a class of weight functions. Our approximation algorithm is based on 
+three subroutines, each of which can be a weak (i.e., approximate), or a strong (i.e., exact) 
+oracle, and in all cases, comes along with accuracy guarantees. We experimentally verify 
+our approach over randomly generated DNF instances of varying sizes, and show that 
+our algorithm scales to large problem instances, involving up to 1K variables, which are 
+currently out of reach for existing, general-purpose weighted model integration solvers.
+© 2022 The Author(s). Published by Elsevier B.V. This is an open access article under the 
+CC BY license (http://creativecommons.org/licenses/by/4.0/).
+1. Introduction
+Model counting (MC) is the task of counting the number of satisfying truth assignments (i.e., models) of a given propo-
+sitional formula, and weighted model counting (WMC) generalizes this task by incorporating a weight distribution over the 
+set of truth assignments. Speciﬁcally, given a propositional formula, and a weight function that assigns every truth as-
+signment a weight, WMC is the problem of computing the total weight of the models of the input formula [1]. Typically,
+WMC is studied with weight functions, where the weight of each assignment factorizes into the weights of the individual 
+variable assignments. WMC plays a very fundamental role in artiﬁcial intelligence, as it provides a unifying approach for 
+encoding and solving different probabilistic inference problems that arise in various contexts, including probabilistic graphical 
+models [2], probabilistic planning [3], probabilistic logic programming [4], probabilistic databases [5], and probabilistic knowledge 
+bases [6].
+Despite its wide applicability in artiﬁcial intelligence, WMC can only capture problems in discrete domains, since the 
+whole formulation is based on Boolean variables. As a result, WMC cannot directly capture domains involving real variables, 
+which puts even simple inference tasks in partly (or, fully) continuous domains, such as analyzing the probability of discrete 
+✩ This paper is an invited revision of a paper which ﬁrst appeared at the 2020 International Conference on Principles of Knowledge Representation and 
+Reasoning (KR-20).
+* Corresponding author.
+E-mail addresses:ralph.abboud@cs.ox.ac.uk (R. Abboud), ismail.ceylan@cs.ox.ac.uk (˙I.˙I. Ceylan), radoslav.dimitrov@cs.ox.ac.uk(R. Dimitrov).
+https://doi.org/10.1016/j.artint.2022.103753
+0004-3702/© 2022 The Author(s). Published by Elsevier B.V. This is an open access article under the CC BY license 
+(http://creativecommons.org/licenses/by/4.0/).
+
+===== PDF PAGE 2 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+signals under Gaussian noise, beyond the scope of WMC. This observation has motivated the study of a generalization of
+WMC, known as weighted model integration (WMI)[ 7,8], which supports probabilistic inference in hybrid domains that consist 
+of a mixture of discrete and real variables, and interactions among them.
+The generalization of WMC to WMI is inspired by the generalization of the classical satisﬁability problem (SAT) to satisﬁ-
+ability modulo theories (SMT)[ 9]. While SAT is limited to discrete domains, SMT allows to reason about the satisﬁability of 
+formulas involving, e.g., linear constraints over reals. This is realized through an SMT formula, which additionally contains 
+real variables, and allows arithmetic statements (e.g., arithmetic (in)equalities) over these variables. Building on the founda-
+tions of SMT [9], WMI can be deﬁned in a natural way: given an SMT formula, and a weight function that deﬁnes a density
+for every truth assignment of the formula, WMI is the problem of computing the sum of integrals over the densities of 
+all the satisfying assignments of the SMT formula [8]. In other words, WMI replaces the propositional formula from WMC
+with an SMT formula, and accordingly asks to compute a sum of integrals over weight functions deﬁned over the satisfying 
+assignments of the SMT formula.
+One way of obtaining special classes of WMI is through appropriately restricting the class of input formulas, i.e., by 
+only allowing formulas in conjunctive normal form (CNF), or by only allowing formulas in disjunctive normal form (DNF). In 
+fact, WMC is widely studied in the literature relative to both CNF and DNF structures. For example, marginal inference in 
+Bayesian networks [10]c a n be reduced to WMC, by encoding the conditional dependencies from the network through a 
+propositional formula in CNF [11,12], while, e.g., conjunctive query evaluation on probabilistic databases can be reduced to
+WMC, by computing the lineage representation of the input query, which yields a propositional formula in DNF [5]. The 
+standard formulation of WMI assumes a formula in CNF as input, and to date, there is no study of WMI which is speciﬁcally 
+tailored to formulas in DNF. This is surprising, because both variants relate to different inference problems which occur in 
+various probabilistic data models.
+In what follows, we write WMI(CNF) and WMI(DNF) to distinguish between special cases of WMI, and follow a similar 
+convention for WMC. These problems are obviously #P-hard for exact solving, as is model counting over CNF and DNF
+structures [13]. For approximate solving, however, there is a strong contrast in computational complexity between variants 
+of weighted model counting problems: WMC(DNF) has a fully polynomial randomized approximation scheme (FPRAS) due to 
+Karp, Luby and Madras [14], producing polynomial-time approximations with guarantees, whereas WMC(CNF) is known to 
+be NP-hard to approximate, provided that RP ̸= NP [15]. The latter polynomial-time inapproximability result immediately 
+propagates to WMI(CNF), while the approximability status of WMI(DNF) remains open. In this paper, we are interested in 
+answering the following question: Does WMI(DNF) admit an FPRAS?
+We answer this question in the aﬃrmative, and provide an FPRAS for WMI(DNF) with probabilistic accuracy guarantees 
+for the case of concave weight functions. This result implies that WMI over DNF can be tractably approximated for a rich 
+class of input problems. The intuition behind this result is based on two observations, corresponding to special cases of 
+WMI(DNF). First, WMC(DNF), a special case of WMI(DNF) with no continuous variables, admits an FPRAS [14]. Second, the 
+special case of WMI(DNF) with constant weight functions, and without any Boolean variables, corresponds to computing 
+the volume of unions of convex bodies, and also admits an FPRAS [16]. Both of these approaches are based on the linear time 
+coverage algorithm [17], and are instrumental for our result.
+Our algorithm builds on these classical algorithms, and extends them, by allowing extra constructs essential for WMI, 
+while preserving the approximation guarantees. More concretely, our algorithm jointly handles Boolean and real variables, 
+and uses a natural encoding of SMT constraints and a concave weight function. Essentially, our algorithm views DNF clauses 
+analogously to convex bodies in volume computation [16], and handles Boolean variables analogously to Karp, Luby and 
+Madras [14], all while incorporating the weight function via weighted sampling techniques [18]. Overall, this algorithm 
+preserves the approximation guarantees provided by both approaches, and enables tractable approximations for WMI(DNF). 
+Our main contributions can be summarized as follows:
+–W e propose an eﬃcient approximation algorithm for WMI(DNF), called ApproxWMI, extending the algorithm of Bring-
+mann and Friedrich [16]. Our algorithm builds on the linear coverage algorithm [17], and incorporates Boolean variables 
+and weight functions through dedicated sampling procedures.
+–W e prove that ApproxWMI is an FPRAS when the weight functions for WMI(DNF) are concave, and can be factorized 
+into product of a real weight function and the weights of propositional literals, a common assumption in the literature. 
+We further provide asymptotic bounds for the running time of ApproxWMI.
+–W e then relax the weight factorization assumption, and propose an extended FPRAS, ApproxWMID. ApproxWMID runs 
+in polynomial time over concave weight functions, and naturally allows dependencies between Boolean and real vari-
+ables in the weight function through a more reﬁned sampling approach. As with ApproxWMI, we provide asymptotic 
+bounds for the running time of ApproxWMID.
+–W e experimentally verify our approach, using an exact oracle for computing the volume of a body. Our experiments 
+suggest that ApproxWMI eﬃciently solves large problem instances, including up to 1K variables, which are out of reach 
+for any existing general-purpose WMI solver.
+This work is an extended version of a conference paper which appeared in KR 2020 [19], containing all technical prelimi-
+naries, full proof details, and additional experiments. The rest of the paper is organized as follows. Section 2 is dedicated 
+to preliminaries, where we formally introduce our context and the problem of weighted model integration. In Section 3, we 
+2
+
+===== PDF PAGE 3 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+introduce ApproxWMI and prove the main results of this paper. We empirically verify ApproxWMI in Section 4. We review 
+the related work in Section 5, and conclude with a summary and discussions for future work in Section 6.
+2. Preliminaries
+We brieﬂy recall propositional logic, satisﬁability modulo theories and weighted model integration and introduce the notation 
+and the assumptions used throughout this work.
+2.1. Propositional logic, satisﬁability, and weighted model counting
+Let V be a (ﬁnite) set of Boolean variables (or, equivalently Boolean atoms). A literal is of the form p, or ¬p, where p ∈ V. 
+A conjunctive clause is a conjunction of literals, and a disjunctive clause is a disjunction of literals. A clause has width k if it 
+has exactly k literals. A formula φ is in conjunctive normal form (CNF) if it is a conjunction of disjunctive clauses, and it is 
+in disjunctive normal form (DNF) if it is a disjunction of conjunctive clauses. We say that a DNF (resp., CNF) has width k if it 
+contains clauses of width at most k. For instance, the formula (p1 ∧ p2 ∧¬ p3) ∨ (¬p1 ∧ p4) is a DNF with width 3.
+An assignment ν: V ↦→ B maps every variable to either 0( f a l s e ) , or 1( t r u e ) . An assignment νsatisﬁesa propositional 
+formula φ, denoted ν|=φ, in the usual sense, where |= is the propositional entailment relation. The satisﬁability prob-
+lem (SAT) is the task of deciding whether a given propositional formula φ has a satisfying assignment. Given a propositional 
+formula φ, its model count, denoted #φ, is the number of assignments νsatisfying φ. The weighted model count (WMC) of φ
+is deﬁned as:
+WMC(φ) =
+∑
+ν|=φ
+w(ν),
+where w : A ↦→ R is a weight function, and A is the set of all possible assignments. We denote by WMC(CNF) and WMC(DNF)
+the special cases of WMC, where the class of input formulas is restricted to CNF and DNF, respectively.
+2.2. Satisﬁability modulo theories
+The research ﬁeld concerned with the satisﬁability of formulas with respect to a background theory is called satisﬁa-
+bility modulo theories (SMT)[ 1]. Our context in this work is SMT on quantiﬁer-free formulas in the theory of linear real 
+arithmetic (LRA).
+In this context, we consider a set X of real variables in addition to the set V of Boolean variables. An LRA atom is deﬁned 
+over the real variables and is of the form:
+∑
+i
+γixi ⊿◁γ,
+where γ and γi are constant rational values, xi ∈ X, and ⊿◁ ∈ {<,≤,>, ≥,=,̸=} with their usual semantics. LRA atoms 
+deﬁne constraints over the real domain. For example, the LRA atoms x1 +x2 ≤ 4, x1 ≥ 0, x2 ≥ 0t o g e t h e r restrict the real 
+variables x1 and x2 to a two-dimensional triangle lying in the fully positive quadrant of R2.
+We write atoms(X, V) to denote the set of LRA or Boolean atoms over their respective domains X and V. As in proposi-
+tional logic, a literal is either an atom or its negation. We sometimes write LRA literal, or a Boolean literal, to distinguish the 
+literals depending on the domain of their corresponding variables.
+An SMT formula φ is a propositional formula over X and V, which is deﬁned as a Boolean combination of literals via 
+the logical connectives {¬, ∧, ∨, → , ↔} in the usual sense. We sometimes write φ(X, V) to denote a propositional formula 
+φ over X and V. Note that the CNF or DNF fragments of such formulas are deﬁned as before. If V =∅, then the domain is 
+fully continuous, and we say that φ is an LRA formula. Otherwise, if X =∅ then φ corresponds to a standard propositional 
+formula.
+Example 1. Consider the following formula, deﬁned over X ={x1, x2} and V ={ p1, p2}:
+φex = ((0 ≤ x1 ≤ 5) ∨¬ p1) ∧ (p2 ∨¬ (10 ≤ x1 +x2 ≤ 15)).
+This formula is deﬁned using 2 Boolean and 2 LRA literals. If we drop p1 and p2, we obtain a formula over only LRA 
+constraints.
+Analogously to the standard Boolean setting, a truth assignment ν: atoms(X, V) ↦→ B for a propositional formula φ maps 
+every atom to either 0( f a l s e ) , or 1( t r u e ) , and propositionally satisﬁesφ in the usual sense. However, truth assignments over 
+atoms(X, V) introduce a subtle difference relative to the standard deﬁnition. In particular, a propositional formula over X
+and V may have a propositionally satisfying truth assignment, but this assignment may yield inconsistency (i.e., infeasibility) 
+with respect to the LRA constraints in the formula. We illustrate this with an example.
+3
+
+===== PDF PAGE 4 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+Example 2. Recall the formula φex from Example 1, and consider the assignment ν, where
+ν(p1) =1, ν(p2) =0, ν(0 ≤ x1 ≤ 5) =1, ν(10 ≤ x1 +x2 ≤ 15) =0.
+It is easy to see that φex is propositionally satisﬁable. Observe that νalso satisﬁes the LRA constraints. Indeed, it implies that 
+0 ≤ x1 ≤ 5, and that either x1 +x2 >15 or x1 +x2 <10 holds. These constraints admit a solution, e.g., x1 =2, and x2 =30, 
+so can be satisﬁed given ν. In contrast, consider the following formula:
+φex′ = (1 ≤ x1 +x2 ≤ 4) ∧¬ p1 ∧ (x1 ≤− 2) ∧ (x2 ≤ 2).
+This formula is trivially propositionally satisﬁable by setting all atoms to true, and this satisfying assignment is unique. 
+However, this assignment yields inconsistent LRA constraints, since (x1 ≤− 2), (x2 ≤ 2) and (1 ≤ x1 + x2 ≤ 4) cannot be 
+satisﬁed simultaneously, i.e., they yield an empty solution set over R2. Hence, the LRA constraints of φex′ cannot be satisﬁed 
+by any propositionally satisfying truth assignment.
+We now formally deﬁne the satisﬁability of LRA atoms relative to a propositional truth assignment. A truth assignment 
+νis LRA-satisﬁableif the solution space to the set of linear inequalities induced by ν is non-empty. That is, propositional 
+formulas deﬁned over X and V have two satisﬁability criteria, namely conventional propositional satisﬁability, and LRA 
+satisﬁability. In fact, the classical SMT problem over LRA is to determine, for a given propositional formula φ(X, V), whether 
+there exists an LRA-satisﬁable assignment νsuch that ν|=φ.
+Observe that for any φ(X, V), any choice of a real assignment x to X and a Boolean assignment v to V, together yields 
+an assignment to φ (since this choice sets every atom in the universe to true or false). Hence, throughout the paper, 
+we consider propositional formulas φ(X, V) such that φ : (R|X| × B|V|) ↦→ B, and write φ(x, v) → 1t o denote a satisfying 
+assignment of φ.
+2.3. Weighted model integration
+We assume a set X ∈ Rn of n real variables, and a set V ∈ Rm of m Boolean variables. We consider propositional formulas 
+φ(X, V) such that φ : (Rn × Bm) ↦→ B, and weight functions w(X, V) such that w : (Rn × Bm) ↦→ R+.
+Given a propositional formula φ and a weight function w over X and V, the weighted model integral of φ over w is 
+deﬁned as:
+WMI(φ,w | X, V) =
+∑
+v∈Bm
+∫
+x∈Xφ,v
+w(x, v)dx, (1)
+where Xφ,v ={ x ∈ Rn | φ(x, v) → 1} denotes the set of all real valuations of X satisfying φ(x, v).
+In this deﬁnition, the weight function w is very general, and can contain arbitrary dependencies between (and among) 
+Boolean and real variables. Functions having such dependencies theoretically fall within the scope of WMI, but in practice 
+are highly intractable, and thus are rarely adopted. Therefore, it is common to employ simplifying assumptions over w, so as 
+to decompose and factorize it into more practically viable fragments. For WMC, a commonly used factorization is to assign 
+every Boolean variable its own independent weight, and formulate w(v) as:
+w(v) =
+∏
+p∈v
+wb(p),
+where wb(p) is the weight of Boolean literal p. An analogous factorization is also used for WMI (cf. Section 2.1 of [20]), 
+namely:
+w(x, v) = wx(x)
+∏
+p∈v
+wb(p), (2)
+where wx : Rn → R. Thus, the weight function in Equation (1)i s typically factorized into a product of a real variable weight 
+function wx and a product of individual Boolean literal weights, and we refer to this as the factorization assumption. In this 
+work, we additionally assume that wx and wb all return positive values, that is wx : Rn → R+ and wb : B → R+. We make 
+this restriction so as to align with volume computation (which necessarily returns a positive quantity) over real bodies, and 
+to easily map the weight function over Boolean variables to a probability distribution to be used for sampling. Indeed, if the 
+(positive) Boolean weights wb assigned to each variable do not deﬁne a distribution, then a simple normalization of literal 
+weights for each Boolean variable p is suﬃcient to recover a distribution. We now illustrate WMI computation under this 
+factorization with an example.
+Example 3. Consider the formula:
+φDNF = (p1 ∧ (0 ≤ x1 ≤ 5) ∧¬ p2) ∨ (p2 ∧¬ (2 ≤ x1 ≤ 4)),
+4
+
+===== PDF PAGE 5 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+where the range of x1 is 0 ≤ x1 ≤ 10, and the weight function w(x, v) = x1 · wb(p1) · wb(p2) with wb(p1) = 0.6, and 
+wb(p2) =0.1. We can compute the weighted model integral over this formula and weight function as:
+WMI(φDNF,w | X, V) =0.6 · (1 − 0.1) ·
+5∫
+0
+x1 dx1 +
+0.6 ·0.1 ·
+( 2∫
+0
+x1 dx1 +
+10∫
+4
+x1 dx1
+)
++
+(1 − 0.6) ·0.1 ·
+( 2∫
+0
+x1 dx1 +
+10∫
+4
+x1 dx1
+)
+= 11.15.
+Finally, weighted model integration is deﬁned on fragments of propositional logic in the obvious way, i.e., WMI over DNF
+formulas (resp. CNF formulas) is the weighted model integration problem where the class of input formulas is restricted to 
+formulas in DNF (resp., CNF).
+2.4. Approximations with guarantees
+Model counting problems are #P-hard [13]t o solve exactly, and thus are intractable for exact computation. As a result, 
+techniques for eﬃcient approximations to model counting have been devised, a special class of which being fully polynomial 
+randomized approximation schemes (FPRAS). Given a target error 0 < ϵ <1 and conﬁdence 0 <δ< 1, an FPRAS computes an 
+approximation ˆμ of the actual solution μ, in polynomial time w.r.t. the input, 1
+ϵ, and 1
+δ, such that
+Pr
+(
+μ(1 − ϵ) ≤ ˆμ ≤ μ(1 + ϵ)
+)
+≥ 1 − δ.
+For WMC(DNF), the Karp, Luby, and Madras [14]a l g o r i t h m (KLM), a special case of the Linear-Time Coverage (LTC) [17]
+algorithm, is an FPRAS. KLM is an iterative random sampling procedure, which samples assignments satisfying a random 
+clause in the input DNF, and then veriﬁes this assignment against another uniformly randomly selected clause, to compute 
+an unbiased estimator of the overall model count. More speciﬁcally, for a DNF φ with m (Boolean) variables and k clauses, 
+KLM runs T =8(1 + ϵ)klog(2
+δ) 1
+ϵ2 sampling iterations, to compute a successful trial count N, from which the estimator is 
+produced. At every trial, KLM performs the following steps:
+1. (Sampling) If no current sample assignment τ exists, then a random clause ci is selected with probability 
+Pr(ci)/ ∑k
+j=1 Pr(cj) (i.e., proportionally to its probability), where Pr(ci) = ∏
+p∈ci wb(p). Afterwards, τ is sampled uni-
+formly from the set of satisfying assignments for ci. More concretely, the variables appearing in ci are all set to make ci
+true, and all remaining variables are sampled using the weight function w. If τalready exists, then proceed to Step 2.
+2. (Veriﬁcation) Another clause c′ (which could be identical to ci) is uniformly randomly sampled with probability 1
+k , 
+and τis checked against c′. If τ|=c′, N is incremented and τis re-sampled. Otherwise, the sampled assignment τis 
+preserved, and re-used in the next trial.
+KLM returns T
+∑k
+j=1 Pr(cj)/kN as an estimate for WMC(DNF). Informally, this estimator is designed to count every dis-
+tinct satisfying assignment exactly once in expectation, and proportionally to its weight. This is done by making assignments 
+simultaneously satisfying multiple clauses, which are likelier to be sampled in Step 1, increase N more frequently. This low-
+ers the overall estimator, and levels out the contribution of such assignments relative to that of less prominent assignments. 
+In terms of running time, assignment checking in Step 2, as well as sampling in Step 1, run in O(m). Therefore, KLM runs 
+in time O(mT ) = O
+(
+mkϵ−2 log(1
+δ)
+)
+.
+In this work, we build on an FPRAS for volume computation over convex bodies [21]. For this problem, deterministic 
+solving is highly intractable. Indeed, given an n−dimensional real domain Rn, it is shown that no deterministic algorithm 
+with a running time of O(ncn), c < 1
+2, can even approximate the volume of convex bodies [22], which has led to the develop-
+ment of randomized alternatives. Randomization has proven key for producing polynomial-time approximations: following 
+an initial breakthrough FPRAS [23], which has prohibitive practical computational complexity, several more eﬃcient FPRAS 
+algorithms have been proposed. For this paper, we refer to the FPRAS by Lovàsz and Vempala [21], which currently has the 
+lowest computational complexity for the volume computation task. Given the highly involved nature of this FPRAS, we limit 
+ourselves to a high-level overview of the algorithm, and refer readers to the original paper for a detailed presentation.
+The Lovàsz and Vempala FPRAS is based on Multi-phase Monte Carlo. At every phase, the FPRAS approximates a ratio 
+between the volume of two convex bodies, where one body is contained in the other. Phases start with large, simpler 
+bodies, and in subsequent phases, volume ratios are approximately computed between ever smaller, more complex bodies, 
+until the target convex body is reached in the ﬁnal phase. For an n−dimensional space, the Lovàsz and Vempala FPRAS uses 
+5
+
+===== PDF PAGE 6 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+O∗(n) phases, where the asterisk denotes suppressed logarithmic factors, and at every phase, random walk algorithms such 
+as hit-and-run [18]a r e called over the convex bodies to approximate the ratio between their volumes. Since hit-and-run 
+runs in O∗(n3), the overall volume computation FPRAS runs in time O∗(n4).
+3. Approximate weighted model integration
+In this section, we propose ApproxWMI, an algorithm for WMI(DNF), and prove that it is an FPRAS given a con-
+cave weight function w formulated using the factorization assumption. ApproxWMI builds on ApproxUnion, an FPRAS 
+for approximately computing the volume of unions of convex bodies [16] which is based on LTC [17]. We ﬁrst introduce
+ApproxUnion.
+3.1. ApproxUnion: computing the volume of unions of convex bodies
+ApproxUnion is an FPRAS for computing the volume of the union of convex bodies. More formally, given k convex 
+bodies B1, ..., Bk, ApproxUnion returns an approximation of the volume of ⋃k
+i=1 Bi, denoted Vol(⋃k
+i=1 Bi) with conﬁdence 
+1 − δand error ϵ. Fundamentally, ApproxUnion is based on LTC, similarly to KLM: it uses an iterative sampling procedure, 
+consisting of (i) sampling points and (ii) verifying them against a uniformly sampled convex body. However, ApproxUnion
+additionally introduces an initial volume computation step, to estimate the volumes of all individual bodies, and allows 
+errors in its computations. That is, volume computation, sampling and veriﬁcation can return results with errors, so long as 
+these errors can be made arbitrarily small. More speciﬁcally, ApproxUnion is an FPRAS if volume computation, sampling 
+and veriﬁcation are each an FPRAS. Hence, ApproxUnion tolerates the use of “weak” oracles producing approximate results, 
+while maintaining probabilistic guarantees on its outputs. We now present ApproxUnion in detail.
+Initially, ApproxUnion approximately computes the volume of every convex body, yielding estimates with multiplicative 
+error ϵV relative to the exact body volume, using an oracle VolumeQuery. Unlike KLM, where clause probabilities can 
+be trivially computed, volume computation is a costly operation, which requires a dedicated FPRAS to be approximated 
+in polynomial time. Once all approximate convex body volumes are computed, ApproxUnion then performs T iterative 
+sampling procedure steps to compute an estimator for the volume of the union of convex bodies. An ApproxUnion sampling 
+iteration is as follows:
+1. (Sampling) If no sample point τ exists, sample a body Bi with probability Vol(Bi)/ ∑k
+j=1 Vol(Bj), and then approxi-
+mately uniformly sample τfrom Bi using an oracle SampleQuery with error ϵS. Otherwise, if τalready exists, proceed 
+to Step 2.
+2. (Veriﬁcation) Check whether τ belongs to another uniformly randomly chosen body B′ using another approximate 
+oracle, PointQuery, with error ϵP. If τ∈B′, a new point τis sampled in Step 1, and N is incremented. Otherwise, τis 
+re-used in the next trial.
+We observe two main differences relative to KLM. First, we note that sampling points in a convex body differ from
+assignment sampling for KLM clauses, in that (i) it is uniform across points in convex bodies, so does not assign distinct 
+weights to different assignments and (ii) requires a dedicated query SampleQuery with its own error ϵS to perform sam-
+pling. Uniformity stems from the nature of volume computation, since all regions of a body contribute identically to its 
+overall volume, whereas the need for a dedicated SampleQuery is due to the complexity of point sampling in an arbitrary 
+convex body. Indeed, given the factorization assumption, assignment sampling in KLM can be trivially performed through 
+Bernoulli trials, whereas uniform point sampling in a convex body requires advanced subroutines in the general case.
+The second main difference in ApproxUnion relative to KLM is the complexity of membership veriﬁcation. More speciﬁ-
+cally, ApproxUnion veriﬁes membership of a point relative to a convex body, which is non-trivial for general convex bodies, 
+whereas KLM simply matches Boolean variables to target values.
+Following T sampling iterations, ApproxUnion returns T
+∑k
+j=1 Vol(Bj)/kN as an estimate of Vol(⋃k
+i=1 Bi). ApproxUnion
+is an FPRAS for the volume computation of a union of convex bodies under certain conditions, as stated in Theorem 2 of that 
+work [16], and these conditions are satisﬁed with closed-form bounds from Lemma 3 of the same work. More concretely, 
+the following result holds:
+Theorem 1 (Theorem 2 and Lemma 3, [16]). ApproxUnion relative to oracles VolumeQuery, SampleQuery, PointQuery with errors 
+ϵV , ϵS, and ϵP respectively, is an FPRAS for Vol(⋃k
+i=1 Bi) with error ϵ and conﬁdence 1
+4 using T = 24ln(2)(1+˜ϵ)k
+˜ϵ2−8(˜C−1)k iterations, with 
+˜ϵ = ϵ−ϵV
+1+ϵV
+and ˜C = (1+ϵS )(1+ϵV )(1+kϵP )
+(1−ϵV )(1−ϵP ) , for ϵV , ϵS ≤ ϵ2
+47k, and ϵP ≤ ϵ2
+47k2 .
+Furthermore, when this theorem holds, T is O( k
+ϵ2 ). In summary, ApproxUnion generalizes LTC to allow errors within 
+sampling, membership checking, and volume computation, so long as these can be made arbitrarily small, and computes 
+unions of continuous sets. However, ApproxUnion does not allow for conﬁdence parameters in the oracles, but this can be 
+trivially extended to allow for FPRAS oracles having conﬁdence δ, as stated earlier, using standard tools of probability, as we 
+now show in the following corollary.
+6
+
+===== PDF PAGE 7 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+Corollary 2. ApproxUnion relative to FPRAS oracles VolumeQuery, SampleQuery, and PointQuery with errors ϵV , ϵS, ϵP and 
+conﬁdence values δV , δS, δP, respectively, is an FPRAS with error ϵand conﬁdence δfor Vol(⋃k
+i=1 Bi)using T =
+8ln(8
+δ)(1+˜ϵ)k
+˜ϵ2−8(˜C−1)k iterations, 
+for
+1. ϵV , ϵS ≤ ϵ2
+47k, ϵP ≤ ϵ2
+47k2 , and
+2. δV ≤ δ
+4k, δS + δP ≤ δ
+2276ln(8
+δ) k
+ϵ2
+.
+Proof. We use the worst-case assumption that a single failure of any oracle, or a failure of the sampling procedure, implies 
+the failure of ApproxUnion. Hence, we seek to upper-bound the union of these failure probabilities by δto ensure that
+ApproxUnion is an FPRAS.
+In Lemma 3 of [16], it is shown that Condition 1 is suﬃcient for reliable but weak oracles VolumeQuery, SampleQuery, 
+and PointQuery, to ensure ApproxUnion meets the ϵ error requirement with probability 3
+4. Hence, we now need to prove 
+that, given unreliable oracles satisfying Condition 2, and failure probability of the LTC sampling procedure generalized from 
+1
+4 to a value δ1 <δ, ApproxUnion also meets the conﬁdence requirement δ, and is therefore an FPRAS for computing the 
+union of convex bodies.
+The generalization of the failure probability of sampling from 1
+4 to δ1 <δ can be achieved using standard probability 
+ampliﬁcation techniques, namely by multiplying the required number of trials T speciﬁed in Theorem 1 by 1
+3ln(2) ln( 2
+δ1
+), 
+yielding T as speciﬁed in Corollary 2. We can now upper-bound the failure probability of the LTC sampling procedure, 
+denoted fLTC, by setting δ1 = δ
+4, which yields the value of T shown in Corollary 2.
+Given δ1 = δ
+4, a failure probability of 3δ
+4 remains, and shall be allocated for all possible oracle failures. We now show 
+that the conﬁdence requirements stated in Condition 2 perform this allocation and indeed upper-bound any oracle failure 
+probability by 3δ
+4 , as required:
+Let fV denote the failure of any call to VolumeQuery, fS the failure of any call to SampleQuery, and fP the failure of 
+any call to PointQuery. Furthermore, let f denote the overall failure probability of ApproxUnion. Given that VolumeQuery
+is called k times within ApproxUnion, setting δV ≤ δ
+4k yields, by the union bound:
+Pr(fV ) ≤ kδV = δ
+4.
+Within ApproxUnion, PointQuery is called T times, whereas SampleQuery can be called up to T times, depending on the 
+success of PointQuery at the previous iteration. We assume the worst-case and consider that SampleQuery is called T
+times. Applying the union bound with the bound on δP and δS as speciﬁed in Condition 2 yields:
+Pr(fP ∨ fS) ≤ T(δS + δP ) ≤ T δ
+2276ln(8
+δ) k
+ϵ2
+.
+We now use the bound from Lemma 3 in [16], which gives that, under Condition 1, T <2365 k
+ϵ2 for failure probability 1
+4. 
+Generalizing this bound for an arbitrary δ1 gives T < 2365
+3ln(2) ln( 2
+δ1
+) k
+ϵ2 < 1138 ln(8
+δ) k
+ϵ2 . Replacing T with this bound in the 
+failure probability yields:
+Pr(fP ∨ fS) ≤ δ
+2.
+Finally, using the union bound to upper-bound the overall ApproxUnion failure probability yields:
+Pr(f ) ≤ Pr(fV ∨ fP ∨ fS) +Pr(fLTC) ≤ δ
+4 + δ
+2 + δ
+4 = δ,
+as required. /Box
+3.2. ApproxWMI
+We now introduce ApproxWMI (Algorithm 1), an FPRAS for WMI(DNF) given a concave and factorized weight function 
+w. More precisely, a function w is concave if ∀x, y ∈ Rn, and λ ∈[0, 1],
+λw(x) + (1 − λ)w(y) ≤ w(λx + (1 − λ)y),
+and w is factorized when it can be formulated using the factorization assumption. Fundamentally, the factorization assump-
+tion simpliﬁes the initial computation of clause weights, and subsequent sampling from formula clauses, whereas concavity 
+ensures that the weight function restricts the scope of any volume computation in ApproxWMI only to convex bodies, en-
+abling the use of the corresponding FPRAS algorithms. We now provide an overview of ApproxWMI, and show that it is an 
+FPRAS for WMI(DNF).
+7
+
+===== PDF PAGE 8 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+Algorithm 1 ApproxWMI for WMI(DNF).
+Input: X: a set of n real variables; V: a set of m Boolean variables; φ: a DNF consisting of k clauses ci, i ∈{1, ..., k}; w: a concave factorized weight 
+function.
+Parameters: ϵ: error, δ: conﬁdence.
+Output: An (ϵ, δ)-approximation of WMI(φ, w | X, V).
+1: T ←
+8ln(8
+δ)(1+˜ϵ)k
+˜ϵ2−8(˜C−1)k ⊿ T is O( k
+ϵ2 ln(1
+δ)) [16]
+2: δV ← δ
+4k , δS ← δ
+2276ln(8
+δ) k
+ϵ2
+⊿ Subroutine conﬁdence parameters
+3: for a ← 1t o k do
+4: Ua ← ClauseWeight(ca, w, X, V)[ ϵ2
+47k ,δ V ] ⊿ Clause weight computation
+5: U ← ∑k
+a=1 Ua
+6: time ← 0, N ← 0
+7: while time <T do ⊿ Sampling trials
+8: Randomly  select ci, i ∈{1, ..., k} with probability Ui
+U
+9: (x, v) ← Sample(ci, w, X, V)[ ϵ2
+47k ,δ S ]
+10: csat ← false
+11: while ¬csat do
+12: Uniformly  select cj, where j ∈{1, ..., k}
+13: time ← time +1
+14: if time ≥ T then ⊿ If T reached during trial
+15: return TU /kN
+16: if Evaluate(cj, x, v) then ⊿ Membership checking
+17: csat ← true, N ← N +1
+18: return TU /kN
+Algorithm 2 Subroutines of ApproxWMI as functions ClauseWeight, Sample, and Evaluate.
+1: function ClauseWeight(c, w, X, V)[ϵ, δ]
+2: wBool ← ∏
+p∈vc wb(p) ⊿ Boolean weight based on set vc of Boolean literals from c
+3: Introduce  a new variable d in X ⊿ Include weight function via auxiliary variable
+4: X′
+c ← Xc ∧ (x ∈ Rn, 0 ≤ d ≤ wx(x)) ⊿ Xc is the convex polytope induced by the clause c
+5: wReal ← Volume(X′
+c )[ϵ, δ]⊿ Resulting body volume automatically factors in wx
+6: return wBool · wReal ⊿ Return product as clause weight
+7:
+8: function Sample(c, w, X, V)[ϵ, δ]
+9: v ← sample from V respecting vc and wb ⊿ Bernoulli Boolean sampling respecting vc
+10: Introduce  a new variable d in X ⊿ Auxiliary variable to reduce to uniform sampling
+11: X′
+c ← Xc ∧ (x ∈ Rn, 0 ≤ d ≤ wx(x))
+12: x ← ConvexBodySampler(X′
+c )[ϵ, δ]1:n ⊿ Sample from X′
+c and drop last dimension
+13: return (x, v) ⊿ Return the samples as output
+14:
+15: function Evaluate(c, x, v)
+16: Compute  convex polytope Xc from c
+17: if x  ̸| =Xc then return false ⊿ Polytope membership
+18: if v  ̸| =c then return false ⊿ Boolean satisﬁability
+19: return true
+Overview of A PPROX WMI. Given a DNF φ over X and V deﬁned using propositional and LRA atoms, and a concave, fac-
+torized weight function w, ApproxWMI computes an (ϵ, δ)−approximation of WMI(φ,w | X, V). ApproxWMI is based on
+ApproxUnion, and extends its oracle functions to allow unreliable oracles, hybrid domains, and factorized concave weight 
+functions over convex bodies.
+First, ApproxWMI sets essential parameters, namely the number of sampling iterations T (line 1) and conﬁdence tar-
+gets for subsequent clause weight computation (i.e., the WMI analog of volume computation in ApproxUnion) and point 
+sampling operations (line 2) based on overall target error ϵ, conﬁdence δ and the number of clauses k. Then, Approx-
+WMI computes the weighted model integral for every clause in φ given w, using the function ClauseWeight (lines 3-4).
+ClauseWeight is analogous to VolumeQuery in ApproxUnion, but additionally considers the effect of w on the integral and 
+supports discrete variables in V. ClauseWeight yields estimates of individual clause WMI with error ϵ2
+47 and conﬁdence δV .
+Following calls to ClauseWeight for all k clauses in φ, T sampling iterations are conducted to compute the LTC estimator 
+(lines 7-18). To this end, the disjoint universe weight is initially computed (line 5), and the corresponding iteration counter 
+time and success counter N are initialized (line 6). In a sampling trial, a random clause ci is selected with probability pro-
+portional to its weight Ui, and then a point (x, v) is sampled from ci according to w using the function Sample (lines 8-9). 
+Using the factorization assumption, Sample independently samples Boolean (v) and real (x) variables satisfying ci. After-
+wards, another clause cj (possibly ci), is uniformly chosen from φ (line 12), and the point (x, v) is checked for membership 
+to cj via the function Evaluate (line 16). Evaluate separately validates Boolean and real components of the sampled point, 
+and, in case of membership in both domains, the variable N is incremented (line 17).
+We now explain the subroutines ClauseWeight, Sample, and Evaluate in detail. The pseudo-codes for these subroutines 
+are shown in Algorithm 2.
+8
+
+===== PDF PAGE 9 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+CLAUSE WEIGHT . This function returns an (ϵ, δ)−approximation of WMI(c, w | X, V) for a given clause c and weight function 
+w over the domains X, V. Owing to the factorization assumption, ClauseWeight separately processes computation over X
+and V. For the Boolean sub-domain, ClauseWeight computes wBool as the product of probabilities for all Boolean literals p
+appearing in c (line 2), analogously to the right-hand-side product described in Equation (2).
+For the real sub-domain, ClauseWeight computes the integral of wx over the convex polytope deﬁned by the LRA 
+constraints of c. At a high level, this is achieved by introducing the concave weight function over the polytope as an 
+additional convex dimension, which creates a new n +1-dimensional convex body (lines 3-4), and subsequently computing 
+the volume of this new body using existing volume computation tools to yield the weighted integral (line 5).
+More speciﬁcally, let Xc denote the n-dimensional convex polytope induced by the LRA constraints of c. This body is fully 
+determined by the LRA constraints and literals of c, but additionally covers the full domain of deﬁnition for all real variables 
+not appearing in c. To compute the integral of w over Xc, we introduce an additional n +1th dimension, represented by 
+dummy variable d, and constrain this dimension by limiting its value to the range 0 ≤ d ≤ wx(x), for x ∈ Rn. We denote the 
+resulting body as X′
+c (line 3). Observe that the introduction of d reduces the current weighted integral formulation into a 
+standard volume computation. Indeed, w is incorporated into X′
+c via d and its corresponding constraint, and it is clear that 
+computing the integral of X′
+c corresponds to computing the weighted integral of Xc given w. Hence, the weighted integral 
+over Xc can be computed as a standard integral over X′
+c.
+We also observe that the additional constraint on d is convex, since wx is concave. Thus, X′
+c is a convex body, since 
+Xc is a convex polytope. Note however, that X′
+c is not necessarily a polytope, as wx can be an arbitrary concave function. 
+In fact, X′
+c is a polytope if and only if wx is a linear function. Nonetheless, the general convexity of X′
+c is suﬃcient, as it 
+enables the computation of its volume using known FPRAS algorithms designed for convex bodies [21,24], represented by 
+the function Volume. Therefore, the output of Volume, wReal, corresponds to the weighted integral of Xc given w. Finally,
+ClauseWeight returns the product of lines 2 and 5 as its estimate for WMI(c,w | X, V) (line 6).
+SAMPLE . This function samples a point (x, v) over the domain X ∪ V from a given clause c and a weight function w. Based 
+on the factorization assumption, it separately performs sampling over Boolean and real sub-domains. For the Boolean sub-
+domain, a Boolean assignment v satisfying c is sampled by (i) setting all Boolean literals appearing in c to their required 
+values and (ii) randomly sampling all remaining variables according to wb (line 9), which corresponds to independent 
+Bernoulli sampling for each variable based on its deﬁned truth probability.
+For the real sub-domain, an analogous transformation from Xc to a convex body X′
+c as in ClauseWeight (lines 10-11) 
+is used to incorporate w and reduce the sampling problem to a uniform setting. Afterwards, Sample samples a point 
+approximately uniformly from X′
+c, using standard sampling approaches for convex bodies such as hit-and-run [18], denoted 
+by ConvexBodySampler (line 12). It then discards the n +1th dimension of this point to yield an approximate sample x
+from Xc weighted according to w. Finally, Sample returns the outputs of lines 9 and 12 as a sample from c (line 13).
+EVALUATE . This function determines the membership of a point (x, v) ∈ Rn × Bm to a clause c. Speciﬁcally, it checks the 
+membership of (x, v) to the polytope Xc deﬁned by c in two steps: Evaluate ﬁrst veriﬁes the real component x, i.e., that 
+all the LRA constraints of c are satisﬁed (line 17), and then veriﬁes the Boolean component v (line 18). If both conditions 
+are met, then (x, v) satisﬁes c. Unlike the earlier two functions, Evaluate is deterministic, and its outputs have no attached 
+uncertainty.
+3.3. ApproxWMI is an FPRAS
+We show the correctness of ApproxWMI, and prove that, under the error and conﬁdence settings presented in Al-
+gorithm 1, it is an FPRAS for WMI(DNF) with concave weight functions w respecting the factorization assumption. As
+ApproxWMI builds on ApproxUnion, and replaces its oracles with speciﬁc WMI analogs for volume computation within a 
+DNF conjunctive clause, point sampling and membership checking respectively, the proof shows that all three ApproxWMI
+oracles correctly estimate their target values and can all produce approximations within the error and conﬁdence bounds 
+derived in Corollary 2.
+More concretely, the proof shows that ClauseWeight correctly computes an (ϵV , δV )−approximation of WMI(c, w | X, V), 
+and meets the conditions of Corollary 2. Then, the proof shows that Sample is correct, by showing that uniform sampling 
+from X′
+c and discarding the ﬁnal dimension is equivalent to sampling from Xc according to w, and establishes the suﬃciency 
+of running ConvexBodySampler with parameters ϵS and δS to satisfy Corollary 2. Finally, the correctness and satisfaction of 
+Corollary 2 for Evaluate are trivially shown. We now formally state our result, and provide its complete proof.
+Theorem 3. ApproxWMI relative to FPRAS oracles ClauseWeight, Sample, and Evaluate having error ϵV , ϵS, ϵP and conﬁdence δV , 
+δS, δP, respectively, is an FPRAS for WMI(DNF) over a concave and factorized weight function w, with error ϵ and conﬁdence δand 
+using T =
+8ln(8
+δ)(1+˜ϵ)k
+˜ϵ2−8(˜C−1)k iterations, for
+1. ϵV , ϵS ≤ ϵ2
+47k, ϵP ≤ ϵ2
+47k2 , and
+2. δV ≤ δ
+4k, δS + δP ≤ δ
+2276ln(8
+δ) k
+ϵ2
+.
+9
+
+===== PDF PAGE 10 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+Proof. The difference between ApproxUnion and ApproxWMI lies in the implementation of task-speciﬁc oracles for WMI. 
+Therefore, it is suﬃcient to show that all oracles in ApproxWMI satisfy the requirements of Corollary 2 to reach the desired 
+result.
+CLAUSE WEIGHT . We ﬁrst show the correctness of ClauseWeight for computing WMI(c, w | X, V) given a concave and factor-
+ized w. Let v |=c be a Boolean assignment satisfying the Boolean literals of c, Xc be the convex polytope deﬁned by the 
+LRA constraints of c, and vc be the set of Boolean literals appearing in c. Given a factorized w, WMI over c reduces to:
+WMI(c,w | X, V) =
+∑
+v|=c
+∫
+Xc
+w(x, v)dx
+=
+∑
+v|=c
+∫
+Xc
+wx(x)
+∏
+p∈v
+wb(p)dx
+=
+∑
+v|=c
+∏
+p∈v
+wb(p)
+∫
+Xc
+wx(x)dx
+=
+( ∏
+p∈vc
+wb(p)
+) ∫
+Xc
+wx(x)dx.
+Note that the separation of the sum from the integral in the last step is possible because the body Xc is constant across 
+all Boolean assignments, since c is a conjunction of atoms enforcing a unique set of real constraints. Hence, the WMI
+of c given a factorized, concave w amounts to a product computation of Boolean literal probabilities plus a weighted 
+integral computation over Xc in the real domain Rn. In ClauseWeight, the product computation corresponds to line 2, 
+whereas weighted integral computation corresponds to lines 4 and 5. Weighted integral computation is performed using a 
+transformation of Xc to X′
+c, as described in Section 3.2, and it is trivial to prove that the volume of X′
+c is equivalent to the 
+weighted integral of Xc. Therefore, ClauseWeight indeed returns an approximation for WMI(c, w | X, V).
+We now show that ClauseWeight meets the error and conﬁdence criteria of Corollary 2. Multiplication of Boolean 
+weights is error-free, hence it is necessary and suﬃcient that the call to Volume have error and conﬁdence upper-bounded 
+by ϵV and δV respectively, as is the case in Algorithm 1, for ClauseWeight to meet the requirements of Corollary 2.
+SAMPLE . We ﬁrst show that sampling from the transformation result X′
+c is equivalent to sampling from Xc according to w. 
+Let x′ be a real assignment sampled uniformly from X′
+c ∈ Rn+1, and let x be x′ with the last dimension omitted i.e., x′
+1:n. 
+The weight of x is therefore given by:
+wx(x)∫
+0
+1dxn+1 ∼ wx(x),
+as required. This implies that, when X′
+c is successfully sampled with multiplicative error ϵS, x is sampled over Xc given 
+weight function w with the same error. We now show that Sample meets the requirements of Corollary 2. Boolean variable 
+sampling, corresponding to line 9, occurs with zero error. Hence, it is necessary and suﬃcient to run ConvexBodySampler
+with parameters ϵS and δS satisfying Condition 2 of Corollary 2, to ensure Sample meets the requirements. This is indeed 
+the case with Sample, since ConvexBodySampler is called with parameters ϵS and δS, as speciﬁed in Algorithm 1, and these 
+parameters meet Condition 2. In particular, δP =0, since Evaluate is deterministic, hence δS = δ
+2276ln(8
+δ) k
+ϵ2
+is the largest δS
+satisfying Condition 2.
+EVALUATE . This function is deterministic, so trivially meets error and conﬁdence requirements. The function is also clearly 
+correct.
+Hence, ApproxWMI is an FPRAS for WMI given a concave and factorized w and given FPRAS functions ClauseWeight
+and Sample, and the deterministic Evaluate. /Box
+As with ApproxUnion, ApproxWMI does not rely on speciﬁc conﬁgurations of its oracles for correctness, but only on their 
+approximation properties. Indeed, ApproxWMI can be run with exact oracles, or with approximate weak oracles where error 
+and conﬁdence can be made arbitrarily small, and will provide probabilistic guarantees in both scenarios. The approximation 
+ability of ApproxUnion is only affected once weak oracles cannot be made arbitrarily accurate (e.g., heuristics), which would 
+bound the algorithm to minimum error values, or eliminate guarantees entirely.
+In terms of running time, ApproxWMI strongly depends on the running time of its chosen oracles, as well as the required 
+error and conﬁdence for its guarantees. More speciﬁcally, for ClauseWeight runtime rC, Sample runtime rS, and Evaluate
+runtime rE, ApproxWMI runs in O(k ·rC +T(rS +rE)). Though desired error ϵ and conﬁdence δdirectly affect this running 
+time via the number of sampling iterations T, they can also indirectly affect approximate oracle runtimes, leading to even 
+10
+
+===== PDF PAGE 11 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+higher computational requirements. Nonetheless, when every oracle is an FPRAS, ApproxWMI runs in polynomial time, 
+yields the required guarantees, and thus is itself an FPRAS.
+We now concretely illustrate the running time of ApproxWMI using the most general setting of its oracles, allowing 
+for arbitrary convex bodies, and for concave and factorized w. In this setting, we can use the algorithm of Lovàsz and 
+Vempala [21]a s the Volume oracle in ClauseWeight, and hit-and-run for ConvexBodySampler [18]. These choices make
+ClauseWeight run in time O∗(m +n4( 1
+ϵV
+)2), Sample run in time O∗(m +n3( 1
+ϵS
+)2), where m is the number of Boolean 
+variables, n is the number of real variables, and * denotes suppressed logarithmic factors (including, in particular, conﬁdence 
+terms). Since Evaluate runs in O(m +Wn), where W is the width of a conjunction c, ApproxWMI therefore runs in time:
+O∗
+(
+km +kn4( 1
+ϵV
+)2 +Tm +Tn3( 1
+ϵS
+)2 +T(m +Wn)
+)
+.
+Using the bounds T = O( k
+ϵ2 ln(1
+δ)), ϵV = O(ϵ2
+k ), and ϵS = O(ϵ2
+k ) from Theorem 3, we obtain the complexity:
+O∗
+(
+km + k3
+ϵ4n4 + k
+ϵ2m + k3
+ϵ6n3 + k(Wn +m)
+ϵ2
+)
+= O∗
+(k3
+ϵ4n4 + k3
+ϵ6n3 + k
+ϵ2 (m +Wn)
+)
+.
+Note that the time complexity of Sample can be reduced by restricting the class of bodies and weight functions used. 
+Indeed, if w is restricted to be linear, e.g., 3x1 +2x2 − x4, then all bodies can be sampled approximately using optimized 
+polytope sampling methods such as geodesic walks [25], which can run signiﬁcantly faster for bodies deﬁned with a small 
+number of LRA constraints. Further to this, box-shaped bodies, deﬁned with LRA constraints having only one variable, and 
+a constant, uniform w, are an instance of unweighted model integration, and can be trivially sampled. Nonetheless, we 
+assume the general case of convex bodies in this work, and build our algorithm accordingly.
+In addition to naturally running over standard WMI formulations with LRA constraints, ApproxWMI can also apply 
+to WMI instances deﬁned with other theories, so long as these theories deﬁne convex bodies in individual DNF clauses. 
+For instance, ApproxWMI also applies to WMI with concave polynomial constraints over real variables, a theory strictly 
+subsumed by the theory of non-linear real arithmetic (NRA), but which strictly contains LRA. Hence, ApproxWMI can capture 
+a richer class of WMI formulations, at no additional computational cost.
+Nonetheless, ApproxWMI is limited to concave, factorized weight functions by construction: concavity is needed 
+to ensure the convexity of the intermediate bodies, and the factorization assumption is essential to computations in
+ClauseWeight and Sample. Unfortunately, relaxing the concavity requirement does not currently look promising, as we 
+run into intractable computational tasks, such as arbitrary body volume computation, which typically do not have computa-
+tionally feasible approximation schemes. Therefore, in our subsequent study of WMI, we focus on generalizing ApproxWMI
+in a tractable fashion, for instance through relaxing the common factorization assumption, so as to tackle more general 
+weight functions allowing dependencies between Boolean and real variables.
+3.4. Extending ApproxWMI: ApproxWMID
+In Section 3.2, we presented ApproxWMI, an FPRAS for WMI over DNF formulas given a factorized and concave weight 
+function w. The factorization of the weight function simpliﬁes WMI, in that (i) it makes Boolean variable weights inde-
+pendent from real variables, and (ii) simpliﬁes the joint distribution over Booleans to a product distribution. However, this 
+factorization prevents any interaction between Boolean and real variables, which limits the representation power of the 
+weight function. Even simple weight functions cannot be captured using the factorization assumption, as we illustrate next.
+Example 4. Consider X ={x1}, V ={ p1} and the following weight function:
+w(x, v) =
+{
+2x1 if p1,
+1o t h e r w i s e .
+It is easy to see that this weight function invalidates the factorization assumption, as the real component weight changes 
+based on v.
+To alleviate the limitations of this factorization, it has been proposed to deﬁne separate weight functions over mutually 
+exclusive Boolean partitions of the problem domain, and subsequently solve the WMI problem separately over each of these 
+partitions [20]. For instance, in our example, one can deﬁne two weight functions w0(x) =2x1 and w1(x) =1, correspond-
+ing to the different truth values of each possible Boolean assignment, solve the corresponding problems and subsequently 
+aggregate their results. Through this partitioning scheme, the hybrid domain is separated into subspaces where dependen-
+cies do not exist, and therefore where the factorization assumption applies. However, this partitioning can produce up to 
+2|V| sub-problems, and that makes this separation approach intractable in practice.
+In this section, we extend the applicability of ApproxWMI to more general weight functions allowing for such depen-
+dencies, while maintaining tractability. More concretely, we study weight functions:
+11
+
+===== PDF PAGE 12 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+w(x, v) = wx(x, v)
+∏
+p∈v
+wb(p), (3)
+where wx also depends on Boolean variables (unlike Equation (2)), allowing the aforementioned dependencies.
+First, we note that this factorization is very general, as the wx term alone is suﬃcient to capture any arbitrary weight 
+function, and therefore it can clearly capture w(x, v) in Example 4. In fact, it is only a factorization in that it maintains 
+independence between Boolean variables, and thus reduces the joint distribution over these variables to a product distribu-
+tion.
+In this more general setting, we build on ApproxWMI, and propose an FPRAS ApproxWMID that naturally incorporates 
+the additional dependencies supported by Equation (3). ApproxWMID modiﬁes clause weight computation to consider mul-
+tiple different randomly sampled Boolean assignments per clause, and aggregates results for these assignments to yield 
+an approximate overall clause weight. It also extends point sampling to respect the different distributions which distinct 
+Boolean variable assignments may impose.
+Prior to introducing ApproxWMID, we ﬁrst introduce some key notation and concepts. As earlier, let Xc ⊆ Rn be the 
+convex polytope induced by the LRA constraints of a clause c, v ∈ Bm be a Boolean assignment, and wx be the hybrid 
+component of weight function w, deﬁned following Equation (3). We now deﬁne two functions a and b that map all 
+subsets of Rn to positive real values. Intuitively, these functions will act as lower and upper bounds for the integral of wx
+such that, for any subset of Rn, the integral of wx over this subset will be bounded by a and b, for all possible Boolean 
+assignments.
+In deﬁning a and b, we aim to capture the variability of wx relative to changes in the Boolean domain. This variability, 
+introduced by our generalization of w, directly impacts the sample complexity needed to approximate the weight of a given 
+clause, and thus we deﬁne a and b to threshold the range of wx, and maintain a tractable number of random samples 
+needed for clause weight computation in ApproxWMID.
+Formally, we deﬁne a, b : P(Rn) ↦→ R+, where P denotes the power set operation, such that
+a(Xc) =min
+v
+∫
+Xc
+wx(x, v)dx, and
+b(Xc) =max
+v
+∫
+Xc
+wx(x, v)dx.
+We ﬁrst note that the minimum and maximum functions a and b exist, as the Boolean domain Bm only deﬁnes a ﬁniteset 
+of 2m distinct possible values for the integral of wx(x, v). We also note that a and b are ﬁnite-valued since all our WMI
+integral computations are ﬁnite-valued, as continuous variables are bounded. As a result, the bound functions a and b exist 
+for the integral of any function wx (with ﬁnite density over Rn), over any subset of Rn, in particular a convex polytope Xc. 
+This translates to the following statement:
+∀Xc ∈ P(Rn),∃a,b,∀v ∈ Bm : P(Rn) ↦→ R+,a(Xc) ≤
+∫
+Xc
+wx(x, v)dx ≤ b(Xc). (4)
+Using a and b, we now deﬁne the maximum ratio ρ, to better study the variability of wx:
+ρ=max
+c
+b(Xc)
+a(Xc).
+Intuitively, ρ implicitly produces a range of integral values for wx given a convex polytope Xc. More concretely, if wx
+yields an integral value I for Xc for a given Boolean assignment v, then wx cannot produce integrals over Xc with a different 
+assignment v′ that are larger than ρI, or smaller than I
+ρ. Hence, ρcorrelates directly with Boolean-real dependency. In fact, 
+the special case ρ=1, its minimum possible value, corresponds to independence between Boolean and real variables, and 
+thus to wx deﬁned using the factorization assumption.
+Using ρ, we estimate the sample complexity for approximating clause weights under the factorization of Equation (3). 
+In fact, we show that this sample complexity depends quadratically on ρ, and therefore that, for any w, ρ must be upper-
+bounded by a polynomial in 1
+ϵ, 1
+δ, n, m, and k, to maintain polynomial sample complexity. In what follows, we refer to 
+weight functions w satisfying this criterion as ρ-restricted.
+In spirit, our deﬁnition and restriction of ρ resembles the restriction of tilt θ in approximation methods for weighted 
+model counting [26]. For those approximate WMC approaches, tilt imposes a maximum ratio between the minimum and 
+maximum values of the weight function over the Boolean domain. However, such restrictions on θ are tighter than restric-
+tions on ρ. Indeed, ρ is based on the ratio between the maximum integral and minimum integral of a function over a ﬁxed
+real body, and so does not compare between integral values over different bodies as with tilt. As a result, when θ= H, it 
+naturally follows that ρ≤ H, whereas the opposite direction does not hold, yielding the inequality ρ≤ θ. We now illustrate 
+the difference between ρ and θwith two examples.
+12
+
+===== PDF PAGE 13 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+Example 5. Let V ={ p1}, X ={x1}, 0 ≤ x1 ≤ 10, and let:
+wx(x, v) =
+{
+3i f p1,
+2o t h e r w i s e .
+Then, ρ=1.5, and θ=1.5, and thus the bound ρ≤ θis tight. More generally, ρ= θholds for all wx deﬁned as piece-wise 
+constants over V.
+In Example 5, we consider a piece-wise constant function over V, and observe that ρ = θ= 1.5: for tilt, the maxi-
+mum and minimum values of wx are 3 and 2 respectively, whereas ρ = 1.5s i n c e the maximum integral ratio over any 
+body necessarily involves alternating p1. Hence, the inequality ρ≤ θ is tight. However, piece-wise constant functions are 
+very limited in their representation capacity. By contrast, for functions with variations for a ﬁxed Boolean assignment, the 
+scenario changes completely, as Example 6 shows.
+Example 6. Let V ={ p1}, X ={x1}, 0 ≤ x ≤ 10, and let:
+wx(x, v) =
+{
+e10
+1+e−x1 − 0.5e10 +1i f p1,
+2e10
+1+e−x1 − e10 +2o t h e r w i s e .
+Then, ρ = 2, but θ≈ 2 + e10. Though wx for p1 = 1i s simply half the other case, the variability within every case is 
+signiﬁcant, and alone produces a tilt of 1 +0.5e10. By contrast, ρ is not affected by this variability.
+In this example, ρ is clearly upper-bounded by 2. However, the tilt θis almost equal to 2 +e10, since the maximum of 
+wx is wx(10, false) = 2e10
+1+e−10 − e10 +2 ≈ e10 +2, and its minimum is wx(0, true) = e10
+1+e−0 − 0.5e10 +1 =1. In this example, 
+wx has large variability in its cases, and this raises tilt, but not does affect the ratio ρ.
+Theoretically, ρ helps assess the viability of clause weight approximation using sampling techniques. However, it may 
+not be feasibly computable. In this case, a simpler quantity ρ′, evaluated over points in Rn, rather than subsets, can be 
+used instead. Fundamentally, ρ′ is deﬁned as the ratio between the maximum w(x, v) and the minimum w(x, v′) over all 
+Boolean assignments. Note that these extrema are deﬁned relative to an identical real assignment x, but potentially distinct 
+v and v′. More formally,
+ρ′ =max
+x
+wmax(x)
+wmin(x) , (5)
+where wmin(x) =minv wx(x, v) and wmax(x) =maxv wx(x, v).
+Observe that tilt θis also more restrictive than ρ′, as its objective, though similar to that of ρ′, uses distinct assignments 
+x and x′ in Equation (5). Hence, ρ′ ≤ θ. Furthermore, since ρ′ also restricts its ratio to identical real assignments, similarly 
+to ρ, it can also be signiﬁcantly smaller than θ. For instance, in Example 6, ρ′ = 2. Finally, we note that ρ ≤ ρ′, as no 
+integral over any subset of Rn can exceed the ratio ρ′ given positive wx. Therefore, ρ≤ ρ′ ≤ θ.
+We now introduce ApproxWMID, an extension to ApproxWMI that supports weight functions w factorized according 
+to Equation (3). At a high level, ApproxWMID operates identically to ApproxWMI, but replaces the oracles ClauseWeight
+and Sample with ClauseWeightD and SampleD, respectively, such that these oracles now incorporate Boolean-real depen-
+dencies. Otherwise, all algorithmic details of ApproxWMI, namely the sampling iteration structure based on LTC, and clause 
+membership checking via Evaluate, remain the same.
+Intuitively, ClauseWeightD considers Boolean-real dependencies via Monte-Carlo sampling over the Boolean sub-domain, 
+and subsequently averaging volume computations across different samples to yield an overall estimate of the clause weight. 
+At this stage, ρ-restriction is key, as it makes (ϵV , δV )−approximation for the oracle to be computable using a polynomial 
+number of samples. On the other hand, SampleD only marginally changes relative to Sample, in that Boolean assignments 
+are initially sampled, and real assignment sampling is now conditioned on these Boolean assignments. The pseudo-code for 
+these two oracles is provided in Algorithm 3. We now discuss these oracles in detail.
+CLAUSE WEIGHT D . To exactly compute the weight of a clause c under the factorization of Equation (3), one must iterate 
+over an exponential number of satisfying Boolean assignments of c, compute scores for each assignment using a volume 
+computation tool, and ﬁnally return a weighted average of these scores as the WMI of c. Therefore, ClauseWeightD performs 
+Monte-Carlo sampling over the set of Boolean assignments to approximate the WMI of c.
+In this setup, ClauseWeightD has two sources of error and failure, namely, (i) the Monte-Carlo sampling procedure itself, 
+which has error ϵSamp and conﬁdence δSamp, and (ii) the error and conﬁdence of the volume computation tool, denoted 
+ϵComp and δComp respectively. Hence, ClauseWeight sets these parameters such that their combination yields error and 
+conﬁdence bounds within the overall (ϵV , δV ) requirement.
+In ClauseWeightD, sampling is conducted for s iterations, where s is a function of ϵSamp and δSamp, and ρ(see comment 
+“# of sampling trials” in Algorithm 3 for the closed-form equation). Within every trial, Volume is called with error ϵComp
+13
+
+===== PDF PAGE 14 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+Algorithm 3 Subroutines of ApproxWMID as functions ClauseWeightD and SampleD.
+1: function ClauseWeightD(c, w, X, V)[ϵ, δ]
+2: ϵSamp, ϵComp ← ϵ
+1+
+√
+2 , δSamp ← δ
+2
+3: s ← ln( 2
+δSamp
+) 1
+2ϵ2
+Samp
+ρ2 ⊿ # of sampling trials
+4: δComp ← δ
+2s
+5: for i ← 1t o s do ⊿ Perform Monte-Carlo sampling over clause weights
+6: vi ← sample from V respecting vc and wb
+7: Introduce  a new variable d in X
+8: X′
+c ← Xc ∧ (x ∈ Rn, 0 ≤ d ≤ wx(x, vi)) ⊿ Create convex body using the induced wx
+9: Xi ← Volume(X′
+c )[ϵComp, δComp]⊿ Return its volume as the Monte-Carlo sample value
+10: BoolWeight ← ∏
+p∈vc wb(p)
+11: return BoolWeight · 1
+s
+∑s
+i=1 Xi ⊿ Return sample mean as clause weight estimate
+12: function SampleD(c, w, X, V)[ϵ, δ]
+13: v ← sample from V respecting vc and wb ⊿ Boolean sampling
+14: Introduce  a new variable d in X
+15: X′
+c ← Xc ∧ (x ∈ Rn, 0 ≤ d ≤ wx(x, v))
+16: x ← ConvexBodySampler(X′
+c )[ϵ, δ]1:n ⊿ Perform sampling over conditional distribution
+17: return (x, v)
+18:
+and conﬁdence δComp. More speciﬁcally, each sampling iteration consists of randomly sampling a Boolean assignment vi
+satisfying c according to wb (line 6), computing the induced weight function wx(x, vi), and using this induced function to 
+obtain the transformed convex body X′
+c (line 7), analogously to Sample and ClauseWeight. At this point, ClauseWeightD
+behaves identically to ClauseWeight: it computes the weighted integral over c using a subroutine Volume (line 8).
+Following all s sampling steps, the average of all samples is computed, multiplied by the product of all vc literal weights, 
+and returned (lines 9 and 11). The left-hand side of the returned value is identical to that of ClauseWeight, and reﬂects the 
+continued independence of individual Boolean variables in this new factorization, whereas the right-hand side completes 
+the approximation of WMI(c, w | X, V) and incorporates the wx term via the sampling average weight.
+SAMPLE D . This function is deﬁned almost identically to Sample in ApproxWMI, with the difference being that wx(x, v) is 
+now induced from v (line 16) prior to applying the transformation. Unlike Sample, it is necessary for Boolean sampling to 
+run ﬁrst in SampleD, given the factorization, so as to condition wx on the Boolean sample output and subsequently sample 
+from Xc.
+3.5. ApproxWMID is an FPRAS
+We now show that ApproxWMID is an FPRAS for WMI(DNF), by lifting the result given in Theorem 3. First, we show the 
+correctness of ClauseWeightD, and prove that it is an FPRAS for WMI(c, w | X, V) over concave, ρ-restricted w factorized 
+according to Equation (3), given sampling and volume computation operations whose error and conﬁdence can be made 
+arbitrarily small.
+The correctness proof for ClauseWeightD relies on the correctness of Monte-Carlo sampling for producing approxima-
+tions with probabilistic guarantees, and its polynomial-time tractability is shown with a probabilistic argument, proving 
+that the ClauseWeightD sampling procedure only requires a polynomial number of samples given the ρ-restriction of wx. 
+In particular, given a clause c and its convex polytope Xc, this proof establishes that all random samples are necessarily 
+bound by the functions a(Xc) and b(Xc), as per Equation (4). Then, since these samples are independent and identically dis-
+tributed, their average approximates the expected value of the sampled distribution with probabilistic guarantees from the 
+Hoeffding bound. These guarantees, complemented by the ρ-restriction of wx, yield a polynomial lower bound for the num-
+ber of samples s. Hence, the sampling procedure can have arbitrarily small error, and introduces a worst-case polynomial 
+overhead to ClauseWeightD.
+Finally, the proof shows that ClauseWeightD produces an (ϵ, δ)−approximation of WMI(c, w | X, V) given the error and 
+conﬁdence values for sampling and volume computation shown in Algorithm 3, as these values, once aggregated across the 
+operation of ClauseWeightD, remain below ϵ and δrespectively, and therefore, ClauseWeightD is an FPRAS as required. 
+We now formally state this result, along with its necessary conditions, as a Lemma, and provide its complete proof.
+Lemma 4. ClauseWeightD relative to Monte-Carlo sampling error ϵSamp and conﬁdence δSamp, and an FPRAS Volume with error 
+ϵComp and conﬁdence δComp, is an FPRAS for WMI(c, w | X, V), where ci s a conjunctive clause and wi s concave, ρ-restricted, and 
+factorized according to Equation (3), with error ϵ, conﬁdence δ, and using s =ln( 2
+δSamp
+) 1
+2ϵ2
+Samp
+ρ2 iterations, for
+1. ϵSamp, ϵComp ≤ ϵ
+1+
+√
+2,
+2. δSamp ≤ δ
+2, and
+3. δComp ≤ δ
+2s.
+14
+
+===== PDF PAGE 15 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+Proof. We ﬁrst show the correctness of ClauseWeightD for computing WMI(c,w | X, V). Under the factorization of Equa-
+tion (3), wx now depends on both real and Boolean variables. Hence, the decomposition of WMI computation into two 
+separate Boolean and real parts used in the proof of Theorem 3 no longer holds. Instead, WMI computation over a clause c
+given w can only be written as:
+WMI(c,w | X, V) =
+∑
+v|=c
+∏
+p∈v
+wb(p)
+∫
+Xc
+wx(x, v)dx
+=
+( ∏
+p∈vc
+wb(p)
+) ∑
+v|=c
+( ∏
+p∈v\vc
+wb(p)
+∫
+Xc
+wx(x, v)dx
+)
+,
+(6)
+where vc denotes the set of all Boolean literals appearing in c.
+Note that the outer summation no longer simpliﬁes as in Theorem 3, as the inner integral now depends on the Boolean 
+assignment v. Therefore, WMI computation over c in this setting requires 2m−| vc| calls to a weighted volume computation 
+tool, which is simulated by calling the Volume FPRAS on X′
+c, the convex body transformation of Xc having an additional 
+weight-constrained dimension.
+Given the intractability of exactly performing the computation in Equation (6), ClauseWeightD uses Monte-Carlo sampling
+to approximate the WMI of c. We show in this proof that this sampling is (i) correct, (ii) returns probabilistic guarantees, 
+and (iii) can be performed in polynomial time, since w is ρ-restricted.
+We start by proving the correctness of Monte-Carlo sampling for approximating WMI(c,w | X, V). In Equation (6), observe 
+that the ﬁnal form for WMI(c,w | X, V) can also be written as
+∏
+p∈vc
+wb(p) Ev|=c
+[ ∫
+Xc
+wx(x, v)dx
+]
+, (7)
+since the summation, weighted by the probability product for literals not appearing in c, corresponds to the expected value 
+of the inner integral random Boolean assignment from the distribution wb. Hence, Equation (6)c a n be approximated with 
+probabilistic guarantees by taking Monte-Carlo samples from the aforementioned distribution and computing the mean of 
+all integral samples. This sampling is done as follows:
+1. Sample a random Boolean assignment v using wb (ClauseWeightD line 6).
+2. Compute the resulting weighted model integral over Xc given wx(x, v) using Volume[ϵComp, δComp]. (ClauseWeightD
+lines 7-8.)
+As the mean of this sampling procedure approximates the summation in Equation (6), it only remains to multiply this 
+mean by the product of Boolean weights, which corresponds to lines 9 and 11 of ClauseWeightD, to correctly yield an 
+approximation of WMI(c,w | X, V), as required.
+We now study probabilistic guarantees for ClauseWeightD. The sampling procedure produces s independent and iden-
+tically distributed (i.i.d.) random variables from the wb-weighted distribution of possible integral values. Let ¯X denote the 
+mean of these s random variables, and let μ = Ev|=c
+[ ∫
+Xc
+wx(x, v) dx
+]
+for ease of notation. From Equation (4), we infer that 
+a(Xc) ≤ μ ≤ b(Xc). Therefore, we can use a(Xc) and b(Xc) within the Hoeffding bound for sampling s i.i.d. variables. This 
+yields, for a target additive difference t,
+Pr
+(
+| ¯X − μ|≥ t) ≤ 2exp
+(
+−2st2
+(b(Xc) − a(Xc))2
+)
+We now replace t with ϵSampμ to obtain a multiplicative error bound, and upper-bound the failure probability by δSamp to 
+compute a lower bound for sample complexity:
+s ≥ ln( 2
+δSamp
+) 1
+2ϵ2
+Samp
+(b(Xc) − a(Xc))2
+μ2 (8)
+≥ ln( 2
+δSamp
+) 1
+2ϵ2
+Samp
+(b(Xc) − a(Xc))2
+a(Xc)2 (9)
+≥ ln( 2
+δSamp
+) 1
+2ϵ2
+Samp
+(
+b(Xc)
+a(Xc)
+)2
+(10)
+≥ ln( 2
+δSamp
+) 1
+2ϵ2
+Samp
+ρ2 (11)
+15
+
+===== PDF PAGE 16 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+To obtain Equation (9), we replace μ by a(Xc) to yield the most pessimistic lower bound possible for s: Since a(Xc) ≤
+μ ≤ b(Xc), then replacing μ by its minimum value maximizes the fraction, and results in a worst-case sample bound that is 
+suﬃcient to produce the required error and conﬁdence guarantees for any value of μ. To obtain Equation (10), we eliminate 
+the a(Xc) term in the numerator, which is possible, since a(Xc) ≥ 0, to obtain an explicit ratio between a and b, which can 
+be replaced with ρ in Equation (11), as ρ, by deﬁnition, is greater or equal to the maximum value of this ratio for any 
+convex polytope.1
+Given s Monte-Carlo samples, ClauseWeightD introduces an error of at most ϵSamp with probability 1 − δSamp. This 
+sample complexity s is polynomial in 1
+ϵSamp
+, 1
+δSamp
+, n, m, and k as w is ρ−restricted. Furthermore, a sampling step runs in 
+polynomial time, as both Boolean sampling and the Volume FPRAS call run in polynomial time. Hence, ClauseWeightD runs 
+in polynomial time, more precisely in O∗(sn4ϵ−2
+Comp) = O∗(n4ϵ−2
+Sampϵ−2
+Comp) = O∗(n4ϵ−4
+V ) = O∗(n4ϵ−8), where ϵ is the overall 
+target error for ApproxWMID.
+Finally, we show that, under the conditions of Lemma 4, ClauseWeightD produces an (ϵ, δ)−approximation of 
+WMI(c,w | X, V). In what follows, we assume that ClauseWeightD fails if Monte-Carlo sampling fails or if any of the
+Volume calls fail. Therefore, we ﬁrst prove that, when no failure occurs, the error bounds in Lemma 4 produce an estimate 
+within the ϵ error requirement. Then, we prove that the asserted conﬁdence bounds upper-bound the probability of any 
+ClauseWeightD failure, denoted fv, by δ.
+Error bounds. We ﬁrst assume a successful run where Monte-Carlo sampling and Volume produce values within their error 
+bounds. Setting ϵSamp and ϵComp within the bounds of Lemma 4 yields the following bound on ¯X:
+(
+1 − ϵ
+1 +
+√
+2
+)2
+μ ≤ ¯X ≤
+(
+1 + ϵ
+1 +
+√
+2
+)2
+μ.
+For ∀0 < ϵ ≤ 1, we have that:
+(1 + ϵ) −
+(
+1 + ϵ
+1 +
+√
+2
+)2
+= ϵ − 2ϵ
+1 +
+√
+2
+− ϵ2
+(1 +
+√
+2)2
+= ϵ
+((1 +
+√
+2)2 − 2(1 +
+√
+2) − ϵ
+(1 +
+√
+2)2
+)
+= ϵ(1 − ϵ)
+(1 +
+√
+2)2
+≥ 0.
+Analogously,
+(
+1 − ϵ
+1 +
+√
+2
+)2
+− (1 − ϵ) = ϵ − 2ϵ
+1 +
+√
+2
++ ϵ2
+(1 +
+√
+2)2
+= ϵ(1 + ϵ)
+(1 +
+√
+2)2
+≥ 0.
+Therefore, we can replace the bounds in the original inequality by (1 + ϵ) and (1 − ϵ) respectively, as follows:
+(
+1 − ϵ
+)
+μ ≤ ¯X ≤
+(
+1 + ϵ
+)
+μ,
+and, following multiplication by 
+(∏
+p∈vc wb(p)
+)
+on all sides, we obtain:
+(
+1 − ϵ
+)
+Q ≤ ¯X
+( ∏
+p∈vc
+wb(p)
+)
+≤
+(
+1 + ϵ
+)
+Q ,
+where Q = WMI(c, w | X, V), as required.
+Conﬁdence bounds. Volume is called s times within ClauseWeightD. Hence, we apply the union bound, to upper-bound 
+fV , and obtain:
+Pr(fV ) ≤ sδComp + δSamp =s δ
+2s + δ
+2 = δ
+2 + δ
+2 = δ. /Box
+We now combine Theorem 3 and Lemma 4 to show that ApproxWMID is an FPRAS for WMI(DNF) given a concave and 
+ρ-restricted w under the factorization of Equation (3).
+Theorem 5. ApproxWMID relative to FPRAS oracles ClauseWeightD, SampleD, and Evaluate having error ϵV , ϵS, ϵP and conﬁdence 
+δV , δS, δP, respectively, is an FPRAS for WMI(DNF) over a wt h a t is concave, ρ-restricted, and factorized according to Equation (3), 
+with error ϵ and conﬁdence δand using T =
+8ln(8
+δ)(1+˜ϵ)k
+˜ϵ2−8(˜C−1)k iterations, for
+1. ϵV , ϵS ≤ ϵ2
+47k, ϵP ≤ ϵ2
+47k2 , and
+2. δV ≤ δ
+4k, δS + δP ≤ δ
+2276ln(8
+δ) k
+ϵ2
+.
+1 Note that, in practice, one can use ρ′ instead of ρ for a higher, but tractably computable sampling bound, as ρ≤ ρ′.
+16
+
+===== PDF PAGE 17 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+Finally, the running time of ApproxWMID, as a function of ClauseWeightD runtime r′
+C, SampleD runtime r′
+S, and
+Evaluate runtime rE, is O(k ·r′
+C +T(r′
+S +rE)), analogously to ApproxWMI. Furthermore, for the same choice of Convex-
+BodySampler, it is easy to see that rS = r′
+S. However, the main difference in running time between ApproxWMI and 
+ApproxWMID comes from the difference between r′
+C and rC. Indeed, given the same choice of Volume oracle, with running 
+time rV , rC = O(m +rV ), whereas r′
+C = O(s(m +rV )) = O( 1
+ϵ4 ln(1
+δ)(m +rV )). Hence, the wider applicability of ApproxWMID
+comes at the expense of a larger runtime complexity, owing to the larger power of 1
+ϵ required for ClauseWeightD.
+4. Experimental evaluation
+In this section, we empirically evaluate the performance of ApproxWMI on a set of randomly generated DNF formulas. 
+In particular, we measure the running time ApproxWMI required to solve different DNF instances, and analyze the impact 
+of different DNF parameters, such as clause width, number of variables, and number of clauses, on this running time.
+First, we present our DNF generation procedure. Then, we present and justify our experimental setup, namely our choices 
+for weight functions and oracles for sampling and volume computation. Finally, we report our experimental results, and 
+show the runtime eﬃciency, eﬃcacy and scalability of ApproxWMI.
+4.1. Generating evaluation data
+To evaluate ApproxWMI, we randomly generate an evaluation set of DNF formulas. This set is generated with different 
+conﬁgurations relative to the number of Boolean and real variables, the width of clauses, and the number of these clauses, 
+such that all possible conﬁgurations are evenly represented during evaluation. More speciﬁcally, we set our conﬁguration 
+parameters as follows:
+• Number of Boolean and real variables (m, n): We generate DNF formulas such that they have an equal number of real 
+and Boolean variables, i.e., m =n, |X| =| V|. We opt for setting m =n to produce DNF instances that fairly represent 
+both real and Boolean domains in the hybrid domain, and avoid edge case instances that too closely resemble either 
+volume computation (for m ≈ 0) or standard weighted model counting (for n ≈ 0).
+• Clause width (W ): For simplicity, we opt for a uniform clause width W in our generation, such that all the clauses of a 
+single DNF formula have width W.
+• Number of clauses (k): The number of clauses is set as k =⌊ m+n+20
+W ⌋, as this choice for k ensures a balanced compu-
+tational requirement for different similarly-sized DNF instances. More precisely, this value of k ensures that the total 
+number of atoms present across all DNF clauses (including redundancies) in a given formula remains highly similar to 
+that of distinct formulas with identical values of m and n, but different widths W.
+For every conﬁguration (m, n, k, W), a DNF formula is randomly generated. Initially, the conﬁguration imposes a high-
+level structure of the DNF, namely that it has a ﬁxed number of clauses k, and each of these clauses has W atoms. What 
+remains to obtain a fully speciﬁed DNF is therefore to assign values to the atoms in every clause, either to Boolean liter-
+als or LRA constraints deﬁned over X. We perform this allocation of atoms analogously to the common “balls in boxes” 
+combinatorial problem.
+More speciﬁcally, we deﬁne the kW atom locations in the DNF as “balls”, and deﬁne “boxes” corresponding to all Boolean 
+variables and to a number of LRA constraints. Then, we randomly allocate the balls to these boxes, such that no box remains 
+empty. Thus, this allocation ensures that all Boolean variables, and a predetermined number of LRA clauses, appear in at 
+least one clause of the DNF. Concretely, we deﬁne m Boolean boxes and n LRA boxes, which are placeholders that each 
+independently yield LRA constraints in the ﬁnal DNF. This ensures that an almost even split between LRA and Boolean 
+atoms arises in our generated formulas. Furthermore, since n LRA boxes are deﬁned over X, and |X| =n, and since LRA 
+atoms involve at least one real variable, then every real variable is expected to appear in at least one LRA atom. We 
+illustrate this construction with a running example in Example 7.
+Example 7. Consider a conﬁguration (m, n, k, W), where m =n = 3, k = 3, and W = 3. Then, we obtain kW = 9 “balls” 
+corresponding to all 9 atom positions in the DNF, and 6 “boxes”, namely 3 Boolean boxes corresponding to Boolean variables 
+p0, p1, p2 respectively, and 3 LRA placeholder boxes l0, l1, l2. These placeholders can be represented with a single symbol 
+l∗, as each of the appearances of l∗ will later be independently instantiated with LRA constraints over X.
+Remark. Though we use a single placeholder l∗ to generate LRA constraints, we nonetheless represent this placeholder 
+using n boxes (rather than 1) in our generation procedure, as this produces more uniform allocation distributions for l∗
+with respect to Boolean variables. More concretely, by using n boxes, we have equality of Boolean literal and LRA constraint 
+appearances in expectation.
+To allocate atom balls to boxes, we deﬁne two distinct allocation schemes, such that one of these is uniformly randomly 
+selected for every DNF to be generated:
+17
+
+===== PDF PAGE 18 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+• Uniform allocation: All balls are allocated uniformly from the set of all 
+(kW −1
+m+n−1
+)
+conﬁgurations2 yielding non-empty 
+boxes as in the standard balls in boxes problem. However, an additional check is imposed to prevent a box from 
+receiving more balls than the number of clauses k.
+• Privileged allocation: A small subset of “privileged” boxes is uniformly randomly selected, and randomly allocated 
+another random “surplus” subset of balls, such that the removal of this surplus subset from the overall ball set keeps at 
+least as many balls as overall boxes. In other words, for a set of kW balls and m +n boxes, where kW ≥ m +n, the size 
+of this surplus subset cannot exceed kW − m − n. This privileged mechanism ensures that a small number of Boolean 
+variables can appear across many different clauses, and thus creates strong dependencies within the DNF. Following 
+privileged allocation, all remaining balls are allocated in a uniform fashion, as described earlier.
+Following box allocation, a heuristic is used to identify speciﬁc DNF atom locations for every variable and LRA constraint, 
+such that no variable or constraint appears twice in the same clause. Intuitively, the heuristic sets the allocations of boxes 
+in decreasing order of their ball allocations, while keeping the number of available positions in all clauses as evenly spread 
+as possible. Finally, once all clause positions are ﬁlled, signs for Boolean literals are randomly selected (the placeholder l∗ is 
+not affected by this step) as follows:
+1. All positions allocated uniformly, either through uniform or after privileged allocation, are uniformly randomly set to 
+the Boolean literal or its negation.
+2. All privileged Boolean atoms allocated are jointly set a literal sign. That is, all atom allocations share one same literal 
+sign, which is negated with probability 0.5. This ensures that privileged variables have substantial impact on the overall
+DNF model integral, and do not create mutually exclusive clauses.
+This allocation scheme is based on earlier work [27], which generates formulas for neural weighted DNF counting. An 
+allocation of balls to boxes, mapped to DNF clause positions, is shown in Example 8.
+Example 8. Consider the earlier conﬁguration where m =n =3, k =3, and W =3. Then, an example atom allocation, gen-
+erated uniformly, is:
+(p0 ∧ p2 ∧¬ p1) ∨ (l∗ ∧ p2 ∧l∗) ∨ (p1 ∧l∗ ∧l∗),
+where, as before, l∗ is a placeholder such that, at every location it appears, an LRA constraint is subsequently generated 
+independently. An example privileged allocation, with privileged Boolean variable p0, is:
+(p0 ∧ p2 ∧¬ p1) ∨ (l∗ ∧ p0 ∧l∗) ∨ (p1 ∧l∗ ∧ p0).
+Observe that p0 is a positive literal in all its appearances, by construction.
+It now remains to replace all LRA placeholder l∗ appearances with concrete constraints so as to yield a non-empty convex 
+body at the clause level. For a given DNF clause c, this is done as follows:
+1. First, a random point z in Rn is uniformly sampled, such that all generated constraints in c must be satisﬁed by z. This 
+ensures that the convex polytope deﬁned by c is non-empty.
+2. For every placeholder: (i) randomly select a subset S of Geom(0.5) real variables, where Geom denotes the geometric 
+distribution, (ii) sample wS ∈ R|S| weights for these variables from Gaussian distributions and (iii) sample a random 
+Gaussian value v and set the linear constraint wS .S ≤ v.
+3. If z satisﬁes wS .S ≤ v, then w.S ≤ v is added to c, irrespective of the original placeholder sign. Otherwise, wS .S ≥ v, 
+which z must then satisfy, is added.
+Example 9. We again consider the earlier example:
+(p0 ∧ p2 ∧¬ p1) ∨ (l∗ ∧ p2 ∧l∗) ∨ (p1 ∧l∗ ∧l∗).
+Then, an example LRA constraint generation yields points (0, 0, 0) and (1, 1, 1) for the second and third clauses respectively, 
+and the following constraints are randomly generated:
+(p0 ∧ p2 ∧¬ p1) ∨ (x2 − x0 ≥− 1 ∧ p2 ∧x1 +x2 ≤ 1) ∨ (p1 ∧x0 +3x2 ≤ 6 ∧ x0 − 3.5x1 ≤ 1),
+where x2 − x0 ≥− 1i s negated to be satisﬁed by (0, 0, 0).
+2 In the balls and boxes problem, putting a balls in b boxes such that no box is empty can be done in 
+(a−1
+b−1
+)
+ways. Our number of conﬁgurations is 
+therefore a direct application of this formula.
+18
+
+===== PDF PAGE 19 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+4.2. Experimental setup
+In our experiments, we bound all real variables in X such that ∀x ∈ Rn, 0 ≤ x ≤ 10. This ensures a bounded domain of 
+integration, and that integrals for a ﬁnite-valued weight function w are ﬁnite-valued. In terms of w, we opt for polynomial
+functions wx, given their simplicity and popularity for evaluation in the WMI literature, and given the ease of generating 
+concave polynomial functions, in keeping with our theoretical requirement.
+Concretely, we generate a polynomial function wx consisting of a sum of up to 4 terms. Within this polynomial, every 
+non-constant term consists of a coeﬃcient, which is a uniformly randomly sampled integer in {1, ..., 10}, as well as a 
+degree randomly chosen from the distribution Geom(0.6) and upper-bounded by 5. This degree is then uniformly randomly 
+allocated to one or more distinct real variables. For instance, a degree of 5 can be allocated as x3
+1x2
+2. Next, the coeﬃcients of 
+terms with degree of 2 or higher are made negative to maintain concavity, and ﬁnally a constant is added to the polynomial 
+to ensure the positivity of the weight function over the deﬁned real domain.
+For the volume oracle Volume within ClauseWeight, we use LattE [28], an exact volume computation tool. Though this 
+theoretically is not scalable given the complexity of the algorithm, it is viable in practice for multiple reasons. First of all, 
+LattE, despite being exact, natively supports polynomial weight functions, and performs reliably in practice for smaller-scale 
+formulas compared with approximate techniques [29]. Second, we use LattE in a more optimized fashion, which eliminates 
+all variables in X not appearing in the LRA constraints of a given clause, or in wx, which minimizes computation time. More 
+speciﬁcally, we optimize our use of LattE by separately (trivially) integrating over variables not appearing in a clause or a 
+term of w, and only running LattE over the appearing variables.
+This optimization is effective in practice for two reasons. First, the number of real variables appearing in a clause is 
+small in expectation, at around 2W in the worst case of an all-LRA clause, and W for an even distribution of Boolean and 
+LRA atoms, and thus the dimensionality of the polytope space is small for computation purposes. Second, the modular-
+ity of the DNF representation breaks down an n-dimensional problem into k smaller sub-problems, which can be solved 
+more eﬃciently. Observe that this is not the case with CNF representations, as the outer conjunctions prevent an eﬃcient 
+computation of smaller sub-problems. By contrast, the clauses in a DNF formula are not entangled, as each clause deﬁnes 
+an individual lower-dimensional polytope, and these are combined with the outer disjunction. Hence, DNF representations 
+allow for signiﬁcantly more eﬃcient division of the input problem relative to CNF.
+For the oracle Sample used within ConvexBodySampler, we use hit-and-run [18], with a constant factor 103 used to 
+compute the number of walk iterations, as is standard in practice. It is unknown whether this constant preserves theoretical 
+guarantees, but it is widely used given that the best-known theoretical constant factors for hit-and-run are loose and 
+prohibitively large (i.e., 1030) [30], and because this value allows for a reasonable trade-off between accuracy and eﬃciency. 
+We investigate the accuracy of this setup in detail with a dedicated experiment in Section 4.4, where we compare the 
+outputs of our ApproxWMI setup against those produced by an exact solver on small DNF instances. Finally, we run all 
+experiments with a timeout of 5000 seconds, on a server with a Haswell 5-2640v3, 2.60 GHz CPU and 12 GB of RAM.
+4.3. Runtime experiments
+To evaluate the runtime of ApproxUnion, we produce a dataset consisting of 160 DNF formulas, resulting from 40 distinct 
+conﬁgurations, each represented by 4 DNF formulas. More speciﬁcally, we jointly set the value for m and n to values from 
+50 to 500 inclusive, in increments of 50, and thus the total number of variables is between 100 and 1K, and set width W
+to values from the set {3, 5, 8, 13}, to ensure a comprehensive coverage of all width ranges. Then, we run ApproxWMI on 
+each formula using 4 distinct (ϵ, δ)settings: (0.15, 0.05), (0.20, 0.10), (0.25, 0.15), and (0.35, 0.25), and compute the mean 
+runtime across 5 runs per setting. These error and conﬁdence values are chosen in keeping with realistic practical targets, 
+with 0.35 representing a reasonable loose error requirement, and 0.15 a common tighter requirement, particularly for larger 
+instances.
+All ApproxWMI running times with respect to the total number of variables m +n, clause width W, and the target error 
+ϵ and conﬁdence δare presented in Fig. 1. We see that ApproxWMI performs strongly, and solves DNF instances with up 
+to 1K variables within 5000 seconds over all W for ϵ =0.35 and δ=0.25. In fact, we also observe that, for instances with 
+1K variables having W =5, 8, 13, all run within 2000 seconds, for (ϵ, δ) = (0.25, 0.15), and that the increase in running 
+time relative to the (0.35, 0.25) setting for all widths is minor, at around 40%, which is far smaller than the theoretically 
+expected increase of 0.35
+0.25
+6
+≈ 7.5. This is due to the eﬃciency of the practical setup of Sample relative to tighter ϵS and δS, 
+which alleviates the impact of theoretical higher negative powers of ϵ (implicitly ϵS) derived in Section 3.3. More concretely, 
+increasing the sampling iterations (due to tighter bounds) within the current hit-and-run implementation incurs a minimal 
+additional overhead given the commonly applied constant factor and scale of our experimental instances, as samples can 
+easily be parallelized.
+For tighter ϵ and δ, the system maintains high performance, despite the increase in T and the theoretical complexity 
+of ApproxWMI, which involves high negative powers of ϵ. Indeed, with ϵ =0.15 and δ=0.05, all instances with widths 
+8 and 13 ﬁnish within ∼2000 seconds, whereas large instances of width 3 and m +n ≥ 500, and width 5, m +n ≥ 800, 
+time out. Furthermore, all experiments at widths 5, 8, and 13 terminate within the time limit for ϵ =0.2, δ= 0.1, with 
+only width 3 experiments timing out for m +n ≥ 700. These results highlight the scalability of ApproxWMI, deployed with 
+19
+
+===== PDF PAGE 20 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+200 400 600 800 1 ,000
+0
+1,000
+2,000
+3,000
+4,000
+5,000
+Number of variables (m +n)
+Execution time (s)
+ϵ =0.15,δ=0.05
+W =3
+W =5
+W =8
+W =13
+200 400 600 800 1 ,000
+0
+1,000
+2,000
+3,000
+4,000
+5,000
+Number of variables (m +n)
+Execution time (s)
+ϵ =0.20,δ=0.10
+W =3
+W =5
+W =8
+W =13
+200 400 600 800 1 ,000
+0
+1,000
+2,000
+3,000
+4,000
+5,000
+Number of variables (m +n)
+Execution time (s)
+ϵ =0.25,δ=0.15
+W =3
+W =5
+W =8
+W =13
+200 400 600 800 1 ,000
+0
+1,000
+2,000
+3,000
+4,000
+5,000
+Number of variables (m +n)
+Execution time (s)
+ϵ =0.35,δ=0.25
+W =3
+W =5
+W =8
+W =13
+Fig. 1. Runtime results for ApproxWMI relative to different ϵ, δ. For ϵ =0.35, δ=0.25, all instances, including those with 1K variables, terminate within 
+5000 seconds, and higher-width instances (W =8, 13) all terminate within ∼ 2000 seconds for all ϵ, δ. (For interpretation of the colors in the ﬁgure(s), the 
+reader is referred to the web version of this article.)
+standard sampling and volume computation tools, for computing approximations to WMI, even relative to tighter error and 
+conﬁdence targets, and on large instances involving 1K variables.
+Somewhat unintuitively, our experiments show that system performance worsens as W decreases, irrespective of error 
+and conﬁdence targets. In fact, we can see that, for DNF instances with W =3, ApproxWMI requires almost triple the time 
+compared to instances with higher W across all (ϵ, δ)conﬁgurations. Though this behavior is surprising, it can be attributed 
+to an increased number of sampling replacements and calls within ApproxWMI. Indeed, for smaller widths, it is likelier that 
+a call to Evaluate will yield “True” since there are less constraints and Boolean literals to satisfy. As a result, further calls to
+Sample, which runs in time O∗(m +n3), will be required. Though the implementation for Sample is eﬃcient relative to ϵS, 
+as mentioned earlier, it still remains an expensive component in the ApproxWMI sampling iteration, and has an overhead 
+when called. For comparison, a membership check runs in O(m + Wn), which is very small in our setting as W is small. 
+Thus, the increased number of calls to sample due to likelier replacements at small W conﬁgurations, combined with the 
+typically large number of sampling iterations T, impose a signiﬁcant computational overhead on ApproxWMI. This behavior 
+also justiﬁes the improved performance with increased width observed in Fig. 1, as higher-width clauses are less likely to 
+cause replacements, which decreases the expected number of calls to Sample and reduces running time.
+Overall, our results conﬁrm our intuitions about ApproxWMI: ApproxWMI indeed scales to large instances having up 
+to 1K total variables, and can provide approximations in a reasonable time using common oracle choices, even for tight ϵ
+and δ. Our experiments also highlight that calls to ClauseWeight, though invoking an exact volume computation tool, are 
+not a bottleneck to system performance. In fact, for any instance in our evaluation, ClauseWeight calls require at most 450 
+seconds in total to run. This also aligns with our experimental setup choices and intuitions, as the bounded width W used 
+in our experiments and the modularity of the DNF structure allow for lower-dimensional volume computations that LattE 
+can perform very eﬃciently. Finally, our results show that the main performance bottleneck for ApproxWMI is the number 
+20
+
+===== PDF PAGE 21 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+Table 1
+Frequency of ApproxWMI runs (ϵ =0.15, δ=0.05) satis-
+fying error bounds relative to different hit-and-run con-
+stant factors. Even with a constant value of 100, Approx-
+WMI comfortably satisﬁes the approximation conﬁdence 
+bound (0.95).
+Hit-and-run constant 10 100 1000
+Within ϵ frequency 0.635 0.986 0.998
+of calls to Sample. This is particularly evident from the high dependence of running time on width W, and shows that, even 
+with a reduced constant factor, convex body sampling is a highly costly operation when called repeatedly.
+We conclude our discussion with an added theoretical note that further supports our choice of an exact Volume oracle: 
+in addition to competitive practical performance at smaller scale, exact Volume oracles set ϵV , ϵP , δV , δP =0, which enables 
+the derivation of looser error and conﬁdence bounds for Sample. More concretely, replacing these values in the derivation of 
+Lemma 3 of ApproxUnion yields the improved bound ϵS < ϵ2
+8k , plugging in δp =0i n t o the proof of Corollary 2 improves the 
+bound by a factor of 1.5, yielding δS ≤ δ
+1518ln(8
+δ) k
+ϵ2
+. Though these new bounds are only constant factor improvements over 
+the case with approximate Volume, these factors are rather large, at 5.875 and 1.5 respectively, and amplify when expo-
+nentiated, particularly for ϵ. Thus, they allow for signiﬁcant practical gains, which were very beneﬁcial in our experiments, 
+all while preserving the theoretical guarantees of standard ApproxWMI. Moreover, the use of an exact volume computation 
+tool also preserves the polynomial running time of ApproxWMI given bounded width and a bounded number of variables 
+in all LRA constraints. Though these assumptions are somewhat restrictive, they are typically encountered in practice: clause 
+widths typically do not exceed 100, and LRA constraints do not include large sets of variables. Hence, the use of an exact
+Volume oracle is justiﬁed theoretically, both in terms of reducing the overhead of sampling, and for its effectiveness in 
+practice given the boundedness of width, LRA constraints, and the modularity of DNF structures.
+4.4. Accuracy experiments
+ApproxWMI is an FPRAS for WMI(DNF), and provably provides approximation guarantees. However, in practice, hidden 
+constant factors in the subroutines of ApproxWMI, such as the prohibitively large constant factor in hit-and-run (1030), 
+make a theoretically faithful implementation intractable. Given this limitation, and in line with standard practice, we there-
+fore used a lower constant factor of 103 for hit-and-run in our setup. However, this constant is not known to preserve the 
+theoretical guarantees of hit-and-run. Therefore, a natural question is whether this scaling down of the hit-and-run con-
+stant nonetheless achieves performance that still matches the FPRAS guarantees, and thus whether this setup is reliable in 
+practice.
+To address this question, we generate an additional dataset consisting of smaller formulas, which can tractably be solved 
+exactly. More speciﬁcally, this dataset consists of 20 formulas, each having m =n =20, and with widths evenly distributed 
+among the set {2, 3, 5, 8}. Furthermore, this dataset only uses weight functions where the real component wx is restricted 
+to be linear, and to involve at most three variables, so as to best match the performance proﬁle of exact solvers.
+To solve dataset instances exactly, we use a compilation tool based on extended algebraic decision diagrams (XADD) 
+[31], offered as part of the PyWMI library [32]. Then, we set up ApproxWMI with ϵ =0.15 and δ=0.05, and run it 1000 
+times with 3 different constant factors for hit-and-run: 10, 100, and 1000 (as in the earlier experiment). Finally, we check 
+whether, for every hit-and-run constant factor, the WMI returned by ApproxWMI is within ϵ relative to the exact solution 
+with a frequency exceeding 1 − δ=0.95.
+The frequency results for this experiment are shown in Table 1, with values exceeding 0.95 shown in bold. First, we 
+observe that, at the default constant value of 1000, ApproxWMI signiﬁcantly oversatisifes the theoretical conﬁdence guar-
+antees, and near-perfectly makes predictions within the approximation error bounds. Surprisingly, ApproxWMI continues to 
+oversatisfy the conﬁdence bound even with a hit-and-run constant of 100. In fact, ApproxWMI only underperforms when 
+the constant is set to 10, a very low and unrealistic setting. This suggests that hit-and-run can indeed make good pre-
+dictions with a reasonable choice of constant, and that the current setup of ApproxWMI, with hit-and-run constant factor 
+1000, comfortably achieves high-quality performance that aligns well with theoretical guarantees.
+All in all, these are encouraging ﬁndings, which further motivate the practical use of ApproxWMI, and corroborate the 
+empirical evidence for the looseness of the theoretical hit-and-run constant. In particular, these results, combined with the 
+earlier runtime performance of ApproxWMI, highlight that this ApproxWMI setup performs reliably, eﬃciently, and can 
+scale to large instances involving up to 1K variables.
+5. Related work
+WMC is a unifying framework for probabilistic inference across prominent probabilistic models: inference in probabilistic 
+graphical models [2]r e d u c e s to WMC(CNF) [11,12], and similar reductions of inference tasks to WMC exist for Markov Logic 
+Networks (MLNs) [33], probabilistic logic programming [34], and more generally, for relational models [35]. However, WMC
+21
+
+===== PDF PAGE 22 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+cannot capture hybrid probabilistic models involving both continuous and discrete variables, which occur in various contexts, 
+including hybrid MLNs [36], and hybrid Bayesian networks [37,38]. WMI is proposed as a unifying inference framework for 
+these hybrid models [7], and has been addressed in recent years both with exact and approximate solving techniques [39].
+In terms of computational complexity, both WMI and WMC are #P-hard [13], so are highly intractable for exact solving, 
+as the class P#P contains the entire polynomial hierarchy [40]. Unfortunately, this intractability even extends to restricted 
+settings of both these problems. For example, DNF counting remains #P-hard, even on positive, partitioned DNF formulas 
+with clause width at most 2 [41]. Furthermore, WMI can be tractably solved if and only if formulas have a primal graph 
+that is a tree with diameter logarithmic in the number of nodes [42]. In a primal graph, formula variables are represented 
+as nodes, and edges between these nodes appear when the variables co-appear in a same clause. Thus, this result shows 
+that only branching tree-shaped dependencies between variables can be tractably solved exactly for WMI, and that even 
+simple linear chain dependencies make formulas hard to solve.
+Despite the intractability of exact solving, many general-purpose exact solvers, based on several optimizations, have been 
+developed. These solvers exploit formula structure and perform substantial pre-processing to reduce the computation load 
+of WMI. For instance, a tool based on SMT predicate abstraction techniques [8] has been proposed to reduce the number 
+of models. Predicate abstraction introduces a set of predicates ψ and then abstracts away solutions of the original formula 
+φ by iterating over truth assignments to ψ and considering solutions that are shared with φ. Hence, ψ, typically designed 
+to be relevant to φ, that is, having predicates whose truth or falsehood affects φ, allows to signiﬁcantly reduce the search 
+space for the SMT solver. Indeed, predicate abstraction reduces the original exponential search over the atoms of φ is to a 
+more manageable (but still exponential) search over ψ, where |ψ| << atoms(X, V). This approach also supports a rich class 
+of weight functions, allowing conditional dependencies and case splits.
+In addition to predicate abstraction, Symbo [20]u s e s knowledge compilation to more eﬃciently perform WMI. More 
+speciﬁcally, Symbo compiles φ into a d-DNNF representation, which can subsequently be run in polynomial time. Though 
+the compilation is itself computationally expensive, it leads to substantial computational speedup when integrals over φ
+need to be computed multiple times. Symbo is inspired by knowledge compilation approaches for WMC, and performs 
+compilation by casting WMI as an algebraic model counting (AMC) task. With the AMC formulation, Symbo then deﬁnes 
+the corresponding literal labels and symbolic weights, which a symbolic integration tool then uses, along with the compiled 
+d-DNNF φ, to compute WMI. Symbo uses the common factorization assumption of Equation (2), but additionally supports 
+continuous variables using the theory of non-linear real arithmetic (NRA), which supports sums of rational powers of real 
+variables, as opposed to simple linear combinations of variables. Furthermore, Kolb et al. [31]u s e compilation based on 
+extended algebraic decision diagrams (XADDs) to tackle WMI with LRA atoms, and where w is a piece-wise polynomial 
+function. XADD enables parametrized (i.e., partial) solving of WMI, and is combined with symbolic dynamic programming 
+(SDP) to integrate over the Boolean-real domain and perform partial computation caching, enabling more eﬃcient exact
+WMI solving.
+Finally, exact lower and upper solution bounds, as opposed to the exact solution, are computed for WMI, based on hyper-
+rectangular decomposition and orthogonal transformations [43]. Intuitively, hyper-rectangular decomposition incompletely 
+covers the integration domain using sets of hyper-rectangles, such that the total integral over these hyper-rectangles yields 
+a lower bound for WMI. Analogously, upper bounds are computed by covering the negation of the domain of integration and 
+subtracting the integral from the total domain integral. However, the domain of integration can be hard to cover eﬃciently 
+using hyper-rectangles alone, if, for instance, this domain is not axis-aligned. Therefore, the approach proposes orthogonal 
+transformations, which transform the input formula using rotations and Pythagorean triples to another representation that is 
+more eﬃciently decomposable. This transformation is shown to preserve weights and the correctness of the problem setting 
+for variables following a Gaussian density function. This method is therefore more eﬃcient than standard WMI solving, as 
+integration over hyper-rectangles is simple, yields exact bounds, and can be made arbitrarily accurate by increasing the 
+number of used hyper-rectangles.
+Parallel to exact solvers, approximate methods have been developed for WMI to circumvent its intractability in the ex-
+act setting. A common such approximation method is hashing. At a high level, hashing methods partition the solution 
+space into disjoint, smaller, partitions where counting (resp., integration) is tractable, solve the problem over these easier 
+partitions, then leverage their results to compute an approximation, with guarantees, for the overall model count (resp., 
+integral). Hashing-based methods are popular for WMC [44], and were lifted to WMI [45] following its formulation [7]. 
+More concretely, WMI is approached using propositional abstraction, such that WMI statements are directly cast into WMC. 
+With this representation, it is then shown that universal hashing techniques used for WMC also apply to WMI, and there-
+fore, that an NP-oracle can also effectively partition the solution space for hybrid domains. Hence, this abstraction-based 
+hashing tool for WMI can compute probabilistic approximations, with guarantees, using a polynomial number of calls to an 
+NP oracle.
+In addition to hashing, knowledge compilation is also used to support WMI approximation. In particular, Sampo [20]
+extends Symbo to overcome the limitations of symbolic integration. More concretely, it uses Monte Carlo sampling to com-
+pute approximate integrals, and thus can apply to general WMI theories such as real arithmetic (RA), where certain integrals 
+cannot be symbolically computed. Sampo performs a number of sampling iterations, in which random variables are sampled 
+and fed into the compiled representation of φ, analogously to Symbo, to yield a weight. Then, the average of these weights 
+yields an approximate density. Sampo therefore approximates WMI with probabilistic guarantees.
+22
+
+===== PDF PAGE 23 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+Beyond Monte Carlo sampling, Markov Chain Monte Carlo (MCMC) methods have been applied to WMI, but such ap-
+proaches do not provide any guarantees. The only exception for this is a tool for #SMT [46], the unweighted case of WMI. 
+This tool approximates the solution for #SMT by calling a SAT solver following a randomized algorithm, analogously to 
+MCMC approaches for WMC(CNF), and produces probabilistic guarantees with polynomially many SAT calls [47].
+Finally, WMI has recently been approximated with the help of relaxation schemes. More speciﬁcally, ReCoIn [42], which 
+is short for “Relax, compensate and then integrate”, relaxes a given WMI instance by removing some of its constraints to 
+yield a “simpler” formula which can be tractably solved exactly. Then, it compensates for this relaxation by introducing new 
+auxiliary constraints to the relaxed formula. These new constraints are added to maintain semantic similarity of the relaxed 
+formula relative to the original formula, but are also formulated to keep the relaxed formula tractable. Following relaxation 
+and compensation, the resulting formula is then solved exactly (the integration operation), and its solution returned as the 
+approximate WMI. However, the modiﬁcation of input instances can lead to arbitrarily dissimilar instances, and thus ReCoIn 
+does not provide guarantees with its approximations.
+To the best of our knowledge, there is no dedicated study for WMI(DNF), despite WMC(DNF) being extensively studied, 
+partly motivated by the rich literature and research on probabilistic data management [5]. Indeed, query answering in 
+probabilistic databases reduces to WMC(DNF) as every conjunctive query is equivalent to a DNF via its lineage representation 
+and this correspondence extends to different probabilistic data models [48] and to special classes of ontology-mediated 
+probabilistic query answering [6,49]. This has led to a number of tools and algorithms from KLM [14]t o hashing-based 
+techniques [50], and recently to neural model counting approaches [27]. However, these tools, by construction, cannot 
+handle extended data models which also include continuous distributions. Such data models include Monte Carlo Databases 
+(MCDBs) [51], and the system PIP [52], which extends MCDBs to eﬃciently query probabilistic data deﬁned over hybrid 
+distributions. Abstracting away subtle technical differences, MCDBs and PIP both introduce approximate inference algorithms. 
+However, unlike our approach, these approaches do not provide guarantees. Therefore, our theoretical study of WMI(DNF), 
+and our proposed FPRAS algorithms for this setting, additionally serve as a unifying framework and perspective for a large 
+class of data models, spanning both standard probabilistic databases and hybrid data models.
+6. Summary and outlook
+In this work, we studied weighted model integration on DNF structures. First, we presented ApproxWMI, an FPRAS for 
+WMI(DNF) given a concave and factorized weight function w, which is based on FPRAS oracles for volume computation and 
+point sampling over convex bodies. Then, we relaxed the factorization assumption over w, and extended ApproxWMI to a 
+new FPRAS ApproxWMID, which uses Monte-Carlo sampling to capture dependencies between the Boolean and real sub-
+domains. Our FPRAS results for WMI(DNF) complement the result of WMC(DNF), and help draw a more complete picture 
+of approximability for these problems. Furthermore, our experimental analysis further shows the potential of ApproxWMI
+as a scalable and reliable WMI solver over DNF formulas.
+Looking forward, an interesting direction for future work is to investigate alternative approaches for approximate WMI
+with guarantees, such as hashing-based approaches, to reduce the need for expensive sampling operations, and thus further 
+improve the scalability of approximate WMI(DNF). Beyond this, it is important to explore further generalizations of this 
+work, allowing it to apply to new families of weight functions, as well as other SMT theories. We hope this work leads to a 
+better understanding of the complexity of WMI, and stimulates further investigation and development of WMI approaches, 
+leading to more robust WMI systems.
+Declaration of competing interest
+The authors declare that they have no known competing ﬁnancial interests or personal relationships that could have 
+appeared to inﬂuence the work reported in this paper.
+Acknowledgements
+This work was supported by the Alan Turing Institute under the UK EPSRC grants EP/N510129/1, EP/R013667/1, 
+EP/L012138/1, and EP/M025268/1. Ralph Abboud is funded by the Oxford-DeepMind Graduate Scholarship and the Alun 
+Hughes Graduate Scholarship. Experiments for this work were conducted on servers provided by the Advanced Research 
+Computing (ARC) cluster administered by the University of Oxford (https://doi .org /10 .5281 /zenodo .22558).
+References
+[1] C.P. Gomes, A. Sabharwal, B. Selman, Model counting, in: Handbook of Satisﬁability, IOS Press, 2009, pp. 633–654.
+[2] D. Koller, N. Friedman, Probabilistic Graphical Models: Principles and Techniques, MIT Press, 2009.
+[3] C. Domshlak, J. Hoffmann, Probabilistic planning via heuristic forward search and weighted model counting, J. Artif. Intell. Res. 30 (1) (2007) 565–620.
+[4] L. De Raedt, A. Kimmig, H. Toivonen, ProbLog: a probabilistic prolog and its application in link discovery, in: Proceedings of the Twentieth International 
+Joint Conference on Artiﬁcial Intelligence (IJCAI), 2007, pp. 2462–2467.
+[5] D. Suciu, D. Olteanu, C. Ré, C. Koch, Probabilistic Databases, Morgan & Claypool, 2011.
+[6] S. Borgwardt, ˙I.˙I. Ceylan, T. Lukasiewicz, Ontology-mediated queries for probabilistic databases, in: Proceedings of the Thirty-First AAAI Conference on 
+Artiﬁcial Intelligence (AAAI), 2017, pp. 1063–1069.
+23
+
+===== PDF PAGE 24 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+[7] V. Belle, A. Passerini, G. Van Den Broeck, Probabilistic inference in hybrid domains by weighted model integration, in: Proceedings of the Twenty-Fourth 
+International Joint Conference on Artiﬁcial Intelligence (IJCAI), 2015, pp. 2770–2776.
+[8] P. Morettin, A. Passerini, R. Sebastiani, Advanced SMT techniques for weighted model integration, Artif. Intell. J. 275 (2019) 1–27.
+[9] C. Barrett, R. Sebastiani, S. Seshia, C. Tinelli, Satisﬁability modulo theories, in: Frontiers in Artiﬁcial Intelligence and Applications, vol. 185, IOS Press, 
+2009, pp. 825–885, Ch. 20.
+[10] J. Pearl, Probabilistic Reasoning in Intelligent Systems: Networks of Plausible Inference, Morgan Kaufmann Publishers Inc., San Francisco, CA, USA, 1988.
+[11] T. Sang, P. Bearne, H. Kautz, Performing bayesian inference by weighted model counting, in: Proceedings of the Twentieth AAAI Conference on Artiﬁcial 
+Intelligence (AAAI), 2005, pp. 475–482.
+[12] M. Chavira, A. Darwiche, On probabilistic inference by weighted model counting, Artif. Intell. 172 (6) (2008) 772–799.
+[13] L.G. Valiant, The complexity of computing the permanent, Theor. Comput. Sci. 8( 2 ) (1979) 189–201.
+[14] R.M. Karp, M. Luby, N. Madras, Monte-Carlo approximation algorithms for enumeration problems, J. Algorithms 10 (3) (1989) 429–448.
+[15] D. Roth, On the hardness of approximate reasoning, Artif. Intell. J. 82 (1–2) (1996) 273–302.
+[16] K. Bringmann, T. Friedrich, Approximating the volume of unions and intersections of high-dimensional geometric objects, Comput. Geom. 43 (6–7) 
+(2010) 601–610.
+[17] M.G. Luby, Monte-Carlo methods for estimating system reliability, Ph.D. thesis, UC Berkeley, 1983.
+[18] M. Chen, B.W. Schmeiser, General hit-and-run Monte Carlo sampling for evaluating multidimensional integrals, Oper. Res. Lett. 19 (4) (1996) 161–169.
+[19] R. Abboud, ˙I.˙I. Ceylan, R. Dimitrov, On the approximability of weighted model integration on DNF structures, in: Proceedings of 17th International 
+Conference on Principles of Knowledge Representation and Reasoning, KR 2020, AAAI Press, 2020, pp. 828–837.
+[20] P. Martires, A. Dries, L. De Raedt, Exact and approximate weighted model integration with probability density functions using knowledge compilation, 
+in: Proceedings of the Thirty-Third AAAI Conference on Artiﬁcial Intelligence (AAAI), 2019, pp. 7825–7833.
+[21] L. Lovász, S.S. Vempala, Simulated annealing in convex bodies and an O∗(n4) volume algorithm, J. Comput. Syst. Sci. 72 (2) (2006) 392–417.
+[22] I. Bárány, Z. Füredi, Computing the volume is diﬃcult, Discrete Comput. Geom. 2 (1987) 319–326.
+[23] D.L. Applegate, R. Kannan, Sampling and integration of near log-concave functions, in: Proceedings of the Twenty-Third Annual ACM Symposium on 
+Theory of Computing (STOC), 1991, pp. 156–163.
+[24] R. Kannan, L. Lovász, M. Simonovits, Random walks and an O∗(n5) volume algorithm for convex bodies, Random Struct. Algorithms 11 (1) (1997) 
+1–50.
+[25] Y.T. Lee, S.S. Vempala, Geodesic walks in polytopes, in: Proceedings of the Forty-Ninth Annual ACM Symposium on Theory of Computing (STOC), 2017, 
+pp. 927–940.
+[26] S. Chakraborty, D.J. Fremont, K.S. Meel, S.A. Seshia, M.Y. Vardi, Distribution-aware sampling and weighted model counting for SAT, in: Proceedings of 
+the Twenty-Eighth AAAI Conference on Artiﬁcial Intelligence (AAAI), 2014, pp. 1722–1730.
+[27] R. Abboud, ˙I.˙I. Ceylan, T. Lukasiewicz, Learning to reason: leveraging neural networks for approximate DNF counting, in: Proceedings of the Thirty-
+Fourth AAAI Conference on Artiﬁcial Intelligence (AAAI), 2020, pp. 3097–3104.
+[28] V. Baldoni, N. Berline, J.A. De Loera, B. Dutra, M. Köppe, S. Moreinis, G. Pinto, M. Vergne, J. Wu, A user’s guide for LattE integrale v1.7.2, Optimization 
+22 (2).
+[29] I.Z. Emiris, V. Fisikopoulos, Practical polytope volume approximation, ACM Trans. Math. Softw. 44 (4) (2018) 38:1–38:21.
+[30] L. Lovász, S. Vempala, Where to start a geometric random walk, Tech. rep., Microsoft Research, 2003.
+[31] S. Kolb, M. Mladenov, S. Sanner, V. Belle, K. Kersting, Eﬃcient symbolic integration for probabilistic inference, in: Proceedings of the Twenty-Seventh 
+International Joint Conference on Artiﬁcial Intelligence (IJCAI), 2018, pp. 5031–5037.
+[32] S. Kolb, P. Morettin, P. Zuidberg Dos Martires, F. Sommavilla, A. Passerini, R. Sebastiani, L. De Raedt, The pywmi framework and toolbox for probabilistic 
+inference using weighted model integration, in: Proceedings of the Twenty-Eighth International Joint Conference on Artiﬁcial Intelligence (IJCAI), 2019, 
+pp. 6530–6532.
+[33] M. Richardson, P. Domingos, Markov logic networks, Mach. Learn. 62 (1) (2006) 107–136.
+[34] D. Fierens, G. Van Den Broeck, J. Renkens, D. Shterionov, B. Gutmann, I. Thon, G. Janssens, L. De Raedt, Inference and learning in probabilistic logic 
+programs using weighted boolean formulas, Theory Pract. Log. Program. 15 (3) (2015) 358–401.
+[35] V. Gogate, P. Domingos, Probabilistic theorem proving, Commun. ACM 59 (7) (2016) 107–115.
+[36] J. Wang, P. Domingos, Hybrid Markov logic networks, in: Proceedings of the Twenty-Third AAAI Conference on Artiﬁcial Intelligence (AAAI), 2008, 
+pp. 1106–1111.
+[37] V. Gogate, R. Dechter, Approximate inference algorithms for hybrid bayesian networks with discrete constraints, in: Proceedings of the Twenty-First 
+Conference on Uncertainty in Artiﬁcial Intelligence (UAI), 2005, pp. 209–216.
+[38] S. Sanner, E. Abbasnejad, Symbolic variable elimination for discrete and continuous graphical models, in: Proceedings of the Twenty-Sixth AAAI Con-
+ference on Artiﬁcial Intelligence (AAAI), 2012, pp. 1954–1960.
+[39] P. Morettin, P. Zuidberg Dos Martires, S. Kolb, A. Passerini, Hybrid probabilistic inference with logical and algebraic constraints: a survey, in: Proceedings 
+of the Thirtieth International Joint Conference on Artiﬁcial Intelligence (IJCAI), 2021.
+[40] S. Toda, On the computational power of PP and +P, in: Proceedings of the Thirtieth Annual Symposium on Foundations of Computer Science (FOCS), 
+1989, pp. 514–519.
+[41] J.S. Provan, M.O. Ball, The complexity of counting cuts and of computing the probability that a graph is connected, SIAM J. Comput. 12 (4) (1983) 
+777–788.
+[42] Z. Zeng, P. Morettin, F. Yan, A. Vergari, G.V. den Broeck, Probabilistic inference with algebraic constraints: theoretical limits and practical approxima-
+tions, in: H. Larochelle, M. Ranzato, R. Hadsell, M. Balcan, H. Lin (Eds.), Proceedings of the Thirty-Third Annual Conference on Advances in Neural 
+Information Processing Systems (NeurIPS), 2020, pp. 11564–11575.
+[43] D. Merrell, A. Albarghouthi, L. D’Antoni, Weighted model integration with orthogonal transformations, in: Proceedings of the Twenty-Sixth International 
+Joint Conference on Artiﬁcial Intelligence (IJCAI), 2017, pp. 4610–4616.
+[44] S. Chakraborty, K.S. Meel, M.Y. Vardi, A scalable approximate model counter, in: Proceedings of the Nineteenth International Conference on the Princi-
+ples and Practice of Constraint Programming (CP), 2013, pp. 200–216.
+[45] V. Belle, G.V. den Broeck, A. Passerini, Hashing-based approximate probabilistic inference in hybrid domains, in: Proceedings of the Thirty-First Con-
+ference on Uncertainty in Artiﬁcial Intelligence (UAI), 2015, pp. 141–150.
+[46] D. Chistikov, R. Dimitrova, R. Majumdar, Approximate counting in SMT and value estimation for probabilistic programs, Acta Inform. 54 (8) (2017) 
+729–764.
+[47] M.R. Jerrum, L.G. Valiant, V.V. Vazirani, Random generation of combinatorial structures from a uniform distribution, Theor. Comput. Sci. 43 (2–3) (1986) 
+169–188.
+[48] ˙I.˙I. Ceylan, A. Darwiche, G. Van den Broeck, Open-world probabilistic databases: semantics, algorithms, complexity, Artif. Intell. 295 (2021) 103474.
+[49] S. Borgwardt, ˙I.˙I. Ceylan, T. Lukasiewicz, Ontology-mediated query answering over log-linear probabilistic data, in: Proceedings of the 33rd National 
+Conference on Artiﬁcial Intelligence, AAAI Press, 2019, pp. 2711–2718.
+[50] K.S. Meel, A.A. Shrotri, M.Y. Vardi, On hashing-based approaches to approximate DNF-counting, in: Proceedings of the Thirty-Seventh IARCS Annual 
+Conference on Foundations of Software Technology and Theoretical Computer Science (FSTTCS), 2017, pp. 41:1–41:14.
+24
+
+===== PDF PAGE 25 =====
+R. Abboud,˙I.˙I. Ceylan and R. Dimitrov Artiﬁcial Intelligence 311 (2022) 103753
+[51] R. Jampani, F. Xu, M. Wu, L.L. Perez, C. Jermaine, P.J. Haas, MCDB: a Monte Carlo approach to managing uncertain data, in: Proceedings of the ACM 
+SIGMOD International Conference on Management of Data (SIGMOD), 2008, pp. 687–700.
+[52] O. Kennedy, C. Koch, PIP: a database system for great and small expectations, in: Proceedings of the Twenty-Sixth International Conference on Data 
+Engineering (ICDE), 2010, pp. 157–168.
+25

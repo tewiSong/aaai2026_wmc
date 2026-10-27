@@ -1,0 +1,65 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_0a_hardness_bp_gibbs_vs_exact_d4.py
+# sha256 : d36c6aae604b315d59243be5f7e49c40344d1099575f349e1b59d64956191b2a
+# args   : --ontology uberon --subgraph-size 2000 --n-subgraphs 4 --scores-per-family 2 --gibbs-sweeps 3000 --d4-timeout 3600 --seed 9
+# host   : nid002516   slurm_job: 22954989
+# start  : 2026-10-19T10:45:48+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+inst 0 n=2000 uniform:0    BP mae=2.48e-03 max=2.21e-01 conv=True | Gibbs mae=1.61e-03 max=1.86e-02 | exact 1.07s
+inst 0 n=2000 uniform:1    BP mae=2.69e-03 max=1.34e-01 conv=True | Gibbs mae=3.32e-03 max=3.28e-01 | exact 1.06s
+inst 0 n=2000 beta22:0     BP mae=2.42e-03 max=1.06e-01 conv=True | Gibbs mae=1.74e-03 max=1.74e-02 | exact 1.07s
+inst 0 n=2000 beta22:1     BP mae=2.73e-03 max=1.55e-01 conv=True | Gibbs mae=1.52e-03 max=1.61e-02 | exact 1.07s
+inst 0 n=2000 beta0505:0   BP mae=1.85e-03 max=1.55e-01 conv=True | Gibbs mae=2.08e-02 max=4.99e-01 | exact 1.06s
+inst 0 n=2000 beta0505:1   BP mae=9.48e-04 max=5.53e-02 conv=True | Gibbs mae=8.66e-03 max=3.41e-01 | exact 1.07s
+inst 0 n=2000 sparse:0     BP mae=4.52e-12 max=9.92e-10 conv=True | Gibbs mae=1.43e-04 max=2.49e-02 | exact 1.07s
+inst 0 n=2000 sparse:1     BP mae=1.37e-10 max=3.78e-08 conv=True | Gibbs mae=7.44e-07 max=4.93e-04 | exact 1.07s
+inst 1 n=2003 uniform:0    BP mae=1.52e-03 max=1.10e-01 conv=True | Gibbs mae=1.79e-03 max=5.53e-02 | exact 11.89s
+inst 1 n=2003 uniform:1    BP mae=2.96e-03 max=1.13e-01 conv=True | Gibbs mae=1.86e-03 max=2.33e-02 | exact 11.89s
+inst 1 n=2003 beta22:0     BP mae=3.30e-03 max=1.46e-01 conv=True | Gibbs mae=1.75e-03 max=1.92e-02 | exact 11.87s
+inst 1 n=2003 beta22:1     BP mae=3.31e-03 max=2.18e-01 conv=True | Gibbs mae=1.91e-03 max=2.10e-02 | exact 11.89s
+inst 1 n=2003 beta0505:0   BP mae=3.52e-03 max=4.08e-01 conv=True | Gibbs mae=2.02e-02 max=5.00e-01 | exact 11.99s
+inst 1 n=2003 beta0505:1   BP mae=1.66e-03 max=2.16e-01 conv=True | Gibbs mae=5.04e-03 max=2.99e-01 | exact 11.97s
+inst 1 n=2003 sparse:0     BP mae=1.09e-12 max=1.28e-09 conv=True | Gibbs mae=6.45e-07 max=8.24e-04 | exact 11.92s
+inst 1 n=2003 sparse:1     BP mae=1.28e-11 max=3.23e-09 conv=True | Gibbs mae=6.55e-07 max=7.02e-04 | exact 11.90s
+inst 2 n=2005 uniform:0    BP mae=2.64e-03 max=1.53e-01 conv=True | Gibbs mae=3.99e-03 max=2.21e-01 | exact 0.90s
+inst 2 n=2005 uniform:1    BP mae=1.33e-03 max=7.73e-02 conv=True | Gibbs mae=1.43e-03 max=1.32e-02 | exact 0.90s
+inst 2 n=2005 beta22:0     BP mae=2.79e-03 max=1.23e-01 conv=True | Gibbs mae=1.69e-03 max=3.31e-02 | exact 0.90s
+inst 2 n=2005 beta22:1     BP mae=1.68e-03 max=7.28e-02 conv=True | Gibbs mae=1.50e-03 max=1.39e-02 | exact 0.90s
+inst 2 n=2005 beta0505:0   BP mae=1.63e-03 max=2.65e-01 conv=True | Gibbs mae=3.62e-02 max=5.00e-01 | exact 0.90s
+inst 2 n=2005 beta0505:1   BP mae=2.66e-03 max=1.79e-01 conv=True | Gibbs mae=3.94e-02 max=5.00e-01 | exact 0.91s
+inst 2 n=2005 sparse:0     BP mae=1.28e-11 max=2.49e-09 conv=True | Gibbs mae=3.28e-07 max=3.22e-04 | exact 0.90s
+inst 2 n=2005 sparse:1     BP mae=4.67e-11 max=1.06e-08 conv=True | Gibbs mae=3.75e-07 max=2.82e-04 | exact 0.90s
+inst 3 n=2000 uniform:0    BP mae=2.43e-03 max=1.17e-01 conv=True | Gibbs mae=3.05e-03 max=1.18e-01 | exact 2.12s
+inst 3 n=2000 uniform:1    BP mae=2.29e-03 max=1.36e-01 conv=True | Gibbs mae=2.70e-03 max=8.07e-02 | exact 2.12s
+inst 3 n=2000 beta22:0     BP mae=2.57e-03 max=1.22e-01 conv=True | Gibbs mae=1.82e-03 max=2.02e-02 | exact 2.11s
+inst 3 n=2000 beta22:1     BP mae=2.47e-03 max=1.28e-01 conv=True | Gibbs mae=1.74e-03 max=1.83e-02 | exact 2.12s
+inst 3 n=2000 beta0505:0   BP mae=2.55e-03 max=1.88e-01 conv=True | Gibbs mae=3.73e-02 max=5.00e-01 | exact 2.12s
+inst 3 n=2000 beta0505:1   BP mae=2.07e-03 max=1.42e-01 conv=True | Gibbs mae=1.76e-02 max=5.00e-01 | exact 2.11s
+inst 3 n=2000 sparse:0     BP mae=2.28e-12 max=4.01e-10 conv=True | Gibbs mae=1.26e-06 max=9.85e-04 | exact 2.11s
+inst 3 n=2000 sparse:1     BP mae=4.15e-13 max=8.08e-11 conv=True | Gibbs mae=6.17e-08 max=6.37e-05 | exact 2.11s
+written /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/results/p1_0a_uberon_2000.json
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_0a_hardness_bp_gibbs_vs_exact_d4.py --ontology uberon --subgraph-size 2000 --n-subgraphs 4 --scores-per-family 2 --gibbs-sweeps 3000 --d4-timeout 3600 --seed 9"
+	User time (seconds): 4056.47
+	System time (seconds): 50.62
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:08:31
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 12539052
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 15288
+	Minor (reclaiming a frame) page faults: 3261114
+	Voluntary context switches: 20933
+	Involuntary context switches: 5420
+	Swaps: 0
+	File system inputs: 240702
+	File system outputs: 80
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-19T11:54:24+03:00   exit: 0

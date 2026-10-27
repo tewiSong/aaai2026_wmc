@@ -1,0 +1,1892 @@
+===== PDF PAGE 1 =====
+On Probabilistic Inference by Weighted Model
+Counting ⋆
+Mark Chavira, Adnan Darwiche
+Computer Science Department, UCLA, Los Angeles, CA 90095
+Abstract
+A recent and eﬀective approach to probabilistic inference calls for reducing the
+problem to one of weighted model counting (WMC) on a propositional knowledge
+base. Speciﬁcally, the approach calls for encoding the probabilistic model, typically
+a Bayesian network, as a propositional knowledge base in conjunctive normal form
+(CNF) with weights associated to each model according to the network parameters.
+Given this CNF, computing the probability of some evidence becomes a matter of
+summing the weights of all CNF models consistent with the evidence. A number of
+variations on this approach have appeared in the literature recently, that vary across
+three orthogonal dimensions. The ﬁrst dimension concerns the speciﬁc encoding
+used to convert a Bayesian network into a CNF. The second dimensions relates
+to whether weighted model counting is performed using a search algorithm on the
+CNF, or by compiling the CNF into a structure that renders WMC a polytime
+operation in the size of the compiled structure. The third dimension deals with the
+speciﬁc properties of network parameters (local structure) which are captured in
+the CNF encoding. In this paper, we discuss recent work in this area across the
+above three dimensions, and demonstrate empirically its practical importance in
+signiﬁcantly expanding the reach of exact probabilistic inference. We restrict our
+discussion to exact inference and model counting, even though other proposals have
+been extended for approximate inference and approximate model counting.
+Key words: Bayesian Networks, Exact Inference, Weighted Model Counting,
+Compilation
+⋆ Some of the work discussed in this paper is based on [1–3].
+Email addresses: chavira@cs.ucla.edu (Mark Chavira),
+darwiche@cs.ucla.edu (Adnan Darwiche).
+Preprint submitted to Elsevier Science 4 November 2007
+
+===== PDF PAGE 2 =====
+1 Introduction
+Standard algorithms [4–8] for exact inference on Bayesian networks exploit
+only topological structure and are known to be Θ(n2w), wheren is the number
+of network variables, and w is the treewidth of the network. That is, they are
+both worst case and best case bounded exponentially by treewidth. In recent
+years, the types of problems considered in probabilistic reasoning have often
+yielded networks with large treewidths, calling into question the applicability
+of exact inference methods, and shifting interest more towards approximate
+inference algorithms. It has long been believed though that a network exhibit-
+ing high treewidth may not necessarily be diﬃcult for exact inference, if it also
+exhibits a certain amount of local structure in the form of determinism [9] and
+context–speciﬁc independence (CSI) [10]. A typical algorithm that can exploit
+both topological and local structure is O(n2w). That is, only its worst case
+is exponential in treewidth (e.g., when no local structure exists), but where
+there is suﬃcient local structure, its performance can be signiﬁcantly better.
+A number of approaches have been proposed in the literature for exploiting
+local structure, e.g., [11,12,10,13–15,1,16,9,17]. Our aim in this paper is to
+survey and provide further results on a particular class of these approaches,
+which works by reducing the problem of probabilistic inference into one of
+weighted model counting (WMC) on a propositional knowledge base. In par-
+ticular, the approach commences by encoding the Bayesian network into a
+knowledge base in conjunctive normal form (CNF), and then assigns weights
+to the CNF variables based on the network probabilities. These assignments
+of weights to variables induce a weight for each CNF model, allowing one to
+represent the probability of some evidence as the sum of weights for models
+consistent with the evidence. A number of variations on this model counting
+approach have appeared in the literature recently, and they vary across three
+orthogonal dimensions. The ﬁrst dimension concerns the speciﬁc encoding used
+to convert a Bayesian network into a CNF. The second dimension relates to
+whether WMC is performed using a search algorithm on the CNF [18,19,16],
+or by compiling the CNF into a structure that renders WMC a polytime oper-
+ation in the size of the compiled structure [15,20]. 1 The third dimension deals
+with the speciﬁc properties of network parameters (local structure) which are
+captured in the CNF encoding.
+Probabilistic inference by WMC can be powerful for several reasons. First, the
+encoding of Bayesian networks into logical knowledge bases presents oppor-
+tunities to eﬀectively reveal local structure in the form of determinism and
+1 This does not escape the complexity of WMC since the compilation and size of
+resulting structure can in the worst case be exponential in the treewidth of the
+network.
+2
+
+===== PDF PAGE 3 =====
+context–speciﬁc independence. Second, it provides a very natural framework
+for exploiting the computational power of evidence [2]. Finally, it can lever-
+age highly reﬁned techniques for solving satisﬁability, which form the basis for
+both search and knowledge compilation approaches to WMC. Such techniques
+are especially eﬀective, as we shall see, on encodings of Bayesian networks that
+contain large amounts of determinism. In recent years, these advantages have
+lead to several breakthroughs in exact probabilistic inference that have chal-
+lenged common perceptions of what exact inference can do. In this paper, we
+present a survey of these works by placing them along the three dimensions
+discussed earlier, and then demonstrate empirically their practical importance
+in signiﬁcantly expanding the reach of exact inference.
+The remainder of this paper is organized as follows. In Section 2, we provide
+background material. The paper then addresses each of the three orthogonal
+dimensions that diﬀerentiate approaches that utilize WMC: encodings in Sec-
+tion 3, search vs. knowledge compilation in Section 4, and local structure in
+Section 5. We brieﬂy discuss what happens to WMC techniques in the absence
+of local structure in Section 6. The paper ends with conclusions in Section 7.
+2 Probabilistic Inference by WMC
+In this section, we review some fundamental concepts from probabilistic in-
+ference, show one way to reduce probabilistic inference to WMC, and provide
+some historical perspective.
+2.1 Probabilistic inference
+Within the area of probabilistic reasoning, one typically models a situation as
+a joint distribution on a set of random variables and uses this distribution to
+answer probabilistic queries. In this paper, all variables have ﬁnite domains.
+Suppose that X is a set of variables. 2 An instantiation of X is an assignment
+to each X ∈ X of some value in X’s domain. Evidence on X is similar but
+need assign only some of the variables in X. A joint distribution over X is a
+function Pr that maps each instantiation of X to a probability in [0 , 1] such
+that the sum of the probabilities is equal to 1. For example, suppose that we
+2 We are using the standard notation: variables are denoted by upper–case letters
+(A) and their values by lower–case letters ( a). Sets of variables are denoted by
+bold–face upper–case letters ( A) and their instantiations are denoted by bold–face
+lower–case letters (a). For a variableA with values false and true, we use ¯a to denote
+A=false and a to denote A=true.
+3
+
+===== PDF PAGE 4 =====
+Table 1
+A joint distribution over three variables.
+A B C Pr
+a1 b1 c1 0.001
+a1 b1 c2 0.002
+a1 b1 c3 0.007
+a1 b2 c1 0.009
+a1 b2 c2 0.018
+a1 b2 c3 0.063
+a2 b1 c1 0.0018
+a2 b1 c2 0.0162
+a2 b1 c3 0.162
+a2 b2 c1 0.0072
+a2 b2 c2 0.0648
+a2 b2 c3 0.648
+are dealing with variables X = {A,B,C }, where A and B have two values,
+and C has three values. Then Table 1 depicts one possible joint distribution
+on X.
+An important query one might wish to answer with respect to the joint is the
+probability of evidence e, denoted Pr(e). To answer this query, we ﬁrst remove
+rows from the joint that contradict e, and then sum the remaining probabil-
+ities. For example, using Table 1 as the model, one computes Pr(a1,c 2) by
+summing the two consistent instantiations (second and ﬁfth rows) for a result
+of 0.02. Although the joint distribution contains the information necessary to
+answer queries, its size is exponential in the number of variables. As a result,
+there is a need to specify a joint compactly. One common class of model-
+ing language is probabilistic graphical models, which include Markov networks
+and Bayesian networks [21]. This paper will focus on the popular Bayesian
+network, but much of the description applies to other modeling languages, in-
+cluding Markov networks and ground instances of some ﬁrst order probabilistic
+models [22].
+A Bayesian network represents a speciﬁc joint distribution and is a pair (G,P ),
+where G is a directed–acyclic graph and P is a set of factors. The nodes in
+G are the variables X in the joint, and the edges in G imply certain proba-
+bilistic independence relationships among the variables. For each X ∈ X with
+parents U, P contains a factor f, which is a function over instantiations of
+U ∪ {X} such that f(u,x ) = Pr(x | u). We refer to X and its parents as a
+4
+
+===== PDF PAGE 5 =====
+A
+B C
+A Pr
+a1 0.1
+a2 0.9
+A B Pr
+a1 b1 0.1
+a1 b2 0.9
+a2 b1 0.2
+a2 b2 0.8
+A C Pr
+a1 c1 0.1
+a1 c2 0.2
+a1 c3 0.7
+a2 c1 0.01
+a2 c2 0.09
+a2 c3 0.9
+Fig. 1. A small Bayesian network specifying the joint in Table 1.
+network family. The semantics of Bayesian networks imply the following joint
+distribution:
+Pr(x1,x 2,...,x k) =
+∏
+i
+Pr(xi | ui) (1)
+where ui is the instantiation of Xi’s parents as they appear in x1,x 2,...,x k.
+Figure 1 depicts a simple Bayesian network, which induces the joint distribu-
+tion in Table 1.
+A factor is simply a function and can be represented in various ways. Very
+often, a factor is represented as a conditional probability table (CPT), sev-
+eral of which are shown in Figure 1. In such cases, we refer to each table
+entry Pr(x | u) as a network parameter. In addition to tables, other repre-
+sentations of factors are also possible, including decision trees/graphs, noisy
+or/and/min/max, and logical rules. In this paper, we deal only with CPTs,
+although WMC techniques can also be very powerful in the context of other
+representations.
+5
+
+===== PDF PAGE 6 =====
+2.2 Probabilistic Inference as WMC
+In this section, we provide an example that illustrates how computing the
+probability of evidence for a particular Bayesian network can be reduced to
+WMC. To generate an instance of the WMC problem, one needs to deﬁne a
+logical theory ∆ and to assign a weight W (ℓ) to each literal ℓ. The weights
+for the literals induce a weight for each model ω of ∆ as follows:
+W (ω) =
+∏
+ω|=ℓ
+W (ℓ)
+Finally, computing WMC for ∆, which we shall denoteWMC (∆), is comput-
+ing the sum of the weights of all models of ∆:
+WMC (∆) =
+∑
+ω|=∆
+W (ω)
+The reduction scheme described in this section is based on the one proposed in
+[15]. Given a Bayesian network and evidence, the scheme constructs a weighted
+knowledge base ∆, whose weighted model count corresponds to the probability
+of evidence with respect to the network. An intuition for the scheme can be
+attained by relating the models of ∆ to the rows of the joint distribution of the
+network. In particular, the models will be in one–to–one correspondence with
+the rows, and the variable weights will be assigned in such a way that each
+model will have a weight equal to the probability of the corresponding row
+in the joint. Weighted counting of the models is then equivalent to summing
+all probabilities in the joint. The last step required to compute probability
+of evidence is a way to exclude appropriate models from being counted. We
+provide details of this reduction scheme next.
+Consider again the Bayesian network N in Figure 1 and suppose that we
+wish to compute the probability of evidence e = {a1,c 2} with respect to this
+network. To perform the reduction, we require ﬁve tasks.
+Deﬁne logical variables: The ﬁrst task is to deﬁne the variables that will
+be used in the logic. For each value x of each network variable X, we deﬁne
+an indicator variable λx in the CNF. For network N, we obtain the following
+indicator variables:
+Variable A:λa1, λa2
+Variable B:λb1, λb2
+Variable C:λc1, λc2, λc3
+6
+
+===== PDF PAGE 7 =====
+Table 2
+Variable instantiations for the network in Figure 1; deﬁnitions for the corresponding
+models; weights without evidence; and the weights after incorporating evidence
+e =a1,c 2.
+Network Sets these CNF vars to Weight Weight
+Instantiation true and all others to false without e with e
+a1b1c1 λa1λb1λc1θa1θb1|a1θc1|a1 0.1 · 0.1 · 0.10 = 0.001 0
+a1b1c2 λa1λb1λc2θa1θb1|a1θc2|a1 0.1 · 0.1 · 0.20 = 0.002 0 .002
+a1b1c3 λa1λb1λc3θa1θb1|a1θc3|a1 0.1 · 0.1 · 0.70 = 0.007 0
+a1b2c1 λa1λb2λc1θa1θb2|a1θc1|a1 0.1 · 0.9 · 0.10 = 0.009 0
+a1b2c2 λa1λb2λc2θa1θb2|a1θc2|a1 0.1 · 0.9 · 0.20 = 0.018 0 .018
+a1b2c3 λa1λb2λc3θa1θb2|a1θc3|a1 0.1 · 0.9 · 0.70 = 0.063 0
+a2b1c1 λa2λb1λc1θa2θb1|a2θc1|a2 0.9 · 0.2 · 0.01 = 0.0018 0
+a2b1c2 λa2λb1λc2θa2θb1|a2θc2|a2 0.9 · 0.2 · 0.09 = 0.0162 0
+a2b1c3 λa2λb1λc3θa2θb1|a2θc3|a2 0.9 · 0.2 · 0.90 = 0.162 0
+a2b2c1 λa2λb2λc1θa2θb2|a2θc1|a2 0.9 · 0.8 · 0.01 = 0.0072 0
+a2b2c2 λa2λb2λc2θa2θb2|a2θc2|a2 0.9 · 0.8 · 0.09 = 0.0648 0
+a2b2c3 λa2λb2λc3θa2θb2|a2θc3|a2 0.9 · 0.8 · 0.90 = 0.648 0
+In addition, for each parameter Pr(x|u) in the Bayesian network, we deﬁne a
+corresponding parameter variable θx|u in the CNF. For network N, this step
+yields the following parameter variables:
+CPT 1: θa1,θ a2
+CPT 2: θb1|a1,θ b2|a1,θ b1|a2,θ b2|a2
+CPT 3: θc1|a1,θ c2|a1,θ c3|a1θc1|a2,θ c2|a2, θc3|a2
+Deﬁne the KB semantics: The second task is to deﬁne the knowledge base
+∆ that will represent N. The models of ∆ are in one–to–one correspondence
+with the instantiations of the network variables. If w is an instantiation of
+the network variables, then the corresponding model sets to true each CNF
+variable whose subscript is consistent with w and sets all other CNF variables
+to false. For the networkN, the ﬁrst two columns of Table 2 show instantiations
+of network variables and deﬁnitions for the corresponding models.
+Deﬁne the CNF: In general, it will not be possible to deﬁne ∆ by listing
+models and instead we will generate a CNF that represents ∆. As we shall
+see, obtaining a CNF that represents ∆ can be done by processing each net-
+work variable and each parameter. We will be describing CNF encodings of
+7
+
+===== PDF PAGE 8 =====
+a Bayesian network in more detail below. For now, we simply present one of
+these encodings for network N without describing how it was generated:
+Variable A: λa1 ∨λa2 ¬λa1 ∨ ¬λa2
+Variable B: λb1 ∨λb2 ¬λb1 ∨ ¬λb2
+Variable C: λc1 ∨λc2 ∨λc3 ¬λc1 ∨ ¬λc2
+¬λc1 ∨ ¬λc3
+¬λc2 ∨ ¬λc3
+CPT 1: λa1 ⇔θa1 λa2 ⇔θa2
+CPT 2: λa1 ∧λb1 ⇔θb1|a1 λa2 ∧λb1 ⇔θb1|a2
+λa1 ∧λb2 ⇔θb2|a1 λa2 ∧λb2 ⇔θb2|a2
+CPT 3: λa1 ∧λc1 ⇔θc1|a1 λa2 ∧λc1 ⇔θc1|a2
+λa1 ∧λc2 ⇔θc2|a1 λa2 ∧λc2 ⇔θc2|a2
+λa1 ∧λc3 ⇔θc3|a1 λa2 ∧λc3 ⇔θc3|a2
+Assign weights: The fourth task requires that we associate a weight W (ℓ)
+with each CNF literalℓ. With each positive literal of a parameter variable, we
+associate a weight equal to the corresponding parameter, and with all other
+literals, we associate a weight of 1. That is,W (θx|u) = Pr(x|u),W (¬θx|u) = 1,
+W (λx) = 1, and W (¬λx) = 1. For the CNF variables deﬁned for network N,
+all variable weights therefore become 1 except the following:
+W (θa1) = 0.1 W (θa2) = 0.9
+W (θb1|a1) = 0.1 W (θb2|a1) = 0.9
+W (θb1|a2) = 0.2 W (θb2|a2) = 0.8
+W (θc1|a1) = 0.1 W (θc2|a1) = 0.2 W (θc3|a1) = 0.7
+W (θc1|a2) = 0.01 W (θc2|a2) = 0.09 W (θc3|a2) = 0.9
+Given this assignment of weights to variables, each model ω assumes a weight
+that is the product of the weights of the positive parameter literals inω (other
+literals in ω have weight 1). The third column of Table 2 shows the weights of
+models for network N. An important observation is that each model is now
+guaranteed to have weight that is equal to the probability of the corresponding
+row in the joint distribution (compare weights in Table 2 to probabilities in
+Table 1).
+Incorporating evidence and computing WMC: At this point, ∆ does
+not incorporate evidence, and computing WMC (∆) is equivalent to summing
+8
+
+===== PDF PAGE 9 =====
+all probabilities in the joint distribution, which would yield an answer of 1 .0.
+Recall that to compute the probability of evidence, one removes from the
+joint those rows that contradict the evidence before summing. There are two
+ways we can incorporate the evidence into our WMC computation. First,
+we can change the weight associated with each indicator λx whose subscript
+contradicts the evidence from 1 to 0. The result of this change for network
+N and evidence {a1,c 2} is shown in the fourth column of Table 2. Setting
+the indicators in this way has the eﬀect of zeroing out those rows that are
+inconsistent with the evidence. Now Pr(e) = WMC (∆) = 0.002 + 0.018 =
+0.02. A second way to eliminate the proper rows from the computation is
+to remove from the theory being counted those models that contradict the
+evidence. We do so by computing Pr(e) = WMC (∆ ∧ ∆e) = 0.02, where ∆ e
+is a conjunction of indicators that encodes the evidence; in the case where
+e = {a1,c 2}, ∆e =λa1 ∧λc2. Each of the two methods has advantages, which
+will be discussed later in the paper.
+2.3 Related Work
+The relationship between probabilistic inference and WMC was highlighted
+in [23], where it was shown that, like model counting, exact probabilistic in-
+ference is #P–complete (however [23] did not address weights directly). This
+connection was further discussed in [24], which shows, among other things,
+that a DPLL–style [25] SAT solver can be adapted to solve both Bayesian
+network inference and model counting by adding memoization.
+An approach to probabilistic inference based on compiling a CNF encoding of
+a Bayesian network and then performing polytime WMC (in the size of the
+compiled representation) was introduced in [15], although this work did not
+use the term weighted model counting . By making use of determinism, this
+approach was shown in [15,22] to perform exact inference very eﬃciently on
+many networks having large amounts of determinism, in spite of very large
+treewidth. The encoding was later enhanced to utilize other types of local
+structure [1], allowing it to be eﬀective on a larger class of networks (e.g.,
+ones having lesser amounts of determinism). The ability of WMC to capital-
+ize on available evidence while computing marginals was introduced in [2].
+Here, WMC by compilation was shown to eﬃciently solve many problems
+with evidence, where they could not be compiled without evidence and where
+they could not be solved by algorithms that exploit only topological structure,
+with or without evidence, even after applying classical evidence–exploitation
+techniques. Methods for increasing the decomposability of the generated CNF
+by applying structured resolution were described in [3]. The increase in de-
+composability allowed many networks to be compiled for the ﬁrst time and
+signiﬁcantly decreased the time and space required to compile networks that
+9
+
+===== PDF PAGE 10 =====
+were accessible previously. Many of the algorithms for this compilation ap-
+proach are implemented in a publicly available tool called Ace, 3 which uses
+the c2d compiler [26]. 4
+A system described in [16] leverages a state–of–the–art model counter called
+Cachet 5 to perform inference in a Bayesian network. This work uses a search
+algorithm rather than compilation and, like [15], performs WMC on a CNF
+constructed from a Bayesian network. Among the novel aspects of this work is
+a new encoding of the network into CNF, which is smaller than the encoding
+described in [15] in many cases. This search–based algorithm has also been able
+to signiﬁcantly outperform algorithms that exploit only topological structure
+on many networks with large amounts of determinism.
+Classical approaches to probabilistic inference, based on conditioning and vari-
+able elimination, have also been extended to exploit local structure. For exam-
+ple, a class of conditioning algorithms [8,27,12] proceed in a way that is very
+similar to that of DPLL–style SAT solvers and model counters that use compo-
+nent analysis. A clear connection between these types of algorithms was made
+in [12], which also describes how to incorporate additional advances from SAT
+solvers, including nogood learning and unit propagation, into an algorithm
+called value elimination. In this approach, search is performed on instanti-
+ations of network variables, and the logical techniques, many of which are
+also used by WMC algorithms, are utilized to capitalize on determinism and
+context–speciﬁc independence. The approach allows for dynamic ordering of
+variables, has the same guarantees as algorithms that exploit only topological
+structure, outperforms such algorithms in many circumstances, and is capa-
+ble of trading time for space, similar to recursive conditioning [8]. In a sense,
+this class of conditioning approaches is quite similar in spirit to the WMC
+approaches we discuss in this paper, as they are both based on top-down, re-
+cursive conditioning and decomposition techniques. Yet, the WMC approaches
+we discuss have empirically appeared to be more scalable in general, as they
+operate directly on CNF representations, putting them at a greater advantage
+when exploiting satisﬁability-based techniques.
+Another class of approaches for exploiting local structure is based on variable
+elimination algorithms (and the closely related jointree algorithm). For exam-
+ple, the technique of zero–compression can be used to exploit determinism in
+the jointree framework [9], yet this technique requires one to initially perform
+inference on the jointree before it is zero–compressed. Hence, the technique ini-
+tially takes time and space exponential in the network treewidth, potentially
+realizing savings in future runs, but making many of our data sets inaccessible
+3 Available for download at http://reasoning.cs.ucla.edu/ace.
+4 Available for download at http://reasoning.cs.ucla.edu/c2d.
+5 Available for download at http://www.cs.rochester.edu/u/kautz/Cachet.
+10
+
+===== PDF PAGE 11 =====
+to this method. More sophisticated extensions to variable elimination algo-
+rithms have also been proposed recently, including [11], [14], and [17], which
+propose non-tabular representations of factors, to avoid the exponential com-
+plexity in treewidth. Signiﬁcantly, [17] is a compilation approach that is able
+to compile many networks in much less time than WMC compilation tech-
+niques described later, while matching WMC online performance. Yet, all of
+the networks on which these approaches (and zero–compression) have reported
+are solvable by methods that are exponential in network treewidth.
+A third, more specialized, class of algorithms for exploiting local structure in-
+clude Quickscore [13] and superlink. 6 These algorithms have demonstrated
+exponential improvements over classical algorithms by solving problems that
+have very large treewidths. The Quickscore algorithm applies only to a partic-
+ular class of networks (two-level, noisy-or networks), and superlink includes
+domain-speciﬁc techniques for genetic linkage networks. WMC techniques were
+shown in [2] to be more eﬃcient than Quickscore, and in many cases signif-
+icantly more eﬃcient than superlink. We repeat some of these empirical
+comparisons in Section 5.3. Another example of an algorithm for exploiting
+local structure, which is able to handle networks with very high treewidth,
+is value elimination [12]. As mentioned earlier, this algorithm is closest to
+the WMC algorithms we discuss in this paper. However, the WMC approach
+based on Cachet was shown to dominate value elimination on a wide class of
+networks [16].
+Any method that is capable of approximating model counting can poten-
+tially be applied to approximate answers to probabilistic queries. One such a
+method, called ApproxCount, was proposed in [28] and is based on work from
+[29]. This method samples from the solution space of a CNF near–uniformly,
+by combining random walk with Metropolis moves. An advantage of the ap-
+proach is that it can provide an approximation in cases where exact inference is
+not practical. Another advantage is that the time required can be adjusted by
+trading accuracy. Although this is an interesting area, we will only be covering
+exact probabilistic inference and exact model counting in this paper.
+3 CNF Encodings
+CNF encoding is the ﬁrst dimension that has diﬀerentiated WMC approaches
+to probabilistic inference. It consists of deﬁning the reduction to WMC, both
+semantically, by specifying variables, models, and weights, and syntactically,
+by specifying a CNF that captures the set of models. Encodings are important
+as the amount of local structure they capture can have a signiﬁcant impact
+6 For more information, see http://bioinfo.cs.technion.ac.il/superlink.
+11
+
+===== PDF PAGE 12 =====
+on the performance of model counters, as we describe later.
+3.1 Encoding ENC1
+The ﬁrst encoding technique, which we will refer to asENC1, was presented in
+[15]. Section 2.2 discussed most of what is involved in this encoding, including
+the semantic mapping and an example CNF. We now ﬁll in the remaining
+pieces, which are how to produce the clauses of the CNF and how to capture
+determinism. First, we describe the clauses. For each network variableX with
+domain x1,x 2,...,x k, we have:
+Indicator Clauses:
+λx1 ∨λx2 ∨... ∨λxk
+¬λxi ∨ ¬λxj, for i<j
+For example, variableC from Figure 1 generates the following indicator clauses:
+λc1 ∨λc2 ∨λc3, ¬λc1 ∨ ¬λc2, ¬λc1 ∨ ¬λc3, ¬λc2 ∨ ¬λc3 (2)
+These clauses ensure that exactly one indicator variable for C is set to true in
+each model. For each parameterPr(xi|u1,u 2,...,u n), we produce the following
+clauses:
+ENC1 Parameter Clauses:
+λu1 ∧λu2 ∧... ∧λun ∧λxi ⇔θxi|u1,u2,...,un
+For example, parameter θc1|a1 in Figure 1 generates the following clauses:
+λa1 ∧λc1 ⇒θc1|a1, θ c1|a1 ⇒λa1, θ c1|a1 ⇒λc1 (3)
+These clauses ensure that θc1|a1 is set to true in a model iﬀ λa1 andλc1 are set
+to true in that model.
+ENC1 as discussed does not capture information about parameter values (lo-
+cal structure). We will be discussing encoding local structure in more detail in
+Section 5. However, from the very beginning, ENC1 eﬀectively utilized deter-
+minism, which is quite easy to encode. Consider again Figure 1 and imagine
+that the parameter θc1|a1 were 0. Given that this parameter is known to be 0,
+all models that set this parameter variable to true will have weight 0. There-
+fore, for this parameter variable, we can replace the clauses in Equation 3 by
+12
+
+===== PDF PAGE 13 =====
+the single clause: ¬λa1 ∨¬λc1. This clause has the eﬀect of eliminating all CNF
+models which contain the parameter θc1|a1, which, like assigning them weight
+0, also prevents them from inﬂuencing the result of the WMC computation.
+Furthermore, the parameter variableθc1|a1 has been rendered superﬂuous and
+can be eliminated from the encoding. Although encoding determinism will
+not change the answer to the WMC computation, it can greatly improve the
+eﬃciency of WMC algorithms.
+3.2 Encoding ENC2
+The second encoding technique, which we will refer to as ENC2, is based on
+the encoding presented in [16]. To describe ENC2, we assume that for each
+network variable, there is an ordering on its values. If value x′ comes earlier
+in the ordering than value x, we say x′ < x. We describe ENC2 referring to
+the Bayesian network N in Figure 1.
+Deﬁne logical variables: ENC2 produces the same indicator variables as
+ENC1. For each network parameter Pr(x|u) such thatx is notX’s last value,
+ENC2 will produce a parameter variable ρx|u. For example, for network N,
+ENC2 produces the following parameter variables.
+CPT 1: ρa1
+CPT 2: ρb1|a1,ρ b1|a2
+CPT 3: ρc1|a1,ρ c2|a1,ρ c1|a2,ρ c2|a2
+Deﬁne the KB semantics: Each instantiation w of the network variables
+generates a set Ω of models. Ω is formed by requiring ﬁxed values for certain
+CNF variables and leaving others as don’t cares. In particular:
+(1) Indicator Rule: w requires that indicator variable λx be ﬁxed to true ifx
+is compatible with w and ﬁxed to false otherwise.
+(2) Incompatible Parent Rule: w makes parameter variableρx|u a don’t care
+if u is incompatible with w.
+(3) Compatible Parent Rule: Let xw be the value that w assigns variableX;
+for each parameter variableρx|u such that u is compatible with w, (a) w
+requires that ρx|u be ﬁxed to false if x<x w, (b) w requires that ρx|u be
+ﬁxed to true if x =xw, and (c) w makesρx|u a don’t care if x>x w.
+For nework N, Table 3 lists network instantiations and corresponding sets
+of models. For network N, each network instantiation ﬁxes either 10 or 11
+CNF variables. Because there are a total of 14 CNF variables, each network
+instantiation therefore induces a set of 2 3 or 24 models.
+13
+
+===== PDF PAGE 14 =====
+Table 3
+ENC2 models for the network in Figure 1.
+Network Fixes these CNF Fixes these CNF
+Instantiation vars to false vars totrue
+a1b1c1 λa2,λb2,λc2,λc3 λa1,λb1,λc1,ρ a1,ρ b1|a1,ρ c1|a1
+a1b1c2 λa2,λb2,λc1,λc3,ρ c1|a1 λa1,λb1,λc2,ρ a1,ρ b1|a1,ρ c2|a1
+a1b1c3 λa2,λb2,λc1,λc2,ρ c1|a1ρc2|a1 λa1,λb1,λc3,ρ a1,ρ b1|a1
+a1b2c1 λa2,λb1,λc2,λc3,ρ b1|a1 λa1,λb2,λc1,ρ a1,ρ c1|a1
+a1b2c2 λa2,λb1,λc1,λc3,ρ b1|a1,ρ c1|a1 λa1,λb2,λc2,ρ a1,ρ c2|a1
+a1b2c3 λa2,λb1,λc1,λc2,ρ b1|a1,ρ c1|a1,ρ c2|a1 λa1,λb2,λc3,ρ a1
+a2b1c1 λa1,λb2,λc2,λc3,ρ a1 λa2,λb1,λc1,ρ b1|a2,ρ c1|a2
+a2b1c2 λa1,λb2,λc1,λc3,ρ a1,ρ c1|a2 λa2,λb1,λc2,ρ b1|a2,ρ c2|a2
+a2b1c3 λa1,λb2,λc1,λc2,ρ a1,ρ c1|a2,ρ c2|a2 λa2,λb1,λc3,ρ b1|a2
+a2b2c1 λa1,λb1,λc2,λc3,ρ a1,ρ b1|a2 λa2,λb2,λc1,ρ c1|a2
+a2b2c2 λa1,λb1,λc1,λc3,ρ a1,ρ b1|a2,ρ c1|a2 λa2,λb2,λc2,ρ c2|a2
+a2b2c3 λa1,λb1,λc1,λc2,ρ a1,ρ b1|a2,ρ c1|a2,ρ c2|a2 λa2,λb2,λc3
+Deﬁne the CNF: For each network variable, ENC2 deﬁnes the same in-
+dicator clauses as ENC1. ENC2 produces a single clause for each network
+parameter Pr(xi|u1,u 2,...,u n). Let the ordered domain ofX bex1,x 2,...,x k.
+If i ̸=k, then ENC2 produces the following parameter clause:
+ENC2 Normal Parameter Clause:
+λu1 ∧... ∧λun ∧ ¬ρx1|u ∧... ∧ ¬ρxi−1|u ∧ρxi|u ⇒λxi
+Otherwise, ENC2 produces the following parameter clause:
+ENC2 Final Parameter Clause:
+λu1 ∧... ∧λun ∧ ¬ρx1|u ∧... ∧ ¬ρxk−1|u ⇒λxk
+For example, the parameter variable ρc1|a1 in network N produces the clause:
+λa1 ∧ρc1|a1 ⇒λc1
+14
+
+===== PDF PAGE 15 =====
+Following is the entire CNF produced by ENC2 for network N:
+Variable A: λa1 ∨λa2 ¬λa1 ∨ ¬λa2
+Variable B: λb1 ∨λb2 ¬λb1 ∨ ¬λb2
+Variable C: λc1 ∨λc2 ∨λc3 ¬λc1 ∨ ¬λc2
+¬λc1 ∨ ¬λc3
+¬λc2 ∨ ¬λc3
+CPT 1: ρa1 ⇒λa1 ¬ρa1 ⇒λa2
+CPT 2: λa1 ∧ρb1|a1 ⇒λb1 λa2 ∧ρb1|a2 ⇒λb1
+λa1 ∧ ¬ρb1|a1 ⇒λb2 λa2 ∧ ¬ρb1|a2 ⇒λb2
+CPT 3: λa1 ∧ρc1|a1 ⇒λc1 λa2 ∧ρc1|a2 ⇒λc1
+λa1 ∧ ¬ρc1|a1 ∧ρc2|a1 ⇒λc2 λa2 ∧ ¬ρc1|a2 ∧ρc2|a2 ⇒λc2
+λa1 ∧ ¬ρc1|a1 ∧ ¬ρc2|a1 ⇒λc3 λa2 ∧ ¬ρc1|a2 ∧ ¬ρc2|a2 ⇒λc3
+We also point out that determinism can be encoded in ENC2 as it was in
+ENC1. Speciﬁcally, we can replace a parameter clause corresponding to a 0
+parameter with a shorter clause involving indicators only and remove param-
+eter variables corresponding to 0 parameters.
+Assign weights: ENC2 assigns weights to indicator variables in the same
+way as ENC1. For each positive literal of a parameter variableρxi|u, we assign
+a weight that represents the probability thatX =xi given u and givenX ̸=xj
+for any xj < xi. In particular, if the ordered domain of X is x1,x 2,...,x k,
+then W (ρx1|u) = Pr(x1|u); W (ρx2|u) = Pr(x2|u)/(1 − Pr(x1|u)); W (ρx3|u) =
+Pr(x3|u)/(1−Pr(x1|u)−Pr(x2|u)), etc. Finally,W (¬ρxi|u) = 1 −W (ρxi|u). For
+example, the weights of indicator variables for N are all 1, and the weights of
+parameter variables are set as follows:
+W (ρa1) = 0.1 W (¬ρa1) = 0.9
+W (ρb1|a1) = 0.1 W (¬ρb1|a1) = 0.9
+W (ρb1|a2) = 0.2 W (¬ρb1|a2) = 0.8
+W (ρc1|a1) = 0.1 W (¬ρc1|a1) = 0.9
+W (ρc2|a1) = 0.2/(1 − 0.1) = 0.222 W (¬ρc2|a1) = 0.778
+W (ρc1|a2) = 0.01 W (¬ρc1|a2) = 0.99
+W (ρc2|a2) =.09/(1 − 0.01) = 0.091 W (¬ρc2|a2) = 0.909
+15
+
+===== PDF PAGE 16 =====
+Incorporating evidence and computing WMC: Given the above knowl-
+edge base and assignment of weights, we can now compute probability of
+evidence by incorporating evidence in the same manner as for ENC1. Both
+setting weights of incompatible indicators to zero and conjoining with a term
+encoding the evidence work as before.
+3.3 On the Diﬀerence between ENC1 and ENC2
+ENC2 is like ENC1 in its handling of network variables, which correspond
+to indicator variables in the CNF. In particular, ENC2 deﬁnes the same set
+of indicator variables, produces the same set of indicator clauses, deﬁnes the
+same weights on indicator literals, and can utilize indicators to encode deter-
+minism and incorporate evidence in the same way. However, ENC2 diﬀers
+signiﬁcantly in its dealing with network parameters. One of the most obvious
+diﬀerences is that ENC2 will produce fewer parameter variables than ENC1.
+The major reason that ENC2 is able to produce fewer parameter variables
+is that, unlike ENC1, ENC2 encodes information in the weights of negative
+parameter literals. By packing more information into the two weights of each
+parameter variable, ENC2 is able to use fewer such variables.ENC2 also pro-
+duceds fewer parameter clauses than ENC1. However, ENC2 produces larger
+clauses than ENC1 when variables have more than two values. Moreover, the
+encoding of information into negative literals causes ENC2 to be arguably
+less intuitive. Both encodings generate a CNF whose size is polynomial in the
+size of the Bayesian network.
+The most striking diﬀerence between ENC1 and ENC2 is in the set of models
+included in the knowledge base. For each instantiationw of network variables,
+ENC1 deﬁned a single model with weight equal to w’s probability from the
+joint distribution. In contrast, ENC2 deﬁnes many models Ω for w, in such
+a way that the sum of their weights will equal w’s probability from the joint.
+When w is inconsistent with evidence, the weights of all models Ω must there-
+fore be excluded from the sum of the WMC computation. Note that the sets of
+models corresponding to two diﬀerent network instantiations are guaranteed
+to be disjoint, since each will ﬁx a diﬀerent instantiation of indicator variables.
+We close this section with an empirical comparison of ENC1 and ENC2,
+which has not previously been performed in the literature. Table 4 shows
+two groups of networks which were used in [16], [22], and [1] to evaluate
+WMC techniques. The ﬁrst group consists of networks that have only Boolean
+variables and large amounts of determinism. Many of the networks in the
+second group contain non–Boolean variables, large CPTs, and lesser amounts
+of determinism. For each of these networks, we encoded the network into CNF
+using both encodings, including encoding for determinism. We then compiled
+16
+
+===== PDF PAGE 17 =====
+the resulting CNFs using a 1.6GHz Pentium M with 2GB of memory and
+the c2d compiler [26], upon which Ace is built. However, our experiments
+deviate from other published results in the following ways. First, c2d uses a
+data structure called a dtree to drive the compilation. To isolate diﬀerences
+in encoding only, we used a method of producing a dtree [1] that has proven
+more successful than other methods on many networks, and we ensure that
+the same dtree is used for both encodings. Second, we have added a few small
+enhancements to both encodings to make them more compact. 7 Let the size
+of a clause be the number of literals in the clause and the size of a CNF
+to be the sum of the sizes of its clauses. Table 4 shows results by listing,
+for each encoding, the CNF size, the compile time, and the compilation size.
+In general, ENC2 produces smaller CNFs, but this becomes less true when
+variables are non–binary, as in the case of mildew, or there is a massive amount
+of determinism, as in the case of the bm, mm, and st networks. On the ﬁrst
+group of networks, ENC2 produces slightly faster compilations, and on the
+second, ENC2 is faster by a factor between two and ﬁve. However, the sizes of
+the compilations are roughly equivalent. Also note that both encodings failed
+on the same networks, as indicated by dashes. The main point is that ENC2
+is somewhat more eﬃcient than ENC1 in producing the compilation, but the
+compilation produced is about the same. Another dimension for comparing the
+two encodings relates to their ﬂexibility in encoding network local structure,
+an issue that we discuss in a later section.
+4 Search vs Knowledge Compilation
+In the previous section, we discussed two diﬀerent ways one can convert the
+probabilistic inference problem to WMC on a CNF. In this section, we discuss
+the second dimension on which WMC approaches diﬀer. Speciﬁcally, we review
+how model counting can be performed using search or knowledge compilation.
+4.1 WMC by Search
+Consider the problem of counting the models in the CNF shown at the top
+of Figure 2. It was observed in [30] that if one can decompose the CNF into
+components that do not share variables, then one can count the components
+independently. Because all of the clauses in this CNF contain variable A, we
+7 For example, letX be a network variable. IfX has two values, then both encodings
+can use a single indicator variable forX instead of two. IfX is a root, both encodings
+can omit the production of CNF parameter variables for X’s CPT by assigning
+appropriate weights to X’s indicator variables.
+17
+
+===== PDF PAGE 18 =====
+Table 4
+Comparison of ENC1 and ENC2; compilation performed using the Ace compiler.
+Experiments ran on a 1.6GHz Pentium M with 2GB of memory. Dash indicates
+failure.
+ENC1 ENC2 ENC1 ENC2 ENC1 ENC2
+CNF CNF Comp. Comp. Comp. Comp.
+Network Size Size Time (s) Time (s) Edges Edges
+Grid-50-16-1 10,568 5,112 147.09 127.97 15,075,826 14,869,887
+Grid-50-16-2 11,252 5,316 223.46 207.22 20,855,797 21,872,882
+Grid-50-16-3 10,048 4,960 63.80 53.20 6,121,365 6,052,060
+Grid-50-16-4 10,748 5,164 192.72 162.44 17,313,216 16,703,733
+Grid-50-16-5 11,000 5,240 186.82 150.67 13,599,834 13,867,070
+Grid-50-16-6 10,768 5,168 74.72 57.60 5,394,504 5,294,194
+Grid-50-16-7 10,412 5,068 135.54 115.70 12,110,197 12,366,429
+Grid-50-16-8 10,592 5,120 64.25 52.50 5,754,715 5,817,835
+Grid-50-16-9 12,088 5,560 79.13 67.60 6,207,120 6,199,093
+Grid-50-16-10 11,416 5,368 118.66 98.18 10,648,704 10,670,540
+bm-5-3 10,132 10,012 0.21 0.20 19,082 18,982
+mm-3-8-3 12,096 11,880 1.19 1.26 275,754 284,901
+st-3-2 5,717 4,323 0.28 0.23 36,371 28,342
+alarm 8,310 4,111 0.21 0.14 5,002 5,621
+diabetes 1,823,267 1,498,051 – – – –
+hailﬁnder 41,009 20,052 1.37 0.53 23,118 25,676
+mildew 1,723,852 1,619,395 5,014.87 2,713.99 3,555,313 2,752,047
+munin2 376,168 294,528 2,671.08 1,518.62 6,248,456 6,144,328
+munin3 385,809 303,670 2,279.14 671.36 5,337,629 5,344,186
+munin4 440,449 335,422 – – – –
+pathﬁnder 590,631 325,890 77.47 14.94 137,350 159,716
+pigs 40,987 24,689 90.52 47.49 2,207,573 2,207,534
+tcc4f 71,840 26,056 3.06 0.69 39,708 38,938
+water 143,338 75,778 39.21 8.19 291,354 265,141
+cannot decompose the CNF immediately. To force decomposition, we split on
+some variable; for example,A. Following the split, we perform unit resolution,
+and perhaps some other simpliﬁcations, and generate the two CNFs at the
+middle of Figure 2. At this point, we solve each of the two subproblems re-
+cursively. We see that in each of the two subproblems, we can now decompose
+18
+
+===== PDF PAGE 19 =====
+A ∨ B ∨ C¬A ∨ ¬B ∨ CA ∨ D ∨ E¬A ∨ ¬D ∨ EB ∨ CD ∨ EA339case
+D ∨ EB ∨ Cdecompose339¬ B ∨ C¬ D ∨ Ecase
+¬ D ∨ E¬ B ∨ Cdecompose
+18CNF
+A¬A
+Fig. 2. An example of a search algorithm that performs model counting.
+into two sets of clauses that share no variables. The four resulting sets are
+shown at the bottom of the ﬁgure. Computing the model count for each CNF
+at the bottom of the ﬁgure constitutes a base case in the recursion, and each
+is assigned a count of 3, as indicated in the ﬁgure. From the counts at the
+bottom, we can compute counts for the CNFs in the middle, both 9 in this
+case. And from these counts, there is a formula to compute the count for the
+CNF at the top of the ﬁgure, 18 in this case, which is the answer to the orig-
+inal problem. Performing weighted model counting is a simple generalization
+of the described procedure which accounts for weights in the base case of the
+recursion.
+The steps we have described constitute solving WMC by search, as initially
+proposed by [30]. Although we have illustrated the search in a breadth ﬁrst–
+fashion, it is normally performed depth–ﬁrst [30]. In addition, advanced tech-
+niques such as clause learning, component caching, and non–chronological
+backtracking, are used to improve eﬃciency, but we do not detail them here;
+see [18,31,26,32]. Two major advantages of search are that it typically has
+lower space requirements than compilation and that it can exploit query–
+speciﬁc structure.
+Such a search was used in [16] to demonstrate the power of WMC in performing
+probabilistic inference. Here, a state–of–the–art model counter called Cachet
+[18] was applied to CNFs generated according toENC2. Table 5, adapted from
+[16], demonstrates some of these results, comparing Cachet times to times to
+perform probabilistic inference using two algorithms that exploit only topo-
+logical structure, jointree [4,5] and recursive conditioning [8]. An important
+aspect of the networks used is the large amount of determinism. In this table,
+each number represents the median time to perform inference for ten separate
+experiments; a number n in parenthesis means that only n of the ten queries
+were successfully answered; and an X means that no problems were solved
+successfully. The main observation is that Cachet times were superior when
+compared to jointree and recursive conditioning. In particular, jointree and
+recursive conditioning could not answer most of the listed queries, and took
+more than an order of magnitude longer than Cachet on many queries they
+could answer. This performance of algorithms that exploit only topological
+structure, however, is not too surprising as these methods take no advantage
+19
+
+===== PDF PAGE 20 =====
+Table 5
+Results adapted from [16] that demonstrate the eﬀectiveness of WMC using search
+and ENC2 on various highly deterministic networks. Each number represents the
+median time to perform inference for ten separate experiments; a number n in
+parenthesis means that only n of the ten queries were successfully answered; and
+an X means that no problems were solved successfully.
+Jointree RC Cachet
+Network Time (s) Time (s) Time (s)
+DQMR–60+60–0.05 52 (5) 5.7 (2) 1.7
+DQMR–60+60–0.1 46 (3) 33 (3) 3.9
+DQMR–60+60–0.2 45 (5) 60 (4) 54
+DQMR–70+70–0.05 X X 12
+DQMR–70+70–0.1 X X 60
+DQMR–70+70–0.2 X X 136
+Grid–0.75–10 0.02 0.87 0.3
+Grid–0.75–14 20 15 4.7
+Grid–0.75–18 X 1751 81
+Grid–0.75–22 X X 1300
+5–step 56 36 0.03
+tire–2 X X 0.09
+tire–4 X X 1.1
+log–2 X X 7.9
+log–4 X X 65
+of the massive determinism available in these networks. Moreover, the ﬁndings
+are consistent with those reported in [15], which presented similar experimen-
+tal results on Bayesian networks with massive determinism. It was also shown
+in [16] that in addition to probability of evidence, marginals on variables can
+be computed by recording certain information during the search. However, in
+this case, much of the space advantage over compilation goes away.
+4.2 WMC by Knowledge Compilation
+Knowledge compilation refers to a process whereby a logical theory is com-
+piled from one logical form into a target logical form, which permits certain
+queries to be answered in polytime (in the size of the target form). A knowl-
+edge compilation map is given in [33], listing a number of target languages
+20
+
+===== PDF PAGE 21 =====
+and classifying them according to their relative succinctness and the class
+of operations they support in polytime. A strong connection between search
+and knowledge compilation was presented in [34], showing that the trace of
+a search algorithm can be interpreted as a compiled sentence of some target
+language. Therefore, a search algorithm can be converted into a knowledge
+compiler by extending it so it saves its trace. For example, it was shown in
+[34] that the search algorithms for model counting, discussed in the previous
+section, generate traces that are members of the d–DNNF language which we
+will discuss later in this section; see Figure 3. Hence, the search and knowledge
+compilation approaches to WMC are indeed very closely related.
+In fact, the knowledge compiler used in the experiments in this paper, called
+c2d, is based on the search algorithm described in the previous section. The
+main diﬀerence between c2d and Cachet is that c2d records a trace of its
+operations in the manner described in [34]. Other diﬀerences include diﬀerent
+methods for implementing decompositions, variable splitting, and caching. It is
+interesting to note that Cachet could likely be easily converted into a compiler
+by modifying it to keep a trace of its operations.
+The main advantage of compilation is that a signiﬁcant amount of the work
+required for inference is performed once oﬄine, which can then be amortized
+over many online queries. Repeated online inference is often much more eﬃ-
+cient using knowledge compilation than search. One disadvantage of knowl-
+edge compilation is that the compiled theory could end up being too large for
+available memory. In these cases, a search, which requires less overhead and
+can trade oﬀ time for space, might be able to succeed where compilation fails.
+However, much of this space disadvantage disappears when computing mul-
+tiple counts simultaneously [16]. Another disadvantage is that query–speciﬁc
+information can often be utilized to simplify a search, but since knowledge
+compilation is usually performed with a goal of being able to answer any query,
+it typically cannot take advantage of query–speciﬁc information (however, see
+Section 5.3).
+The ﬁrst application of knowledge compilation to probabilistic inference (and
+weighted model counting) was given in [15,20]. In this work, the CNF of a
+Bayesian network, encoded according to ENC1, was compiled into a target
+language called d–DNNF, which is known to support weighted model counting
+in polytime [33] in the size of the compiled form (this does not escape the
+complexity of WMC since the compilation and size of resulting structure are
+exponential in treewidth in the worst case). Among the results presented are
+compilation times and sizes for various networks generated from ISCAS 85
+and ISCAS 89 circuits, which were later improved upon in [26], as shown
+in Table 6. For each network, the table ﬁrst lists the maximum cluster size
+for a jointree generated for the network. This metric is important, because
+methods that exploit only topological structure for probabilistic inference run
+21
+
+===== PDF PAGE 22 =====
+Table 6
+Results from [26] that demonstrate the eﬀectiveness of WMC using compilation and
+ENC1 on circuits.
+Max Compile Compilation
+Network Cluster Time (s) Size
+c432 28 0 13,767
+c499 23 6 2,214,814
+c880 24 80 20,676,927
+c1355 23 15 2,748,340
+c1908 45 187 18,376,664
+s1423 25 3 467,935
+s3330 43 13 2,496,907
+*+W(c)
+W(¬b)+W(b)W(a)W(¬a)
+**
+^vc
+¬bvba¬a
+^^b v c¬b v ca v ¬ba v c
+Fig. 3. Compiling CNF into a smooth d–DNNF and then extracting an AC by:
+replacing conjunctions with multiplications, disjunctions with additions, and literals
+with their weights.
+in time that is exponential in maximum cluster size. From these sizes, it is
+clear that many of these networks are beyond the reach of algorithms that
+exploit only topological structure. However, compilation was successful in a
+reasonable amount of time in each case. Because d–DNNF sizes (measured in
+number of edges) are also quite reasonable, online inference, which is linear in
+d–DNNF size, will be very eﬃcient.
+More evidence for the eﬀectiveness of compilation was presented in [22], which
+used Ace and reported on the successful compilation of networks generated
+from relational Bayesian networks [35] and encoded according to ENC1. A
+sampling of results for these highly deterministic networks are shown in Ta-
+ble 7. Again, the most striking observation is the success of compilation in
+spite of large maximum cluster size. We will discuss the last two columns of
+Table 7 below.
+A d–DNNF is a rooted DAG with internal nodes labeled with disjunctions
+22
+
+===== PDF PAGE 23 =====
+Table 7
+Results from [22] that demonstrate the eﬀectiveness of WMC using compilation and
+ENC1 on ground instances of relational Bayesian networks. Dash indicates failure.
+Online time is averaged over thirty–one evidence sets, where for each evidence set,
+we compute probability of evidence and a posterior marginal for every network
+variable.
+Avg. Online Avg. Jointree
+Max Compile Compile Inference Inference
+Network Cluster Time ( min) Size Time (s) Time (s)
+mastermind
+04–08–03 26 1 541,356 0.0516 57.48
+06–08–03 37 1 1,523,888 0.1518 –
+10–08–03 54 3 4,315,566 0.6835 –
+04–08–04 39 5 19,457,308 1.7341 –
+03–08–05 40 10 55,417,639 4.3253 –
+students
+03–12 59 1 113,876 0.0175 –
+04–16 101 3 815,461 0.0930 –
+05–20 148 7 5,236,257 1.8439 –
+06–24 233 33 36,450,231 12.9663 –
+blockmap
+05–03 23 1 20,636 0.0068 27.39
+10–03 52 2 974,817 0.0582 –
+15–03 68 6 7,643,307 0.3799 –
+20–03 92 30 40,172,434 2.4529 –
+22–03 104 61 76,649,302 4.6651 –
+and conjunctions, and its leaf nodes labeled with propositional literals (or
+the constants true and false). A d–DNNF satisﬁes the decomposition property
+(conjuncts cannot share variables) and the determinism property (disjunctions
+must be logically disjoint). Another property is needed for model counting,
+called smoothness (disjuncts mention the same set of variables). Figure 3 de-
+picts a CNF and a corresponding d–DNNF that is smooth. By compiling the
+CNF to a d–DNNF, one can perform WMC by simply traversing the d–DNNF
+and performing simple multiplication and addition operations at its nodes.
+The approach in [15], however, further maps the d–DNNF into an arithmetic
+circuit (AC) that explicates these arithmetic operations, leading to a WMC
+23
+
+===== PDF PAGE 24 =====
+circuit as given in Figure 3. In particular, the AC inputs can be used to capture
+the weights of literals and its output will provide the weighted model count for
+the given literal weights. For example, given the weightsW (a) =.2,W (¬a) =
+1,W (b) = .5,W (¬b) = .5,W (c) = .9,W (¬c) = 1 for the CNF literals in
+Figure 3, one can simply evaluate the AC given in the same ﬁgure under these
+weights, leading to a weighted model count of 0 .63. Mapping the CNF into
+an AC has a major advantage: by computing the partial derivatives of the
+AC, one can compute marginal model counts, in time linear only in the AC
+size [20,36]. This allows the AC to simultaneously compute the probability of
+evidence and posterior marginals over all network variables, in time linear in
+the AC size [36]. A main point is that this process may then be repeated for as
+many evidence sets as desired, without need to recompile. We note here that
+many of the results on probabilistic inference by WMC, using the compilation
+approach, are reported in terms of the compilation size, which refers to the
+number of edges in the AC for given CNF encoding. We also note that the
+AC can be given an alternative algebraic semantics: it is a factorization of
+an exponentially–sized polynomial that captures the probability distribution
+induced by the given Bayesian network [36].
+We close this section with two additional comparisons, to put the compile/search
+times in some more perspective. Examine once more Table 7, which shows the
+key discrepancy between oﬄine compile time (shown in minutes) and online
+inference time (shown in seconds). The compilation can be costly as shown
+in the table, but that cost can be amortized over many online queries, which
+become very eﬃcient, and which may correspond to diﬀering evidence. Each
+time reported for online inference is the average over many experiments. In
+each experiment, a diﬀerent evidence set was generated and probability of evi-
+dence and a posterior marginal for each network variable were computed. The
+jointree algorithm cannot answer most queries (as indicated by the dashes),
+because of cluster size, and WMC is many orders of magnitude more eﬃcient
+in cases where jointree is successful.
+We now provide a second comparison not previously addressed in the lit-
+erature, between WMC by search (performed by the Cachet model counter
+version 2.0 [16]) and WMC by compilation (performed by Ace v2.0 [3]). For
+each network in Table 8, we encoded the network using Cachet and then ap-
+plied both Ace and Cachet to the generated CNF. The resulting search and
+compilation times can be seen in the second and third columns of Table 8,
+where a dash represents a timeout (2000s) or other failure, and where each
+row marked with a star (*) indicates an average over ten similar networks. The
+networks with which we experimented were drawn from the WMC literature.
+The networks in the ﬁrst group, presented in [16] and [22], are highly determin-
+istic and have small CPTs. These are the types of networks on which WMC
+performs particularly well. In general, Ace compilation times appear roughly
+equal to Cachet search times on the grid and OR networks and superior on
+24
+
+===== PDF PAGE 25 =====
+Table 8
+Times to search using Cachet and to compile and perform online inference using
+Ace. A star (*) indicates an average over ten networks. Online time is averaged over
+ten evidence sets, where for each evidence set, we compute probability of evidence
+and a posterior marginal for every network variable. Experiments were performed
+on a 2.8GHz processor with 4GB of memory.
+Cachet Encoding Ace Encoding
+Avg.
+Ace Comp. Cachet Srch. Ace Comp. Ace Online
+Network Time (s) Time (s) Time (s) Time (s)
+grid-50-14-* 22.9 426.6 7.0 0.076
+grid-50-16-* 231.9 761.2 94.0 0.959
+grid-90-30-* 92.8 111.1 37.0 0.064
+grid-90-34-* 449.3 467.9 90.3 0.114
+or-60-10-*-10 2.8 2.8 7.7 0.001
+or-60-20-*-10 30.7 30.3 109.1 0.004
+blockmap-15-02 47.5 187.5 110.9 0.066
+blockmap-20-02 303.0 1332.8 709.2 0.245
+blockmap-22-02 473.1 - 1701.7 0.403
+mastermind-03-08-03 3.1 - 2.9 0.021
+mastermind-03-08-04 50.2 - 15.8 0.190
+mastermind-03-08-05 716.5 - 345.7 4.104
+mastermind-04-08-03 7.0 - 7.4 0.053
+mastermind-04-08-04 346.4 - 115.8 1.181
+alarm 0.2 29.9 0.1 0.003
+hailﬁnder 2.3 5.1 0.5 0.013
+munin2 - - 1930.8 0.625
+munin3 - - 784.1 0.365
+munin4 - - 541.5 0.528
+pathﬁnder - 59.9 4.7 0.009
+pigs 89.6 - 49.9 0.163
+tcc 0.5 - 0.9 0.012
+water 5.4 75.3 0.9 0.010
+25
+
+===== PDF PAGE 26 =====
+Table 9
+Similar to Table 8 but using a faster computer applied to networks on which Ace
+sometimes had more diﬃculty than Cachet. Note that each row corresponds to a
+single network, unlike Table 8, in which some rows correspond to an average over ten
+networks. Online time is averaged over ten evidence sets, where for each evidence
+set, we compute probability of evidence and a posterior marginal for every network
+variable.
+Cachet Encoding Ace Encoding
+Avg.
+Ace Comp. Cachet Srch. Ace Comp. Ace Online
+Network Time (s) Time (s) Time (s) Time (s)
+grid-75-24-02 2.4 0.5 2.0 0.004
+grid-75-24-04 333.9 882.9 39.0 0.127
+grid-75-24-06 555.0 1,467.8 134.3 0.623
+grid-75-24-08 69.3 258.9 33.5 0.129
+grid-75-24-10 - - 97.9 0.426
+grid-90-42-02 - 126.4 22.9 0.022
+grid-90-42-04 - - - -
+grid-90-42-06 - 1,918.2 865.2 1.490
+grid-90-42-08 - - - -
+grid-90-42-10 - - 1,455.9 2.718
+or-070-20-02-10 6.1 12.8 19.5 0.154
+or-070-20-04-10 129.1 181.6 - -
+or-070-20-06-10 20.8 37.6 208.1 1.252
+or-070-20-08-10 288.5 172.3 - -
+or-070-20-10-10 27.8 33.0 120.2 0.820
+or-100-20-02-20 108.8 106.5 - -
+or-100-20-04-20 26.8 126.8 70.1 0.523
+or-100-20-06-20 243.5 197.7 - -
+or-100-20-08-20 127.9 94.9 1,110.9 4.761
+or-100-20-10-20 55.3 225.4 365.6 2.350
+the blockmap and mastermind networks. The networks in the second group,
+from [1], contain multi–valued variables, lesser amounts of determinism, and
+in some cases, large CPTs. On these networks, both Cachet and Ace struggle.
+26
+
+===== PDF PAGE 27 =====
+It is important to realize that the goal in these initial columns was to isolate
+diﬀerences as much as possible to those resulting from search vs. compilation.
+Consequently, we used the same CNF encoding for both tools, even though
+each tool most naturally prefers its own encoding. 8 Moreover, we disabled
+in Ace many features for exploiting other types of local structure beyond
+determinism, which often improve eﬃciency (e.g., encoding equal parame-
+ters, structured resolution, eclauses, etc.), because Cachet does not implement
+them. Finally, we used precisely those options recommended by the authors of
+the programs in all experiments.9 Even with all of these measures, it turns out
+to be diﬃcult to compare search to compilation using current tools, because
+Cachet and Ace diﬀer in many additional ways that could not be excluded
+from the experiments. For example, each tool implements diﬀerent methods
+for decomposition, variable splitting, and caching.
+We also ran Ace using its own native encoding and turning on all of its
+additional features for exploiting local structure, which we will describe more
+in Section 5. Compilation times in this case are shown in the fourth column of
+Table 8. Finally, once compilation is complete, we can use the compiled form
+to answer many queries. The ﬁfth column shows the time to compute, for
+given evidence, the probability of evidence and a posterior marginal on each
+network variable, averaged over ten diﬀerent evidence sets. Once compilation
+is complete, this online inference may be repeated for as many evidence sets
+as desired, and the variance in the time required is very small. For networks
+in the ﬁrst group, using Ace’s own encoding sometimes reduces compilation
+times signiﬁcantly, as in the grid networks, but it also sometimes increases
+compilation time, as in the OR and blockmap networks. One reason for these
+losses is that Ace applies many techniques to exploit local structure other
+than determinism. When such other structure does not exist, these techniques
+serve to increase overhead. For the networks in the second group, utilizing
+other forms of local structure than determinism beneﬁts compilation time
+signiﬁcantly. In both groups, the advantages of compilation become apparent,
+when one examines the online times, which are orders of magnitude faster
+than the search times.
+For each of the grid, OR, blockmap, and mastermind networks, there were a
+large number of networks from which to choose, providing a range of diﬃcul-
+ties. In general, the results presented in Table 8 are representative across all
+diﬃculties. However, some of the grid and OR networks were more problem-
+atic for Ace. Results for some of these more problematic networks are shown
+8 We used Cachet’s encoding, because Cachet does not work currently with Ace’s
+default encoding.
+9 Thanks to Tian Sang for suggesting Cachet’s settings and for other assistance.
+27
+
+===== PDF PAGE 28 =====
+in Table 9, 10 where each row represents a single experiment, in contrast to
+Table 8, in which some rows correspond to averages over similar networks.
+In general, one would expect search to be somewhat more eﬃcient than com-
+pilation, since it does not need to keep a trace of its actions as compilation
+does. In these experiments, this was not always the case, because we were not
+able to do a pure comparison of search vs. compilation. Nevertheless, these
+numbers should give some insight into the current stat–of–the–art tools for
+performing inference by WMC.
+5 Local Structure and Evidence
+The WMC approaches discussed thus far perform well on networks where
+variables are binary, CPTs are small, and where there is massive determinism.
+However, on other types of networks, the generated CNF encodings can be
+quite large, challenging state of the art WMC systems. In this section, we
+review work that enhances ENC1 and scales the WMC approach to perform
+well on a much wider variety of networks and problems. In previous sections,
+we discussed the encoding of determinism, which can be very eﬀective. In this
+section, we discuss the encoding of other forms of structure, including equal
+parameters, decomposability, and evidence.
+5.1 Equal Parameters
+Table 10, repeated from [1], lists a set of benchmark networks, some having
+variables with large cardinalities, others having very large CPTs, and where
+the amount of determinism is not necessarily excessive. Table 11, also repeated
+from [1], provides statistics on the CNFs generated for some of these networks,
+according to ENC1, which includes encoding of determinism as discussed in
+Section 3.1. These CNFs are quite large, but the striking property is the large
+percentage (up to 99% in some cases) of Boolean variables that represent pa-
+rameters as opposed to those representing indicators. Some of these CNFs
+proved initially challenging to compile, some taking too long and others run-
+ning out of memory.
+Consider the CPT depicted in Table 12, which has 12 parameters, yet only
+5 of these are distinct. One would want to exploit parameter equality, at
+least to reduce the number of Boolean variables one must generate. Table 10
+10 We used a faster computer for these experiments, because both Cachet and Ace
+often timed out using the slower computer.
+28
+
+===== PDF PAGE 29 =====
+Table 10
+Information from [1] on the networks utilized in experiments.
+Max Ave
+Max Ave Total CPT CPT
+Network Clust Vars Card Card Parms Parms Parms %Det %DP
+alarm 7.2 37 2-4 2.8 752 108 20 0.9 24.6
+bm 20.0 1005 2-2 2.0 6972 8 7 99.6 100.0
+diabetes 17.2 413 3-21 11.3 461069 7056 1116 78.2 17.6
+hailﬁnder 11.7 56 2-11 4.0 3741 1188 67 15.7 26.9
+mildew 21.4 35 3-100 17.6 547158 280000 15633 93.2 25.1
+mm 23.0 1220 2-2 2.0 8326 8 7 98.7 75.0
+munin1 26.8 189 1-21 5.3 19466 600 103 66.5 61.2
+munin2 18.6 1003 2-21 5.4 83920 600 84 63.3 69.5
+munin3 17.8 1044 1-21 5.4 85855 600 82 63.1 71.3
+munin4 21.4 1041 1-21 5.4 98183 600 94 64.5 65.3
+pathﬁnder 15.0 109 2-63 4.1 97851 8064 898 56.1 5.1
+pigs 17.4 441 3-3 3.0 8427 27 19 56.2 23.9
+students 22.0 376 2-2 2.0 2616 8 7 90.7 79.3
+tcc4f 10.0 105 2-2 2.0 3236 512 31 0.4 35.6
+water 19.9 32 3-4 3.6 13484 3072 421 54.0 57.0
+Table 11
+Information from [1] on CNFs generated by ENC1 (determinism encoded).
+Network CNF Vars Parm Vars Clauses Literals
+pathﬁnder 55,229 54,781 300,576 821,814
+water 6,630 6,514 49,367 152,686
+mildew 38,540 37,924 683,552 1,958,952
+munin1 9,551 8,556 49,363 129,358
+munin4 48,864 43,216 247,582 641,839
+diabetes 113,527 108,845 814,412 2,196,008
+shows the extent to which parameter equality can help. In particular, the table
+reports as %Det the percentage of parameters that are extreme (0 or 1) and as
+%DP the percentage of non–extreme parameters that would remain if, for each
+CPT, one collapsed equal parameters into a single parameter. The dramatic
+example is pathﬁnder, where roughly have of its parameters are extreme, and
+therefore beneﬁt by encoding determinism, and where only 5% of the non–
+29
+
+===== PDF PAGE 30 =====
+Table 12
+A CPT showing local structure in the form of determinism and CSI.
+row A B C Pr(c |a,b )
+1 a1 b1 c1 θc1|a1b1 = 0
+2 a1 b1 c2 θc2|a1b1 = 0.5
+3 a1 b1 c3 θc3|a1b2 = 0.5
+4 a1 b2 c1 θc1|a1b2 = 0.2
+5 a1 b2 c2 θc2|a1b1 = 0.3
+6 a1 b2 c3 θc3|a1b1 = 0.5
+7 a2 b1 c1 θc1|a2b2 = 0
+8 a2 b1 c2 θc2|a2b2 = 0
+9 a2 b1 c3 θc3|a2b1 = 1
+10 a2 b2 c1 θc1|a2b1 = 0.2
+11 a2 b2 c2 θc2|a2b2 = 0.3
+12 a2 b2 c3 θc3|a2b2 = 0.5
+extreme parameters would remain after collapsing.
+A key observation is that for ENC1, no two parameter variables generated for
+the same CPT can both be set totrue in the same model, since they correspond
+to inconsistent network instantiations. This observation suggests that we can
+use the same Boolean variable to represent multiple parameters, provided that
+such parameters have equal values and appear in the same CPT. However,
+the idea will not work when applied directly to ENC1. Consider again the
+CPT in Table 12. If we use the same CNF variable θ to represent parameters
+Pr(c2|a1,b 1) and Pr(c3|a1,b 2), which are both equal to 0 .5, we would get the
+following parameter clauses in the CNF:
+λa1 ∧λb1 ∧λc2 ⇔θ λ a1 ∧λb2 ∧λc3 ⇔θ (4)
+θ then implies incompatible conﬁgurations of the variables A, B, and C, as
+enforced by the indicator clauses for those variables. The undesired result is
+the removal from the theory of all models that set variable θ to true. The
+solution adopted in [1] is to convert the equivalence in the parameter clauses
+of ENC1 to an implication. The clauses in Equation 4 are therefore changed
+to the following:
+λa1 ∧λb1 ∧λc2 ⇒θ λ a1 ∧λb2 ∧λc3 ⇒θ (5)
+For the moment, assume that we have not merged parameter variables. For
+30
+
+===== PDF PAGE 31 =====
+each parameter variable θxi|u1,u2,...,un, rather than asserting ENC1 parameter
+clauses, we assert the following clause:
+ENC3 Parameter Clause:
+λu1 ∧λu2 ∧... ∧λun ∧λxi ⇒θxi|u1,u2,...,un
+Changing the equivalence to an implication is equivalent to introducing addi-
+tional (unintended) models into the logical theory. However, these unintended
+models can be ﬁltered since their cardinalities (the number of variables they
+set to true) are larger than the cardinality of original models (which all have
+the same cardinality) [1]. An operation called minimization performs exactly
+the desired ﬁltering operation. We now provide an example of how minimiza-
+tion restores the theory by removing unintended models. Consider a Bayesian
+network having just a single binary variable X with values x1 and x2, where
+Pr(x1) = 0.1. For ENC3, the CNF variables are Ix1, Ix2, Px1, and Px2. The
+weights are as follows:
+W (¬Ix1) = 1.0 W (Ix1) = 1.0
+W (¬Ix2) = 1.0 W (Ix2) = 1.0
+W (¬Px1) = 1.0 W (Px1) = 0.1
+W (¬Px2) = 1.0 W (Px2) = 0.9
+The ENC3 CNF consists of four clauses as follows:
+Ix1 ∨Ix2 ¬Ix1 ∨ ¬Ix2
+Ix1 ⇒Px1 Ix2 ⇒Px2
+The logic therefore has four models having the weights shown below:
+Model Weight
+(1) Ix1, ¬Ix2, Px1, ¬Px2 1 ∗ 1 ∗ 0.1 ∗ 1 = 0.1
+(2) Ix1, ¬Ix2, Px1, Px2 1 ∗ 1 ∗ 0.1 ∗ 0.9 = 0.09
+(3) ¬Ix1, Ix2, Px2, ¬Px1 1 ∗ 1 ∗ 0.9 ∗ 1 = 0.9
+(4) ¬Ix1, Ix2, Px2, Px1 1 ∗ 1 ∗ 0.9 ∗ 0.1 = 0.09
+Observe that the models are not in one–to–one correspondence with instan-
+tiations of network variables. Since no evidence has been incorporated, we
+would want a weighted model count to be 1.0. However, the sum of the counts
+for these four models is 1.18. Now consider what happens when we minimize
+31
+
+===== PDF PAGE 32 =====
+the theory described by the CNF. In this case, we remove models that set
+more than two variables to true, leaving us with models (1) and (3). Now the
+models are indeed in one–to–once correspondence with the instantiations of
+network varibles. In fact, the set of models is the same as would be produced
+by ENC1. Moreover, the weighted model count is now 1.0.
+By using ENC3 parameter clauses, we can now safely represent all equal pa-
+rameters within the same CPT by a single Boolean variable in the CNF encod-
+ing, provided that we minimize also. For the pathﬁnder network for example,
+this drops the number of Boolean variables needed to represent non–extreme
+parameters from 42, 946 to 2, 186, a 95% reduction! Similar reductions are ob-
+tained for many other networks; see Table 10. In general, minimizing a logical
+theory is expensive. However, minimizing a d–DNNF is linear in the size of the
+d–DNNF [33]. Consequently, minimizing increases compilation time by only a
+constant factor. The hope is that gains from encoding equal parameters will
+outweigh this modest loss by reducing compilation time and the size of the
+compiled representation (for more eﬃcient online inference).
+In addition to equal parameters, several other techniques are presented in [1]
+for improving performance, which we summarize next. The CNF compilation
+algorithm employs two key techniques. The ﬁrst is variable splitting, which
+can be thought of as doing case analysis. The second is caching, so that one
+can avoid factoring the same CNF subset multiple times. Which variables the
+algorithm ends up splitting on can very much aﬀect its running time, and
+the size of factorizations it generates. Moreover, the complexity of the caching
+scheme is proportional to the number of variables appearing in the cached CNF
+subset, as the state of such variables are used to generate keys that uniquely
+deﬁne CNFs. The following observations state interesting properties of our
+CNF encodings, which if passed to the factoring algorithm can signiﬁcantly
+improve both the splitting and caching processes.
+First, if two clauses share a parameter variable, then their indicators must
+be over the same network variables. This property allows the CNF factor-
+ing algorithm to restrict its splitting to indicator variables, which would be
+suﬃcient to decompose the problem into independent components (hence, no
+splitting/case analysis is needed on parameter variables). Second, given the
+structure of indicator and parameter clauses, the state of indicator variables
+are suﬃcient to characterize the state of parameter variables. This property
+allows us to only involve indicator variables when generating CNF keys dur-
+ing the caching process. Both of the above optimizations can be exploited by
+simply identifying parameter variables to the factoring algorithm.
+Another technique involves the construction of a decomposition tree (dtree)
+for the given Bayesian network, and then converting it into a dtree for its
+CNF encoding, which is used to drive the compilation algorithm. A dtree for
+32
+
+===== PDF PAGE 33 =====
+a Bayesian network is simply a binary tree whose leaves correspond to the
+network CPTs [8]. A dtree for a CNF is also a binary tree, but its leaves
+correspond to the CNF clauses. Since each clause in the CNF encoding is
+generated by a CPT, we can convert a network dtree into a CNF dtree by
+simply unfolding each dtree node corresponding to a CPT into a subtree whose
+leaves correspond to the clauses generated by that CPT. The main point of this
+technique is to more eﬃciently generate dtrees for very large CNF encodings
+that are generated by Bayesian networks with a small number of CPTs (this
+happens when the network contains very large CPTs).
+Our CNF encodings utilize some additional enhancements, two of which are
+described next. First, we deﬁne a new type of clause, called an eclause, which
+has the same syntax as a regular clause but stronger semantics: it asserts that
+exactly one of its literals is true. We use eclauses for representing indicator
+clauses, therefore reducing the size of CNFs considerably in networks hav-
+ing multi–valued variables. Moreover, we outﬁt the DPLL procedure used in
+factoring the CNF to work directly with eclauses, without having to unfold
+them into regular clauses. For another optimization example, the indicators
+and parameters corresponding to the same state of a root variable are logi-
+cally equivalent, making it possible to delete the parameter variables and the
+corresponding parameter clauses, which establish the equivalence.
+Experiments reported in [1] show that by incorporating equal parameters,
+splitting on indicator variables only, caching only indicators, and generating
+a dtree from the network, large improvements can be obtained over ENC1
+both in oﬄine compilation time and in online inference time. Note that the
+purpose here is not simply to compare two encodings but to show what can
+be gained by communicating additional structure to the WMC algorithm.
+Table 13 shows some of the results from that paper. The most important
+point is the improvement to compile times (vs. ENC1) and improvement in
+online inference times (vs. jointree). Improvements are order–of–magnitude
+or more in many cases. Moreover, in some cases, the additional use of local
+structure allowed compilation to succeed, where it failed previously.
+In the context of compilation, we have reviewed how ENC1 can be changed
+into ENC3 to capture local structure in addition to determinism, most notably
+by encoding equal parameters. A search algorithm could utilize ENC3 and
+other advances discussed in this section in the same way that compilation does.
+Although the same techniques cannot be applied as–is to ENC2, it is likely
+that there exist other methods to capture equal parameters within ENC2.
+We close this section with another empirical comparison that has not pre-
+viously been addressed in the literature, between compilation using ENC2
+and compilation using ENC3 and the other enhancements described in this
+section, in the same manner as we compared ENC1 to ENC3. To make the
+33
+
+===== PDF PAGE 34 =====
+Table 13
+Results from [1] comparing ENC3 and other advances to ENC1 compile times and
+ENC3 and other advances to jointree online inference times. Dash indicates failure.
+Online time is averaged over sixteen evidence sets, where for each evidence set, we
+compute probability of evidence and a posterior marginal for every network variable.
+Oﬄine Compile Time (s) Avg. Online Inf. Time (s)
+Network ENC1 ENC3 Improv. Jointree ENC3 Improv.
+alarm 0.93 0.52 1.8 0.004 0.001 6.4
+bm-5-3 2.51 1.11 2.3 10.322 0.006 1,814.8
+diabetes — 2269.05 — 2.318 1.017 2.3
+hailﬁnder 2.26 0.86 2.6 0.008 0.004 2.2
+mildew — 7483.8 — 0.837 0.209 4.0
+mm-3-8-3 7.44 1.87 4 15.509 0.013 1,181.6
+munin1 — 1534.97 — 82.605 2.807 29.4
+munin2 3248.42 225.46 14.4 1.770 0.412 4.3
+munin3 1553.43 151.72 10.2 1.168 0.228 5.1
+munin4 2440.3 677.92 3.6 8.621 0.481 17.9
+pathﬁnder 226.37 20.36 11.1 0.105 0.004 23.7
+pigs 110.1 17.84 6.2 0.216 0.100 2.2
+students-3-2 1.53 0.82 1.9 3.499 0.004 799.7
+tcc4f.obfuscated 4.11 1.15 3.6 0.009 0.003 2.8
+water 34.82 4.83 7.2 1.418 0.013 107.5
+comparison as fair as possible, for each network evaluated, we use the same
+dtree for both encodings and compile using the c2d compiler. Table 14 shows,
+for two sets of networks and both encodings, the CNF size, the compile time,
+and the compilation size. Recall that in general the CNF produced by ENC2
+could be smaller than that produced by ENC1, and that there is a similar
+decrease in compile time. Comparing ENC2 to ENC3 shows that in general
+the CNF sizes are much more similar. Despite the similar size, ENC3 con-
+sistently outperforms ENC2 in compile time, especially on the networks in
+the second group, which have non–binary variables, larger CPTs, and lesser
+amounts of determinism. Recall also that ENC2 produced compilations of
+roughly the same size as ENC1 and failed on exactly the same networks. In
+contrast, we see that when there is local structure other than determinism,
+as in the case of the second set of networks, ENC3 is capable of producing
+signiﬁcantly smaller compilations and succeeds more often.
+34
+
+===== PDF PAGE 35 =====
+Table 14
+Comparison of ENC3 and other advances withENC2; compilation performed using
+the c2d compiler on a 1.6GHz Pentium M with 2GB of memory. Dash indicates
+failure.
+ENC2 ENC3 ENC2 ENC3 ENC2 ENC3
+CNF CNF Comp. Comp. Comp. Comp.
+Network Size Size Time (s) Time (s) Edges Edges
+Grid-50-16-1 5,112 5,624 127.97 95.69 14,869,887 15,000,534
+Grid-50-16-2 5,316 5,828 207.22 145.98 21,872,882 21,871,736
+Grid-50-16-3 4,960 5,472 53.20 40.79 6,052,060 6,042,590
+Grid-50-16-4 5,164 5,676 162.44 117.56 16,703,733 16,405,776
+Grid-50-16-5 5,240 5,752 150.67 115.39 13,867,070 13,905,110
+Grid-50-16-6 5,168 5,680 57.60 42.34 5,294,194 4,878,566
+Grid-50-16-7 5,068 5,580 115.70 91.36 12,366,429 12,400,554
+Grid-50-16-8 5,120 5,632 52.50 41.46 5,817,835 5,821,550
+Grid-50-16-9 5,560 6,072 67.60 52.89 6,199,093 6,164,233
+Grid-50-16-10 5,368 5,880 98.18 71.52 10,670,540 10,416,538
+bm-5-3 10,012 12,011 0.20 0.26 18,982 18,770
+mm-3-8-2 11,880 14,401 1.26 1.56 284,901 276,198
+st-3-2 4,323 5,663 0.23 0.26 28,342 28,277
+alarm 4,111 3,342 0.14 0.25 5,621 2,711
+diabetes 1,498,051 1,261,325 – 2,308.67 – 15,388,737
+hailﬁnder 20,052 16,546 0.53 0.27 25,676 15,780
+mildew 1,619,395 1,494,824 2,713.99 1,583.02 2,752,047 2,601,210
+munin2 294,528 217,470 1,518.62 293.68 6,144,328 3,757,857
+munin3 303,670 222,687 671.36 185.86 5,344,186 2,542,759
+munin4 335,422 261,017 – 409.58 – 8,217,229
+pathﬁnder 325,890 337,901 14.94 7.76 159,716 35,852
+pigs 24,689 26,187 47.49 22.63 2,207,534 1,606,319
+tcc4f 26,056 26,287 0.69 0.41 38,938 23,052
+water 75,778 77,524 8.19 3.69 265,141 101,061
+5.2 Decomposability
+We review work from [3] in this section, which introduced an encoding method
+that retains the advantages of ENC3 while making it easier for algorithms to
+beneﬁt computationally from the encoded local structure. The work is based
+35
+
+===== PDF PAGE 36 =====
+A B C Pr(c|a,b )
+a1 b1 c1 0.7 ( θ1)
+a1 b1 c2 0.0 ( false)
+a1 b1 c3 0.3 ( θ2)
+a1 b2 c1 0.4 ( θ3)
+a1 b2 c2 0.3 ( θ2)
+a1 b2 c3 0.3 ( θ2)
+a2 b1 c1 0.333 ( θ4)
+a2 b1 c2 0.333 ( θ4)
+a2 b1 c3 0.333 ( θ4)
+a2 b2 c1 0.2 ( θ5)
+a2 b2 c2 0.3 ( θ2)
+a2 b2 c3 0.5 ( θ6)
+λa1 ∧λb1 ∧λc1 ⇒θ1
+¬λa1 ∨ ¬λb1 ∨ ¬λc2
+λa1 ∧λb1 ∧λc3 ⇒θ2
+λa1 ∧λb2 ∧λc1 ⇒θ3
+λa1 ∧λb2 ∧λc2 ⇒θ2
+λa1 ∧λb2 ∧λc3 ⇒θ2
+λa2 ∧λb1 ∧λc1 ⇒θ4
+λa2 ∧λb1 ∧λc2 ⇒θ4
+λa2 ∧λb1 ∧λc3 ⇒θ4
+λa2 ∧λb2 ∧λc1 ⇒θ5
+λa2 ∧λb2 ∧λc2 ⇒θ2
+λa2 ∧λb2 ∧λc3 ⇒θ6
+λa1 ∧λb1 ∧λc1 ⇒θ1
+¬λa1 ∨ ¬λb1 ∨ ¬λc2
+λa1 ∧λc3 ⇒θ2
+λb2 ∧λc2 ⇒θ2
+λa1 ∧λb2 ∧λc1 ⇒θ3
+λa2 ∧λb1 ⇒θ4
+λa2 ∧λb2 ∧λc1 ⇒θ5
+λa2 ∧λb2 ∧λc3 ⇒θ6
+(a) (b) (c)
+Fig. 4. (a) A CPT over three variables, (b) Clauses generated by the encoding from
+[1] for the CPT, and (c) an equivalent encoding.
+on the observation that CNF syntax can sometimes stand in the way of rec-
+ognizing independent components when running a model counting algorithm,
+since these algorithms typically depend on syntactic checks for identifying in-
+dependent components. Hence, the approach tries to empower the syntactic
+identiﬁcation of components by preprocessing the encoding in order to simplify
+it and make it more semantically revealing.
+For an example, consider Figure 4(a) and observe that given values for certain
+variables, other variables sometimes become irrelevant. For example, given
+A = a2 and B = b1, the probability no longer depends upon C (C has a
+uninform probability). Moreover, given values A = a1 and C = c3, variable
+B becomes irrelevant to the probability. This phenomenon is similar to, but
+more general than, context–speciﬁc–independence (CSI) [10] and can be very
+powerful. Yet, search algorithms can fail to exploit this structure, even if it is
+encoded correctly. For example, even though this structure is encoded by the
+clauses in Figure 4(b) and the equivalent ones in Figure 4(c), it was shown
+empirically and analytically in [3] that search algorithms will better exploit
+this structure when applied to the simpliﬁed clauses in Figure 4(c). The main
+reason is that the simpliﬁed clauses will tend to have fewer occurrences of
+irrelevant variables as we set variables in search process, allowing one to more
+easily recognize independent components based on syntactic checks.
+36
+
+===== PDF PAGE 37 =====
+Before deﬁning a general procedure for simplifying the clauses of a given CPT
+as discussed above, we observe that because we are working with multi–valued
+variables, it makes sense to use a multi–valued form of resolution. We therefore
+deﬁne a logic over multi–valued variablesX. The syntax of the logic is identical
+to that of standard propositional logic, except that an atom is an assignment
+to a variable in X of a value in its domain. For example, C =c2 is an atom.
+The semantics is also like that of standard propositional logic, except that
+a world, which consists of an atom for each variable, satisﬁes an atom iﬀ it
+assigns the common variable the same value. Within this logic, a term over
+X′ ⊆ X is a conjunction of atoms, one for each variable in X′. Let Γ be a
+disjunction of terms over X. An implicant γ of Γ is a term over X′ ⊆ X that
+implies Γ. A prime implicant γ of Γ is an implicant that is minimal in the
+sense that the removal of any atom would result in a term that is no longer
+an implicant of Γ.
+Algorithm 1 EncodeCPT(φ: CPT) Generates a set of clauses for φ.
+Partition the rows of φ into encoding groups
+for each encoding group Γ do
+M ← terms of Γ
+θ ← consequent of Γ
+P ← the prime implicants of M
+for p in P do
+I ← encoding of p
+if θ = 0 then
+assert clause ¬I
+else
+assert clause I ⇒θ
+end if
+end for
+end for
+Given these deﬁnitions, we can encode the network by generating the same
+CNF variables and indicator clauses as in ENC3 and by generating clauses
+for each CPT according to Algorithm 1. We are also able to use the other
+improvements (e.g., branching on indicators only) from the previous section.
+This algorithm encodes a CPTφ over variablesX by ﬁrst partitioning the CPT
+into encoding groups, which are sets of rows that share the same parameter
+value. Note that each row in the CPT induces a term over variables X and
+so each encoding group induces a set of terms. Moreover, the terms within an
+encoding group will share a common parameter variable or all correspond to
+falsehood. We refer to this variable (or falsehood) as the consequent of the
+encoding group. To process encoding group Γ, we ﬁnd the prime implicants
+of Γ’s terms, and for each prime implicant p, we assert a clause I ⇒θ, where
+I is the conjunction of indicators corresponding to p, and θ is the consequent
+of the encoding group. If the parameter θ equals 0, we simply generate the
+37
+
+===== PDF PAGE 38 =====
+Encoding Param Conse- Prime
+Group Value Terms quent Implicants Encoding
+Γ1 .7 a1b1c1 θ1 a1b1c1 λa1 ∧λb1 ∧λc1 ⇒θ1
+Γ2 0 a1b1c2 false a1b1c2 ¬λa1 ∨ ¬λb1 ∨ ¬λc2
+Γ3 .3 a1b1c3,a 1b2c2, θ2 a1c3,b 2c2 λa1 ∧λc3 ⇒θ2,
+a1b2c3,a 2b2c2
+λb2 ∧λc2 ⇒θ2
+Γ4 .4 a1b2c1 θ3 a1b2c1 λa1 ∧λb2 ∧λc1 ⇒θ3
+Γ5 .333 a2b1c1,a 2b1c2, θ4 a2b1 λa2 ∧λb1∧ ⇒ θ4
+a2b1c3
+Γ6 .2 a2b2c1 θ5 a2b2c1 λa2 ∧λb2 ∧λc1 ⇒θ5
+Γ7 .5 a2b2c3 θ6 a2b2c3 λa2 ∧λb2 ∧λc3 ⇒θ6
+Fig. 5. Encoding a CPT using prime implicants.
+clause ¬I. Figure 5 demonstrates this algorithm for the CPT in Figure 4(a).
+The algorithm we use to ﬁnd prime implicants is an extension of the venerable
+Quine-McCluskey (QM) algorithm (e.g., [37]). QM works only for binary vari-
+ables, so we extend it to multi–valued variables in a straightforward manner.
+Extensions of the QM algorithm for multi–valued variables are common, some
+of them deﬁning a prime implicant diﬀerently (e.g., [38]). The deﬁnition given
+here was found eﬀective for the purpose at hand.
+The new encoding method, which we call ENC4, deﬁnes a structured resolu-
+tion strategy. The strategy is structured in the sense that rather than working
+on a set of clauses, the strategy works on a partition of clauses, and restricts
+resolution to clauses within the same element of the partition. Each element
+in the partition corresponds to clauses belonging to the same CPT and having
+the same consequent.
+We now make two important observations. First, even though computing
+prime implicants can be expensive in general, [3] provides extensive exper-
+iments showing that the increase in encoding time is actually negligible (we
+omit these results for brevity). This eﬃciency stems from the small number
+of variables involved in the computation (those appearing in a CPT). Second,
+the primary advantage of ENC4 is the removal of spurious occurrences of
+literals, transforming a set of terms into a more minimal set. This removal of
+literals allows us to decompose more often without resorting to splitting.
+38
+
+===== PDF PAGE 39 =====
+Experimental results in [3] show that ENC4 can signiﬁcantly outperform
+ENC3 in both compile time and the size of the resulting compilation. We
+repeat a few of those results in Table 15. Compile times improve anywhere
+from 1.45 times to over 17 times. Moreover, many of the grid networks and
+also barley caused the compiler to run out of memory (as indicated by dashes)
+when applied to ENC3 but compiled successfully using ENC4. The last three
+columns show the improvement to the size (number of edges) of the result-
+ing compilations. Here, we see that on networks where ENC3 was successful,
+ENC4 sizes were sometimes comparable and otherwise signiﬁcantly reduced.
+5.3 Evidence
+It is well–known that exploiting evidence can make inference in a Bayesian net-
+work more tractable. Two of the most common techniques are removing leaf
+nodes that are not part of the evidence or query [39] and removing edges outgo-
+ing from observed nodes [40]. These preprocessing steps, which we callclassical
+pruning, can signiﬁcantly reduce the connectivity of the network, making ac-
+cessible many queries that would be inaccessible otherwise. Although classical
+pruning can be very eﬀective, one can identify situations where it does not
+exploit the full power of evidence, especially when the network contains local
+structure. The investigation in [2] demonstrates how WMC provides a natu-
+ral and eﬀective method of exploiting evidence that can provide much more
+beneﬁt than classical pruning. The paper works within the context of ENC1
+and compilation. This section reviews that work and then says a few words on
+how these same concepts also apply to search algorithms and other encodings.
+In Section 2.2, we described two ways of incorporating evidence into the WMC
+framework. Within the context of compilation, the ﬁrst method compiles the
+CNF into an AC without evidence, and for each query, adjusts the weights of
+indicators to account for the evidence. This approach has the advantage that
+the compiled AC can answer multiple queries with respect to any evidence.
+However, sometimes the compilation task is too diﬃcult, causing the compiler
+to take too long or run out of memory. Even when compilation succeeds, the
+resulting AC may be too large for some tasks. The second method is described
+in this section and works by conjoining the CNF with unit clauses that encode
+the evidence e prior to compiling, thereby eliminating from the theory models
+inconsistent with the evidence. The advantage is that compilation can become
+more tractable, and the resulting AC may be much smaller. The disadvantage
+is that the resulting AC is then only good for answering queries with respect
+to evidence that is a superset of e.
+The beneﬁt of compiling with evidence may seem illusory at ﬁrst, since it re-
+stricts the set of queries. However, one of the contributions of [2] is to identify
+39
+
+===== PDF PAGE 40 =====
+Table 15
+Results for compiling a number of networks using ENC3 and the ENC4 encoding.
+Max. ENC3 ENC4 Imp- ENC3 ENC4 Imp-
+Clst. Comp. Comp. rove- Comp. Comp. rove-
+Network Size Time(s) Time(s) ment Size Size ment
+s1238 61.0 11.32 1.83 6.19 853,987 263,786 3.24
+s526n 18.0 0.23 0.12 1.92 10,088 10,355 0.97
+s526 18.0 0.22 0.14 1.57 13,352 14,143 0.94
+s641 19.0 2.54 0.38 6.68 78,071 36,555 2.14
+s1494 48.0 1.82 0.44 4.14 419,274 85,469 4.91
+s838.1 13.0 0.43 0.20 2.15 49,856 30,899 1.61
+bm-05-03 19.0 0.29 0.20 1.45 19,190 10,957 1.75
+bm-15-03 62.0 254.96 44.07 5.79 7,351,823 1,460,842 5.03
+bm-22-03 107.0 4,869.64 748.13 6.51 72,169,022 14,405,730 5.01
+or-60-20-1 24.0 338.48 54.47 6.21 6,968,339 7,777,867 0.90
+or-60-20-3 25.0 1.40 0.77 1.82 104,275 119,779 0.87
+or-60-20-5 27.0 728.36 118.17 6.16 17,358,747 14,986,497 1.16
+or-60-20-7 26.0 250.72 97.13 2.58 11,296,613 12,510,488 0.90
+or-60-20-9 25.0 19.58 7.17 2.73 1,011,193 1,060,217 0.95
+gr-50-16-1 24.0 137.25 43.95 3.12 14,692,963 5,739,854 2.56
+gr-50-16-3 24.0 65.03 40.45 1.61 7,755,318 5,280,027 1.47
+gr-50-16-5 25.0 - 26.70 - - 3,431,139 -
+gr-50-16-7 24.0 51.68 2.99 17.28 6,413,897 421,060 15.23
+gr-50-16-9 24.0 - 60.55 - - 7,360,872 -
+gr-50-18-1 27.0 411.45 48.36 8.51 39,272,847 6,451,916 6.09
+gr-50-18-3 27.0 362.90 29.18 12.44 32,120,267 2,507,215 12.81
+gr-50-18-5 27.0 - 158.13 - - 18,291,116 -
+gr-50-18-7 27.0 - 79.97 - - 9,439,318 -
+gr-50-18-9 27.0 - 68.51 - - 7,890,645 -
+many practical situations where restricting evidence in this way can be very
+practical. First, the evidence may be ﬁxed on only a subset of the variables,
+leaving room for posing a large number of queries with respect to other vari-
+ables (this happens in MAP algorithms, e.g., [41–43]). Second, one may be
+40
+
+===== PDF PAGE 41 =====
+interested in estimating the value of network parameters which will maximize
+the probability of given evidence (this happens, for example, in genetic linkage
+analysis [44,45]). In this case, one may want to use iterative algorithms such
+as EM or gradient ascent [46], which pose many network queries with respect
+to the given evidence but diﬀerent network parameter values. A similar ap-
+plication appears in sensitivity analysis [47], where the goal is to search for
+some network parameters that satisfy a given constraint . The change to the
+encoding of the network into CNF is simple: for each network variable X set
+to value x by the evidence, assert the unit clause λx into the CNF. However,
+the eﬀect of this seemingly innocent action can belie its true power. Several
+detailed examples are provided in [2], which demonstrate how the introduction
+of such unit clauses can reduce the work required of the compilation algorithm.
+We repeat one of these examples next.
+The example is from genetic linkage analysis, and is a common occurrence
+in that domain. It involves four variables: child C with parents A,B , and S.
+The variable C is the genotype in a child which is inherited from one of the
+parent’s genes, A/B, based on the value of selector S. We assume that all
+four variables are binary and that the portion of the CPT with S = s1 is as
+follows, 11
+S A B C Pr (C|A,B )
+s1 a1 b1 c1 1.0
+s1 a1 b2 c1 1.0
+s1 a2 b1 c2 1.0
+s1 a2 b2 c2 1.0
+As described in Section 4.1, the algorithm on which the compilation is based
+works by repeatedly conditioning to decompose the CNF. Let us consider the
+case where we are given evidence {c1}, and during compilation, we condition
+on S =s1. Assuming a proper encoding of the network into CNF, combining
+the evidence with the value for S allows us to infer a1, which unit resolution
+can use to achieve further gains. Conditioning on S = s2 yields a similar
+conclusion for b1. In this case, the full power of conditioning on S is realized
+only when combined with evidence on C. This example reveals how evidence
+can combine with the operations of the compilation algorithm to simplify the
+task.
+Recall that classical pruning severs edges leaving evidence nodes and deletes
+certain leaf nodes. Injecting unit clauses is analogous to this severing of edges
+but is strictly more powerful for several reasons. First, this technique not only
+11 In general, the variables are multi–valued, and this discussion also applies in this
+case.
+41
+
+===== PDF PAGE 42 =====
+exploits the fact that a variable has been instantiated, but also exploits the
+speciﬁc value to which it has been instantiated. Second, rather than simply
+aﬀecting the CPTs of children of evidence nodes, injecting unit clauses can
+aﬀect many more parts of the network since unit clauses will often allow the
+WMC algorithm to infer additional unit clauses, and the eﬀects can propagate
+to many ancestors and many descendants of evidence nodes. Third, rather than
+only realizing a limited number of gains during initialization, injecting unit
+clauses can continue to realize gains throughout the WMC algorithm. 12
+Several results are given in [2] demonstrating large gains when compiling with
+evidence. Algorithms that exploit only topological structure could not perform
+inference on many of the data sets, even after performing classical pruning,
+because of high treewidth. Furthermore, in the majority of cases, applying
+classical pruning and compiling the CNF without the introduction of the unit
+clauses based on the evidence also failed. However, with the introduction of
+the unit clauses, compilation became possible in many cases. Moreover, the
+paper showed that the performance of this general technique subsumed the
+performance of the specialized quickscore algorithm [13], which capitalizes on
+evidence in certain types of diagnostic networks. Finally, the paper showed
+that when combined with some aggressive preprocessing and applied to sev-
+eral diﬃcult problems from genetic linkage analysis, the technique outper-
+formed superlink 1.4, a state–of–the–art system for the task, on a number
+of challenging problems.
+Table 16 lists a few of the results from the paper from the ﬁeld of genetic link-
+age analysis and compares the performance to that of superlink. There are
+several observations. First, general–purpose algorithms that exploit only topo-
+logical structure such as jointree could solve only one of the listed networks,
+because of high treewidth, even after applying classical pruning techniques.
+Second, only one of these networks could be compiled without the introduc-
+tion of unit clauses to capture evidence. However, once the unit clauses were
+injected, all of the networks yielded to compilation in minutes. Finally, WMC
+compilation times are in most cases more eﬃceint than superlink online
+times, and WMC online times are much more eﬃcient still. Given that com-
+pilation must occur once, and online inference must be repeated many times,
+this eﬀect of this improvement multiplies.
+We conclude by noting that ENC2, ENC3, and ENC4 can eﬀectively take
+advantage of evidence in the way described in this section, since they utilize
+indicator variables in the same way asENC1. Furthermore, performing WMC
+by search can utilize evidence by examining the weights of variables and as-
+12 If we are not interested in computing posterior marginals on some variables M,
+we can achieve even larger gains by deleting leaf nodes that are not part of the
+evidence and not part of M, as with classical pruning.
+42
+
+===== PDF PAGE 43 =====
+Table 16
+EE results from [2] with full preprocessing.
+Max Comp. Comp. Oneline superlink
+Net Clust. Time (s) Size Time (s) Time (s)
+ee33 20.2 25.33 2,070,707 0.59 1046.72
+ee37 29.6 61.29 1,855,410 0.39 1381.61
+ee30 35.9 376.78 27,997,686 8.37 815.33
+ee23 38.0 89.47 3,986,816 1.08 502.02
+ee18 41.5 283.96 23,632,200 6.63 248.11
+serting a negative unit clause any time a weight is equal to 0. In the case of
+compilation, the disadvantage of incorporating evidence was that compilation
+would need to be performed again for some queries, which removes one of the
+chief advantages of compiling (although we have seen that in many practical
+cases, this is not necessary). However, in the case of a search, the algorithm
+is re–run for each new evidence anyway, so there is really no disadvantage to
+incorporating evidence in this case. Encoding evidence in the context of search
+algorithms was indeed applied eﬀectively in [16].
+6 When WMC Oﬀers No Advantage
+In previous sections, we have demonstrated that WMC can outperform algo-
+rithms that exploit only topological structure, such as jointree and variable
+elimination. However, because WMC incurs overhead looking for ways to ex-
+ploit local structure, if there is insuﬃcient local structure, then WMC may
+not be the best choice. For example, in the absence of local structure, variable
+elimination will outperform WMC by search. The diﬀerence will be a constant
+factor, but possibly a very large one.
+We discuss the eﬀect of limited local structure on compilation in the context
+of one last experiment, which has not previously been addressed in the liter-
+ature. We ﬁrst identiﬁed a set of networks having treewidth small enough for
+the jointree algorithm to work. For each network, we removed all local struc-
+ture by setting each parameter to a random number and then normalizing
+appropriately. We then compiled the network using Ace (which uses ENC4)
+and answered a set of queries using both Ace and jointree. To make the com-
+parison as fair as possible, we used the same elimination order to drive Ace
+compilation and to construct the jointree. Experiments ran on a 2.13GHz Intel
+Core Duo processor with 4GB of RAM.
+Table 17 demonstrates that in the absence of local structure, WMC compi-
+43
+
+===== PDF PAGE 44 =====
+Table 17
+Ace vs. Jointree when there is no local structure. Online time is averaged over six-
+teen evidence sets, where for each evidence set, we compute probability of evidence
+and a posterior marginal for every network variable.
+Ace Oﬄine Jointree Avg. Ace Avg.
+Network Time (s) Online Time (s) Online Time (s) Improv.
+alarm 1 0.007 0.005 1.41
+bm-5-3 721 3.328 3.965 0.84
+diabetes 1,345 1.202 1.268 0.95
+hailﬁnder 3 0.018 0.007 2.66
+mm-3-8-3 195 1.117 1.336 0.84
+munin2 284 0.764 0.596 1.28
+munin3 254 0.495 0.534 0.93
+munin4 1,248 1.770 1.872 0.95
+pathﬁnder 37 0.062 0.036 1.72
+pigs 41 0.115 0.123 0.93
+students-3-2 241 0.961 1.806 0.53
+tcc4f.obfuscated 3 0.022 0.007 3.17
+water 340 0.659 0.591 1.12
+lation will incur signiﬁcant overhead during the oﬄine phase (more than if
+local structure were present), and no online gains will be realized from the
+extra work. Online times will be roughly equivalent to jointree times. Online
+space will be somewhat larger than jointree space, since the WMC compila-
+tion stores both nodes and edges, whereas a jointree can be seen to describe a
+similarly sized compilation, yet only nodes need be stored explicitly (see [48]
+for details).
+7 Conclusion
+We provided in this paper a survey and some new results on a class of ap-
+proaches for exact probabilistic inference, which reduces the problem to one
+of weighted model counting (WMC) on a CNF encoding of a Bayesian net-
+work. If the network exhibits suﬃcient local structure, and if this structure is
+captured during the encoding process, then WMC techniques can eﬃciently
+handle networks that have very high treewidths (i.e., ones that are outside the
+scope of algorithms that exploit only topological structure). The advantages of
+44
+
+===== PDF PAGE 45 =====
+WMC approaches include a declarative method for encoding local structure,
+an ability to leverage highly reﬁned techniques from satisﬁability solving, and
+a powerful way for exploiting available evidence. Recent literature on WMC
+approaches provides diﬀerent ways of encoding a Bayesian network, diﬀerent
+ways of performing WMC (e.g., search vs compilation), and diﬀerent degrees
+of utilizing local structure. Our survey of recent WMC approaches has been
+made systematic by placing these approaches across these three dimensions.
+References
+[1] M. Chavira, A. Darwiche, Compiling Bayesian networks with local structure, in:
+Proceedings of the 19th International Joint Conference on Artiﬁcial Intelligence
+(IJCAI), 2005, pp. 1306–1312.
+[2] M. Chavira, D. Allen, A. Darwiche, Exploiting evidence in probabilistic
+inference, in: Proceedings of the 21st Conference on Uncertainty in Artiﬁcial
+Intelligence (UAI), 2005, pp. 112–119.
+[3] M. Chavira, A. Darwiche, Encoding cnfs to empower component analysis, in:
+Proceedings of the 9th International Conference on Theory and Applications
+of Satisﬁability Testing (SAT), Springer Berlin / Heidelberg, Lecture Notes in
+Computer Science, Volume 4121, 2006, pp. 61–74.
+[4] F. V. Jensen, S. Lauritzen, K. Olesen, Bayesian updating in recursive graphical
+models by local computation, Computational Statistics Quarterly 4 (1990) 269–
+282.
+[5] S. L. Lauritzen, D. J. Spiegelhalter, Local computations with probabilities on
+graphical structures and their application to expert systems, Journal of Royal
+Statistics Society, Series B 50 (2) (1988) 157–224.
+[6] N. L. Zhang, D. Poole, Exploiting causal independence in Bayesian network
+inference, Journal of Artiﬁcial Intelligence Research 5 (1996) 301–328.
+[7] R. Dechter, Bucket elimination: A unifying framework for probabilistic
+inference, in: Proceedings of the 12th Conference on Uncertainty in Artiﬁcial
+Intelligence (UAI), 1996, pp. 211–219.
+[8] A. Darwiche, Recursive conditioning, Artiﬁcial Intelligence 126 (1-2) (2001) 5–
+41.
+[9] F. Jensen, S. K. Andersen, Approximations in Bayesian belief universes
+for knowledge based systems, in: Proceedings of the Sixth Conference on
+Uncertainty in Artiﬁcial Intelligence (UAI), Cambridge, MA, 1990, pp. 162–
+169.
+[10] C. Boutilier, N. Friedman, M. Goldszmidt, D. Koller, Context–speciﬁc
+independence in Bayesian networks, in: Proceedings of the 12th Conference
+on Uncertainty in Artiﬁcial Intelligence (UAI), 1996, pp. 115–123.
+45
+
+===== PDF PAGE 46 =====
+[11] D. Larkin, R. Dechter, Bayesian inference in the presence of determinism., in:
+C. M. Bishop, B. J. F. (eds) (Eds.), Proceedings of the Ninth International
+Workshop on Artiﬁcial Intelligence and Statistics (AI-STAT), Key West, FL.,
+2003.
+[12] F. Bacchus, S. Dalmao, T. Pitassi, Value elimination: Bayesian inference
+via backtracking search, in: Proceedings of the 19th Annual Conference on
+Uncertainty in Artiﬁcial Intelligence (UAI-03), Morgan Kaufmann Publishers,
+San Francisco, CA, 2003, pp. 20–28.
+[13] D. Heckerman, A tractable inference algorithm for diagnosing multiple diseases,
+in: Proceedings of the Fifth Conference on Uncertainty in Artiﬁcial Intelligence,
+1989, pp. 174–181.
+[14] D. Poole, N. Zhang, Exploiting contextual independence in probabilistic
+inference, Journal of Artiﬁcial Intelligence 18 (2003) 263–313.
+[15] A. Darwiche, A logical approach to factoring belief networks, in: Proceedings
+of KR, 2002, pp. 409–420.
+[16] T. Sang, P. Beame, H. Kautz, Solving Bayesian networks by weighted model
+counting, in: Proceedings of the Twentieth National Conference on Artiﬁcial
+Intelligence (AAAI-05), Vol. 1, AAAI Press, 2005, pp. 475–482.
+[17] M. Chavira, A. Darwiche, Compiling Bayesian networks using variable
+elimination, in: Proceedings of the 20th International Joint Conference on
+Artiﬁcial Intelligence (IJCAI), 2007, pp. 2443–2449.
+[18] T. Sang, F. Bacchus, P. Beame, H. A. Kautz, T. Pitassi, Combining component
+caching and clause learning for eﬀective model counting., in: SAT, 2004.
+[19] T. Sang, P. Beame, H. A. Kautz, Heuristics for fast exact model counting., in:
+SAT, 2005, pp. 226–240.
+[20] A. Darwiche, On the tractability of counting theory models and its application
+to belief revision and truth maintenance, Journal of Applied Non-Classical
+Logics 11 (1-2) (2001) 11–34.
+[21] J. Pearl, Probabilistic Reasoning in Intelligent Systems: Networks of Plausible
+Inference, Morgan Kaufmann Publishers, Inc., San Mateo, California, 1988.
+[22] M. Chavira, A. Darwiche, M. Jaeger, Compiling relational Bayesian networks
+for exact inference, International Journal of Approximate Reasoning 42 (1–2)
+(May 2006) 4–20.
+[23] D. Roth, On the hardness of approximate reasoning, Artiﬁcial Intelligence 82 (1-
+2) (1996) 273–302.
+[24] F. Bacchus, S. Dalmao, T. Pitassi, Algorithms and complexity results for #sat
+and bayesian inference., in: FOCS, 2003, pp. 340–351.
+[25] M. Davis, G. Logemann, D. Loveland, A machine program for theorem proving,
+CACM 5 (1962) 394–397.
+46
+
+===== PDF PAGE 47 =====
+[26] A. Darwiche, New advances in compiling CNF to decomposable negational
+normal form, in: Proceedings of European Conference on Artiﬁcial Intelligence,
+2004, pp. 328–332.
+[27] R. Dechter, R. Mateescu, AND/OR search spaces for graphical models,
+Artiﬁcial Intelligence 171 (2-3) (2007) 73–106.
+[28] W. Wei, B. Selman, A new approach to model counting., in: SAT, 2005, pp.
+324–339.
+[29] W. Wei, J. Erenrich, B. Selman, Towards eﬃcient sampling: Exploiting random
+walk strategies., in: AAAI, 2004, pp. 670–676.
+[30] R. Bayardo, J. Pehoushek, Counting models using connected components, in:
+AAAI, 2000, pp. 157–162.
+[31] A. Darwiche, A compiler for deterministic, decomposable negation normal form,
+in: Proceedings of the Eighteenth National Conference on Artiﬁcial Intelligence
+(AAAI), AAAI Press, Menlo Park, California, 2002, pp. 627–634.
+[32] F. Bacchus, S. Dalmao, T. Pitassi, Dpll with caching: A new algorithm
+for #SAT and Bayesian inference, Electronic Colloquium on Computational
+Complexity (ECCC) 10 (003).
+[33] A. Darwiche, P. Marquis, A knowlege compilation map, Journal of Artiﬁcial
+Intelligence Research 17 (2002) 229–264.
+[34] J. Huang, A. Darwiche, Dpll with a trace: From sat to knowledge compilation,
+in: Proceedings of the 19th International Joint Conference on Artiﬁcial
+Intelligence (IJCAI), 2005, pp. 156–162.
+[35] M. Jaeger, Relational Bayesian networks, in: D. Geiger, P. P. Shenoy (Eds.),
+Proceedings of the 13th Conference of Uncertainty in Artiﬁcial Intelligence
+(UAI-13), Morgan Kaufmann, Providence, USA, 1997, pp. 266–273.
+[36] A. Darwiche, A diﬀerential approach to inference in Bayesian networks, Journal
+of the ACM 50 (3) (2003) 280–305.
+[37] J. P. Hayes, Introduction to Digital Logic Design, Addison Wesley, 1993.
+[38] M. M. Mirsalehi, T. K. Gaylord, Logical minimization of multilevel coded
+functions, Applied Optics 25 (1986) 3078–3088.
+[39] R. D. Shachter, Evaluating inﬂuence diagrams, Operations Research 34 (6)
+(1986) 871–882.
+[40] S. Ross, Evidence absorption and propagation through evidence reversals,
+in: Proceedings of the 5th Annual Conference on Uncertainty in Artiﬁcial
+Intelligence (UAI-90), Elsevier Science Publishing Company, Inc., New York,
+NY, 1990.
+[41] J. Park, A. Darwiche, Approximating MAP using stochastic local search, in:
+Proceedings of the 17th Conference on Uncertainty in Artiﬁcial Intelligence
+(UAI), Morgan Kaufmann Publishers, Inc., San Francisco, California, 2001, pp.
+403–410.
+47
+
+===== PDF PAGE 48 =====
+[42] J. Park, A. Darwiche, Solving map exactly using systematic search, in:
+Proceedings of the 19th Conference on Uncertainty in Artiﬁcial Intelligence
+(UAI), 2003, pp. 459–468.
+[43] C. Yuan, T.-C. Lu, M. Druzdzel, Annealed MAP, in: Proceedings of the 20th
+Annual Conference on Uncertainty in Artiﬁcial Intelligence (UAI), 2004, pp.
+628–635.
+[44] M. Fishelson, D. Geiger, Exact genetic linkage computations for general
+pedigrees., Bioinformatics 18 (1) (2002) 189–198.
+[45] M. Fishelson, N. Dovgolevsky, D. Geiger, Maximum likelihood haplotyping for
+general pedigrees, Tech. Rep. CS-2004-13, Technion, Haifa, Israel (2004).
+[46] A. Dempster, N. Laird, D. Rubin, Maximum likelihood from incomplete data
+via the EM algorithm, Journal of the Royal Statistical Society 39 (1) (1977)
+1–38.
+[47] H. Chan, A. Darwiche, Sensitivity analysis in Bayesian networks: From single
+to multiple parameters, in: Proceedings of the Twentieth Conference on
+Uncertainty in Artiﬁcial Intelligence (UAI), AUAI Press, Arlington, Virginia,
+2004, pp. 67–75.
+[48] J. Park, A. Darwiche, A diﬀerential semantics for jointree algorithms, Artiﬁcial
+Intelligence 156 (2004) 197–216.
+48

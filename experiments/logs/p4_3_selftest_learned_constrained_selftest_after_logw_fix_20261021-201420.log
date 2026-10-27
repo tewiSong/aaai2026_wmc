@@ -1,0 +1,34 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_3_selftest_learned_constrained.py
+# sha256 : 3840249be681d258c478f159df9cfcd7886f3659068c303d737a5549db7b500c
+# args   : 
+# host   : uan04   slurm_job: none
+# start  : 2026-10-21T20:14:20+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+identity==conditioning OK; gradient max diff 1.40e-09; recovered params max abs error 0.127 (true range a in [0.6,1.6], b in [-1.5,1])
+P4.3 self-test passed
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_3_selftest_learned_constrained.py"
+	User time (seconds): 38.48
+	System time (seconds): 2.38
+	Percent of CPU this job got: 108%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:37.82
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 48024
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 348
+	Minor (reclaiming a frame) page faults: 29197
+	Voluntary context switches: 7364
+	Involuntary context switches: 5600
+	Swaps: 0
+	File system inputs: 131374
+	File system outputs: 24
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-21T20:15:03+03:00   exit: 0

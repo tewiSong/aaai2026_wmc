@@ -1,0 +1,40 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7a_bethe_vs_exact_moment_matching_diagnostic.py
+# sha256 : 0458d7b4f45bc949ab98c22d55c1f3471d6ae826101d8a9dde3712331bc7feb9
+# args   : --ns go_mf --input cnn --proteins 100
+# host   : uan04   slurm_job: none
+# start  : 2026-10-21T23:14:15+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+Traceback (most recent call last):
+  File "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7a_bethe_vs_exact_moment_matching_diagnostic.py", line 35, in <module>
+    thb = moment_match_bethe(n, edges, mt)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/learned_constrained.py", line 301, in moment_match_bethe
+    raise ValueError("Bethe moment matching needs strictly ordered marginals (mu_child < mu_parent)")
+ValueError: Bethe moment matching needs strictly ordered marginals (mu_child < mu_parent)
+Command exited with non-zero status 1
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7a_bethe_vs_exact_moment_matching_diagnostic.py --ns go_mf --input cnn --proteins 100"
+	User time (seconds): 5.66
+	System time (seconds): 2.41
+	Percent of CPU this job got: 147%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:05.46
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 97848
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 465
+	Minor (reclaiming a frame) page faults: 33171
+	Voluntary context switches: 7376
+	Involuntary context switches: 441
+	Swaps: 0
+	File system inputs: 173378
+	File system outputs: 392
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
+
+# end    : 2026-10-21T23:14:27+03:00   exit: 1

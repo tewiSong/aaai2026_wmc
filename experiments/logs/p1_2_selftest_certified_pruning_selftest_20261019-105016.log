@@ -1,0 +1,34 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_2_selftest_certified_pruning.py
+# sha256 : 3e5747a5dfd0b1f12c7d57d3b9bd405355d54cf0bccafcdddb7fa21a51c79b00
+# args   : 
+# host   : uan04   slurm_job: none
+# start  : 2026-10-19T10:50:16+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+600 checks (231 with a non-empty cold set): intervals contain the true marginals and TV <= delta; min slack -1.40e-16
+P1.2 certified-pruning self-test passed
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_2_selftest_certified_pruning.py"
+	User time (seconds): 97.83
+	System time (seconds): 13.51
+	Percent of CPU this job got: 101%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:49.51
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 47784
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 362
+	Minor (reclaiming a frame) page faults: 1561522
+	Voluntary context switches: 9743
+	Involuntary context switches: 87619
+	Swaps: 0
+	File system inputs: 116928
+	File system outputs: 8488
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-19T10:52:14+03:00   exit: 0

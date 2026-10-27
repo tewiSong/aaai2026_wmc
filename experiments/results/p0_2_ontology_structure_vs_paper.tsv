@@ -1,0 +1,7 @@
+name	terms	paper_terms	edges	dropped_isa	pct_mp	paper_pct_mp	max_parents	max_children	max_undirected_deg	paper_max_deg	roots	components	is_dag	terms_match
+go_cc	4183	4041	4839	0	14.7	13.0	4	426	427	4	1	1	True	False
+go_mf	11170	10131	13611	0	17.56	20.0	7	344	345	7	1	1	True	False
+go_bp	28438	25950	52305	0	56.59	53.0	9	197	198	9	1	1	True	False
+uberon	14975	14977	19387	0	23.94	24.0	7	347	348	7	4	4	True	False
+uberon_allterms	14975	14977	19387	0	23.94	24.0	7	347	348	7	4	4	True	False
+chebi	205592	205592	285589	0	24.66	24.7	14	8078	8079	14	291	290	True	True

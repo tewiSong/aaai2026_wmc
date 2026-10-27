@@ -1,0 +1,34 @@
+{
+  "ontology": "go_mf",
+  "terms": 11170,
+  "clauses": 13611,
+  "timeout_hours": 46.0,
+  "compile": {
+    "failed": "RuntimeError('d4 failed rc=-11:  1360497949 |          0 |  267345940 |    68213843 |          0 | \\nc  534708224 |  118429.37 | 1181002642 |  267354133 | 1363962245 |     134955 |  179548762 | 1360655639 |          0 |  267354133 |    68215685 |          0 | \\nc  534724608 |  118434.45 | 1181040867 |  267362323 | 1364005847 |     134957 |  179682871 | 1360827971 |          0 |  267362323 |    68217512 |          0 | \\nc unitLits 4292870145 17171480580 Bytes\\nc  534740992 |  118438.82 | 11810778"
+  },
+  "compile_peak_rss_gb_children": 131.62
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_1_d4_compile_full_ontology_exact_gate.py --ontology go_mf --timeout-hours 46"
+	User time (seconds): 116386.28
+	System time (seconds): 818.24
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 32:56:11
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 138010528
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2315114
+	Minor (reclaiming a frame) page faults: 25948309
+	Voluntary context switches: 2332713
+	Involuntary context switches: 484763
+	Swaps: 0
+	File system inputs: 18860486
+	File system outputs: 19269496
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p1_1_d4_compile_full_ontology_exact_gate_go_mf_20261019-104816.log

@@ -1,0 +1,34 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7_selftest_c2_bp_variant.py
+# sha256 : c3f75e8bf42d4f3a0664857e936d5dc3503b38897d78bbb6c58fbd41cfc8a81a
+# args   : 
+# host   : uan04   slurm_job: none
+# start  : 2026-10-21T22:55:34+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+BP-theta OK; tree MM: exact err 3.9e-09, BP err 9.3e-08, |theta diff| 3.6e-05; NLL w0 8.7102, L-BFGS 2.6413, Adam 2.6415
+P4.7 self-test passed
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7_selftest_c2_bp_variant.py"
+	User time (seconds): 96.59
+	System time (seconds): 2.48
+	Percent of CPU this job got: 103%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:36.08
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 55404
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 489
+	Minor (reclaiming a frame) page faults: 31832
+	Voluntary context switches: 7496
+	Involuntary context switches: 3975
+	Swaps: 0
+	File system inputs: 134222
+	File system outputs: 40
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-21T22:57:16+03:00   exit: 0

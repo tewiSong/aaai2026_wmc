@@ -1,0 +1,1203 @@
+PDF PAGE 1
+Bucket Renormalization for Approximate Inference
+Sungsoo Ahn 1 Michael Chertkov 2 3 Adrian Weller 4 5 Jinwoo Shin 1 6
+Abstract
+Probabilistic graphical models are a key tool in
+machine learning applications. Computing the
+partition function, i.e., normalizing constant, is a
+fundamental task of statistical inference but it is
+generally computationally intractable, leading to
+extensive study of approximation methods. Itera-
+tive variational methods are a popular and success-
+ful family of approaches. However, even state of
+the art variational methods can return poor results
+or fail to converge on difﬁcult instances. In this
+paper, we instead consider computing the parti-
+tion function via sequential summation over vari-
+ables. We develop robust approximate algorithms
+by combining ideas from mini-bucket elimination
+with tensor network and renormalization group
+methods from statistical physics. The resulting
+“convergence-free” methods show good empiri-
+cal performance on both synthetic and real-world
+benchmark models, even for difﬁcult instances.
+1. Introduction
+Graphical Models (GMs) express the factorization of the
+joint multivariate probability distribution over subsets of
+variables via graphical relations among them. They have
+played an important role in many ﬁelds, including com-
+puter vision (Freeman et al., 2000), speech recognition
+(Bilmes, 2004), social science (Scott, 2017) and deep learn-
+ing (Hinton & Salakhutdinov, 2006). Given a GM, com-
+puting the partition functionZ (the normalizing constant)
+is the essence of other statistical inference tasks such as
+marginalization and sampling. The partition function can
+be calculated efﬁciently in tree-structured GMs through an
+1School of Electrical Engineering, KAIST, Daejeon, South
+Korea 2Theoretical Division, T-4 & Center for Nonlinear Studies,
+Los Alamos National Laboratory, Los Alamos, NM 87545, USA
+3Skolkovo Institute of Science and Technology, 143026 Moscow,
+Russia 4University of Cambridge, UK 5The Alan Turing Institute,
+UK 6AITrics, Seoul, South Korea. Correspondence to: Jinwoo
+Shin <jinwoos@kaist.ac.kr>.
+Proceedings of the 35 th International Conference on Machine
+Learning, Stockholm, Sweden, PMLR 80, 2018. Copyright 2018
+by the author(s).
+iterative (dynamic programming) algorithm eliminating, i.e.
+summing up, variables sequentially. In principle, the elim-
+ination strategy extends to arbitrary loopy graphs, but the
+computational complexity is exponential in the tree-width,
+e.g., the junction-tree method (Shafer & Shenoy, 1990). For-
+mally, the computation task is #P-hard even to approximate
+(Jerrum & Sinclair, 1993).
+Variational approaches are often the most popular practical
+choice for approximate computation of the partition func-
+tion. They map the counting problem into an approximate
+optimization problem stated over a polynomial (in the graph
+size) number of variables. The optimization is typically
+solved iteratively via a message-passing algorithm, e.g.,
+mean-ﬁeld (Parisi, 1988), belief propagation (Pearl, 1982),
+tree-reweighted (Wainwright et al., 2005), or gauges and/or
+re-parametrizations (Ahn et al., 2017; 2018 (accepted to
+appear). Lack of accuracy control and difﬁculty in forcing
+convergence in an acceptable number of steps are, unfor-
+tunately, typical for hard GM instances. Markov chain
+Monte Carlo methods (e.g., see Alpaydin, 2014) are also
+popular to approximate the partition function, but typically
+suffer, even more than variational methods, from slow con-
+vergence/mixing.
+Approximate elimination is a sequential method to estimate
+the partition function. Each step consists of summation
+over variables followed by (or combined with) approxima-
+tion of the resulting complex factors. Notable ﬂavors of
+this method include truncation of the Fourier coefﬁcients
+(Xue et al., 2016), approximation by random mixtures of
+rank-1 tensors (Wrigley et al., 2017), and arguably the most
+popular, elimination over mini-buckets (Dechter & Rish,
+2003; Liu & Ihler, 2011). One advantage of the mini-bucket
+elimination approach is the ability to control the trade-off
+between computational complexity and approximation qual-
+ity by adjusting an induced-width parameter. Note that
+analogous control in variational methods, such as varying
+region sizes in generalized belief propagation (Yedidia et al.,
+2001), typically results in much more complicated optimiza-
+tion formulations to solve. Another important advantage
+of mini-bucket elimination is that it is always guaranteed
+to terminate and, usually, it does so quickly. This is in
+contrast to iterative message-passing implementations of
+variational methods which can be notoriously slow on difﬁ-
+cult instances.
+
+PDF PAGE 2
+Bucket Renormalization
+Contribution. We improve the approximation quality of
+mini-bucket methods using tensor network and renormal-
+ization group approaches from statistical physics. In this
+regard, our method extends a series of recent papers explor-
+ing multi-linear tensor network transformations/contractions
+(Novikov et al., 2014; Wrigley et al., 2017; Ahn et al., 2017;
+2018 (accepted to appear). More generally, tensor network
+renormalization algorithms (Levin & Nave, 2007; Evenbly
+& Vidal, 2015) have been proposed in the quantum and sta-
+tistical physics literature for estimating partition functions.
+The algorithms consist of coarse-graining the graph/network
+by contracting sub-graphs/networks using a low-rank projec-
+tion as a subroutine. However, the existing renormalization
+methods in the physics literature have focused primarily on
+a restricted class of tensor-factorized models over regular
+grids/lattices,1 while factor-graph models (Clifford, 1990)
+over generic graphical structures are needed in most ma-
+chine learning applications.
+For generalizing them to factor-graph models, one would
+face at two challenges: (a) coarse-graining of the tensor
+network relies on the periodic structure of grid/lattices and
+(b) its low-rank projections are only deﬁned on “edge vari-
+ables” that allows only two adjacent factors. To overcome
+them, we ﬁrst replace the coarse-graining step by sequential
+elimination of the mini-bucket algorithms, and then use the
+strategy of “variable splitting” in order to generate auxiliary
+edge variables. Namely, we combine ideas from tensor net-
+work renormalization and the mini-bucket schemes where
+one is beneﬁcal to the other. We propose two algorithms,
+which we call MBR and GBR:
+• Mini-bucket renormalization (MBR) consists of se-
+quentially splitting summation over the current (re-
+maining) set of variables into subsets – multiple mini-
+buckets which are then “renormalized”. We show that
+this process is, in fact, equivalent to applying low-rank
+projections on the mini-buckets to approximate the
+variable-elimination process, thus resulting in better
+approximation than the original mini-bucket methods.
+In particular, we show how to resolve approximate
+renormalization locally and efﬁciently through applica-
+tion of truncated singular value decomposition (SVD)
+over small matrices.
+• While MBR is based on a sequence of local low-rank
+approximations applied to the mini-buckets, global-
+bucket renormalization (GBR) extends MBR by ap-
+proximating mini-buckets globally. This is achieved by
+ﬁrst applying MBR to mini-buckets, then calibrating
+the choice of low rank projections by minimizing the
+partition function approximation error with respect to
+renormalization of the “global-bucket”. Hence, GBR
+1 The special models are related to what may be called Forney-
+style grids/lattices (Forney, 2001) in the GM community.
+takes additional time to run but may be expected to
+yield better accuracy.
+Both algorithms are easily applicable to arbitrary GMs with
+interactions (factors) of high orders, hyper-graphs and large
+alphabets. We perform extensive experiments on synthetic
+(Ising models on complete and grid graphs) and real-world
+models from the UAI dataset. In our experiments, both
+MBR and GBR show performance superior to other state-
+of-the-art elimination and variational algorithms.
+2. Preliminaries
+Graphical model. Consider a hyper-graph G = ( V, E)
+with vertices V = {1, · · ·,n } and hyper-edges E ⊂ 2V. A
+graphical model (GM) M = (G, F) associates a collection
+ofn discrete random variables x = [xi : i ∈ V ] ∈ XV =∏
+i∈V Xi with the following joint probability distribution:
+Pr(x) = 1
+Z
+∏
+α∈E
+fα(xα), Z =
+∑
+x
+∏
+α∈E
+fα(xα),
+where Xi = {1, 2, · · ·di}, xα = [xi : i ∈ α], F =
+{fα}α∈E is a set of non-negative functions called factors,
+andZ is the normalizing constant called the partition func-
+tion that is computationally intractable.
+Algorithm 1 Bucket Elimination (BE)
+1: Input: GM M† = (G†, F†) and elimination ordero.
+2: F ← F†
+3: fori ino do
+4: Bi ← {fα|fα ∈ F,i ∈α}
+5: Generate new factorfBi\{i} by (1).
+6: F ← F ∪ { fBi\{i}} \ Bi
+7: end for
+8: Output:Z =∏
+fα∈Ffα
+Mini-bucket elimination. Bucket (or variable) elimination
+(BE, Dechter, 1999; Koller & Friedman, 2009) is a proce-
+dure for computing the partition function exactly based on
+sequential elimination of variables. Without loss of gener-
+ality, we assume through out the paper that the elimination
+order is ﬁxedo = [1, · · ·,n ]. BE groups factors by placing
+each factorfα in the “bucket” Bi ⊂ F of its earliest argu-
+menti ∈α appearing in the elimination ordero. Next, BE
+eliminates the variable by introducing a new factor marginal-
+izing the product of factors in it, i.e.,
+fBi\{i}(xBi\{i}) =
+∑
+xi
+∏
+fα∈Bi
+fα(xα). (1)
+Here, xBi\{i} abbreviates xV(Bi)\{i}, where V(Bi) indi-
+cates the set of variables associated with the bucket Bi. The
+
+PDF PAGE 3
+Bucket Renormalization
+subscript in fBi\{i} represents a similar abbreviation. Fi-
+nally, the new functionfBi\{i} is added to another bucket
+corresponding to its earliest argument in the elimination
+order. Formal description of BE is given in Algorithm 1.
+One can easily check that BE applies a distributive property
+for computingZ exactly: groups of factors corresponding
+to buckets are summed out sequentially, and then the newly
+generated factor (without the eliminated variable) is added
+to another bucket. The computational cost of BE is expo-
+nential with respect to the number of uneliminated variables
+in the bucket, i.e., its complexity is O
+(
+dmaxi|V(Bi)||V|
+)
+.
+Here, maxi∈V |V(Bi)| is called theinduced width of G given
+the elimination ordero, and the minimum possible induced
+width across all possible o is called the tree-width. Fur-
+thermore, we remark that summation of GM over variables
+deﬁned on the subset of verticesα, i.e.,∑
+xα
+∏
+β∈Efβ, can
+also be computed via BE inO(dmaxi|V(Bi)|+|V\α||V|) time
+by summing out variables in elimination orderoα onα.
+Mini-bucket elimination (MBE, Dechter & Rish, 2003)
+achieves lower complexity by approximating each step of
+BE by splitting the computation of each bucket into sev-
+eral smaller “mini-buckets”. Formally, for each variable
+i in the elimination order o, the bucket Bi is partitioned
+intomi mini-buckets {Bℓ
+i }mi
+ℓ=1 such that Bi =⋃mi
+ℓ=1 Bℓ
+i and
+Bℓ1
+i ∩ Bℓ2
+i = ∅ for any ℓ1,ℓ 2. Next, MBE generates new
+factors differently from BE as follows:
+fBℓ
+i\{i}(xBℓ
+i\{i}) = max
+xi
+∏
+fα∈Bℓ
+i
+fα(xα), (2)
+for allℓ = 1, · · ·,mi − 1 and
+fB
+mi
+i \{i}(xB
+mi
+i \{i}) =
+∑
+xi
+∏
+fα∈B
+mi
+i
+fα(xα). (3)
+Other steps are equivalent to that of BE. Observe that MBE
+replaces the exact marginalization of the bucket in (1) by
+its upper bound, i.e.,∑
+xi
+∏
+fα∈Bifα ≤∏m
+ℓ=1fBℓ
+i\{i}, and
+hence yields an upper bound of Z. We remark that one
+could instead obtain a lower bound forZ by replacing max
+by min in (2).
+Note that one has to choose mini-buckets for MBE carefully
+as their sizes typically determine complexity and accuracy:
+smaller mini-buckets may be better for speed, but worse
+in accuracy. Accordingly, MBE has an additional induced
+width bound parameter ibound as the maximal size of a
+mini-bucket, i.e., |V(Bℓ
+i)| ≤ ibound + 1. The time com-
+plexity of MBE is O
+(
+dibound+1|E| · maxα∈E |α|
+)
+, since
+the maximum number of mini-buckets is bounded by
+|E| maxα∈E |α|.
+Figure 1. Renormalization process for mini-buckets Ba
+1 =
+{f12, f13},Bb
+1 ={f15, f16} andBc
+1 ={f14}.
+3. Mini-Bucket Renormalization
+We propose a new scheme, named mini-bucket renormal-
+ization (MBR). Our approach approximates BE by splitting
+each bucket into several smaller mini-buckets to be “renor-
+malized”. Inspired by tensor renormalization groups (TRG,
+Levin & Nave, 2007, see also references therein) in the
+physics literature, MBR utilizes low-rank approximations to
+the mini-buckets instead of simply applying max (or min)
+operations as in MBE. Intuitively, MBR is similar to MBE
+but promises better accuracy.
+3.1. Algorithm Description
+For each variablei in the elimination ordero, MBR parti-
+tions a bucket Bi into mi distinct mini-buckets {Bℓ
+i }mi
+ℓ=1
+with maximal size bounded by ibound. Then for ℓ =
+1, · · ·,mi − 1, mini-bucket Bℓ
+i is “renormalized” through
+replacing vertexi by its replicate iℓ and then introducing
+local factorsrℓ
+i,riℓ for error compensation, i.e.,
+˜Bℓ
+i ← {fα\{i}∪{iℓ}|fα ∈ Bℓ
+i } ∪ {rℓ
+i,riℓ }.
+Here, rℓ
+i,riℓ are local “compensating/renormalizing fac-
+tors”, chosen to approximate the factorfBℓ
+i
+=∏
+fα∈Bℓ
+i
+fα
+well, where MBE approximates it using(2) and (3). See Fig-
+ure 1 for illustration of the renormalization process. Speciﬁ-
+cally, the local compensating/renormalizing factors are cho-
+sen by solving the following optimization:
+min
+rℓ
+i,riℓ
+∑
+xBℓ
+i
+(
+fBℓ
+i
+(xBℓ
+i
+) − ˜fBℓ
+i
+(xBℓ
+i
+)
+)2
+, (4)
+where ˜fBℓ
+i
+is the factor induced on xBℓ
+i
+from the renormal-
+ized mini-bucket ˜Bℓ
+i :
+˜fBℓ
+i
+(xBℓ
+i
+) =
+∑
+xℓ
+i
+∏
+fα∈ ˜Bℓ
+i
+fα(xα)
+=rℓ
+i(xi)
+∑
+xiℓ
+riℓ(xiℓ)
+∏
+fα∈Bℓ
+i
+fα(xiℓ, xα\{i}∪{iℓ}).
+We show that (4) can be solved efﬁciently in Section 3.2.
+After all mini-buckets are processed, factors can be summed
+over the variables xi1, · · ·,ximi−1 andxi separately, i.e.,
+
+PDF PAGE 4
+Bucket Renormalization
+introduce new factors as follows:
+fBℓ
+i\{i}(xBℓ
+i\{i}) =
+∑
+xiℓ
+∏
+fα∈ ˜Bℓ
+i\{rℓ
+i}
+fα(xα), (5)
+=
+∑
+xiℓ
+rℓ
+i(xiℓ)
+∏
+fα∈Bℓ
+i
+fα(xiℓ, xα\{i}∪{iℓ}),
+forℓ = 1, · · ·,mi − 1 and
+fB
+mi
+i \{i}(xB
+mi
+i \{i}) =
+∑
+xi
+mi−1∏
+ℓ=1
+rℓ
+i(xiℓ)
+∏
+fα∈B
+mi
+i
+fα(xα).
+(6)
+Resulting factors are then added to its corresponding mini-
+bucket and repeat until all buckets are processed, like BE
+and MBE. Here, one can check that
+mi∏
+ℓ=1
+fBℓ
+i\{i}(xBℓ
+i\{i}) =
+∑
+xi
+fB
+mi
+i
+(xB
+mi
+i
+)
+mi−1∏
+ℓ=1
+˜fBℓ
+i
+(xBℓ
+i
+),
+≈
+∑
+xi
+mi∏
+ℓ=1
+fBℓ
+i
+(xBℓ
+i
+),
+from (4) and MBR indeed approximates BE. The formal
+description of MBR is given in Algorithm 2.
+Algorithm 2 Mini-bucket renormalization (MBR)
+1: Input: GM M† = (G†, F†), elimination order o and
+induced width boundibound.
+2: F ← F†
+3: fori ino do
+4: Bi ← {fα|fα ∈ F,i ∈α}
+5: Divide Bi into mi subgroups {Bℓ
+i }mi
+ℓ=1 such that
+|V(Bℓ
+i)| ≤ ibound + 1 forℓ = 1, · · ·,mi.
+6: forℓ = 1, · · ·,mi − 1 do
+7: Generate compensating factorsrℓ
+i,riℓ by (4).
+8: Generate new factorfBℓ
+i\{i} by (5).
+9: end for
+10: Generate new factorfB
+mi
+i \{i} by (6).
+11: forℓ = 1, · · ·,mi do
+12: F ← F ∪ { fBℓ
+i\{i}} \ Bℓ
+i
+13: end for
+14: end for
+15: Output:Z =∏
+fα∈Ffα
+3.2. Complexity
+The optimization (4) is related to the rank-1 approximation
+onfBℓ
+i
+, which can be solved efﬁciently via (truncated) sin-
+gular value decomposition (SVD). Speciﬁcally, let M be a
+d ×d|V(Bℓ
+i)|−1 matrix representingfBℓ
+i
+as follows:
+M
+
+xi,
+∑
+j∈V(Bℓ
+i),j̸=i
+xj
+∏
+k∈V(Bℓ
+i),k>j
+d
+
+ =fBℓ
+i
+(xBℓ
+i
+). (7)
+Then rank-1 truncated SVD for M solves the following
+optimization:
+min
+r1,r2
+∥M − r1r⊤
+2 M∥F,
+where optimization is over d-dimensional vectors r1, r2
+and ∥·∥F denotes the Frobenious norm. Namely, the so-
+lution r1 = r2 becomes the most signiﬁcant (left) sin-
+gular vector of M, associated with the largest singular
+value.2 Especially, since M is a non-negative matrix, its
+most signiﬁcant singular vector is always non-negative due
+to the Perron-Frobenius theorem (Perron, 1907). By let-
+ting riℓ(x) = r1(x) and rℓ
+i(x) = r2(x), one can check
+that this optimization is equivalent to (4), where in fact,
+riℓ(x) =rℓ
+i(x), i.e., they share the same values. Due to the
+above observations, the complexity of (4) isNSVD(M) that
+denotes the complexity of SVD for matrix M. Therefore,
+the overall complexity becomes
+O (NSVD (M) ·T ) =O
+(
+NSVD(M) · |E| · max
+α∈E
+|α|
+)
+,
+whereNSVD(M) =O(dibound+2) in general, but typically
+much faster in the existing SVD solver.
+4. Global-Bucket Renormalization
+In the previous section, MBR only considers the local neigh-
+borhood for renormalizing mini-buckets to approximate a
+single marginalization process of BE. Here we extend the
+approach and propose global-bucket renormalization (GBR),
+which incorporates a global perspective. The new scheme
+re-updates the choice of compensating local factors obtained
+in MBR by considering factors that were ignored during the
+original process. In particular, GBR directly minimizes the
+error in the partition function from each renormalization,
+aiming for improved accuracy compared to MBR.
+4.1. Intuition and Key-Optimization
+Renormalized GMs in MBR. For providing the underlying
+design principles of GBR, we ﬁrst track an intermediate
+estimation of the partition function made during MBR by
+characterizing the corresponding sequence of renormalized
+GMs. Speciﬁcally, we aim for constructing a sequence of
+T + 1 GMs M(1), · · ·, M(T+1) with T = ∑n
+i=1(mi −
+1) by breaking each i-th iteration of MBR into mi − 1
+steps of GM renormalizations, M(1) is the original GM,
+and each transition from M(t) to M(t+1) corresponds to
+renormalization of some mini-bucket Bℓ
+i to ˜Bℓ
+i . Then, the
+intermediate estimation for the original partition functionZ
+at thet-th step is partition functionZ(t) of M(t) where the
+last oneZ(T+1) is the output of MBR.
+2 r1 = r2 holds without forcing it.
+
+PDF PAGE 5
+Bucket Renormalization
+Figure 2. Example of GM renormalization on complete graph with size|V| = 6 corresponding to execution of MBR with elimination
+order o = 1,··· , 6 and ibound = 2. Here, pairwise factors between variables are assumed to exist inside edges. Partition function of
+ﬁnal GM is able to be computed from BE with induced width 2 and elimination order ˜o = [1a, 1b, 1, 2a, 2, 3a, 3, 4, 5, 6].
+To this end, we introduce “scope” for each factorfα appear-
+ing in MBR to indicate which parts of GM are renormalized
+at each step. In particular, the scope Sfα = ( Gfα, Ffα)
+consists of a graph Gfα = (Vfα, Efα) and set of factors Ffα
+that are associated tofα as follows:
+fα(xα) =
+∑
+xVfα\α
+∏
+fβ∈Ffα
+fβ(xβ).
+Initially, scopes associated with initial factors are deﬁned
+by themselves, i.e.,
+Sfα ← ((α, {α}), {fα}), (8)
+for each factor fα of M(1), and others of M(t) =
+((V(t), E(t)), F(t)) witht ≥ 2 are to be deﬁned iteratively
+under the MBR process, as we describe in what follows.
+Consider thet-th iteration of MBR, where mini-bucketBℓ
+i is
+being renormalized into ˜Bℓ
+i . Then scope Sf for allf ∈ Bℓ
+i
+goes through renormalization by replacing every i in the
+scope byiℓ as follows:
+˜Sf ← (Vf \ {i} ∪ {iℓ}, {¯α|α ∈ Ef }, {f¯α|fα ∈ Ff }), (9)
+where ¯α =
+{
+α \ {i} ∪ {iℓ} ifi ∈α
+α otherwise. Then, the re-
+spective GM is renormalized accordingly for the change
+of scopes, in addition to compensating factorsrℓ
+i,riℓ:
+V(t+1) ← V (t) ∪ {iℓ},
+E(t+1) ← E (t) \ EBℓ
+i
+∪˜EBℓ
+i
+∪ {{i}, {iℓ}}, (10)
+F(t+1) ← F (t) \ FBℓ
+i
+∪ ˜FBℓ
+i
+∪ {rℓ
+i,riℓ },
+where EBℓ
+i
+= ∪f∈Bℓ
+i
+Ef, and other union of scope compo-
+nents˜EBℓ
+i
+, VBℓ
+i
+,˜VBℓ
+i
+, FBℓ
+i
+, ˜FBℓ
+i
+are deﬁned similarly. Finally,
+scope SfBℓ
+i\{i}
+for newly generated factorsfBℓ
+i\{i} is
+SfBℓ
+i\{i}
+← ((˜VBℓ
+i
+,˜EBℓ
+i
+∪ {{iℓ}}), ˜FBℓ
+i
+∪ {riℓ }). (11)
+Furthermore, ifℓ =mi − 1, we have
+SfBmi
+i \{i}
+← ((VB
+mi
+i
+, EB
+mi
+i
+∪ {{i}}), FB
+mi
+i
+∪ {rℓ
+i }mi−1
+ℓ=1 ).
+(12)
+This is repeated until the MBR process terminates, as for-
+mally described in Algorithm 3. By construction, the output
+of MBR is equal to the partition function of the last GM
+M(T+1), which is computable via BE with induced width
+smaller thanibound + 1 given elimination order
+˜o = [11, · · ·, 1m1−1, 1, · · ·,n 1, · · ·,nmn−1,n ]. (13)
+See Algorithm 3 for the formal description of this process,
+and Figure 2 for an example.
+Optimizing intermediate approximations. Finally, we
+provide an explicit optimization formulation for minimizing
+the change of intermediate partition functions in terms of
+induced factors. Speciﬁcally, for eacht-th renormalization,
+i.e., from M(t) to M(t+1), we consider change of the fol-
+lowing factorfi induced from global-bucketF(t) to variable
+xi in a “skewed” manner as follows:
+fi(x(1)
+i ,x (2)
+i ) :=
+∑
+xV(t)\{i}
+∏
+fα∈FBℓ
+i
+fα(x(1)
+i , xα\{i})
+·
+∏
+fα∈F (t)\FBℓ
+i
+fα(x(2)
+i , xα\{i}),
+wherex(1)
+i ,x (2)
+i are the newly introduced “split variables”
+that are associated with the same vertex i, but allowed to
+have different values for our purpose. Next, the bucket F(t)
+is renormalized into F(t+1), leading to the induced factor
+of ˜fi deﬁned as follows:
+˜fi(x(1)
+i ,x (2)
+i ) :=
+∑
+xV(t+1)\{i}
+∏
+fα∈ ˜FBℓ
+i
+∪{rℓ
+i,riℓ}
+fα(x(1)
+i , xα\{i})
+·
+∏
+fα∈F (t+1)\ ˜FBℓ
+i
+\{rℓ
+i,riℓ}
+fα(x(2)
+i , xα\{i})
+=rℓ
+i(x(1)
+i )
+∑
+xiℓ
+riℓ(xiℓ)fi(xiℓ,x (2)
+i ).
+Then change infi is directly related with change in partition
+function sinceZ(t−1) andZ(t) can be described as follows:
+Z(t−1) =
+∑
+xi
+fi(xi,xi), Z (t) =
+∑
+xi
+˜fi(xi,xi).
+
+PDF PAGE 6
+Bucket Renormalization
+Consequently, GBR chooses to minimize the change infi
+by re-updatingrℓ
+i,riℓ, i.e., it solves
+min
+rℓ
+i,riℓ
+∑
+x(1)
+i ,x(2)
+i
+(
+fi(x(1)
+i ,x (2)
+i ) − ˜fi(x(1)
+i ,x (2)
+i )
+)2
+. (14)
+However, we remark that (14) is intractable since its objec-
+tive is “global”, and requires summation over all variables
+except one, i.e., xV (t)\{i}, and this is the key difference
+from (4) which seeks to minimize the error described by the
+local mini-bucket. GBR avoids this issue by substitutingfi
+by its tractable approximationgi, which is to be described
+in the following section.
+Algorithm 3 GM renormalization
+1: Input: GM M† = (G†, F†), elimination order o and
+induced width boundibound.
+2: M(1) ← M†
+3: Run Algorithm 2 with input M(1),o,ibound to obtain
+mini-buckets Bℓ
+i and compensating factors rℓ
+i,riℓ for
+i = 1, · · ·,n andℓ = 1, · · ·,mi.
+4: forf ∈ F (1) do
+5: Assign scope Sf forf by (8).
+6: end for
+7: fori ino do
+8: forℓ = 1, · · ·,mi − 1 do
+9: forf ∈ Bℓ
+i do
+10: Renormalize scope Sf forf into ˜Sf by (9).
+11: end for
+12: Sett =∑i−1
+j=1(mi − 1) +ℓ.
+13: Renormalize GM M(t) into M(t+1) by (10).
+14: Assign scope SfBℓ
+i\{i}
+for factorfBℓ
+i\{i} by (11).
+15: end for
+16: Assign scope SfBmi
+i \{i}
+for factorfB
+mi
+i \{i} by (12).
+17: end for
+18: Output: Final GM M(T+1) withT =∑n
+i=1(mi − 1).
+4.2. Algorithm Description
+In this section, we provide a formal description of GBR.
+First, consider the sequence of GMs M(1), · · ·, M(T+1)
+from interpreting MBR as GM renormalizations. This cor-
+responds to T choices of compensating factors made at
+each renormalization, i.e.,r(1), · · ·,r (T) wherer(t)(x) =
+rℓ
+i(x) =riℓ(x) for the associated replicate vertexiℓ. GBR
+modiﬁes this sequence iteratively by replacing intermediate
+choice of compensation r(t) by another choice s(t)(x) =
+sℓ
+i(x) = siℓ(x) in reversed order, approximately solving
+(14) until all compensating factors are updated. Then, GBR
+outputs partition functionZ(T+1) for M(T+1) as an approx-
+imation of the original partition functionZ.
+Now we describe the process of choosing new compensating
+factorssℓ
+i,siℓ att′-th iteration of GBR by approximately
+solving (14). To this end, thet′-th choice of compensating
+factors are expressed as follows:
+r(1), · · ·,r (t),s (t+1), · · ·,s (T), (15)
+witht = T −t′ + 1 ands(t+1), · · ·,s (T) already chosen
+in the previous iteration of GBR. Next, consider sequence
+of GMs ˆM(1), · · ·, ˆM(T+1) that were generated similarly
+with GM renormalization corresponding to MBR, but with
+compensating factors chosen by (15). Observe that the ﬁrst
+t renormalizations of GM correspond to those of MBR since
+the updates are done in reverse order, i.e., ˆM(t′) = M(t′)
+fort′ < t+ 1. Next, fi in (4) is expressed as summation
+over xℓ
+ˆV (t+1)\{i,iℓ} in ˆM(t+1), deﬁned as follows:
+fi(xiℓ,xi) =
+∑
+x ˆV(t+1)\{i,iℓ}
+∏
+fα∈ ˆF (t+1)\{rℓ
+i,riℓ}
+fα(xα).
+Sincefi resembles the partition function in a way that it is
+also a summation over GM with small change in a set of
+factors, i.e., excluding local factorsrℓ
+i,riℓ, we expectfi to
+be approximated well by a summationgi over x ˆV (T +1)\{i,iℓ}
+in ˆM(T+1):
+gi(xiℓ,xi) :=
+∑
+x ˆV(T +1)\{i,iℓ}
+∏
+fα∈ ˆF (T +1)\{rℓ
+i,riℓ}
+fα(xα),
+which can be computed inO(|E|dibound+2) complexity via
+appying BE in ˆM(T+1) with elimination order˜o \ {i,iℓ} as
+in (13). Then the following optimization is obtained as an
+approximation of (14):
+min
+sℓ
+i,siℓ
+∑
+x(1)
+i ,x(2)
+i
+(
+gi(x(1)
+i ,x (2)
+i ) −˜gi(x(1)
+i ,x (2)
+i )
+)2
+, (16)
+where˜gi corresponds to renormalized factor ˜fi:
+˜gi(xiℓ,xi) :=sℓ
+i(xiℓ)
+∑
+xiℓ
+siℓ(xiℓ)gi(xiℓ,xi).
+As a result, one can expect choosing compensating factors
+from (16) to improve over that of (4) as long as MBR pro-
+vides reasonable approximation for fi. The optimization
+is again solvable via rank-1 truncated SVD and the overall
+complexity of GBR is
+O
+(
+dibound+2NSVD(Mglobal) · |E| 2 · max
+α∈E
+|α|2
+)
+,
+whereNSVD(Mglobal) = O(d3) is the complexity for per-
+forming SVD ond ×d matrix Mglobal representing function
+g as in (7). While the formal description of GBR is concep-
+tually a bit complicated, one can implement it efﬁciently.
+
+PDF PAGE 7
+Bucket Renormalization
+Speciﬁcally, during the GBR process, it sufﬁces to keep
+only the description of renormalized GM M(T+1) with an
+ongoing set of compensating factors, e.g., (15), in order to
+update compensating factors iteratively by (16). The formal
+description of the GBR scheme is provided in Algorithm 4.
+Algorithm 4 Global-Bucket Renormalization (GBR)
+1: Input: GM M† = (G†, F†), elimination ordero and
+induced width boundibound.
+2: Run Algorithm 3 with input M†,o,ibound to obtain
+renormalized GM M and compensating factorsrℓ
+i for
+i = 1, · · ·,n andℓ = 1, · · ·,mi.
+3: Set the renormalized elimination order as follows:
+˜o = [11, · · ·, 1m1−1, 1, · · ·,n 1, · · ·,nmn−1,n ].
+4: foriℓ =nmn−1, · · ·,n 1, · · ·, 1m1−1, · · ·, 11 do
+5: Generatesℓ
+i,sℓ
+i by solving
+min
+sℓ
+i,siℓ
+∑
+x(1)
+i ,x(2)
+i
+(
+gi(x(1)
+i ,x (2)
+i ) −˜gi(x(1)
+i ,x (2)
+i )
+)2
+,
+6: wheregi,˜gi is deﬁned as follows:
+gi(xiℓ,xi) =
+∑
+xV\{i,iℓ}
+∏
+fα∈F\{rℓ
+i,riℓ}
+fα(xα),
+˜gi(xiℓ,xi) =sℓ
+i(xiℓ)
+∑
+xℓ
+i
+siℓ(xℓ
+i)gi(xℓ
+i,xi),
+with its computation done by BE with elimination
+order of˜o \ {i,iℓ}.
+7: Update GM M by F ← F \ { rℓ
+i,riℓ } ∪ {sℓ
+i,siℓ }.
+8: end for
+9: GetZ =∑
+x
+∏
+fα∈Ffα(xα) via BE with elimination
+order˜o.
+10: Output:Z
+5. Experimental Results
+In this section, we report experimental results on perfor-
+mance of our algorithms for approximating the partition
+functionZ. Experiments were conducted for Ising mod-
+els deﬁned on grid-structured and complete graphs as well
+as two real-world datasets from the UAI 2014 Inference
+Competition (Gogate, 2014). We compare our mini-bucket
+renormalization (MBR) and global-bucket renormalization
+(GBR) scheme with other mini-bucket algorithms, i.e., mini-
+bucket elimination (MBE) by Dechter & Rish (2003) and
+weighted mini-bucket elimination (WMBE) by Liu & Ihler
+(2011). Further, we also run the popular variational infer-
+ence algorithms: mean-ﬁeld (MF), loopy belief propagation
+(BP) and generalized belief propagation (GBP) by Yedidia
+et al. (2001). For all mini-bucket algorithms, we uniﬁed
+the choice of elimination order for each instance of GM
+by applying min-ﬁll heuristics (Koller & Friedman, 2009).
+Further, WMBE used additional ﬁxed point reparameteriza-
+tion updates for improving its approximation, as proposed
+by Liu & Ihler (2011) and GBP was implemented to use
+the same order of memory as the mini-bucket algorithms
+for givenibound. See the supplementary material for more
+details on implementations of the algorithms. For perfor-
+mance measure, we use the log-partition function error, i.e.,
+| log10Z − log10Zapprox| whereZapprox is the approximated
+partition function from a respective algorithm.
+Ising models. We ﬁrst consider the most popular bi-
+nary pairwise GMs, called Ising models (Onsager, 1944):
+p(x) = 1
+Z exp
+(∑
+i∈Vφixi +∑
+(i,j)∈Eφijxixj
+)
+, where
+xi ∈ {− 1, 1}. In our experiments, we draw φij and φi
+uniformly from intervals of [−∆, ∆] and [−0.1, 0.1] respec-
+tively, where ∆ is a parameter controlling the ‘interaction
+strength’ between variables. As ∆ grows, the inference
+task is typically harder. Experiments were conducted in two
+settings: complete graphs with 15 variables (105 pairwise
+factors), and 15 × 15 non-toroidal grid graphs ( 225 vari-
+ables, 420 pairwise factors). Both settings have moderate
+tree-width, enabling exact computation of the partition func-
+tion using BE with induced widths of 15 and 16, respectively.
+We vary the interaction strength ∆ and the induced width
+boundibound (for mini-bucket algorithms and GBP), where
+ibound = 10 and ∆ = 1.0 are the default choices. For each
+choice of parameters, results are obtained by averaging over
+100 random model instances.
+As shown in Figure 3a-d, both MBR and GBR perform im-
+pressively compared to MF and BP. Somewhat surprisingly,
+GBR outperforms GBP and even MBR is not worse than
+GBP although GBP (using the same order of memory) is
+more expensive to run due to its iterative nature. Next, the
+relative beneﬁt of our methods compared to the earlier ap-
+proaches increases with ∆ (more difﬁcult instances), and as
+the bound of induced width gets smaller. This suggests that
+our methods scale well with the size and difﬁculty of GM.
+In Figure 3c, whereibound is varied for complete graphs,
+we observe that GBR does not improve over MBR when
+ibound is small, but does so afteribound grows large. This
+is consistent with our expectation that in order for GBR to
+improve over MBR, the initial quality of MBR should be
+acceptable. Our experimental setup on Ising grid GMs with
+varying interaction strength is identical to that of Xue et al.
+(2016), where they approximate variable elimination in the
+Fourier domain. Comparing results, one can observe that
+our methods signiﬁcantly outperform their prior algorithm.
+Figure 3e reports the trade-off between accuracy and elapsed
+
+PDF PAGE 8
+Bucket Renormalization
+(a) Complete graph,|V| = 15
+ (b) Grid graph, 15× 15
+ (c) Complete graph,|V| = 15
+ (d) Grid graph, 15× 15
+(e) Complete graph,|V| = 15
+ (f) Promedus dataset
+ (g) Linkage dataset
+Figure 3. Performance comparisons under (a, b) varying interaction strength parameter ∆, and (c, d) induced width bound ibound. Ising
+models are either deﬁned on (a, c) complete graphs with|V| = 15 or (b, d) grid graphs with|V| = 225. Each plot is averaged over 100
+models. (e) reports the averaged error versus elapsed time while varying ibound in the same setting as (d), where number labels by points
+indicate the corresponding ibound used. Numbers in brackets, e.g., MBR(19), count the instances of each algorithm to win in terms of
+approximation accuracy under (f) Promedus and (g) Linkage datasets.
+time with varyingibound. Here, we observe that both MBR
+and GBR are faster than WMBE and any of the variational
+inference algorithms. Further, we also note that increasing
+ibound does not necessarily lead to slower running time,
+while the accuracy is improved. This is because smaller
+ibound increases the number of mini-buckets and the corre-
+sponding updates.
+UAI datasets. We further show results of real-world mod-
+els from the UAI 2014 Inference Competition, namely the
+Promedus (medical diagnosis) and Linkage (genetic link-
+age) datasets, consisting of 28 and 17 instances of GMs
+respectively. More details of the datasets are provided in
+the supplementary material. Again, induced width bounds
+are set toibound = 10. The experimental results are sum-
+marized in Figure 3f and 3g. Results for MF were omitted
+since MF was not able to run on these instances by its con-
+struction. First, in Promedus dataset, i.e., Figure 3f, MBR
+and GBR clearly dominates over all other algorithms. Even
+when GBR fails to improve MBR, it still outperforms other
+algorithms. Next, in Linkage dataset, i.e., 3g, MBR and
+GBR are often outperformed by GBP where the latter is
+signiﬁcantly (often 100×) more expensive to run than the
+formers. Typically, MBR and GBR are nearly as good as
+GBP. They outperform all mini-bucket variants and BP.
+Guide for implementation. Based on the experiments, we
+provide useful recommendations for application of MBR
+and GBR. First, we emphasize that using the min-ﬁll heuris-
+tics for choosing the appropriate elimination order can im-
+prove the performance of MBR and GBR (see the supple-
+mentary material). Whenever memory is available, running
+MBR with increasedibound typically leads to better trade-
+off between complexity and performance than running GBR.
+When memory is limited, GBR is recommended for improv-
+ing the approximation quality without additional memory.
+6. Conclusion and Future Work
+We developed a new family of mini-bucket algorithms, MBR
+and GBR, inspired by the tensor network renormalization
+framework in statistical physics. The proposed schemes ap-
+proximate the variable elimination process efﬁciently by re-
+peating low-rank projections of mini-buckets. Extensions to
+higher-order low-rank projections (Xie et al., 2012; Evenbly,
+2017) might improve performance. GBR calibrates MBR
+via minimization of renormalization error for the partition
+function explicitly. A similar optimization was considered
+in the so-called second-order renormalization groups (Xie
+et al., 2009; 2012). Hence, there is scope to explore poten-
+tial variants of GBR. Finally, another direction to generalize
+MBR is to consider larger sizes of buckets to renormalize,
+e.g., see (Evenbly & Vidal, 2015; Hauru et al., 2018).
+
+PDF PAGE 9
+Bucket Renormalization
+Acknowledgements
+AW acknowledges support from the David MacKay Newton
+research fellowship at Darwin College, The Alan Turing In-
+stitute under EPSRC grant EP/N510129/1 & TU/B/000074,
+and the Leverhulme Trust via the CFI. This work was partly
+supported by Institute for Information & communications
+Technology Promotion (IITP) grant funded by the Korea
+government (MSIP) (No.2017-0-01778, Development of
+Explainable Human-level Deep Machine Learning Infer-
+ence Framework) and ICT R&D program of MSIP/IITP
+[2016-0-00563, Research on Adaptive Machine Learning
+Technology Development for Intelligent Autonomous Digi-
+tal Companion].
+References
+Ahn, Sungsoo, Chertkov, Michael, and Shin, Jinwoo. Gaug-
+ing variational inference. In Advances in Neural Informa-
+tion Processing Systems (NIPS), pp. 2885–2894, 2017.
+Ahn, Sungsoo, Chertkov, Michael, Shin, Jinwoo, and Weller,
+Adrian. Gauged mini-bucket elimination for approximate
+inference. Artiﬁcial Intelligence and Statistics (AISTATS),
+2018 (accepted to appear).
+Alpaydin, Ethem. Introduction to machine learning. MIT
+press, 2014.
+Bilmes, Jeffrey A. Graphical models and automatic speech
+recognition. In Mathematical foundations of speech and
+language processing, pp. 191–245. Springer, 2004.
+Clifford, Peter. Markov random ﬁelds in statistics. Disor-
+der in physical systems: A volume in honour of John M.
+Hammersley, 19, 1990.
+Dechter, Rina. Bucket elimination: A unifying framework
+for reasoning. Artiﬁcial Intelligence, 113(1):41–85, 1999.
+Dechter, Rina and Rish, Irina. Mini-buckets: A general
+scheme for bounded inference. Journal of the ACM
+(JACM), 50(2):107–153, 2003.
+Evenbly, Glen. Algorithms for tensor network renormaliza-
+tion. Physical Review B, 95(4):045117, 2017.
+Evenbly, Glen and Vidal, Guifre. Tensor network renormal-
+ization. Physical review letters, 115(18):180405, 2015.
+Forney, G David. Codes on graphs: Normal realizations.
+IEEE Transactions on Information Theory , 47(2):520–
+548, 2001.
+Freeman, William T, Pasztor, Egon C, and Carmichael,
+Owen T. Learning low-level vision. International journal
+of computer vision, 40(1):25–47, 2000.
+Gogate, Vibhav. UAI 2014 Inference Competition.
+http://www.hlt.utdallas.edu/˜vgogate/
+uai14-competition/index.html, 2014.
+Hauru, Markus, Delcamp, Clement, and Mizera, Sebas-
+tian. Renormalization of tensor networks using graph-
+independent local truncations. Physical Review B, 97(4):
+045111, 2018.
+Hinton, Geoffrey E and Salakhutdinov, Ruslan R. Reducing
+the dimensionality of data with neural networks. science,
+313(5786):504–507, 2006.
+Jerrum, Mark and Sinclair, Alistair. Polynomial-time ap-
+proximation algorithms for the Ising model. SIAM Jour-
+nal on computing, 22(5):1087–1116, 1993.
+Koller, Daphne and Friedman, Nir. Probabilistic graphical
+models: principles and techniques. MIT press, 2009.
+Levin, Michael and Nave, Cody P. Tensor renormaliza-
+tion group approach to two-dimensional classical lattice
+models. Physical review letters, 99(12):120601, 2007.
+Liu, Qiang and Ihler, Alexander T. Bounding the partition
+function using H ¨older’s inequality. In Proceedings of
+the 28th International Conference on Machine Learning
+(ICML-11), pp. 849–856, 2011.
+Novikov, Alexander, Rodomanov, Anton, Osokin, Anton,
+and Vetrov, Dmitry. Putting mrfs on a tensor train. In
+International Conference on Machine Learning, pp. 811–
+819, 2014.
+Onsager, Lars. Crystal statistics. i. a two-dimensional model
+with an order-disorder transition. Physical Review, 65
+(3-4):117, 1944.
+Parisi, Giorgio. Statistical ﬁeld theory, 1988.
+Pearl, Judea. Reverend Bayes on inference engines: A
+distributed hierarchical approach. Cognitive Systems
+Laboratory, School of Engineering and Applied Science,
+University of California, Los Angeles, 1982.
+Perron, Oskar. Zur theorie der matrices. Mathematische
+Annalen, 64(2):248–263, 1907.
+Scott, John. Social network analysis. Sage, 2017.
+Shafer, Glenn R and Shenoy, Prakash P. Probability propa-
+gation. Annals of Mathematics and Artiﬁcial Intelligence,
+2(1-4):327–351, 1990.
+Wainwright, Martin J, Jaakkola, Tommi S, and Willsky,
+Alan S. A new class of upper bounds on the log partition
+function. IEEE Transactions on Information Theory, 51
+(7):2313–2335, 2005.
+
+PDF PAGE 10
+Bucket Renormalization
+Wrigley, Andrew, Lee, Wee Sun, and Ye, Nan. Tensor belief
+propagation. In International Conference on Machine
+Learning, pp. 3771–3779, 2017.
+Xie, ZY , Jiang, HC, Chen, QN, Weng, ZY , and Xiang, T.
+Second renormalization of tensor-network states. Physi-
+cal review letters, 103(16):160601, 2009.
+Xie, ZY , Chen, Jing, Qin, MP, Zhu, JW, Yang, LP, and
+Xiang, Tao. Coarse-graining renormalization by higher-
+order singular value decomposition. Physical Review B,
+86(4):045139, 2012.
+Xue, Yexiang, Ermon, Stefano, Le Bras, Ronan, Selman,
+Bart, et al. Variable elimination in the fourier domain.
+In International Conference on Machine Learning , pp.
+285–294, 2016.
+Yedidia, Jonathan S, Freeman, William T, and Weiss, Yair.
+Generalized belief propagation. In Advances in neural
+information processing systems, pp. 689–695, 2001.

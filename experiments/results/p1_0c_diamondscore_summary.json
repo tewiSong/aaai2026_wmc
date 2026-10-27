@@ -1,0 +1,16 @@
+{
+  "proteins_annotated": 77638,
+  "train": 62115,
+  "test": 15523,
+  "annotations_unmapped": 583,
+  "test_with_hits": 13965,
+  "go_cc_prop_nonzero_terms_per_protein_median": 33.0,
+  "go_cc_raw_nonzero_terms_per_protein_median": 13.0,
+  "go_cc_test_proteins": 10180,
+  "go_mf_prop_nonzero_terms_per_protein_median": 32.0,
+  "go_mf_raw_nonzero_terms_per_protein_median": 11.0,
+  "go_mf_test_proteins": 7550,
+  "go_bp_prop_nonzero_terms_per_protein_median": 179.0,
+  "go_bp_raw_nonzero_terms_per_protein_median": 30.0,
+  "go_bp_test_proteins": 10197
+}

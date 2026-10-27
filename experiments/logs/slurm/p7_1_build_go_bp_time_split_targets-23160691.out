@@ -1,0 +1,25 @@
+{"new_exp_in_ns": 59967, "excluded_had_exp_2021": 57248, "excluded_identical_sequence": 24, "excluded_id_overlap_deepgoplus": 14, "excluded_no_nonroot_label_in_vocab": 4, "targets": 2677, "labels_per_target_median": 24.0, "labels_per_target_q90": 66.0, "also_p5_cc_or_mf_target": 1817, "terms_with_positive": 3416, "terms": 4475}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p7_1_build_go_bp_time_split_targets.py"
+	User time (seconds): 80.23
+	System time (seconds): 10.33
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:31.51
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 603764
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 306
+	Minor (reclaiming a frame) page faults: 170526
+	Voluntary context switches: 6935
+	Involuntary context switches: 251
+	Swaps: 0
+	File system inputs: 2841972
+	File system outputs: 3304
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p7_1_build_go_bp_time_split_targets_20261025-221729.log

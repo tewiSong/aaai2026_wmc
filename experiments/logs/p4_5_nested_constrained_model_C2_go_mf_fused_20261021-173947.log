@@ -1,0 +1,41 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_5_nested_constrained_model_C2.py
+# sha256 : c3117327ffea46d8e081c0eadc3875030eb92f6e05566926e6b8dffa1a9e082f
+# args   : --ns go_mf --input fused --workers 32 --bootstrap 1000 --maxiter 300
+# host   : nid002584   slurm_job: 23037331
+# start  : 2026-10-21T17:39:47+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+{"theory": "dgp2_go_mf", "input": "fused", "eps": 0.001, "stage": "exploratory split (same as P4.3)", "proteins_fit": 1064, "proteins_eval": 1065, "moment_match": {"seconds": 837.7, "err_median": 1.148789976590514e-06, "err_p99": 0.02356280070235354, "err_max": 0.06232191881327809}}
+raw                      fmax 0.68841  micro_ap 0.66166  brier 0.00724  logloss 0.02977  ece 0.00415
+isotonic                 fmax 0.68819  micro_ap 0.66222  brier 0.00724  logloss 0.02972  ece 0.00416
+isotonic_shifted_C2_w0   fmax 0.68854  micro_ap 0.66223  brier 0.00723  logloss 0.02949  ece 0.00361
+C2                       fmax 0.70409  micro_ap 0.68090  brier 0.00639  logloss 0.02721  ece 0.00142
+depth_platt_iso          fmax 0.68216  micro_ap 0.65924  brier 0.00679  logloss 0.02838  ece 0.00204
+term_platt_iso           fmax 0.67568  micro_ap 0.66011  brier 0.00684  logloss 0.02826  ece 0.00201
+neighbor_lr_iso          fmax 0.68643  micro_ap 0.66713  brier 0.00671  logloss 0.02813  ece 0.00209
+{"seconds": 839.0, "converged": true, "iterations": 215, "nll_at_w0": 10.303209560217585, "nll_fitted": 9.67976803650614, "w": [[4.607, -0.3878, -0.2606], [-0.0073, 0.2174, -0.2554], [0.026, 0.3059, -0.3441], [0.0515, -0.0242, 0.0872], [-0.0264, 0.0331, -0.0465], [-0.0039, 0.0188, -0.0199], [0.0005, 0.0925, -0.1272], [-0.0094, 0.2088, -0.1103], [-0.1775, 0.3635, 0.3601]]}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_5_nested_constrained_model_C2.py --ns go_mf --input fused --workers 32 --bootstrap 1000 --maxiter 300"
+	User time (seconds): 28073.20
+	System time (seconds): 2.45
+	Percent of CPU this job got: 891%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 52:30.87
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 333084
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 477
+	Minor (reclaiming a frame) page faults: 167014
+	Voluntary context switches: 14710
+	Involuntary context switches: 42653
+	Swaps: 0
+	File system inputs: 165852
+	File system outputs: 23584
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-21T18:32:22+03:00   exit: 0

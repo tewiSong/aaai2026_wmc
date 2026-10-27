@@ -1,0 +1,66 @@
+% jair.sty -- approximation of JAIR (Journal of Artificial Intelligence Research) style
+% Based on JAIR's published formatting guidelines and sample papers
+% For submission drafts
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{jair}[2024/01/01 JAIR style approximation]
+
+% ---- Page geometry ----
+\RequirePackage[
+  letterpaper,
+  top=1.25in,
+  bottom=1.25in,
+  left=1.25in,
+  right=1.25in
+]{geometry}
+
+% ---- Fonts ----
+\RequirePackage{times}
+\RequirePackage[T1]{fontenc}
+
+% ---- Line spacing and paragraph ----
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{1.5em}
+
+% ---- Section formatting ----
+\RequirePackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{12pt plus 2pt minus 2pt}{6pt plus 1pt}
+\titlespacing*{\subsection}{0pt}{8pt plus 2pt minus 2pt}{4pt plus 1pt}
+
+% ---- Abstract ----
+\renewenvironment{abstract}{%
+  \begin{center}%
+    \normalsize\textbf{Abstract}%
+  \end{center}%
+  \begin{quotation}\small
+}{%
+  \end{quotation}%
+  \vspace{1em}%
+}
+
+% ---- Captions ----
+\RequirePackage[font=small,labelfont=bf]{caption}
+
+% ---- Header / Footer ----
+\RequirePackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[LO,RE]{\small\itshape Journal of Artificial Intelligence Research}
+\fancyhead[RO,LE]{\small\thepage}
+\fancyfoot{}
+
+% ---- Title block commands ----
+\newcommand{\jairvolume}[1]{}
+\newcommand{\jairissue}[1]{}
+\newcommand{\jairyear}[1]{}
+\newcommand{\jairpages}[1]{}
+
+% ---- URL (must load before hyperref) ----
+\PassOptionsToPackage{hyphens}{url}
+
+% ---- Hyperref (load last) ----
+\RequirePackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}

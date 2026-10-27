@@ -1,0 +1,125 @@
+{"protein": "O44326", "selection": "most_intermediate", "n_nonzero": 264, "p1_2_core_seconds": 1.927, "p1_2_failed": false, "seconds": 0.239, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0, "max_diff_vs_p1_2_certified": 1.1275374805909988e-09, "p1_2_delta": 2.7602619054501838e-05}
+{"protein": "P26233", "selection": "most_intermediate", "n_nonzero": 264, "p1_2_core_seconds": 1.988, "p1_2_failed": false, "seconds": 0.218, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0, "max_diff_vs_p1_2_certified": 1.199881964185663e-09, "p1_2_delta": 2.7602619054501838e-05}
+{"protein": "Q02257", "selection": "most_intermediate", "n_nonzero": 291, "p1_2_core_seconds": 3.133, "p1_2_failed": false, "seconds": 0.242, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0, "max_diff_vs_p1_2_certified": 1.117429202175627e-09, "p1_2_delta": 2.754762057110593e-05}
+{"protein": "Q62226", "selection": "most_intermediate", "n_nonzero": 225, "p1_2_core_seconds": 0.702, "p1_2_failed": false, "seconds": 0.219, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0, "max_diff_vs_p1_2_certified": 1.1216816306867349e-09, "p1_2_delta": 2.778861390321017e-05}
+{"protein": "Q64373", "selection": "most_intermediate", "n_nonzero": 245, "p1_2_core_seconds": 7.977, "p1_2_failed": false, "seconds": 0.221, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0, "max_diff_vs_p1_2_certified": 1.086797181608697e-09, "p1_2_delta": 2.758561952359337e-05}
+{"protein": "Q90WW4", "selection": "most_intermediate", "n_nonzero": 273, "p1_2_core_seconds": 432.955, "p1_2_failed": false, "seconds": 0.218, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0, "max_diff_vs_p1_2_certified": 1.0000000144444219e-09, "p1_2_delta": 2.7404624500119956e-05}
+{"protein": "P46531", "selection": "most_intermediate", "n_nonzero": 443, "p1_2_core_seconds": 49.08, "p1_2_failed": false, "seconds": 0.236, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0, "max_diff_vs_p1_2_certified": 1.0000000150469458e-09, "p1_2_delta": 2.7003635408775575e-05}
+{"protein": "Q07008", "selection": "most_intermediate", "n_nonzero": 427, "p1_2_core_seconds": 60.245, "p1_2_failed": false, "seconds": 0.214, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0, "max_diff_vs_p1_2_certified": 1.0000000150428114e-09, "p1_2_delta": 2.703263462526416e-05}
+{"protein": "Q61982", "selection": "most_intermediate", "n_nonzero": 363, "p1_2_core_seconds": 14.49, "p1_2_failed": false, "seconds": 0.234, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0, "max_diff_vs_p1_2_certified": 1.0000000150389222e-09, "p1_2_delta": 2.7271628136024257e-05}
+{"protein": "P04637", "selection": "most_intermediate", "n_nonzero": 183, "p1_2_core_seconds": 8.577, "p1_2_failed": false, "seconds": 0.242, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0, "max_diff_vs_p1_2_certified": 1.0000000137012934e-09, "p1_2_delta": 2.7741615208147054e-05}
+{"protein": "P10361", "selection": "most_intermediate", "n_nonzero": 183, "p1_2_core_seconds": 8.679, "p1_2_failed": false, "seconds": 0.212, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P49001", "selection": "most_intermediate", "n_nonzero": 743, "p1_2_core_seconds": null, "p1_2_failed": true, "seconds": 0.212, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P18254", "selection": "most_intermediate", "n_nonzero": 273, "p1_2_core_seconds": 425.866, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "O95150", "selection": "most_intermediate", "n_nonzero": 161, "p1_2_core_seconds": 15.038, "p1_2_failed": false, "seconds": 0.211, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q8K3Y7", "selection": "most_intermediate", "n_nonzero": 161, "p1_2_core_seconds": 15.137, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P32600", "selection": "most_intermediate", "n_nonzero": 390, "p1_2_core_seconds": null, "p1_2_failed": true, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P51636", "selection": "most_intermediate", "n_nonzero": 157, "p1_2_core_seconds": 15.771, "p1_2_failed": false, "seconds": 0.212, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q06643", "selection": "most_intermediate", "n_nonzero": 157, "p1_2_core_seconds": 6.621, "p1_2_failed": false, "seconds": 0.211, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q9JLN9", "selection": "most_intermediate", "n_nonzero": 404, "p1_2_core_seconds": null, "p1_2_failed": true, "seconds": 0.211, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P27090", "selection": "most_intermediate", "n_nonzero": 578, "p1_2_core_seconds": null, "p1_2_failed": true, "seconds": 0.211, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "B7ZR65", "selection": "most_intermediate", "n_nonzero": 470, "p1_2_core_seconds": 21.222, "p1_2_failed": false, "seconds": 0.212, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "F1LYL9", "selection": "most_intermediate", "n_nonzero": 479, "p1_2_core_seconds": 26.167, "p1_2_failed": false, "seconds": 0.212, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P33724", "selection": "most_intermediate", "n_nonzero": 159, "p1_2_core_seconds": 16.299, "p1_2_failed": false, "seconds": 0.215, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q07257", "selection": "most_intermediate", "n_nonzero": 578, "p1_2_core_seconds": null, "p1_2_failed": true, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P51637", "selection": "most_intermediate", "n_nonzero": 157, "p1_2_core_seconds": 16.153, "p1_2_failed": false, "seconds": 0.212, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q9YGD3", "selection": "most_intermediate", "n_nonzero": 153, "p1_2_core_seconds": 16.271, "p1_2_failed": false, "seconds": 0.214, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P29455", "selection": "most_intermediate", "n_nonzero": 148, "p1_2_core_seconds": 19.388, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q90YI0", "selection": "most_intermediate", "n_nonzero": 148, "p1_2_core_seconds": 19.537, "p1_2_failed": false, "seconds": 0.214, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P01374", "selection": "most_intermediate", "n_nonzero": 143, "p1_2_core_seconds": 4.867, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q0VBD0", "selection": "most_intermediate", "n_nonzero": 203, "p1_2_core_seconds": 4.026, "p1_2_failed": false, "seconds": 0.211, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "O09100", "selection": "most_intermediate", "n_nonzero": 253, "p1_2_core_seconds": 46.552, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P23769", "selection": "most_intermediate", "n_nonzero": 253, "p1_2_core_seconds": 46.336, "p1_2_failed": false, "seconds": 0.214, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P23825", "selection": "most_intermediate", "n_nonzero": 258, "p1_2_core_seconds": 46.601, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P55878", "selection": "most_intermediate", "n_nonzero": 197, "p1_2_core_seconds": 0.496, "p1_2_failed": false, "seconds": 0.212, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P01375", "selection": "most_intermediate", "n_nonzero": 177, "p1_2_core_seconds": 11.622, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P05106", "selection": "most_intermediate", "n_nonzero": 203, "p1_2_core_seconds": 3.939, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P21621", "selection": "most_intermediate", "n_nonzero": 155, "p1_2_core_seconds": 17.88, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P23563", "selection": "most_intermediate", "n_nonzero": 146, "p1_2_core_seconds": 5.383, "p1_2_failed": false, "seconds": 0.211, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "O15547", "selection": "most_intermediate", "n_nonzero": 141, "p1_2_core_seconds": 1.176, "p1_2_failed": false, "seconds": 0.212, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P51578", "selection": "most_intermediate", "n_nonzero": 133, "p1_2_core_seconds": 0.945, "p1_2_failed": false, "seconds": 0.229, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P56180", "selection": "most_intermediate", "n_nonzero": 157, "p1_2_core_seconds": 39.964, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q09390", "selection": "most_intermediate", "n_nonzero": 165, "p1_2_core_seconds": 14.963, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q3UR32", "selection": "most_intermediate", "n_nonzero": 133, "p1_2_core_seconds": 1.054, "p1_2_failed": false, "seconds": 0.215, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q6XPS3", "selection": "most_intermediate", "n_nonzero": 156, "p1_2_core_seconds": 17.38, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q93086", "selection": "most_intermediate", "n_nonzero": 133, "p1_2_core_seconds": 0.985, "p1_2_failed": false, "seconds": 0.211, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q9UBL9", "selection": "most_intermediate", "n_nonzero": 141, "p1_2_core_seconds": 1.135, "p1_2_failed": false, "seconds": 0.214, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P97943", "selection": "most_intermediate", "n_nonzero": 145, "p1_2_core_seconds": 5.812, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P21237", "selection": "most_intermediate", "n_nonzero": 130, "p1_2_core_seconds": 1.392, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q9LT75", "selection": "most_intermediate", "n_nonzero": 160, "p1_2_core_seconds": 22.466, "p1_2_failed": false, "seconds": 0.213, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q06335", "selection": "most_intermediate", "n_nonzero": 129, "p1_2_core_seconds": 9.728, "p1_2_failed": false, "seconds": 0.212, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "O09161", "selection": "random", "n_nonzero": 24, "p1_2_core_seconds": 0.221, "p1_2_failed": false, "seconds": 0.214, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "B6D434", "selection": "random", "n_nonzero": 13, "p1_2_core_seconds": 0.112, "p1_2_failed": false, "seconds": 0.211, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q9FY61", "selection": "random", "n_nonzero": 14, "p1_2_core_seconds": 0.113, "p1_2_failed": false, "seconds": 0.212, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q9GZQ8", "selection": "random", "n_nonzero": 57, "p1_2_core_seconds": 0.152, "p1_2_failed": false, "seconds": 0.214, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q8R4V2", "selection": "random", "n_nonzero": 125, "p1_2_core_seconds": 11.773, "p1_2_failed": false, "seconds": 0.215, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q9HCG7", "selection": "random", "n_nonzero": 6, "p1_2_core_seconds": 0.125, "p1_2_failed": false, "seconds": 0.214, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "O23100", "selection": "random", "n_nonzero": 30, "p1_2_core_seconds": 0.141, "p1_2_failed": false, "seconds": 0.222, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q14508", "selection": "random", "n_nonzero": 1, "p1_2_core_seconds": 0.118, "p1_2_failed": false, "seconds": 0.216, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "O14508", "selection": "random", "n_nonzero": 164, "p1_2_core_seconds": 26.663, "p1_2_failed": false, "seconds": 0.218, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P27448", "selection": "random", "n_nonzero": 274, "p1_2_core_seconds": 45.493, "p1_2_failed": false, "seconds": 0.219, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q12926", "selection": "random", "n_nonzero": 207, "p1_2_core_seconds": 3.882, "p1_2_failed": false, "seconds": 0.219, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q9C5S8", "selection": "random", "n_nonzero": 75, "p1_2_core_seconds": 0.207, "p1_2_failed": false, "seconds": 0.218, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q38898", "selection": "random", "n_nonzero": 183, "p1_2_core_seconds": 74.108, "p1_2_failed": false, "seconds": 0.22, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P29476", "selection": "random", "n_nonzero": 164, "p1_2_core_seconds": 35.979, "p1_2_failed": false, "seconds": 0.22, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q93062", "selection": "random", "n_nonzero": 34, "p1_2_core_seconds": 0.199, "p1_2_failed": false, "seconds": 0.221, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P59213", "selection": "random", "n_nonzero": 6, "p1_2_core_seconds": 0.105, "p1_2_failed": false, "seconds": 0.218, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "E7EKH2", "selection": "random", "n_nonzero": 11, "p1_2_core_seconds": 0.118, "p1_2_failed": false, "seconds": 0.239, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "A9XMT3", "selection": "random", "n_nonzero": 2, "p1_2_core_seconds": 0.107, "p1_2_failed": false, "seconds": 0.23, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q6YUX0", "selection": "random", "n_nonzero": 8, "p1_2_core_seconds": 0.105, "p1_2_failed": false, "seconds": 0.24, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q80W22", "selection": "random", "n_nonzero": 3, "p1_2_core_seconds": 0.114, "p1_2_failed": false, "seconds": 0.229, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "A5I640", "selection": "random", "n_nonzero": 258, "p1_2_core_seconds": 60.555, "p1_2_failed": false, "seconds": 0.22, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q38814", "selection": "random", "n_nonzero": 3, "p1_2_core_seconds": 0.145, "p1_2_failed": false, "seconds": 0.218, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q9C9M7", "selection": "random", "n_nonzero": 484, "p1_2_core_seconds": null, "p1_2_failed": true, "seconds": 0.219, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q6NWI4", "selection": "random", "n_nonzero": 3, "p1_2_core_seconds": 0.132, "p1_2_failed": false, "seconds": 0.219, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q6YW48", "selection": "random", "n_nonzero": 27, "p1_2_core_seconds": 0.229, "p1_2_failed": false, "seconds": 0.218, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P24216", "selection": "random", "n_nonzero": 1, "p1_2_core_seconds": 0.11, "p1_2_failed": false, "seconds": 0.22, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q61539", "selection": "random", "n_nonzero": 462, "p1_2_core_seconds": 225.073, "p1_2_failed": false, "seconds": 0.218, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "A0A1U9X9N3", "selection": "random", "n_nonzero": 3, "p1_2_core_seconds": 0.161, "p1_2_failed": false, "seconds": 0.22, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P06838", "selection": "random", "n_nonzero": 38, "p1_2_core_seconds": 0.15, "p1_2_failed": false, "seconds": 0.236, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q9QYZ4", "selection": "random", "n_nonzero": 342, "p1_2_core_seconds": 587.603, "p1_2_failed": false, "seconds": 0.238, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "O74508", "selection": "random", "n_nonzero": 50, "p1_2_core_seconds": 0.315, "p1_2_failed": false, "seconds": 0.241, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "C6TAQ0", "selection": "random", "n_nonzero": 4, "p1_2_core_seconds": 0.107, "p1_2_failed": false, "seconds": 0.231, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "A0A0S1TPC7", "selection": "random", "n_nonzero": 114, "p1_2_core_seconds": 9.514, "p1_2_failed": false, "seconds": 0.225, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q9SZF7", "selection": "random", "n_nonzero": 39, "p1_2_core_seconds": 0.13, "p1_2_failed": false, "seconds": 0.224, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P36010", "selection": "random", "n_nonzero": 64, "p1_2_core_seconds": 0.341, "p1_2_failed": false, "seconds": 0.223, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P07108", "selection": "random", "n_nonzero": 35, "p1_2_core_seconds": 0.25, "p1_2_failed": false, "seconds": 0.221, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q9W5R8", "selection": "random", "n_nonzero": 12, "p1_2_core_seconds": 0.12, "p1_2_failed": false, "seconds": 0.218, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q63871", "selection": "random", "n_nonzero": 6, "p1_2_core_seconds": 0.12, "p1_2_failed": false, "seconds": 0.218, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P62890", "selection": "random", "n_nonzero": 7, "p1_2_core_seconds": 0.112, "p1_2_failed": false, "seconds": 0.218, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q9JI12", "selection": "random", "n_nonzero": 49, "p1_2_core_seconds": 0.131, "p1_2_failed": false, "seconds": 0.219, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q41560", "selection": "random", "n_nonzero": 31, "p1_2_core_seconds": 0.136, "p1_2_failed": false, "seconds": 0.22, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P81715", "selection": "random", "n_nonzero": 19, "p1_2_core_seconds": 0.119, "p1_2_failed": false, "seconds": 0.22, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q8RWN7", "selection": "random", "n_nonzero": 17, "p1_2_core_seconds": 0.122, "p1_2_failed": false, "seconds": 0.218, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q6J1H4", "selection": "random", "n_nonzero": 3, "p1_2_core_seconds": 0.118, "p1_2_failed": false, "seconds": 0.231, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "A0QVT2", "selection": "random", "n_nonzero": 12, "p1_2_core_seconds": 0.148, "p1_2_failed": false, "seconds": 0.222, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "P34226", "selection": "random", "n_nonzero": 7, "p1_2_core_seconds": 0.125, "p1_2_failed": false, "seconds": 0.241, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q1PFD9", "selection": "random", "n_nonzero": 12, "p1_2_core_seconds": 0.131, "p1_2_failed": false, "seconds": 0.223, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q80TL0", "selection": "random", "n_nonzero": 92, "p1_2_core_seconds": 1.642, "p1_2_failed": false, "seconds": 0.228, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q4PIR3", "selection": "random", "n_nonzero": 2, "p1_2_core_seconds": 0.122, "p1_2_failed": false, "seconds": 0.22, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+{"protein": "Q09176", "selection": "random", "n_nonzero": 9, "p1_2_core_seconds": 0.148, "p1_2_failed": false, "seconds": 0.223, "circuit_nodes": 2, "zero_terms_nonzero_marginal": 0.0}
+written /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/results/p1_2b_d4_zero_units_go_bp_raw.json
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_2b_baseline_d4_full_theory_with_zero_units.py --ontology go_bp --diamond-key raw --d4-timeout 600 --verify 10"
+	User time (seconds): 586.90
+	System time (seconds): 16.78
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 10:05.61
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 2578160
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 6629
+	Minor (reclaiming a frame) page faults: 1424292
+	Voluntary context switches: 12803
+	Involuntary context switches: 3750
+	Swaps: 0
+	File system inputs: 190504
+	File system outputs: 48
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p1_2b_baseline_d4_full_theory_with_zero_units_go_bp_raw_20261019-190547.log

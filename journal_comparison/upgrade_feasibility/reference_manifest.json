@@ -1,0 +1,74 @@
+[
+  {
+    "file": "references/2000_Darwiche_Differential_Inference.pdf",
+    "source_url": "https://arxiv.org/pdf/1301.3847",
+    "download_date": "2026-10-14",
+    "physical_pages": 10,
+    "sha256": "2513585fbd866704cb48d9df000a65069f295a4057cbe2f660852e92efdda868",
+    "first_page_excerpt": "UNCERTAINTY IN ARTIFICIAL INTELLIGENCE PROCEEDINGS 2000 \nA Differential Approach to Inference in Bayesian Networks \nAdnan Darwiche \nComputer Science Department \nUniversity of California, Los Angeles, Ca 90095 \ndarwiche@cs. ucla. edu \nAbstract \nWe present a new approach for inference in \nBayesian net"
+  },
+  {
+    "file": "references/2007_Bidyuk_Cutset_Sampling.pdf",
+    "source_url": "https://ics.uci.edu/~csp/r137.pdf",
+    "download_date": "2026-10-14",
+    "physical_pages": 48,
+    "sha256": "9af3e4f8f32a589e594223d6722c9951bd1172ba5f352f65e962386149c21bcb",
+    "first_page_excerpt": "Cutset sampling for Bayesian networks\nCutset sampling for Bayesian networks\nBozhena Bidyuk bbidyuk@ics.uci.edu\nRina Dechter dechter@ics.uci.edu\nSchool of Information and Computer Science\nUniversity Of California Irvine\nIrvine, CA 92697-3425\nAbstract\nThe paper presents a new sampling methodology for "
+  },
+  {
+    "file": "references/2017_Wrigley_Tensor_Belief_Propagation.pdf",
+    "source_url": "https://proceedings.mlr.press/v70/wrigley17a/wrigley17a.pdf",
+    "download_date": "2026-10-14",
+    "physical_pages": 9,
+    "sha256": "d9388e33584d3eba9da397d88014573410f9d9c20350656d71fee6a6578f49e0",
+    "first_page_excerpt": "Tensor Belief Propagation\nAndrew Wrigley 1 Wee Sun Lee 2 Nan Y e3\nAbstract\nWe propose a new approximate inference algo-\nrithm for graphical models, tensor belief prop-\nagation, based on approximating the messages\npassed in the junction tree algorithm. Our al-\ngorithm represents the potential functio"
+  },
+  {
+    "file": "references/2018_Ahn_Bucket_Renormalization.pdf",
+    "source_url": "https://proceedings.mlr.press/v80/ahn18a/ahn18a.pdf",
+    "download_date": "2026-10-14",
+    "physical_pages": 10,
+    "sha256": "9cedc822a212dee1a2dbc5247e75fb2c1b9b1c4cecf9e18b2c4a44f3a0347862",
+    "first_page_excerpt": "Bucket Renormalization for Approximate Inference\nSungsoo Ahn 1 Michael Chertkov 2 3 Adrian Weller 4 5 Jinwoo Shin 1 6\nAbstract\nProbabilistic graphical models are a key tool in\nmachine learning applications. Computing the\npartition function, i.e., normalizing constant, is a\nfundamental task of statis"
+  },
+  {
+    "file": "references/2020_Dolgov_TT_Sampling.pdf",
+    "source_url": "https://d-nb.info/1210230461/34",
+    "download_date": "2026-10-14",
+    "physical_pages": 23,
+    "sha256": "ce9e18a37f56e43c84fbf119a60180ec6e763726bd2ea1e6afe3e2202195ad47",
+    "first_page_excerpt": "Statistics and Computing (2020) 30:603–625\nhttps://doi.org/10.1007/s11222-019-09910-z\nApproximation and sampling of multivariate probability distributions\nin the tensor train decomposition\nSergey Dolgov 1 · Karim Anaya-Izquierdo 1 · Colin Fox 2 · Robert Scheichl 3\nReceived: 2 July 2019 / Accepted: 1"
+  },
+  {
+    "file": "references/2023_Dubray_Horn_PWMC.pdf",
+    "source_url": "https://d-nb.info/1367161150/34",
+    "download_date": "2026-10-14",
+    "physical_pages": 17,
+    "sha256": "0777f40942e457dc450fc44f31b1a5c9517dc6fbe4719a929e4b9f67bf5cd22f",
+    "first_page_excerpt": "Probabilistic Inference by Projected Weighted\nModel Counting on Horn Clauses\nAlexandre Dubray /envel⌢pe\nInstitute of Information and Communication Technologies, Electonics and Applied Mathematics\n(ICTEAM), UCLouvain, Belgium\nPierre Schaus /envel⌢pe\nInstitute of Information and Communication Technolo"
+  },
+  {
+    "file": "references/2024_Dubray_Anytime_WMC.pdf",
+    "source_url": "https://drops.dagstuhl.de/storage/00lipics/lipics-vol307-cp2024/LIPIcs.CP.2024.10/LIPIcs.CP.2024.10.pdf",
+    "download_date": "2026-10-14",
+    "physical_pages": 16,
+    "sha256": "aa0760a311aa57202d6812dd759e95acc7f9afec621eb3fa62ce512de49c1ced",
+    "first_page_excerpt": "Anytime Weighted Model Counting with\nApproximation Guarantees for Probabilistic\nInference\nAlexandre Dubray /envel⌢pe\nInstitute of Information and Communication Technologies, Electonics and Applied Mathematics\n(ICTEAM), UCLouvain, Belgium\nPierre Schaus /envel⌢pe\nInstitute of Information and Communica"
+  },
+  {
+    "file": "references/2024_Nunez_Fernandez_Tensor_Cross_Interpolation.pdf",
+    "source_url": "https://arxiv.org/pdf/2407.02454",
+    "download_date": "2026-10-14",
+    "physical_pages": 75,
+    "sha256": "f8d6c5e1dc19350d896f6a4f2bc9c29213d9752b1f45943819d130d2b7379bdf",
+    "first_page_excerpt": "SciPost Physics Submission\nLearning tensor networks with tensor cross interpolation:\nnew algorithms and libraries\nYuriel Núñez Fernández1,2⋆, Marc K. Ritter3,4, Matthieu Jeannin2, Jheng-Wei Li2,\nThomas Kloss1, Thibaud Louvet2, Satoshi Terasaki5, Olivier Parcollet4,6, Jan von Delft3,\nHiroshi Shinaoka"
+  },
+  {
+    "file": "references/2025_Dierckx_LUBAC.pdf",
+    "source_url": "https://www.ijcai.org/proceedings/2025/0558.pdf",
+    "download_date": "2026-10-14",
+    "physical_pages": 9,
+    "sha256": "8061924510970166b10464fde63eadb2707d11bc7625e9e748f9f43e067480a6",
+    "first_page_excerpt": "Learning from Logical Constraints with Lower- and Upper-Bound Arithmetic\nCircuits\nLucile Dierckx 1,2 , Alexandre Dubray1 , Siegfried Nijssen1,2,3\n1 ICTEAM, UCLouvain, Belgium\n2 TRAIL Institute, Belgium\n3 DTAI, KU Leuven, Leuven, Belgium\n{lucile.dierckx, alexandre.dubray, siegfried.nijssen}@uclouvain"
+  }
+]

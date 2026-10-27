@@ -1,0 +1,7 @@
+{
+ "proteins": 3874,
+ "max_abs_diff": 0.0,
+ "mean_abs_diff": 0.0,
+ "passed": true,
+ "tensorflow": "2.3.1"
+}

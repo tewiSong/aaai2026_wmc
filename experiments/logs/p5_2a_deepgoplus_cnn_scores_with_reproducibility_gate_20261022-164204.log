@@ -1,0 +1,51 @@
+# script sha256 8177f2e685e5b1dd6167eb1a22d528281a57fafd222866c3ba6a0e0fa20c41af
+# sif 145b5eda9b9cd417
+# job 23078997 start 2026-10-22T16:42:07+03:00
+tensorflow 2.3.1 numpy 1.18.5
+2026-10-22 16:42:11.319235: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN)to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2026-10-22 16:42:11.331719: I tensorflow/core/platform/profile_utils/cpu_utils.cc:104] CPU Frequency: 2445310000 Hz
+2026-10-22 16:42:11.339100: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x563d8a1062d0 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2026-10-22 16:42:11.339119: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+scored 256/3874
+scored 512/3874
+scored 768/3874
+scored 1024/3874
+scored 1280/3874
+scored 1536/3874
+scored 1792/3874
+scored 2048/3874
+scored 2304/3874
+scored 2560/3874
+scored 2816/3874
+scored 3072/3874
+scored 3328/3874
+scored 3584/3874
+scored 3840/3874
+scored 3874/3874
+{"proteins": 3874, "max_abs_diff": 0.8050478100776672, "mean_abs_diff": 4.027406976092607e-05, "passed": false, "tensorflow": "2.3.1"}
+gate (a) failed: CNN scores do not reproduce the release; stopping before new targets
+Command exited with non-zero status 1
+	Command being timed: "singularity exec --bind /pfs,/scratch,/projappl,/project,/flash /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/tf/deepgoplus_tf.sif python -u scripts/p5_2a_deepgoplus_cnn_scores_with_reproducibility_gate.py"
+	User time (seconds): 4240.54
+	System time (seconds): 127.00
+	Percent of CPU this job got: 5613%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:17.80
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 4698240
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1302
+	Minor (reclaiming a frame) page faults: 1474060
+	Voluntary context switches: 330912
+	Involuntary context switches: 633374
+	Swaps: 0
+	File system inputs: 1194492
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

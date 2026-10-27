@@ -1,0 +1,12 @@
+# Large or rebuildable files: not in git (see MIGRATION.md)
+experiments/data
+experiments/data/
+experiments/core
+core.*
+*.sif
+experiments/tools/bin/
+experiments/tools/src/
+__pycache__/
+*.pyc
+*.part
+experiments/data_bundle/

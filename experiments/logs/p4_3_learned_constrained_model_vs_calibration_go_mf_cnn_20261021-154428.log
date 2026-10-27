@@ -1,0 +1,196 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_3_learned_constrained_model_vs_calibration.py
+# sha256 : 26373381aed49debbb9263877aebfea94724707fcb0a895374f4efb3a9c78acb
+# args   : --ns go_mf --input cnn --bootstrap 1000 --maxiter 300
+# host   : nid002444   slurm_job: 23032415
+# start  : 2026-10-21T15:44:28+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+raw              fmax 0.49157  micro_ap 0.43008  brier 0.00970  logloss 0.04099  ece 0.00465
+max_closure      fmax 0.49906  micro_ap 0.43487  brier 0.00958  logloss 0.04044  ece 0.00421
+isotonic         fmax 0.49461  micro_ap 0.43339  brier 0.00968  logloss 0.04082  ece 0.00467
+exact_wmc_raw    fmax 0.45392  micro_ap 0.35542  brier 0.01041  logloss 0.09562  ece 0.00913
+C                fmax 0.45853  micro_ap 0.35513  brier 0.01038  logloss 0.05630  ece 0.00528
+depth_platt_iso  fmax 0.48909  micro_ap 0.43566  brier 0.00928  logloss 0.03935  ece 0.00118
+term_platt_iso   fmax 0.49277  micro_ap 0.45022  brier 0.00913  logloss 0.03879  ece 0.00085
+neighbor_lr_iso  fmax 0.49002  micro_ap 0.44154  brier 0.00922  logloss 0.03919  ece 0.00107
+{
+ "raw": {
+  "fmax": [
+   -0.03959042996134531,
+   -0.03288422656436793,
+   -0.026076307552809503
+  ],
+  "micro_ap": [
+   -0.08466629078619103,
+   -0.07514787752397037,
+   -0.06545717974635798
+  ],
+  "brier": [
+   0.0005021481199609805,
+   0.0006738341656379607,
+   0.0008536469357579288
+  ],
+  "logloss": [
+   0.013319744283650898,
+   0.015291124106913703,
+   0.017651904603921426
+  ]
+ },
+ "max_closure": {
+  "fmax": [
+   -0.047750250485593844,
+   -0.0400932759583664,
+   -0.03208148330890088
+  ],
+  "micro_ap": [
+   -0.09080722949380106,
+   -0.08011813243169999,
+   -0.06965343195390578
+  ],
+  "brier": [
+   0.0006111467013514314,
+   0.000793093052779136,
+   0.0009673219427261135
+  ],
+  "logloss": [
+   0.013775395562439566,
+   0.01583071012529486,
+   0.018226065876558138
+  ]
+ },
+ "isotonic": {
+  "fmax": [
+   -0.04292126244291424,
+   -0.035937969389172625,
+   -0.028934544312830424
+  ],
+  "micro_ap": [
+   -0.08804648271253254,
+   -0.07845831566856401,
+   -0.06831931950385439
+  ],
+  "brier": [
+   0.0005203677563241918,
+   0.0006920942719473994,
+   0.000870590167489458
+  ],
+  "logloss": [
+   0.013448204676886916,
+   0.015459699907850646,
+   0.01784605883197588
+  ]
+ },
+ "exact_wmc_raw": {
+  "fmax": [
+   -0.0018087694229731637,
+   0.005311085288909195,
+   0.0120660709395513
+  ],
+  "micro_ap": [
+   -0.0066172892348964635,
+   -0.00036371381789612744,
+   0.006775014899862606
+  ],
+  "brier": [
+   -0.00021509046351309038,
+   -3.4528888155787446e-05,
+   0.0001519058279580698
+  ],
+  "logloss": [
+   -0.04335207770348826,
+   -0.03935014136778999,
+   -0.035856067259906824
+  ]
+ },
+ "depth_platt_iso": {
+  "fmax": [
+   -0.037668389140106374,
+   -0.03070596956714261,
+   -0.023972825907347773
+  ],
+  "micro_ap": [
+   -0.08923837649960223,
+   -0.080703572445982,
+   -0.07172018724061255
+  ],
+  "brier": [
+   0.0009540846103692172,
+   0.0010940021793894219,
+   0.001239413759551212
+  ],
+  "logloss": [
+   0.0147224538017077,
+   0.016914905332022487,
+   0.019575719621766154
+  ]
+ },
+ "term_platt_iso": {
+  "fmax": [
+   -0.04212954311006238,
+   -0.03415610882734088,
+   -0.025559262907564884
+  ],
+  "micro_ap": [
+   -0.10420094336432038,
+   -0.09509126060180986,
+   -0.08605456963172613
+  ],
+  "brier": [
+   0.0010961815727145508,
+   0.001240265222824631,
+   0.001394945566775192
+  ],
+  "logloss": [
+   0.01523235280919398,
+   0.017488386029400615,
+   0.020236010670006258
+  ]
+ },
+ "neighbor_lr_iso": {
+  "fmax": [
+   -0.038732429186438544,
+   -0.031441653404719105,
+   -0.024718454834130394
+  ],
+  "micro_ap": [
+   -0.0953223657018909,
+   -0.08646213728975755,
+   -0.07747476515923166
+  ],
+  "brier": [
+   0.001004128192102932,
+   0.0011521968261132987,
+   0.0013052285764292106
+  ],
+  "logloss": [
+   0.014865528511051966,
+   0.017079880556814024,
+   0.019734359221845847
+  ]
+ }
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_3_learned_constrained_model_vs_calibration.py --ns go_mf --input cnn --bootstrap 1000 --maxiter 300"
+	User time (seconds): 3008.58
+	System time (seconds): 85.23
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 51:36.02
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 344380
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 510
+	Minor (reclaiming a frame) page faults: 38546713
+	Voluntary context switches: 7109
+	Involuntary context switches: 227662
+	Swaps: 0
+	File system inputs: 195484
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-21T16:36:09+03:00   exit: 0

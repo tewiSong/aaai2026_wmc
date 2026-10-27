@@ -1,0 +1,74 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_2_mechanism_depth_calibration_analysis.py
+# sha256 : 02bbb84233b1cefdeaa4ebabac17a6b9a27c222e4f81e41eea15c6905e604515
+# args   : 
+# host   : uan04   slurm_job: none
+# start  : 2026-10-21T11:40:09+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+
+go_cc cnn: depth | terms | label rate | raw mean | exact mean | raw on positives | exact on positives
+   1    3  0.3988  0.3322  0.4165   0.702  0.874  (pos 3484)
+   2  129  0.0405  0.0335  0.0354   0.430  0.479  (pos 15195)
+   3  144  0.0217  0.0183  0.0138   0.349  0.364  (pos 9091)
+   4  122  0.0148  0.0122  0.0053   0.259  0.201  (pos 5249)
+   5  115  0.0142  0.0120  0.0040   0.210  0.121  (pos 4743)
+   6   67  0.0062  0.0065  0.0011   0.122  0.064  (pos 1208)
+   7   24  0.0069  0.0064  0.0008   0.074  0.044  (pos 482)
+   8   15  0.0052  0.0043  0.0004   0.053  0.025  (pos 227)
+   9   12  0.0028  0.0027  0.0001   0.029  0.009  (pos 99)
+
+go_cc fused: depth | terms | label rate | raw mean | exact mean | raw on positives | exact on positives
+   1    3  0.3988  0.3179  0.3971   0.693  0.861  (pos 3484)
+   2  129  0.0405  0.0327  0.0347   0.465  0.514  (pos 15195)
+   3  144  0.0217  0.0178  0.0146   0.398  0.421  (pos 9091)
+   4  122  0.0148  0.0122  0.0063   0.317  0.260  (pos 5249)
+   5  115  0.0142  0.0117  0.0046   0.269  0.170  (pos 4743)
+   6   67  0.0062  0.0059  0.0012   0.178  0.091  (pos 1208)
+   7   24  0.0069  0.0059  0.0009   0.125  0.061  (pos 482)
+   8   15  0.0052  0.0041  0.0004   0.095  0.041  (pos 227)
+   9   12  0.0028  0.0027  0.0002   0.131  0.061  (pos 99)
+
+go_mf cnn: depth | terms | label rate | raw mean | exact mean | raw on positives | exact on positives
+   1   18  0.0848  0.0489  0.0588   0.366  0.463  (pos 3251)
+   2   59  0.0410  0.0245  0.0171   0.226  0.215  (pos 5144)
+   3  185  0.0122  0.0082  0.0029   0.160  0.125  (pos 4797)
+   4  212  0.0092  0.0060  0.0017   0.168  0.127  (pos 4163)
+   5  152  0.0079  0.0047  0.0011   0.151  0.102  (pos 2542)
+   6   84  0.0059  0.0037  0.0010   0.162  0.105  (pos 1061)
+   7   17  0.0054  0.0045  0.0004   0.128  0.033  (pos 195)
+   8    2  0.0009  0.0007  0.0001   0.050  0.014  (pos 4)
+
+go_mf fused: depth | terms | label rate | raw mean | exact mean | raw on positives | exact on positives
+   1   18  0.0848  0.0530  0.0692   0.452  0.603  (pos 3251)
+   2   59  0.0410  0.0263  0.0249   0.351  0.402  (pos 5144)
+   3  185  0.0122  0.0083  0.0049   0.297  0.273  (pos 4797)
+   4  212  0.0092  0.0062  0.0029   0.312  0.249  (pos 4163)
+   5  152  0.0079  0.0051  0.0019   0.291  0.199  (pos 2542)
+   6   84  0.0059  0.0040  0.0014   0.302  0.186  (pos 1061)
+   7   17  0.0054  0.0040  0.0006   0.250  0.072  (pos 195)
+   8    2  0.0009  0.0011  0.0000   0.205  0.006  (pos 4)
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_2_mechanism_depth_calibration_analysis.py"
+	User time (seconds): 37.77
+	System time (seconds): 2.19
+	Percent of CPU this job got: 108%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:37.00
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 110260
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 423
+	Minor (reclaiming a frame) page faults: 50243
+	Voluntary context switches: 6952
+	Involuntary context switches: 3973
+	Swaps: 0
+	File system inputs: 191784
+	File system outputs: 912
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-21T11:40:53+03:00   exit: 0

@@ -1,0 +1,58 @@
+{
+  "prediction_rows": 3874,
+  "term_columns": 5862,
+  "same_prediction_test_protein_order": true,
+  "labels_annotation_membership_mismatches": 0,
+  "namespaces": {
+    "go_cc": {
+      "score_theory_ids_aligned": true,
+      "labels_equal_source": true,
+      "score_difference_from_clipped_source_max": 2.5247572468697606e-15,
+      "inconsistent_label_pairs": 0,
+      "inconsistent_label_proteins": 0
+    },
+    "go_mf": {
+      "score_theory_ids_aligned": true,
+      "labels_equal_source": true,
+      "score_difference_from_clipped_source_max": 2.5247572468697606e-15,
+      "inconsistent_label_pairs": 0,
+      "inconsistent_label_proteins": 0
+    },
+    "go_bp": {
+      "score_theory_ids_aligned": true,
+      "labels_equal_source": true,
+      "score_difference_from_clipped_source_max": 2.5247572468697606e-15,
+      "inconsistent_label_pairs": 32,
+      "inconsistent_label_proteins": 25
+    }
+  },
+  "vocabulary_terms_dropped": [
+    "GO:0000778",
+    "GO:0001085",
+    "GO:0001102",
+    "GO:0001103",
+    "GO:0006342",
+    "GO:0006348",
+    "GO:0007050",
+    "GO:0019012",
+    "GO:0033613",
+    "GO:0035690",
+    "GO:0042493",
+    "GO:0043044",
+    "GO:0044766",
+    "GO:0051704",
+    "GO:0051801",
+    "GO:0051817",
+    "GO:0051883",
+    "GO:0052185",
+    "GO:0052188",
+    "GO:0052332",
+    "GO:0070491",
+    "GO:0071426",
+    "GO:0071427",
+    "GO:0071428",
+    "GO:0071431",
+    "GO:1902579"
+  ],
+  "vocabulary_terms_dropped_count": 26
+}

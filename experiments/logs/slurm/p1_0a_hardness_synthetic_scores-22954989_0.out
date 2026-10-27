@@ -1,0 +1,33 @@
+inst 0 n=4183 uniform:0    BP mae=4.92e-04 max=1.08e-01 conv=True | Gibbs mae=1.19e-03 max=1.76e-02 | exact 0.01s
+inst 0 n=4183 uniform:1    BP mae=3.21e-04 max=6.75e-02 conv=True | Gibbs mae=1.26e-03 max=4.14e-02 | exact 0.01s
+inst 0 n=4183 beta22:0     BP mae=4.47e-04 max=1.00e-01 conv=True | Gibbs mae=1.27e-03 max=2.09e-02 | exact 0.01s
+inst 0 n=4183 beta22:1     BP mae=3.80e-04 max=6.53e-02 conv=True | Gibbs mae=1.22e-03 max=1.63e-02 | exact 0.01s
+inst 0 n=4183 beta0505:0   BP mae=1.61e-04 max=4.23e-02 conv=True | Gibbs mae=1.52e-02 max=5.00e-01 | exact 0.01s
+inst 0 n=4183 beta0505:1   BP mae=1.50e-04 max=5.73e-02 conv=True | Gibbs mae=1.68e-02 max=4.90e-01 | exact 0.01s
+inst 0 n=4183 sparse:0     BP mae=1.16e-05 max=8.29e-03 conv=True | Gibbs mae=1.69e-03 max=1.33e-01 | exact 0.01s
+inst 0 n=4183 sparse:1     BP mae=1.05e-06 max=1.33e-04 conv=True | Gibbs mae=5.21e-03 max=4.24e-01 | exact 0.01s
+written /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/results/p1_0a_go_cc_0.json
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_0a_hardness_bp_gibbs_vs_exact_d4.py --ontology go_cc --subgraph-size 0 --n-subgraphs 4 --scores-per-family 2 --gibbs-sweeps 3000 --d4-timeout 3600 --seed 0"
+	User time (seconds): 48.20
+	System time (seconds): 1.19
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:49.59
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 60840
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 410
+	Minor (reclaiming a frame) page faults: 36237
+	Voluntary context switches: 5951
+	Involuntary context switches: 161
+	Swaps: 0
+	File system inputs: 119070
+	File system outputs: 24
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p1_0a_hardness_bp_gibbs_vs_exact_d4_go_cc_0_20261019-104548.log

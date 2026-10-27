@@ -1,0 +1,62 @@
+# script sha256 33604eebe7f4bc26f0d666c6b0eed51f465f8bdc7190704bb86503241bf10342
+# sif 145b5eda9b9cd417
+# job 23087245 start 2026-10-22T21:43:37+03:00
+tensorflow 2.3.1 numpy 1.18.5
+2026-10-22 21:43:41.463358: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN)to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2026-10-22 21:43:41.475469: I tensorflow/core/platform/profile_utils/cpu_utils.cc:104] CPU Frequency: 2445340000 Hz
+2026-10-22 21:43:41.482566: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x5623479aec90 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2026-10-22 21:43:41.482582: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+scored 256/3874
+scored 512/3874
+scored 768/3874
+scored 1024/3874
+scored 1280/3874
+scored 1536/3874
+scored 1792/3874
+scored 2048/3874
+scored 2304/3874
+scored 2560/3874
+scored 2816/3874
+scored 3072/3874
+scored 3328/3874
+scored 3584/3874
+scored 3840/3874
+scored 3874/3874
+{"proteins": 3874, "max_abs_diff": 0.0, "mean_abs_diff": 0.0, "passed": true, "tensorflow": "2.3.1"}
+scored 256/2837
+scored 512/2837
+scored 768/2837
+scored 1024/2837
+scored 1280/2837
+scored 1536/2837
+scored 1792/2837
+scored 2048/2837
+scored 2304/2837
+scored 2560/2837
+scored 2816/2837
+scored 2837/2837
+scored 2837 targets
+	Command being timed: "singularity exec --bind /pfs,/scratch,/projappl,/project,/flash /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/tf/deepgoplus_tf.sif python -u scripts/p5_2a_deepgoplus_cnn_scores_with_reproducibility_gate.py"
+	User time (seconds): 7267.15
+	System time (seconds): 133.22
+	Percent of CPU this job got: 5587%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:12.44
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 4175808
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1315
+	Minor (reclaiming a frame) page faults: 2418815
+	Voluntary context switches: 539361
+	Involuntary context switches: 392790
+	Swaps: 0
+	File system inputs: 1195772
+	File system outputs: 105232
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

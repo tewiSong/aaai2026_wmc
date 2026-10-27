@@ -1,0 +1,47 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_1_selftest_isotonic_projection.py
+# sha256 : b145b1515fbc0e70dc5523b6003df797078678f501186bb71479144e045c36af
+# args   : 
+# host   : uan04   slurm_job: none
+# start  : 2026-10-20T16:31:49+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/consistency.py:30: RuntimeWarning: k >= N for N * N square matrix. Attempting to use scipy.linalg.eigh instead.
+  L = float(eigsh((A @ AT).astype(float), k=1, which="LA", return_eigenvectors=False)[0]) * 1.01
+Traceback (most recent call last):
+  File "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_1_selftest_isotonic_projection.py", line 50, in <module>
+    main()
+  File "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_1_selftest_isotonic_projection.py", line 34, in main
+    mu = isotonic_dag(p[None], edges)[0][0]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/consistency.py", line 30, in isotonic_dag
+    L = float(eigsh((A @ AT).astype(float), k=1, which="LA", return_eigenvectors=False)[0]) * 1.01
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/cotainr/conda/envs/conda_container_env/lib/python3.11/site-packages/scipy/sparse/linalg/_eigen/arpack/arpack.py", line 1608, in eigsh
+    raise TypeError("Cannot use scipy.linalg.eigh for sparse A with "
+TypeError: Cannot use scipy.linalg.eigh for sparse A with k >= N. Use scipy.linalg.eigh(A.toarray()) or reduce k.
+Command exited with non-zero status 1
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_1_selftest_isotonic_projection.py"
+	User time (seconds): 6.37
+	System time (seconds): 2.35
+	Percent of CPU this job got: 160%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:05.43
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 49152
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 331
+	Minor (reclaiming a frame) page faults: 26082
+	Voluntary context switches: 7358
+	Involuntary context switches: 439
+	Swaps: 0
+	File system inputs: 131434
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
+
+# end    : 2026-10-20T16:32:01+03:00   exit: 1

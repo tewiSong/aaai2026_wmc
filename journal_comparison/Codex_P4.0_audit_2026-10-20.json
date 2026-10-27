@@ -1,0 +1,265 @@
+{
+  "author": "OpenAI Codex",
+  "date": "2026-10-20",
+  "namespaces": {
+    "go_cc": {
+      "terms": 632,
+      "proteins_original": 2912,
+      "original_definition_recomputed": {
+        "raw": {
+          "fmax": 0.6890515999834815,
+          "sequential_ap": 0.6419626306947698,
+          "grouped_micro_ap": 0.6419613339029046,
+          "brier": 0.012729735331901668,
+          "ece": 0.00373576412001459
+        },
+        "max_closure": {
+          "fmax": 0.6919472872420573,
+          "sequential_ap": 0.6427561098854486,
+          "grouped_micro_ap": 0.642750886593484,
+          "brier": 0.012644168712715082,
+          "ece": 0.0031973070529831165
+        },
+        "exact_wmc": {
+          "fmax": 0.6770316311287417,
+          "sequential_ap": 0.6107824910098318,
+          "grouped_micro_ap": 0.6107821215499101,
+          "brier": 0.013322868323448334,
+          "ece": 0.008527166199853371
+        }
+      },
+      "max_absolute_reproduction_errors": {
+        "raw": {
+          "fmax": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "max_closure": {
+          "fmax": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "exact_wmc": {
+          "fmax": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "aupr": {
+          "raw": 0.0,
+          "max_closure": 0.0,
+          "exact_wmc": 0.0
+        }
+      },
+      "independent_ve_checks": [
+        {
+          "protein": "Q07622",
+          "term": "GO:0030430",
+          "circuit": 8.580673413284151e-12,
+          "ve": 8.580673497552029e-12,
+          "abs_error": 8.426787783697463e-20,
+          "logz_difference": 2.6645352591003757e-15
+        },
+        {
+          "protein": "O51257",
+          "term": "GO:0031253",
+          "circuit": 2.15538282823141e-05,
+          "ve": 2.1553828282314577e-05,
+          "abs_error": 4.777265822514254e-19,
+          "logz_difference": 8.881784197001252e-16
+        },
+        {
+          "protein": "Q9UKI9",
+          "term": "GO:0005634",
+          "circuit": 0.05592136117989432,
+          "ve": 0.055921361179894165,
+          "abs_error": 1.5265566588595902e-16,
+          "logz_difference": 8.881784197001252e-16
+        }
+      ],
+      "independent_ve_width": 4,
+      "root_excluded_positive_proteins": 2909,
+      "root_only_proteins": 3,
+      "root_excluded_metrics": {
+        "raw": {
+          "fmax": 0.6589933369869527,
+          "sequential_ap": 0.599087813113633,
+          "grouped_micro_ap": 0.5990860043510559,
+          "brier": 0.012665269983700166,
+          "ece": 0.0034593244176322415,
+          "macro_pr_auc_99_thresholds": 0.6907440948483825
+        },
+        "max_closure": {
+          "fmax": 0.6615539716973645,
+          "sequential_ap": 0.59997743080347,
+          "grouped_micro_ap": 0.5999721430395165,
+          "brier": 0.012588422375546336,
+          "ece": 0.002937229438060692,
+          "macro_pr_auc_99_thresholds": 0.6942547568291895
+        },
+        "exact_wmc": {
+          "fmax": 0.6439289848213086,
+          "sequential_ap": 0.5614176832449338,
+          "grouped_micro_ap": 0.5614169698037722,
+          "brier": 0.013346768942428781,
+          "ece": 0.008558131315017734,
+          "macro_pr_auc_99_thresholds": 0.5287218580865651
+        }
+      },
+      "root_excluded_paired_fmax_bootstrap_95ci": {
+        "raw": [
+          -0.017262002972789132,
+          -0.014749183582323078,
+          -0.012272547552848432
+        ],
+        "max_closure": [
+          -0.02033096817260504,
+          -0.01756128677988611,
+          -0.014926341226804765
+        ]
+      },
+      "mechanism_counts": {
+        "positive_total": 42683,
+        "negative_total": 1797701,
+        "positive_drops_over_0_1": 5452,
+        "negative_rises_over_0_1": 3230,
+        "mean_positive_shift": 0.02823026655122289,
+        "mean_negative_shift": -0.004437452725016017
+      }
+    },
+    "go_mf": {
+      "terms": 730,
+      "proteins_original": 2129,
+      "original_definition_recomputed": {
+        "raw": {
+          "fmax": 0.569666656089508,
+          "sequential_ap": 0.5100206051643514,
+          "grouped_micro_ap": 0.5100205764828838,
+          "brier": 0.01037374028660487,
+          "ece": 0.005740209592188368
+        },
+        "max_closure": {
+          "fmax": 0.5749408071144273,
+          "sequential_ap": 0.5148740573269648,
+          "grouped_micro_ap": 0.5148846722294386,
+          "brier": 0.010208855446524116,
+          "ece": 0.005195203187517946
+        },
+        "exact_wmc": {
+          "fmax": 0.5427261316830813,
+          "sequential_ap": 0.4482377489187635,
+          "grouped_micro_ap": 0.44823598515617713,
+          "brier": 0.010861605309666572,
+          "ece": 0.009671940470810566
+        }
+      },
+      "max_absolute_reproduction_errors": {
+        "raw": {
+          "fmax": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "max_closure": {
+          "fmax": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "exact_wmc": {
+          "fmax": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "aupr": {
+          "raw": 0.0,
+          "max_closure": 0.0,
+          "exact_wmc": 0.0
+        }
+      },
+      "independent_ve_checks": [
+        {
+          "protein": "Q14574",
+          "term": "GO:0003674",
+          "circuit": 0.6811562473455229,
+          "ve": 0.6811562473455237,
+          "abs_error": 7.771561172376096e-16,
+          "logz_difference": 3.552713678800501e-15
+        },
+        {
+          "protein": "P04768",
+          "term": "GO:0005516",
+          "circuit": 0.0011383216095948493,
+          "ve": 0.001138321609594859,
+          "abs_error": 9.75781955236954e-18,
+          "logz_difference": 2.6645352591003757e-15
+        },
+        {
+          "protein": "P22531",
+          "term": "GO:0003810",
+          "circuit": 0.04130121901519832,
+          "ve": 0.04130121901519868,
+          "abs_error": 3.608224830031759e-16,
+          "logz_difference": 3.552713678800501e-15
+        }
+      ],
+      "independent_ve_width": 7,
+      "root_excluded_positive_proteins": 2129,
+      "root_only_proteins": 0,
+      "root_excluded_metrics": {
+        "raw": {
+          "fmax": 0.49495128013653744,
+          "sequential_ap": 0.4428176773047104,
+          "grouped_micro_ap": 0.44281763242090116,
+          "brier": 0.01007689577312901,
+          "ece": 0.0051333306567885,
+          "macro_pr_auc_99_thresholds": 0.4717421722332119
+        },
+        "max_closure": {
+          "fmax": 0.5005034960648846,
+          "sequential_ap": 0.4469401598065137,
+          "grouped_micro_ap": 0.4469591662174632,
+          "brier": 0.00995482944149442,
+          "ece": 0.004657564426985771,
+          "macro_pr_auc_99_thresholds": 0.48050958344900235
+        },
+        "exact_wmc": {
+          "fmax": 0.45912695272375614,
+          "sequential_ap": 0.37004638727495914,
+          "grouped_micro_ap": 0.3700446362851892,
+          "brier": 0.010790877100703939,
+          "ece": 0.009535640144274216,
+          "macro_pr_auc_99_thresholds": 0.3390024671451033
+        }
+      },
+      "root_excluded_paired_fmax_bootstrap_95ci": {
+        "raw": [
+          -0.04150508569206739,
+          -0.03600536117590042,
+          -0.030380143510876357
+        ],
+        "max_closure": [
+          -0.047445888405210614,
+          -0.04159007433200457,
+          -0.03605017903406839
+        ]
+      },
+      "mechanism_counts": {
+        "positive_total": 23269,
+        "negative_total": 1530901,
+        "positive_drops_over_0_1": 3209,
+        "negative_rises_over_0_1": 870,
+        "mean_positive_shift": 0.013316646359505196,
+        "mean_negative_shift": -0.0039719493307943735
+      }
+    }
+  },
+  "source_hashes": {
+    "p4_0_downstream_conditioning_deepgoplus_cc_mf.py": "18d7c9e327bf97a834816f69310595677a7e6472d0c4f8a9c061685aa3998378",
+    "p1_4_build_deepgoplus_vocab_theories_and_scores.py": "df1dec924962b1c0eb3c0e1668f80f0f9ff9565d7bdb50d7f070a0bfa73ee31d",
+    "wmc_inference.py": "3bddaa71492caea33e2f3b08b0e65aa5f2636d5f31c6ff2cd454b21e3f928a5f"
+  },
+  "audit_helper_validation": {
+    "all_score_fmax_vs_literal_threshold_enumeration_examples": 50,
+    "optimized_bootstrap_vs_literal_resampling_examples": 50,
+    "tied_ap_row_order_invariance": true,
+    "all_passed": true
+  }
+}

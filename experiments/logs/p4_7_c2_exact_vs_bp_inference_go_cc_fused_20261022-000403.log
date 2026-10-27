@@ -1,0 +1,150 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7_c2_exact_vs_bp_inference.py
+# sha256 : 5f3df21e233af529217f597aeca41a408f1f45302f23a9b555eafac9c7ee96d3
+# args   : --ns go_cc --input fused --steps 300 --lr 0.05 --bootstrap 1000
+# host   : nid002523   slurm_job: 23051735
+# start  : 2026-10-22T00:04:03+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+{"theory": "dgp2_go_cc", "input": "fused", "stage": "exploratory split", "steps": 300, "lr": 0.05, "proteins_fit": 1456, "proteins_eval": 1456, "bp_variant": "exact theta*, BP training+prediction"}
+isotonic                 fmax 0.69667  micro_ap 0.66722  brier 0.01157  logloss 0.04393  ece 0.00412
+C2_exact_adam            fmax 0.70605  micro_ap 0.69184  brier 0.01083  logloss 0.04187  ece 0.00077
+C2_bp                    fmax 0.68589  micro_ap 0.53512  brier 0.01388  logloss 0.06444  ece 0.00613
+C2_bp_train_exact_pred   fmax 0.69698  micro_ap 0.66840  brier 0.01144  logloss 0.04618  ece 0.00582
+C2_lbfgs_p45             fmax 0.70626  micro_ap 0.69207  brier 0.01083  logloss 0.04188  ece 0.00072
+{
+ "C2_bp-C2_exact_adam": {
+  "fmax": [
+   -0.025160179285092156,
+   -0.02009112197217844,
+   -0.015608686489964064
+  ],
+  "micro_ap": [
+   -0.17744465177730706,
+   -0.15587886981746968,
+   -0.13552529953503184
+  ],
+  "brier": [
+   0.0024841671555558887,
+   0.003035657377043946,
+   0.0036005861142213947
+  ],
+  "logloss": [
+   0.01950233088242868,
+   0.02242524091510465,
+   0.026114187338431027
+  ]
+ },
+ "C2_bp-isotonic": {
+  "fmax": [
+   -0.017415808205560022,
+   -0.010834120280217796,
+   -0.004869130246378193
+  ],
+  "micro_ap": [
+   -0.15405430746867654,
+   -0.13158685703182832,
+   -0.11011941021998062
+  ],
+  "brier": [
+   0.0017497378937490627,
+   0.00230401604449365,
+   0.002918289467704184
+  ],
+  "logloss": [
+   0.017392157203461694,
+   0.020364563960853066,
+   0.024015591863602612
+  ]
+ },
+ "C2_exact_adam-isotonic": {
+  "fmax": [
+   0.00459312809597775,
+   0.00916213234718749,
+   0.014009487686703901
+  ],
+  "micro_ap": [
+   0.01960726023546936,
+   0.02450661061298548,
+   0.029875047052250116
+  ],
+  "brier": [
+   -0.0008419161974781934,
+   -0.0007331754814181735,
+   -0.0006317486694954858
+  ],
+  "logloss": [
+   -0.002399242797539619,
+   -0.002045631435596537,
+   -0.001745593130085562
+  ]
+ },
+ "C2_bp_train_exact_pred-C2_bp": {
+  "fmax": [
+   0.0072594041966067,
+   0.011388415973303256,
+   0.015782726799815756
+  ],
+  "micro_ap": [
+   0.11620737377074934,
+   0.1328098377239431,
+   0.148966521955908
+  ],
+  "brier": [
+   -0.0028932787247231604,
+   -0.0024239131186854883,
+   -0.001985288752528799
+  ],
+  "logloss": [
+   -0.021298372527326005,
+   -0.018114963403038947,
+   -0.01537119547777067
+  ]
+ },
+ "C2_exact_adam-C2_lbfgs_p45": {
+  "fmax": [
+   -0.0005831787483137369,
+   -6.410913089427428e-05,
+   0.0005590971947191019
+  ],
+  "micro_ap": [
+   -0.00039156125413322695,
+   -0.00022477086836714122,
+   -7.968540374571623e-05
+  ],
+  "brier": [
+   1.1666679514475524e-06,
+   3.9110740520393455e-06,
+   7.18194376539351e-06
+  ],
+  "logloss": [
+   -2.801054010100022e-05,
+   -8.68767771506837e-06,
+   7.976890270419179e-06
+  ]
+ }
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7_c2_exact_vs_bp_inference.py --ns go_cc --input fused --steps 300 --lr 0.05 --bootstrap 1000"
+	User time (seconds): 13678.60
+	System time (seconds): 71.66
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:49:59
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 394276
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 478
+	Minor (reclaiming a frame) page faults: 30507056
+	Voluntary context switches: 7102
+	Involuntary context switches: 13608
+	Swaps: 0
+	File system inputs: 191236
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-22T03:54:07+03:00   exit: 0

@@ -1,0 +1,8 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_5_go_bp_core_tau_sensitivity.py
+# sha256 : 6794b753edb7082b484388072d246d39f14531c46e16ac6b0c8834672dfe96b5
+# args   : --input fused --sample 6 --bootstrap 5 --workers 6
+# host   : uan04   slurm_job: none
+# start  : 2026-10-25T13:25:32+02:00
+# sif    : 6b6e8a4c4dd7cefe
+
+{"theory": "dgp2_go_bp", "input": "fused", "proteins": 6, "lower_taus": [0.001, 0.002, 0.003, 0.005, 0.007], "build_seconds": 404.1, "proteins_with_larger_core": 6, "tau_a_counts": {"0.01": 6}, "tau_b_counts": {"0.001": 3, "0.002": 2, "0.005": 1}, "core_size_a": [135.0, 248.0, 687.0, 841.0], "core_size_b": [833.0, 884.0, 1072.5, 1176.0], "cold_odds_mass_a": [2.8294522688595745, 3.240621603854059, 3.9382972917275048], "cold_odds_mass_b": [0.8927306769505758, 1.3209158090931332, 2.3048804788874406]}

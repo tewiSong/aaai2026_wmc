@@ -1,0 +1,51 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_2_core_truncated_c2_vs_full_exact.py
+# sha256 : d6fc409f51a4ed5e852e5f6e5de984a5e137a1ead83d7b8f68e0ba0e05bb350b
+# args   : --ns go_mf --input fused --taus 0.1,0.03,0.01,0.003 --workers 32 --bootstrap 1000
+# host   : nid002578   slurm_job: 23101076
+# start  : 2026-10-23T10:30:09+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+tau 0.1: {"core_size": [4.0, 13.0, 30.0, 162.0], "cold_odds_mass": [1.1692364640907809, 1.9251483843043748, 3.2857626613534365], "compile_seconds": 18.7, "fit_seconds": 4.8, "core_mm_err_max": 1.7492338028279875e-05, "converged": true, "iterations": 99, "nll": 4.032696705186042, "w": [4.5888, -0.3292, -0.2094, -0.2122, -0.5421, 0.2919, 0.1005, -0.2, 0.2638, 0.0693, 0.1614, -0.1002, 0.0188, -0.069, 0.1181, 
+tau 0.03: {"core_size": [9.0, 25.0, 55.0, 303.0], "cold_odds_mass": [0.9171814159262915, 1.28671589226441, 1.7417876691202046], "compile_seconds": 14.8, "fit_seconds": 9.6, "core_mm_err_max": 1.5570518794083554e-05, "converged": true, "iterations": 165, "nll": 5.5351897579453455, "w": [4.5583, -0.3742, -0.2542, -0.0648, -0.4107, 0.3511, 0.0703, -0.3926, 0.4298, 0.0724, -0.2284, 0.2976, -0.042, -0.1371, 0.10
+tau 0.01: {"core_size": [23.0, 46.0, 86.0, 493.0], "cold_odds_mass": [0.707411111470781, 0.9195162216895928, 1.1160660787867542], "compile_seconds": 16.5, "fit_seconds": 12.4, "core_mm_err_max": 1.1226159125188317e-05, "converged": true, "iterations": 180, "nll": 6.562404305248607, "w": [4.5675, -0.3811, -0.2596, -0.0589, -0.5455, 0.4855, 0.0665, -0.0532, 0.0674, 0.079, -0.2596, 0.33, -0.0026, -0.1662, 0.18
+tau 0.003: {"core_size": [69.0, 113.0, 167.0, 685.0], "cold_odds_mass": [0.5135335821039396, 0.5790798994685866, 0.6347333894609393], "compile_seconds": 20.6, "fit_seconds": 21.2, "core_mm_err_max": 1.6911734938507283e-05, "converged": true, "iterations": 234, "nll": 7.896650784629746, "w": [4.5724, -0.3952, -0.2719, 0.0023, -0.3377, 0.3274, 0.064, -0.0595, 0.0634, 0.0588, -0.4656, 0.5349, -0.0337, -0.2156, 
+isotonic                 fmax 0.68819  micro_ap 0.66222  brier 0.00724  logloss 0.02972  ece 0.00416
+C2_full_exact            fmax 0.70413  micro_ap 0.68105  brier 0.00639  logloss 0.02718  ece 0.00140
+C2_core_tau0.1           fmax 0.70263  micro_ap 0.67350  brier 0.00644  logloss 0.02767  ece 0.00117
+C2_core_tau0.03          fmax 0.70507  micro_ap 0.67766  brier 0.00638  logloss 0.02744  ece 0.00116
+C2_core_tau0.01          fmax 0.70491  micro_ap 0.68002  brier 0.00637  logloss 0.02722  ece 0.00093
+C2_core_tau0.003         fmax 0.70375  micro_ap 0.68146  brier 0.00637  logloss 0.02707  ece 0.00109
+C2_core_tau0.1-C2_full_exact             fmax [-0.0067, -0.0017, 0.0028]  ap [-0.0118, -0.0072, -0.0032]
+C2_core_tau0.03-C2_full_exact            fmax [-0.0017, 0.0007, 0.0032]  ap [-0.0074, -0.0032, 0.0001]
+C2_core_tau0.01-C2_full_exact            fmax [-0.0021, 0.0007, 0.0034]  ap [-0.0043, -0.0009, 0.0022]
+C2_core_tau0.003-C2_full_exact           fmax [-0.0027, -0.0003, 0.0017]  ap [-0.0017, 0.0005, 0.0025]
+C2_core_tau0.1-isotonic                  fmax [0.0071, 0.0138, 0.0202]  ap [0.0045, 0.0112, 0.0176]
+C2_core_tau0.03-isotonic                 fmax [0.0099, 0.0162, 0.0228]  ap [0.0083, 0.0153, 0.0221]
+C2_core_tau0.01-isotonic                 fmax [0.0102, 0.0162, 0.0225]  ap [0.0105, 0.0178, 0.0249]
+C2_core_tau0.003-isotonic                fmax [0.0084, 0.0153, 0.022]  ap [0.0118, 0.0191, 0.0263]
+C2_full_exact-isotonic                   fmax [0.0085, 0.0155, 0.0224]  ap [0.0101, 0.0187, 0.0268]
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_2_core_truncated_c2_vs_full_exact.py --ns go_mf --input fused --taus 0.1,0.03,0.01,0.003 --workers 32 --bootstrap 1000"
+	User time (seconds): 23764.13
+	System time (seconds): 183.05
+	Percent of CPU this job got: 1081%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 36:55.14
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 352180
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 48873
+	Minor (reclaiming a frame) page faults: 61523799
+	Voluntary context switches: 867476
+	Involuntary context switches: 92575
+	Swaps: 0
+	File system inputs: 611502
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-23T11:07:09+03:00   exit: 0

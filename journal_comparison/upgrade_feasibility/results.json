@@ -1,0 +1,316 @@
+{
+  "scope": "New feasibility prototypes on synthetic implication DAGs, not GO/ChEBI replications and not a novelty proof.",
+  "certified_cube_envelopes": {
+    "cases": 100,
+    "refinement_configurations": 503,
+    "max_latent_vs_full_joint_recovery_error": 5.551115123125783e-16,
+    "all_pointwise_bounds_monotonicity_and_TV_checks_passed": true,
+    "examples": [
+      {
+        "seed": 0,
+        "exact_Z": 0.0010500030118444812,
+        "trace": [
+          {
+            "depth": 0,
+            "leaves": [
+              1,
+              1
+            ],
+            "Z_lower": 0.0,
+            "Z_upper": 0.0028976278910049337,
+            "certificate": 1.0,
+            "actual_max_marginal_error": null,
+            "actual_joint_TV": null
+          },
+          {
+            "depth": 1,
+            "leaves": [
+              2,
+              2
+            ],
+            "Z_lower": 0.0,
+            "Z_upper": 0.0019370038084361415,
+            "certificate": 1.0,
+            "actual_max_marginal_error": null,
+            "actual_joint_TV": null
+          },
+          {
+            "depth": 2,
+            "leaves": [
+              4,
+              3
+            ],
+            "Z_lower": 0.0010500030118444816,
+            "Z_upper": 0.0010500030118444816,
+            "certificate": 0.0,
+            "actual_max_marginal_error": 3.3306690738754696e-16,
+            "actual_joint_TV": 2.0544964130154346e-16
+          }
+        ]
+      },
+      {
+        "seed": 1,
+        "exact_Z": 0.003938176708955753,
+        "trace": [
+          {
+            "depth": 0,
+            "leaves": [
+              1,
+              1
+            ],
+            "Z_lower": 0.0,
+            "Z_upper": 0.06698437081461515,
+            "certificate": 1.0,
+            "actual_max_marginal_error": null,
+            "actual_joint_TV": null
+          },
+          {
+            "depth": 1,
+            "leaves": [
+              2,
+              2
+            ],
+            "Z_lower": 0.0,
+            "Z_upper": 0.023111872207692223,
+            "certificate": 1.0,
+            "actual_max_marginal_error": null,
+            "actual_joint_TV": null
+          },
+          {
+            "depth": 2,
+            "leaves": [
+              3,
+              3
+            ],
+            "Z_lower": 0.0,
+            "Z_upper": 0.009385936903170774,
+            "certificate": 1.0,
+            "actual_max_marginal_error": null,
+            "actual_joint_TV": null
+          },
+          {
+            "depth": 3,
+            "leaves": [
+              5,
+              5
+            ],
+            "Z_lower": 0.00046886329416360247,
+            "Z_upper": 0.009385936903170774,
+            "certificate": 0.9500461915522562,
+            "actual_max_marginal_error": 0.8634043292028262,
+            "actual_joint_TV": 0.8809440690923374
+          },
+          {
+            "depth": 4,
+            "leaves": [
+              7,
+              8
+            ],
+            "Z_lower": 0.0032559782046718295,
+            "Z_upper": 0.006595921611971149,
+            "certificate": 0.5063649333305522,
+            "actual_max_marginal_error": 0.08996799894724777,
+            "actual_joint_TV": 0.17322699175294637
+          },
+          {
+            "depth": 5,
+            "leaves": [
+              7,
+              13
+            ],
+            "Z_lower": 0.003938176708955754,
+            "Z_upper": 0.003938176708955754,
+            "certificate": 0.0,
+            "actual_max_marginal_error": 2.220446049250313e-16,
+            "actual_joint_TV": 1.0853371966348252e-16
+          }
+        ]
+      },
+      {
+        "seed": 2,
+        "exact_Z": 0.028966509114484573,
+        "trace": [
+          {
+            "depth": 0,
+            "leaves": [
+              1,
+              1
+            ],
+            "Z_lower": 0.0,
+            "Z_upper": 0.2161154001301349,
+            "certificate": 1.0,
+            "actual_max_marginal_error": null,
+            "actual_joint_TV": null
+          },
+          {
+            "depth": 1,
+            "leaves": [
+              2,
+              2
+            ],
+            "Z_lower": 0.005985141365286901,
+            "Z_upper": 0.09687391322736325,
+            "certificate": 0.9382172024862899,
+            "actual_max_marginal_error": 0.7067604419486287,
+            "actual_joint_TV": 0.7933771949656833
+          },
+          {
+            "depth": 2,
+            "leaves": [
+              2,
+              3
+            ],
+            "Z_lower": 0.02826510408164768,
+            "Z_upper": 0.029369298667031474,
+            "certificate": 0.03759690001121163,
+            "actual_max_marginal_error": 0.023791784584136874,
+            "actual_joint_TV": 0.024214344575133974
+          },
+          {
+            "depth": 3,
+            "leaves": [
+              2,
+              4
+            ],
+            "Z_lower": 0.02896650911448457,
+            "Z_upper": 0.02896650911448457,
+            "certificate": 0.0,
+            "actual_max_marginal_error": 3.3306690738754696e-16,
+            "actual_joint_TV": 5.862992654304816e-17
+          }
+        ]
+      }
+    ]
+  },
+  "sampling_recovery": {
+    "approximate_population_MAE": 0.04814338893061723,
+    "corrected_population_max_error": 2.220446049250313e-16,
+    "Monte_Carlo": [
+      {
+        "samples": 100,
+        "replications": 30,
+        "median_MAE": 0.06318250803064639,
+        "maximum_MAE": 0.10793370351246595
+      },
+      {
+        "samples": 1000,
+        "replications": 30,
+        "median_MAE": 0.01880592835169267,
+        "maximum_MAE": 0.03977861237378738
+      },
+      {
+        "samples": 10000,
+        "replications": 30,
+        "median_MAE": 0.005353844510889421,
+        "maximum_MAE": 0.010556596762089684
+      }
+    ],
+    "caveat": "Self-normalized finite-sample marginals are consistent, not unbiased; no mixing or runtime guarantee is claimed."
+  },
+  "ordering_rank_obstruction": [
+    {
+      "pairs": 2,
+      "boundary_size": 4,
+      "clamped_internal_treewidth": 1,
+      "full_graph_treewidth": 1,
+      "grouped_max_TT_rank": 4,
+      "interleaved_max_TT_rank": 2
+    },
+    {
+      "pairs": 3,
+      "boundary_size": 6,
+      "clamped_internal_treewidth": 1,
+      "full_graph_treewidth": 1,
+      "grouped_max_TT_rank": 8,
+      "interleaved_max_TT_rank": 3
+    },
+    {
+      "pairs": 4,
+      "boundary_size": 8,
+      "clamped_internal_treewidth": 1,
+      "full_graph_treewidth": 1,
+      "grouped_max_TT_rank": 16,
+      "interleaved_max_TT_rank": 3
+    },
+    {
+      "pairs": 5,
+      "boundary_size": 10,
+      "clamped_internal_treewidth": 1,
+      "full_graph_treewidth": 1,
+      "grouped_max_TT_rank": 32,
+      "interleaved_max_TT_rank": 3
+    },
+    {
+      "pairs": 6,
+      "boundary_size": 12,
+      "clamped_internal_treewidth": 1,
+      "full_graph_treewidth": 1,
+      "grouped_max_TT_rank": 64,
+      "interleaved_max_TT_rank": 3
+    },
+    {
+      "pairs": 7,
+      "boundary_size": 14,
+      "clamped_internal_treewidth": 1,
+      "full_graph_treewidth": 1,
+      "grouped_max_TT_rank": 128,
+      "interleaved_max_TT_rank": 3
+    },
+    {
+      "pairs": 8,
+      "boundary_size": 16,
+      "clamped_internal_treewidth": 1,
+      "full_graph_treewidth": 1,
+      "grouped_max_TT_rank": 256,
+      "interleaved_max_TT_rank": 3
+    }
+  ],
+  "wide_boundary_analytic_case": {
+    "boundary_size": 1082,
+    "latent_states": 2,
+    "exact_nonnegative_TT_rank": 2,
+    "dense_boundary_entries": "2^1082",
+    "exact_Z": 0.7354934346218502,
+    "exact_child_marginal": 0.18422113406289412,
+    "exact_parent_marginal_min": 0.999184221134063,
+    "exact_parent_marginal_max": 0.999184221134063,
+    "root_certificate": 0.6612664134453743,
+    "after_one_split_certificate": 0.0,
+    "computation": "Analytic contraction of two rank-one cubes; no boundary table allocated. This is a tree and also easy for standard exact inference."
+  },
+  "derivative_counterexample": {
+    "separator_value_error_at_evaluation_point": 0.0,
+    "true_marginal": 0.3333333333333333,
+    "naive_differentiation_marginal": 2.333333333589593,
+    "failure": "Exact separator values at one weight vector do not imply correct weight derivatives of a fitted surrogate."
+  },
+  "factor_error_counterexample": {
+    "uniform_factor_NMAE": 5e-09,
+    "posterior_absolute_error": 0.16666666666666663,
+    "exact_event_probability": 0.5,
+    "approximate_event_probability": 0.6666666666666666
+  },
+  "uniform_query_obstruction": [
+    {
+      "boundary_size": 24,
+      "supported_assignments": 25,
+      "uniform_query_support_probability": "1.4901161194E-6",
+      "expected_supported_queries_from_5000": "7.4505805969E-3",
+      "probability_at_least_one_supported_query_upper_bound": "7.4505805969E-3"
+    },
+    {
+      "boundary_size": 176,
+      "supported_assignments": 177,
+      "uniform_query_support_probability": "1.8479662253E-51",
+      "expected_supported_queries_from_5000": "9.2398311267E-48",
+      "probability_at_least_one_supported_query_upper_bound": "9.2398311267E-48"
+    },
+    {
+      "boundary_size": 1082,
+      "supported_assignments": 1083,
+      "uniform_query_support_probability": "2.0901292752E-323",
+      "expected_supported_queries_from_5000": "1.0450646376E-319",
+      "probability_at_least_one_supported_query_upper_bound": "1.0450646376E-319"
+    }
+  ]
+}

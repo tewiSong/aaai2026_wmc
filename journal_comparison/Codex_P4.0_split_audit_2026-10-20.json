@@ -1,0 +1,19 @@
+{
+  "train_proteins": 73592,
+  "test_proteins": 3874,
+  "protein_id_overlap": 0,
+  "identical_sequence_overlap": 76,
+  "train_columns": [
+    "index",
+    "proteins",
+    "accessions",
+    "sequences",
+    "annotations",
+    "interpros",
+    "orgs",
+    "exp_annotations",
+    "prop_annotations",
+    "cafa_target"
+  ],
+  "diamond_lines": 52509
+}

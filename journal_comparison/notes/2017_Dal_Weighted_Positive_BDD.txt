@@ -1,0 +1,1310 @@
+===== PDF PAGE 1 =====
+International Journal of Approximate Reasoning 90 (2017) 411–432
+Contents lists available at ScienceDirect
+International Journal of Approximate Reasoning
+www.elsevier.com/locate/ijar
+Weighted positive binary decision diagrams for exact 
+probabilistic inference
+Giso H. Dal∗, Peter J.F. Lucas
+Institute for Computing and Information Sciences, Radboud University Nijmegen, The Netherlands
+a r t i c l e i n f o a b s t r a c t
+Article history:
+Received 17 October 2016
+Received in revised form 5 August 2017
+Accepted 10 August 2017
+Available online 18 August 2017
+Keywords:
+Knowledge compilation
+Probabilistic inference
+Weighted model counting
+Bayesian networks
+Binary decision diagrams
+Recent work on weighted model counting has been very successfully applied to the prob-
+lem of probabilistic inference in Bayesian networks. The probability distribution is encoded 
+into a Boolean normal form and compiled to a target language. This results in a more eﬃ-
+cient representation of local structure expressed among conditional probabilities. We show 
+that further improvements are possible, by exploiting the knowledge that is lost during 
+the encoding phase and by incorporating it into a compiler inspired by Satisﬁability Mod-
+ulo Theories. Constraints among variables are used as a background theory, which allows 
+us to optimize the Shannon decomposition. We propose a new language, called Weighted 
+Positive Binary Decision Diagrams, that reduces the cost of probabilistic inference by using 
+this decomposition variant to induce an arithmetic circuit of reduced size.
+© 2017 Elsevier Inc. All rights reserved.
+1. Introduction
+Bayesian networks, BNs for short, have been a subject of great interest, partly due to their contribution in solving real-life 
+problems involving uncertainty. Bayesian networks are probabilistic graphical models that concisely represent joint proba-
+bility distributions by factoring them into conditional probabilities based on independence assumptions. This will perform 
+inference more eﬃciently [1]. Further representational and computational advances have been made by exploiting causal 
+independence [2], as well as contextual independence [3] and determinism [4] expressed in conditional probability tables 
+(CPTs). In order to represent these additional independencies more concisely, Bayesian networks have been represented as 
+weighted Boolean formulas [5,6], reducing inference to Weighted Model Counting (WMC), or weighted #SAT [5]. By represent-
+ing a Bayesian network as a Boolean formula f in conjunctive normal form (CNF), it can be compiled into a more concise 
+normal form, or language, that renders inference a polytime operation in the size of the representation [7].
+A joint probability space with n Boolean variables has 2n interpretations. It is therefore necessary to be able to reason 
+with sets of interpretations, requiring a symbolic representation [8]. Symbolic inference uniﬁes the work of probabilistic 
+inference and the extensive research done in the ﬁeld of model checking, veriﬁcation and satisﬁability [9]. Ordered Binary 
+Decision Diagrams (OBDDs) are based on Shannon decomposition and have been a very inﬂuential symbolic representation 
+that reduces compilation to the problem of ﬁnding the variable ordering resulting in an optimal factoring.
+By exploiting the often ignored knowledge that is lost in the translation, we improve in this paper on methods in recent 
+work that encode a BN as an equivalent weighted Boolean formula, while still maintaining the ability to use off-the-shelf 
+SAT-solvers.
+* Corresponding author.
+E-mail addresses:gdal@cs.ru.nl (G.H. Dal), peterl@cs.ru.nl (P.J.F. Lucas).
+http://dx.doi.org/10.1016/j.ijar.2017.08.003
+0888-613X/© 2017 Elsevier Inc. All rights reserved.
+
+===== PDF PAGE 2 =====
+412 G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432
+Fig. 1. Bayesian network with context-speciﬁc independence and determinism.
+Our contributions are the following. We propose a weighted variant of OBDDs, called Weighted Positive Binary Decision 
+Diagrams (WPBDDs), which are based on positive Shannon decomposition, allowing constraints in BNs to be represented more 
+concisely. We use probabilities as symbolic edge weights, reducing the search space exponentially. An optimized compilation 
+algorithm is introduced, inspired by the ﬁeld of Satisﬁability Modulo Theories (SMT), known as a lazy SMT-solver [10]. It 
+provides the means to view constraints among variables in the encoding as background theory T which supports the 
+SAT-solver, allowing constant time conditioning. We compile the conditional probability tables of a BN explicitly, but leave out 
+the domain closure implied by the encoding. This approach allows us to remove up to a third of the clauses in the encoding.
+A comparison is provided with the state-of-the-art CUDD (CU Decision Diagram [11]) and SDD (Sentential Decision 
+Diagram [12]) compilers and we show that WPBDDs induce arithmetic circuits that are 60% reduced in size on average
+compared to corresponding OBDD circuits while representing over 30 publicly available BNs. We show an inference speedup 
+of over 2.6 times on average compared to Weighted Model Counting with OBDDs, and a speedup up to several orders 
+of magnitude compared to Ace and different implementations of the Junction Tree algorithm, making WPBDDs a valuable 
+addition to the ﬁeld of exact probabilistic inference.
+After preliminaries and background (Section 4), we introduce WPBDDs (Section 5). The process of using a BN to perform 
+exact inference by WMC is explained (Section 6) in addition to its optimization (Section 7). We conclude with experimental 
+results (Section 8), and review achievements (Section 9). We start however with summarizing related work.
+2. Motivation
+Probabilistic inference is an important computational problem in Artiﬁcial Intelligence. The size of a full joint probability 
+distribution is exponential in the number of variables. Finding more concise representations of probability distributions is 
+essential to making probabilistic inference tractable.
+Bayesian networks (BN) take advantage of conditional independence to represent probability distributions concisely, yet 
+generally leave a substantial number of independencies of other types unexploited. This is demonstrated in Fig. 1, which 
+partially shows a BN, where one of its conditional probability tables (CPTs) could be represented more concisely. It shows 
+probabilities for d =0. Remember that P(d =1 | a, b, c) =1 − P(d =0 | a, b, c). Fig. 1c shows how to represent the same CPT 
+as a decision tree using 4 probabilities instead of 8 for example.
+Recent work has improved the cost of inference by reducing probabilistic inference to Weighted Model Counting (WMC). 
+Inference by WMC has a linear time complexity in the size of the representation [13]. Finding more concise representations 
+by exploiting additional independencies has therefore direct inﬂuence on inference costs. We improve upon related work by 
+proposing a suitable representation and providing the methods to obtain it.
+3. Related work
+Probabilistic inference is a hard computational problem that can be achieved by marginalizing out non-evidence vari-
+ables from a joint distribution, requiring an exponential number of operations in the worst case. Efforts toward eﬃcient 
+exact probabilistic inference attempt to ﬁnd a concise factorization; BNs for instance represent a joint probability distribu-
+tion as a multiplicative factorization, exploiting conditional independencies among variables. Further improvements to this 
+factorization have been made by using propositional and ﬁrst order logic [14–16]. Representing probability distributions as 
+Boolean functions empowers probabilistic inference with the tools developed for VLSI-CAD design, by using symbolic repre-
+sentations and Boolean algebra for minimization. Symbolic Probabilistic Inference (SPI) [9] is a good example of this, which is 
+currently more commonly referred to as inference by WMC or #SAT [17].
+A BN can be translated into a Satisﬁability (SAT) instance in conjunctive normal form (CNF), a form commonly used in sat-
+isﬁability solving. Various encodings have been proposed: log, direct [18], order [19], compact order [20], log-support encod-
+ing [21], etc. In the context of BNs, a probability distribution can be considered a pseudo Boolean function f :{0, 1}n → R, 
+with arity n, which can be uniquely written as an exponentially sized multi-linear polynomial [22,23]. Others have used the 
+
+===== PDF PAGE 3 =====
+G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432 413
+direct encoding [6], or a combination of the direct and order encoding [24], where a BN is viewed as a set of discrete real 
+valued functions, and each function represents a distinct CPT.
+Inference by WMC is motivated by linear time complexity in the size of the representation [13], where the common 
+goal is to exploit local structure [25]. Choosing a representation or language to compile to is therefore a critical task, 
+as one must deal with the balance between the functions a language can represent concisely on the one hand and its 
+algorithmic properties on the other. Initial attempts include probability trees [3,26,27] and recursive (factored) probability 
+trees [28], which focus on concisely representing each CPT independently, allowing their usage in inference algorithms 
+directly. Probabilistic Decision Graphs (PDG) have even shown that the smallest PDG is at least as small as the smallest 
+Junction tree for the same distribution [29].
+Current WMC approaches to inference divide into search and compilation methods [30]. Typical search algorithms are 
+based on DPLL-style SAT solvers that do an exhaustive run to count all satisfying models [24]. Recording SAT evaluation 
+paths (i.e. resolution steps) as a compiled structure (e.g. an OBDD), yields one possible factoring. We refer to ﬁnding the 
+optimal factoring given all variable orderings, as exact compilation.
+Compilation performance has been improved by clause learning [31], formula caching [32], bounding [33], and using 
+canonical languages. Representational advances include symmetry detection [34,35], support for causal independence [36]
+and using read-once functions [37].
+Representations relevant in the context of BN compilation are AND/OR Multi-Valued Decision Diagrams (AOMDD) [38], 
+Sentential Decision Diagrams (SDD) [12], deterministic-DNNF [39], Zero-suppressed Binary decision diagrams (ZBDD) [22] and 
+Ordered Binary Decision Diagrams (OBDD) [40], which view probabilities as auxiliary literals, resulting in an intractably 
+large search space. Multi-Terminal BDDs [41] represent multi-valued functions, but would also require many terminal nodes 
+considering the size of a probability distribution. Variants of Edge-Value BDDs [42,43] focus on real valued functions. When 
+multiple CPTs have probabilities in common, we lose the ability to distinguish from which CPT the probabilities originate. 
+We therefore cannot determine on which variables they depend, resulting in an inconsistent model count with regard to the 
+distribution. Our approach to maintain consistency is to represent probabilistic edge weights symbolically. This differentiates 
+our approach from Multi-Terminal BDDs [41] and Edge-Value BDDs [42]. And unlike SDDs [44], we are not obligated to view 
+probabilities as auxiliary literals, reducing the search space to a fraction of its former size. A common characteristic with 
+ZBDDs, is the ability to represent mutual-exclusive constraints more concisely [45]. The intuitive difference is that ZBDD 
+optimize only the positive cofactor, while we optimize both the positive and negative cofactor of decomposition nodes, a 
+matter we will elaborate on in the upcoming discussion.
+4. Preliminaries and background
+We provide here a description of what Bayesian networks are and introduce a running example (Section 4.1). We then 
+show how to encode a BN onto the Boolean domain (Section 4.2), and describe an inﬂuential representation that will serve 
+for comparison with ours (Section 4.3).
+4.1. Bayesian networks
+A Bayesian Network (BN) is a graphical representation that is used to compactly represent a joint distribution as a 
+product of factors, by taking advantage of conditional independence (CI). A BN is a directed acyclic graph (DAG) that models 
+variables X as nodes, the dependencies among them as edges, and their joint probability distribution as
+P(X) = P(x1,..., xn) =
+n∏
+i=1
+P(xi | pa(xi)),
+where P(xi | pa(xi)) represents the conditional probability of variable xi given its parents pa(xi). Conditional probability 
+tables (CPTs) are associated with edges and capture the degree to which variables are related. BNs reduce the size of 
+representing a probability distribution to O(n2k), where k is the maximum number of parents of any node.
+Example 1. Fig. 2 shows a BN B deﬁned over variables X ={ a, b} (Fig. 2b), its CPTs (Fig. 2c) and corresponding full joint 
+probability distribution (Fig. 2a).
+Fig. 2b includes a factored form that can greatly be improved when CPTs exhibit local structure, which comes in two 
+forms. Context-speciﬁc independence (CSI) is expressed when probabilities in a CPT show uniformity regardless of the value 
+of one or more variables that they have in common, with or without a certain context. Determinism is expressed when 
+probabilities in a CPT are equal to 0 or 1, which can be used to simplify the Boolean formula representing it.
+In order to exploit more of the problem structure than a BN, we compile it to a target language that is more capable 
+of doing so. The compilation process is not just a way of reformulating into a different language, but is also about ﬁnding 
+the minimal representation given that language. The goal is to reduce the cost of inference compared to the standard 
+factorization, by using the arithmetic circuit induced by that representation.
+
+===== PDF PAGE 4 =====
+414 G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432
+Fig. 2. Bayesian network with local structure.
+4.2. Encoding Bayesian networks
+In order to exploit local structure, we encode BNs into conjunctive normal form (CNF), which is the most common repre-
+sentation used in satisﬁability solving. It consists of a conjunction of clauses, where each clause is a disjunction of literals. 
+A literal is a propositional Boolean variable or its negation. A Bayesian Network deﬁned over variables X can be seen as a 
+multi-linear function f : X → R. There are several possibilities of mapping f onto the Boolean domain [6,18,46]. We encode 
+f into a Boolean function E( f ) = f e by representing it as a weighted CNF.
+E( f ) = f c ∧ f m, (1)
+where constraint clauses f c support the mapping M( f ) = f m that encodes probabilities and introduces a Boolean variable 
+for each unique variable-value pair. Details are discussed below.
+4.2.1. Encoding constraints
+The mapping function M introduces for each x ∈ X atoms A(x) ={ x1, ...,  xn}, where xi signiﬁes x being equal to its ith
+value. To maintain consistency among variables we add to f c an at-least-once (ALO) constraint clause for each x, to ensure 
+x is assigned a value:
+(x1 ∨···∨ xn) (2)
+As values of a variable are mutually exclusive, we add to f c the following at-most-once (AMO) constraint clauses:
+n⋀
+i=1
+⎛
+⎝xi =⇒
+⋀
+x j∈A(x)\xi
+x j
+⎞
+⎠ =
+n⋀
+i=1
+n⋀
+j=i+1
+(xi ∨ x j), (3)
+where xi indicates the negation of xi.
+4.2.2. Encoding CPTs
+The BN’s factored form is preserved by using a weighted adaptation of the direct encoding. The mapping function M
+adds a clause for every probability P(x|pa(x)), where x depends on parent variables pa(x) ={ u1, ...,  ur}:
+(x ∧ u1 ∧···∧ ur ⇒ ω) = (x ∨ u1 ∨···∨ ur ∨ ω), (4)
+where atom ω represents probability P(x|pa(x)) symbolically. This symbolism has no inﬂuence on its propositional meaning, 
+but will later be used during inference. We shall henceforth represent a weighted clause as (x ∨ u1 ∨···∨ ur) : ω. We 
+introduce a new symbolic weight into the encoding for every unique probability local to x’s CPT, allowing multiple clauses 
+to be associated with the same weight ω.
+Example 2. Assume a BN as given in Example 1. The following clauses form f c:
+Variable ALO (Eq.2) AMO (Eq.3)
+a (a1 ∨ a2 ∨ a3) (a1 ∨ a2) ∧ (a1 ∨ a3) ∧ (a2 ∨ a3)
+b (b1 ∨ b2) (b1 ∨ b2)
+The variables that make up the search space during compilation therefore are A({a, b}) ={ a1, a2, b1, b2, b3}. We encode 
+equal probabilities P(x|U) as unique symbolic weights per CPT:
+P(a =1) P(a =2) P(a =3)
+ω1 ω1 ω2
+a P(b =1|a) P(b =2|a)
+1 ω3 ω3
+2 ω3 ω3
+3 ω4 ω5
+
+===== PDF PAGE 5 =====
+G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432 415
+In accordance with Equation (4), f m consists of the following clauses, accompanied by their respective symbolic weights:
+(a1) : ω1 ∧ (a2) : ω1 ∧ (a3) : ω2 ∧
+(a1 ∨ b1) : ω3 ∧ (a1 ∨ b2) : ω3 ∧ (a2 ∨ b1) : ω3 ∧
+(a2 ∨ b2) : ω3 ∧ (a3 ∨ b1) : ω4 ∧ (a3 ∨ b2) : ω5.
+4.3. Ordered binary decision diagrams
+A Boolean function f deﬁned over a set of variables X is a function that maps each complete assignment of its variables 
+to either true (1) or false (0). The conditioning of f on instantiated variable xi is deﬁned as the projection:
+f|xi← b(x1,..., xn) = f (x1,..., xi−1, b, xi+1,..., xn), (5)
+with b ∈{0, 1}. We will use shorthand notations f|xi and f|xi for f|xi← 1 and f|xi← 0, respectively. Shannon’s theorem is used 
+to ﬁnd a more compact way to represent f by factoring it.
+Theorem 1. [47] Let a Boolean function f :{0, 1}n →{ 0, 1} be deﬁned over variables X. We can rewrite f using  the following equiv-
+alence, with x ∈ X:
+f = x ∧ f|x ∨ x ∧ f|x.
+Deﬁnition 1. Theorem 1 demonstrates a decomposition step referred to as Shannon’s expansion, where f|x is called the 
+positive cofactor of f with respect to x, and f|x the negative cofactor. The decomposition of f is deﬁned as the recursive 
+application of Shannon’s expansion to cofactors until they evaluate to true or false.
+Note that all proofs of theorems, lemmas, etc., can be found in the appendix. The Shannon decomposition is key to one of 
+the most inﬂuential representations in Artiﬁcial Intelligence (AI), namely Ordered Binary Decision Diagrams (OBDD) [48].
+Deﬁnition 2. [49] A Binary Decision Diagram (BDD) represents Boolean function f deﬁned over variables X as a rooted, 
+directed acyclic graph, where each node v represents a Shannon expansion on variable var(v) ∈ X. A BDD is ordered (OBDD) 
+if variables appear in the same order on all paths from the root. It is a canonical representation if it is reduced by applying 
+the following rules:
+1. Merge rule: All isomorphic subgraphs are merged.
+2. Delete rule: All nodes are removed whose children are isomorphic.
+One can compile the described encoding of BNs to OBDDs to perform inference by WMC. Although other languages have 
+been used in this context, we focus more on OBDDs as they are commonly used in comparisons with related work.
+5. Weighted positive binary decision diagrams
+Consider variable x and its corresponding mapped atoms A(x) ={ x1, x2}. Decision diagrams that are based on Shannon 
+decompositions produce an unnecessarily large representation by redundantly representing constraints f c provided as part 
+of encoding E. They also do not take advantage of the symmetric relation x1 = x2 and x1 = x2 in the presence of ALO con-
+straints. To ameliorate this, we propose a new canonical language called Weighted Positive Binary Decision Diagrams (WPBDD), 
+which are based on positive Shannon decompositions and implicit conditioning. We will elaborate on these concepts through 
+an intermediate unweighted variant of WPBDDs (PBDD).
+5.1. Explicit and implicit conditioning
+When encoded function f e contains a unit clause x i (a clause consisting of a single literal), it can be simpliﬁed using unit 
+propagation:
+1. Every clause containing xi is removed, excluding the unit clause.
+2. Literal xi is removed from every clause containing it.
+When conditioning f e on literal xi, constraints f c guarantee us to obtain unit clauses containing negated literals x j, with 
+x j ∈ A(x)\xi (i.e., if x is equal to its ith value, it cannot be equal to its jth value).
+
+===== PDF PAGE 6 =====
+416 G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432
+Example 3. We will show by example what unit clauses are obtained by conditioning on positive literals. Consider the 
+constraint clauses provided by Example 2, regarding only variable a:
+f c = (a1 ∨ a2 ∨ a3) ∧ (a1 ∨ a2) ∧ (a1 ∨ a3) ∧ (a2 ∨ a3)
+According to Shannon’s expansion the following holds:
+f c = a1 ∧ f c
+|a1 ∨ a1 ∧ f c
+|a1
+Now speciﬁcally look at the unit clauses that result from conditioning on positive literal a1, i.e., instantiating a1 and 
+performing unit propagation.
+f c
+|a1
+= (1 ∨ a2 ∨ a3) ∧ (0 ∨ a2) ∧ (0 ∨ a3) ∧ (a2 ∨ a3)
+= (1) ∧ (a2) ∧ (a3) ∧ (a2 ∨ a3)
+= (1) ∧ (a2) ∧ (a3)
+= (a2) ∧ (a3).
+Thus, conditioning on ai will result in unit clauses containing negated literals a j, with a j ∈ A(a) \{ ai}.
+We distinguish between two types of conditioning based on the previous observation, and describe them in the following 
+deﬁnition.
+Deﬁnition 3. Let f e be an encoded representation of function f, given encoding E, where f is deﬁned over variables X. We 
+deﬁne f e
+∥xi
+as the conditioning of f e on literals {xi, x1, ...,  xi−1, xi+1, ...,  xn} in any order, i.e., as the explicit conditioning of 
+f e on literal xi ∈ A(x), and its implicit conditioning on literals x j ∈ A(x)\xi, with x ∈ X:
+f e
+∥xi = f e
+|xi,x1,...,xi−1,xi+1,...,xn
+.
+It follows from Deﬁnition 3 and the constraints provided by encoding E, that the relation between f e
+∥xi
+and f e
+|xi
+is given 
+by the following equality:
+f e
+|xi =
+⎛
+⎝ ⋀
+x j∈A(x)\xi
+x j
+⎞
+⎠ ∧
+f e
+∥xi . (6)
+Implicit conditioning on unit clauses takes advantage of deterministic behavior expressed in f c, while other representations 
+would explicitly have to condition these unit clauses out. The advantage is two-fold. The size of the encoding can be reduced 
+by removing constraint clauses f c generated by Equation (2) and (3), and integrating them directly into the compilation 
+process through theory T . As will be shown later, this separation will allow the constraint clauses from f e to be conditioned 
+in constant time, as opposed to quadratic time. Secondly, the size of the compiled structure is reduced by not having to 
+represent redundant constraint information using our variant on the Shannon expansion, introduced in the following section.
+5.2. Positive Shannon decomposition
+We propose positive Shannon decompositions that use background knowledge to improve upon Shannon decompositions 
+by combining it with implicit conditioning.
+Lemma 1. Let anencoded Boolean function f e :{0, 1}n →{ 0, 1} be deﬁned over A(X), obtained by E( f ), with fd e ﬁ n e d over X. We 
+can rewrite f e using the following equivalence:
+f e = f c ∧
+(
+xi ∧ f e
+∥xi ∨ f e
+|xi
+)
+,
+where f e = f c ∧ f m , and xi ∈ A(x), with x ∈ X.
+As intuition might conﬁrm, logical representations will grow by the reintroduction of constraints when we apply 
+Lemma 1. We introduce a reduced form by removing constraint clauses f c that introduces additional models, in turn allow-
+ing us to ﬁnd more concise representations. These models can easily be removed by a post decomposition conjoin with f c.
+Theorem 2. Let an encoded Boolean function f e :{0, 1}n →{ 0, 1} be deﬁned over A(X), obtained by E( f ), with fd e ﬁ n e d over X. 
+Equivalent under constraints f c , we can rewrite f e using:
+f e |= xi ∧ f e
+∥xi ∨ f e
+|xi
+,
+where f e = f c ∧ f m , and xi ∈ A(x), with x ∈ X.
+
+===== PDF PAGE 7 =====
+G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432 417
+Fig. 3. Logical circuits.
+Fig. 4. From BDDs to logical circuits.
+Deﬁnition 4. Theorem 2 demonstrates a decomposition step referred to as the (reduced) positive Shannon expansion, where 
+f∥x is called the positive cofactor of f with respect to x and is deﬁned in Deﬁnition 3,  and f|x is called the negative 
+cofactor. The decomposition of f is deﬁned as the recursive application of the positive Shannon expansion to cofactors until 
+they evaluate to true or false.
+Let ◦be a Boolean operator and let g and h be encoded Boolean functions, according to encoding E. From Theorem 2
+we derive how to create the representation of a function according to the operators in a Boolean expression:
+g ◦h = x ∧ (g∥x ◦h∥x) ∨ (g|x ◦h|x). (7)
+By using the reduced form of the expansion, we are able to represent constraints more concisely in corresponding logical 
+circuits (Fig. 3), as well as in the soon to be introduced representation that utilizes it.
+For OBDDs, it is not possible for the conditioning of constraint clauses f c on any single variable xi ∈ A(x) to result in 
+equal cofactors (isomorphic children). This prohibits the application of the delete rule, effectively rendering OBDDs incapable 
+of capturing local structure along the dimension of single variables. To ameliorate this, we introduce positive OBDDs (PBDD) 
+as an unweighted intermediate representation, that are based on the positive Shannon decomposition and substitutes the 
+delete rule with the collapse rule, which as opposed to deleting literals, applies the distributive law to involved literals in the 
+induced logical circuit.
+Deﬁnition 5. A positive OBDD (PBDD) represents Boolean function E( f ) = f e, where f is deﬁned over variables X, as an 
+ordered BDD where each node v represents a positive Shannon decomposition on variable var(v) ∈ A(X). It is a canonical
+representation if reduced by applying the following rules:
+1. Merge rule: All isomorphic subgraphs are merged.
+2. Collapse rule: remove direct descendant u of node v iff f∥xi = f∥x j , where var(v) = xi and var(u) = x j, with xi, x j ∈ A(x)
+and x ∈ X.
+A function essentially depends on a variable if it appears in its prime implicate. The variable set S, on which f e es-
+sentially depends, is called the support of f e. We will use this support set to identify to what variables the collapsed rule 
+has been applied in order to produce its corresponding logical circuit, a trick similarly utilized with Zero-Suppressed BDDs 
+(ZBDD) [45]. Note that a Boolean function E( f ) = f e, where f is deﬁned over variables X, essentially depends on A(X), 
+because f c is a prime implicate that mentions all A(X). The canonical property of PBDDs follows from the fact that a binary 
+tree can be reconstructed from a PBDD and its support set, by applying its reduction rules reversely.
+Fig. 4 sho ws  the difference in representational size between an OBDD, a ZBDD and a PBDD representing the same 
+function with constraints on A(x) ={ x1, x2}, where g is a Boolean function that does not essentially depend on literals 
+
+===== PDF PAGE 8 =====
+418 G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432
+Fig. 5. Application of the collapse rule, where cofactors are equal.
+{x1, x2}. The positive Shannon decomposition not only reduces the size of the corresponding logical circuit, it also reduces 
+the size of the representation. More generally, OBDDs require an exponential number of nodes in the product of each 
+constraint variable’s dimension, where ZBDDs require a linear number, and where PBDDs require only 1 node.
+Fig. 4sho ws  that there are functions where the corresponding minimal PBDD and OBDD differ exponentially in size. Not 
+being represented in the ﬁgure, the collapse rule additionally removes the nodes that share the same positive cofactor with 
+their parents (Fig. 5).
+The semantics of nodes, whose children have been removed, changes. A missing node, inferable by the support set S
+and variable order, indicates the application of the collapse rule, i.e., the distributive law on xi and x j. There is no ambiguity 
+regarding the delete rule as it can never be applied on A(X) due to constraint clauses f c. Note however that the delete 
+rule can be applied in case one optimizes Boolean variables of the BN by representing them with only one literal in f e, 
+as opposed to two. This will delete literals from the induced circuit and result in an inconsistent model count with regard 
+to the probability distribution. It is precisely for this reason that the collapse rule uses the distributive law on involved 
+literals to simplify the induced circuit, as opposed to deleting them from it. The combination of the merge and collapse rule 
+facilitates a more ﬁnely grained control in exploiting CSI, because it allows independence given a subset of the values to be 
+expressed more eﬃciently when dealing with multi-valued variables.
+Proposition 1. An OBDD representing Boolean function ga n d an PBDD representing E(g) induce isomorphic logical circuits under 
+Boolean identity, given an appropriate ordering.
+Proposition 2. Given an ordering on A(X), the size of PBDD ϕ is less than the size of OBDD ψ when they both represent E( f ) = f e , 
+where fi s  deﬁned over variables X.
+5.3. Adding probabilities as weights
+Encoding E represents a BN as a weighted propositional formula. We extend PBDDs to weighted PBDDs (WPBDD) using an 
+intuitive scheme, taking advantage of the fact that probabilities are fully implied by the variables in the BN. Traditionally, an 
+empty clause would result in a contradiction, i.e., the instantiation is unsatisﬁable. We implicitly assign weight ω of empty 
+clause c to the edge it is associated with, and remove c from the expression. When multiple empty clauses are associated 
+with an edge, we simply assign the conjunction (multiplication) of their weights to the edge. To maintain canonicity, we 
+only assign weights on the side of the positive cofactor.
+Deﬁnition 6. A weighted PBDD (WPBDD) representing Boolean function E( f ) = f e, where f is deﬁned over variables X, is 
+a PBDD where each node v is a tuple ⟨xi, W , f e
+∥xi
+, f e
+|xi
+⟩ that represents a weighted reduced positive Shannon expansion:
+f e |= xi ∧ (W ∧ f e
+∥xi ) ∨ f e
+|xi
+,
+where xi ∈ A(X), W is a conjunction of weights ωi, and (W ∧ f e
+∥xi
+) = f e
+∥xi
+under idempotence. It is a canonical representation 
+if reduced by applying the following rules:
+1. Merge rule: All isomorphic subgraphs are merged.
+2. Collapse rule: remove direct descendant u of node v iff W ∧ f∥xi = W ∧ f∥x j , where var(v) = xi and var(u) = x j, with 
+xi, x j ∈ A(x) and x ∈ X.
+Let ◦be a Boolean operator and let g and h be encoded Boolean functions, according to encoding E. From Deﬁnition 6
+we derive how to create the representation according to the operators in a Boolean expression:
+g ◦h = x ∧ ((W g ∧ g∥x) ◦(Wh ∧ h∥x)) ∨ (g|x ◦h|x), (8)
+where W g and Wh are the (conjunction of) weights that correspond to g and h, respectively. Fig. 6shows the logical circuits 
+induced by a weighted and unweighted node, and Fig. 7 shows how we extended the collapse rule in order to deal with 
+weights.
+
+===== PDF PAGE 9 =====
+G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432 419
+Fig. 6. Logical circuits.
+Fig. 7. Application of the collapse rule, where functionsf∥xi = f∥x j and weights ωi = ωj.
+Fig. 8. WPBDD reduction.
+Example 4. Consider the CPTs from Example 1, where per CPT, equal probabilities are represented by unique symbolic 
+weights ωi.
+Fig. 8 shows the minimization of a WPBDD using variable ordering a1 < a2 < a3 < b1 < b2, that represents the BN 
+with 3 probabilities instead of 9. The collapse rule contributes to the reduction of the model by applying it for in-
+stance to the node representing a1. It would be prohibited when a2 and a3 are swapped in the ordering. This demon-
+strates that the ordering determines the degree to which a WPBDD can be reduced by using the reduction rules. 
+Fig. 9 shows the comparison of this WPBDD with an OBDD representing the same function, given variable ordering 
+a1 < a2 < ω1 < a3 < ω2 < b1 < ω5 < b2 < ω3 < ω4, which results in a minimal OBDD that obeys the partial order-
+ing used for the WPBDD. The WPBDD induces a logical circuit consisting of 17 logical operators, while the OBDD re-
+quires 54.
+
+===== PDF PAGE 10 =====
+420 G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432
+Fig. 9. WPBDD and OBDD comparison.
+6. Symbolic inference
+We perform Bayesian inference through a process of three phases: encoding, compiling and model counting:
+Composition Input Output
+Encoder Encoding E f Theory T + f e
+Compiler T -solver +SAT T + f e WPBDD ϕ
+Counter T -solver +WMC T + ϕ P(x|e)
+A BN represented by f is ﬁrst encoded by the encoder as Boolean function f e using encoding E as deﬁned in Section 4.2. The 
+encoder also provides background theory T representing f c, i.e., the constraints among variables that support mapping M.
+The compiler uses a lazy SMT-solver to record evaluation paths as a WPBDD. The lazy SMT-solver combines a SAT-solver 
+with a theory-solver, were a communication between the two is facilitated in order to support implicit conditioning.
+The counter computes the probability of x given evidence e, by translating the provided WPBDD into an arithmetic circuit 
+and using the theory-solver to properly instantiate the variables.
+6.1. Compilation
+It is well known that the variable ordering used during compilation determines the representation size [50]. Compilation 
+therefore reduces to ﬁnding an optimal variable ordering. Satisﬁability (SAT) is key during compilation, where we consecu-
+tively condition CNF f in the sequence provided by the ordering to determine if a given valuation is satisﬁable. Normally, 
+when CNF f contains an empty clause as the result of conditioning, we derive a contradiction (unsatisﬁable).
+For optimization purposes we deal slightly differently with weighted clauses. Remember that a weighted clause is the 
+same as the clause disjoined with the literal that symbolizes its weight. Conventional SAT solving would require the ordering 
+to be deﬁned over literals that symbolize a weight and literals that do not. By removing weight literals from the ordering we 
+reduce the search space of possible variable orderings considerably, and at the same time we dynamically position weight 
+literals in a proper position in the ordering. When a weighted clause is empty (all non weight literals have been conditioned 
+out), we are essentially left with a unit clause containing only the weight literal. Upon discovery, we remove this unit clause 
+(empty weighted clause) by consecutively conditioning on the containing weight literal, essentially positioning the weight 
+literal dynamically in the ordering. This approach preserves the semantics of clauses, thereby still allowing conventional SAT 
+solvers to be used.
+Algorithm 1 sho ws the compilation procedure, where the encoded Bayesian network f e = f c ∨ f m is compiled to the 
+corresponding WPBDD by SMT-Solver using ordering O. We have used underscore (_) to indicate where we ignore a return 
+value. A WPBDD is a directed graph that is build using nodes of type Node:
+
+===== PDF PAGE 11 =====
+G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432 421
+Algorithm 1 Compiler.
+Condition( f , L)
+input:C N Ff and literal set L.
+output: f conditioned on literals L.
+1 if Is-Empty(L)
+2 return f ,{}
+3 else
+4 for l in L
+5 if Is-Negated(l)
+6 f = f|l← 0
+7 else
+8 f = f|l← 1
+9 Lu = Get-Unit-Literals( f )
+10 f ,_ = Condition( f , L)
+11 return f , Lu
+Compile( f c, f m, O, i)
+input:C N Ff c and f m,o r d e r i n gO,
+and evaluation depth i.
+output:AW P B D Dr e p r e s e n t i n gf c ∨ f m.
+1 if Is-Satisﬁable ( f c ∨ f m)
+2 return True-Terminal()
+3 elseif Is-Unsatisﬁable ( f c ∨ f m)
+4 return False-Terminal()
+5 else
+6 l = O[i]
+7 node = Create-Node()
+8 node. l = l
+9
+10 f c
+l , Lu = Condition( f c ,{l})
+11 f m
+l , W = Condition( f m,{l}∪ Lu)
+12 node. weights = W
+13 node. pCofactor = Compile(
+f c
+l , f m
+l , O, i+1)
+14
+15 f c
+l ,_ = Condition( f c ,{l})
+16 f m
+l ,_ = Condition( f m,{l})
+17 node. nCofactor = Compile(
+f c
+l , f m
+l , O, i+1)
+18
+19 node = Collapse(node)
+20 node = Merge(node)
+21 return node
+SMT-Solver( f c, f m, O)
+input: Encoded Bayesian network
+f e = f c ∨ f m, and ordering O.
+output:AW P B D Dr e p r e s e n t i n gf e.
+1 return Compile( f c, f m, O,0)
+struct Node:
+Literal : l //the literal used for conditioning cofactors
+Node : pCofactor // represents positive cofactor f ∥l
+Node : nCofactor // represents negative cofactor f |l
+Literal set : weights // weight literals of positive cofactor
+Initialization: Let function f represent a Bayesian network. We obtain its CNF encoding E( f ) = f e, and provide constraints 
+f c and probability encoding f m as separate inputs to SMT-Solver. An ordering is determined by the literals on 
+which f c essentially depends, i.e., the literals that do not symbolically represent a weight. Using the encoding and 
+ordering, SMT-Solver builds and returns the corresponding WPBDD.
+Synopsis: The compiler consists of a theory-solver and SAT-solver. We will provide insight into the separation of the two, 
+and where implementational particularities should be considered in the provided algorithm. A WPBDD is build in 
+a DPLL-style depth-ﬁrst manner, of which the order is determined by O. If f e is found to be satisﬁable or unsat-
+isﬁable (Is-Satisﬁable , Is-Unsatisﬁable)  with a given valuation, while using the compile procedure (Compile), we 
+return a true or false terminal of type Node (True-Terminal, False-Terminal), respectively. Otherwise, we create a 
+new node of type Node (Create-Node) and proceed to conditioning f e on the ith literal in the ordering, depending 
+on evaluation depth i. The positive cofactor (lines 10–13) and negative cofactor (lines 15–17) are computed using 
+both the theory- and SAT-solver. Although they have a comparable task (Condition), they perform it on different 
+parts of the encoding, and in practice they are build, based on different design considerations. The theory-solver 
+(lines 10, 15) is responsible for maintaining consistency with regard to the constraints f c by having the SAT-solver 
+additionally condition on the literals Lu contained in its unit clauses (Get-Unit-Literals), i.e., implicit condition-
+ing. The SAT-solver (lines 11, 16) is responsible for introducing weights W into the WPBDD at the appropriate 
+places based on f m. We obtain a reduced WPBDD by applying the reduction rules as deﬁned by Deﬁnition 6: the 
+merge rule (Merge), as described by [51], and collapse rule (Collapse) to nodes where both cofactors have been 
+determined in order to obtain a reduced WPBDD.
+Termination: Fr om the fact that the input ordering O consists of literals upon which f c essentially depends, we conclude 
+that a satisﬁability state will be reached by Compile for f c through conditioning. Additionally, O contains all the 
+literals, not symbolizing a weight, that f m essentially depends on. Encoding E produces no dependencies among 
+weights, thus conditioning f e on all literals in O will produce a function containing only unit clauses, where each 
+containing literal symbolizes a weight. Condition implicitly removes these weights (line 11), thus termination is 
+guaranteed when a satisﬁability state will be reached for f c ∨ f m. Condition terminates because conditioning a 
+function on literals contained in its unit clauses cannot produce additional unit clauses. It essentially just removes 
+
+===== PDF PAGE 12 =====
+422 G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432
+Fig. 10. Probabilistic inference.
+them. A return value in Condition has been ignored due to this reason. Particular return values have been ignored 
+in Compile because conditioning f e on negated literals guarantees that no unit clauses will be produced, as this 
+only says that a variable is not equal to some value, having no implication to what value it actually equals.
+6.2. Inference by weighted model counting
+In order to perform inference by WMC, a WPBDD must be converted into an arithmetic circuit. Recall that a missing 
+variable along a path implies the application of the distributive law, identiﬁable by using the variable ordering and support 
+set S (Deﬁnition 6). The logical circuit induced by a WPBDD can easily be translated into an arithmetic circuit using the 
+conversions in Table 1. Note that x ∨ y reduces to x + y, when x and y originate from the same dimension, i.e., x, y ∈ A(z), 
+with z ∈ X.
+One of the reasons for using the positive Shannon decomposition is to prevent constraints among variables to be repre-
+sented twice in the described process of symbolic inference: once as part of the compiled representation, and again when 
+we substitute literals with their appropriate weight in order to perform model counting. During this later phase, theory T
+is used to prohibit inconsistent network instantiations, preventing a state where multiple values are assigned to one vari-
+able. To perform inference, all weights ωi are set to the probability they represent, and all other literals are set to 1. By 
+conditioning T on the evidence using the theory-solver, literals are found that conﬂict with the evidence in the form of 
+unit clauses. These must be set to 0.
+Example 5. Let f c = (b1 ∨ b2) ∧ (b1 ∨ b2) represent the constraint clauses for variable b of Example 1. When computing 
+P(b1) we condition f c on evidence b1 yielding f c
+b1
+= b2, thus evidence b1 implies b1 =1( true)  and b2 =0( fa l s e). Fig. 10
+shows each stage, from decision diagram to the instantiated arithmetic circuit with which we compute P(b1).
+7. Optimizations
+7.1. Encoding
+The constraint clauses f c of encoded function E( f ) = f e, where f is deﬁned over variables X, introduce predictable 
+symmetries into the encoding (demonstrated by Example 3). By incorporating these constraints directly into the compilation 
+process through theory T , the constraint clauses f c generated by Equation (2) and (3) become obsolete and can thus be 
+removed from f e. This reduces the number of clauses in the encoding by
+∑
+x∈X
+1
+
+ALO
+clause
++
+(n
+2
+)
+
+AMO
+clauses
+,
+where we sum over every x ∈ X, with n the domain size of x, i.e., |A(x)|. Both the at-least-once (AMO) and at-most-once 
+(AMO) clauses contribute to reducing the number of clauses in the encoding to the number of probabilities in the CPTs 
+Table 1
+Converting logical to arithmetic operator.
+Logical Arithmetic
+xx
+x (1 − x)
+x ∧ yx ∗ y
+x ∨ yx + y − x ∗ y
+
+===== PDF PAGE 13 =====
+G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432 423
+of the BN. This gives an advantage over related work using the direct encoding, as it puts less strain on the SAT-solver by 
+requiring it to only process M( f ).
+7.2. Compiler
+The compiler uses a lazy SMT-solver, consisting of a theory- and SAT-solver. It allows for optimization in a natural way, 
+by providing the ability to substitute the SAT-solver with any other state-of-the-art solver.
+The theory-solver is responsible for determining satisﬁability with regard to constraint clauses f c. This responsibility 
+could be fulﬁlled by using a conventional SAT-solver. However, we have an optimized theory-solver, that supports constant 
+time conditioning as opposed to quadratic time by taking advantage of the structure expressed by the constraint clauses. 
+This has a major performance impact as the encoding consists of up to one third of constraint clause, as shown by the 
+experimental results later. We have implemented it as follows: we require the function V : A(X) → X that maps literal 
+xi back to x, where xi ∈ A(x). For each x we maintain a counter that is initialized to the domain size of x, i.e., |A(x)|. 
+Conditioning on negated literal xi will decrease the counter corresponding to x by 1. If the counter reaches 0, we derive 
+contradiction (i.e., unsatisﬁable as x has no value). Conditioning on positive literal xi will cause any following conditioning 
+on x j ∈ A(x)\xi as redundant (i.e., x can only have one value). The SAT-solver will be bypassed completely as a result and 
+the compiler will continue with the next variable in the ordering, saving additional time.
+The SAT-solver is responsible for determining satisﬁability with regard to clauses f m. Although any SAT-solver can be 
+used here, we have created a simpliﬁed SAT-solver by taking advantage of the structure of M( f ). We use an one-to-many 
+map Q : A(X) → O from literal l ∈ A(X) to the clauses O it occurs in, i.e., Q (l) ={ c1, ...,  cn}. For each clause ci, we 
+maintain if it is satisﬁed with a counter, initialized to the number of literals it consists of. When conditioning on positive 
+literal l we decrease counters associated with Q (l) by 1. The clauses of which the counters have reached 0 are marked 
+as satisﬁed, and their corresponding weights are set aside to be introduced into the representation later. Conditioning on 
+negated literal l will mark clauses Q (l) as satisﬁed. This is possible because M( f ) only contains negated literals, and 
+we are able to assume that Q (l) ∩ Q (l) =∅. When all clauses in f m are satisﬁed, we derive f to be satisﬁable given 
+the evaluated instantiation. In combination with the SAT-solver being bypassed in the case of the previously mentioned 
+redundant variables, this allows for conditioning in linear time, in the number of clauses that l occurs in.
+8. Experimental results
+We have developed a tool chain, that can encode a Bayesian network into CNF, compile it to various different represen-
+tations, and perform inference using the arithmetic circuits they induce. Using over 30 publicly available Bayesian networks, 
+we provide empirical results on encoding size, representation size and compilation time comparisons to other well-known 
+representations and compilers. We also compare the time it takes to perform exact inference compared to the classic junc-
+tion tree algorithm.
+Statistics related to the encoding are shown in Table 2, which includes Example 1 as BN example. The number of 
+clauses produced by encoding E is equal to C + P, when disregarding determinism. We can reduce the size of the encoding 
+by up to a third, by moving constraint clauses to the theory solver, additionally allowing us to perform constant time 
+conditioning on them. We can also see that the majority of the BNs will beneﬁt greatly using the techniques in this paper 
+by looking at the amount of equal and deterministic probabilities they contain.
+We have developed a compiler that supports compilation of Bayesian networks to OBDDs and ZBDDs (using the CUDD 
+3.0.0 library), SDDs [44] (using the SDD 1.1.1 library), and WPBDDs.1,2,3 Each decision diagram is created with the same 
+ordering, within the same framework, i.e., doing the same amount of work in the same order. Quite literally, the only 
+differences are the inserted appropriate function calls to different libraries, and the output representation. This will have 
+comparative implications to whether a particular compilation will succeed given resource constraints as time and memory. 
+At the same time, we did not tune the algorithms to ensure that our algorithm stood out favorably, ensuring fair comparison.
+The framework divides the compilation process in two for eﬃciency. The logical representation of each CPT is ﬁrst 
+compiled separately, and then conjoined to represent the full distribution. The latter is essential for producing a logical 
+circuit with a consistent model count in order to perform for inference. All results regarding the WPBDD compiler have 
+been produced with a hybrid approach, where CPTs are compiled in a top-down fashion, and conjoined bottom-up. We 
+found that a fully bottom-up approach is only favorable when BNs have large CPTs like mildew, where we got a 5x 
+speedup compared to the top-down approach. In practice, this implies that Bayesian networks can be compiled containing 
+larger CPTs in general.
+Many strategies were explored in order to ﬁnd a good variable ordering for each BN. We used simulated annealing in 
+combination with an upper bound function for networks, which by far yielded best results. The variable orderings were 
+used to induce orderings based on literals, by saying that literal x1 must come before y1 if variable x comes before y in 
+1 CUDD is available at http :/ /vlsi .colorado .edu /~fabio/.
+2 The SDD compiler is available at http :/ /reasoning .cs .ucla .edu /sdd/.
+3 The WPBDD compiler is available at https :/ /github .com /gisodal /wmc/.
+
+===== PDF PAGE 14 =====
+424 G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432
+Table 2
+Various statistics on BNs and their encoding, where the number of variables X, literals A(X), constraint clauses C, probabilities P, unique probabilites P u
+(unique within a CPT) and the number of deterministic probabilities P d are shown.
+Bayesian network X A(X) CP P u P d
+example 2 5 6 7 5 2
+cancer 5 10 10 20 20 0
+earthquake 5 10 10 20 20 0
+asia 8 16 16 36 27 8
+survey 6 14 16 37 37 0
+student farm 12 25 26 70 44 17
+sachs 8 24 32 228 175 51
+poker 7 43 145 748 71 653
+child 20 60 93 344 161 4
+carpo 54 122 139 554 246 266
+powerplant 40 120 160 432 360 0
+alarm 37 105 143 752 182 7
+win95pts 76 152 152 1148 274 448
+insurance 27 89 142 1419 427 372
+andes 220 440 440 2308 652 146
+hepar2 70 162 190 2139 1922 0
+hailﬁnder 56 223 470 3741 835 587
+pigs 441 1323 1764 8427 1474 4736
+link 714 1793 2304 20462 1282 19586
+water 32 116 188 13484 3578 7288
+munin1 186 992 3522 19226 4323 12700
+pathﬁnder 135 520 3600 106432 2379 56297
+weeduk 15 90 347 22611 4600 216
+fungiuk 15 165 1144 43007 8990 207
+munin2 1003 5376 19460 83920 23228 53102
+munin3 1041 5601 20292 85615 24495 53942
+munin 1041 5651 20432 98423 24222 63112
+munin4 1038 5645 20426 97943 24621 63112
+mildew 35 616 17550 547158 14772 510060
+mainuk 48 421 3607 130180 18883 3784
+diabetes 413 4682 31738 461069 17888 360333
+barley 48 421 3607 130180 36924 0
+the variable ordering, where x, y ∈ X, x1 ∈ A(x) and y1 ∈ A(y). The weights are introduced into the ordering as literals 
+precisely when the WPBDD would introduce them as edge weights.
+Tables 3 and 4 show a comparative study between representation size and compilation time of supported representations, 
+where WPBDDnc is a WPBDD without application of the collapse rule, in order to show the impact of this rule. SDDs and 
+SDDrs are compiled using a balanced and right-aligned vtree ordering, respectively. A left-to-right traversal of these vtrees 
+produces the ordering also used for the other representations. Table 3 indicates compilation failure due to a 24 Gb RAM 
+memory limitation or a one hour time limit. Progress before failure is can be seen in Table 4. All experiments were run 
+using an Intel Xeon E5620 CPU.
+Table 3 sho ws a size comparison of each representation by the only size metric they have in common: the number of 
+operators in the logical circuits that individual decision diagrams induce. We can see that WPBDDs have 60% less logical 
+operators than the corresponding OBDDs on average at both stages of compilation, reducing inference time and system 
+requirements considerably. Also, a WPBDD is reduced by 15% on average by applying the collapse rule when compiling 
+CPTs, and 6% reduction on average with fully compiled networks. This statistic is fully determined by the amount of local 
+structure in the BN and the ordering used during compilation, and can greatly be improved by utilizing techniques like 
+dynamic compilation in the future.
+Observe that there is a close relation between the size of OBDDs and SDDrs, as mentioned in [44]. We can see that the 
+size of each SDDr is marginally smaller than its corresponding OBDD in Table 3. We assume that this is because SDDs have 
+multi-valued logical-OR operators, which allow for more concise representations. SDDs consist of binary logical-AND, and 
+n-ary logical-OR operators. We have included OR operators in size computations as n − 1 binary logical-OR operators.
+In order to evaluate the WMC approach to exact inference and other methods, we have chosen to compare to Ace 
+(version 3.0) and to the junction tree algorithm using the publicly available Dlib library (version 18.18).45 We also provide 
+an indicative comparison to the HUGIN library (version 8.4).6 Table 5shows how much time is spent by each method on an 
+identical set of probabilistic queries of the form P(x|e). We have excluded time spent on reading or processing the Bayesian 
+network, as well as creating join trees, purely focusing on inference time.
+4 Ace is available at http :/ /reasoning .cs .ucla .edu /ace/.
+5 Dlib is available at http :/ /dlib .net/.
+6 HUGIN is available at http :/ /www.hugin .com/.
+
+===== PDF PAGE 15 =====
+G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432 425
+Table 3
+Number of arithmetic operators in intermediate and resulting decision diagrams (symbols – and ∗indicate compilation failure due to memory or a one hour time limitation, respectively).
+Bayesian 
+network
+Number of operators per CPT T o t a ln u m b e ro fo p e r a t o r s
+WPBDD WPBDD nc OBDD ZBDD SDD r SDD WPBDD WPBDD nc OBDD ZBDD SDD r SDD
+example 11 19 48 54 33 49 9 15 39 30 27 49
+cancer 80 80 195 747 135 292 66 66 159 324 144 362
+earthquake 80 80 195 747 135 292 66 66 159 324 144 362
+survey 147 147 354 1671 270 510 132 132 312 825 291 819
+asia 131 136 321 1473 231 425 136 136 321 564 306 765
+student_farm 231 252 591 3522 441 747 459 465 1098 2007 1080 2135
+sachs 747 759 1788 20928 1611 3176 630 630 1602 13164 1581 4881
+poker 731 1128 2373 6774 2289 4219 912 1095 2370 5394 2355 6082
+child 1011 1099 2739 26088 2385 4663 2934 2988 7872 21861 7857 16030
+carpo 1257 1386 3264 77049 2574 4514 2499 3015 7179 16233 7164 13405
+powerplant 1414 1558 3795 86184 3141 6382 4158 4362 11043 36276 11025 26662
+alarm 1553 1701 3795 41688 3312 6183 3832 4294 10008 19227 9993 35004
+hepar2 8371 8467 18528 1593654 16101 29584 56574 56871 142806 2658189 142791 188453
+weeduk 29196 30543 70863 13762830 69135 170330 32114 34832 109734 23840949 109455 –
+fungiuk 68430 81435 295458 88536714 287940 250500 234715 251739 733551 95350635 727209 –
+win95pts 1948 2020 4722 122244 3822 6571 312191 320183 743631 1415904 743619 426550
+insurance 2776 3171 7455 106959 6810 11836 468514 474682 1263420 5465610 1263393 1731502
+pathﬁnder 23366 40838 240915 6158832 237549 295272 1899921 2135180 5732988 29435283 5732976 2287777
+hailﬁnder 8909 9520 25371 457860 23865 35707 11141550 11270157 31493220 137548032 31493157 10508499
+water 23498 25458 56268 4776201 53979 81614 18460995 18561108 44005977 ∗ ––
+mildew 139386 833215 1482432 56435169 – 832829 21698281 22322743 71621388 ∗ ––
+andes 4592 5546 11667 1125528 9192 13809 – – – – – –
+mainuk 232466 240710 577866 216698319 567135 ∗ –– ∗∗ ––
+barley 244447 252935 649902 581976891 637101 ∗ –– ∗ –––
+munin 145258 179744 435102 363002097 415134 723740 – – – – – –
+munin4 145373 180658 432672 345413400 413277 733401 – – ∗ –––
+munin3 140318 172843 420537 327439035 400932 702203 ∗∗ –– – –
+diabetes 186630 288075 707679 111194403 696837 984197 – – – – – –
+pigs 19953 22482 49872 6976569 44127 68288 – – ∗ –––
+munin1 25415 32188 74613 7756470 71538 131514 – – – – – ∗
+link 22869 27249 60279 12387426 54291 85356 – – – – – –
+munin2 133493 165853 398550 323654088 379137 670702 – – – – – –
+
+===== PDF PAGE 16 =====
+426 G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432
+Table 4
+Compilation time in seconds. (In case of compilation failure, the percentage of successfully conjoined/processed variables is shown, of which the reason is documented in Table 3.)
+Bayesian 
+network
+CPT compile time Conjoin compile time
+WPBDD WPBDD nc OBDD ZBDD SDD r SDD WPBDD WPBDD nc OBDD ZBDD SDDr SDD
+example 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+cancer 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+earthquake 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+survey 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+asia 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+student_farm 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.001 0.000 0.000 0.000 0.001
+sachs 0.000 0.000 0.000 0.000 0.002 0.007 0.001 0.001 0.000 0.001 0.000 0.012
+poker 0.001 0.001 0.002 0.002 0.015 0.030 0.002 0.004 0.000 0.000 0.001 0.016
+child 0.000 0.000 0.001 0.000 0.004 0.009 0.004 0.004 0.002 0.007 0.010 0.041
+carpo 0.001 0.001 0.003 0.002 0.006 0.008 0.005 0.006 0.004 0.012 0.018 0.033
+powerplant 0.001 0.001 0.002 0.002 0.005 0.006 0.007 0.008 0.003 0.025 0.018 0.045
+alarm 0.001 0.001 0.002 0.002 0.008 0.018 0.006 0.007 0.003 0.008 0.015 0.059
+hepar2 0.006 0.005 0.016 0.063 0.055 0.097 0.072 0.072 0.201 7.045 1.192 3.047
+weeduk 0.815 0.817 0.249 1.178 1.615 2512.160 0.084 0.112 0.013 3.988 0.077 (92.86%)
+fungiuk 1.799 1.803 1.027 11.011 7.276 179.470 126.701 356.738 0.264 1285.111 1.455 (14.29%)
+win95pts 0.003 0.003 0.003 0.005 0.014 0.016 0.129 0.132 1.257 4.203 6.293 0.882
+insurance 0.002 0.002 0.004 0.005 0.020 0.022 0.201 0.211 0.366 3.070 1.946 2.485
+pathﬁnder 0.685 0.678 7.840 8.066 30.405 2.226 1.333 1.501 13.974 101.344 67.038 22.888
+hailﬁnder 0.011 0.011 0.018 0.035 0.105 0.177 5.556 5.546 17.409 567.997 71.913 9.464
+water 0.107 0.107 0.090 0.253 0.764 4.922 44.400 45.883 55.055 (32.26%) (96.77%) (32.26%)
+mildew 275.356 275.445 129.703 134.639 (11.43%) 1146.805 304.752 2062.466 160.524 (5.88%) (0.00%) (2.94%)
+andes 0.006 0.006 0.007 0.032 0.027 0.041 (94.52%) (94.52%) (21.92%) (21.00%) (20.55%) (21.92%)
+mainuk 7.503 7.528 2.272 27.709 20.179 (4.17%) (95.744%) (95.74%) (44.68%) (8.51%) (42.55%) (0.00%)
+barley 7.682 7.683 2.247 77 .280 27.284 (4.17%) (95.74%) (93.62%) (44.68%) (2.13%) (42.55%) (0.00%)
+munin 0.193 0.190 0.458 30.999 21.165 2.568 (75.67%) (75.67%) (1.83%) (1.35%) (1.73%) (2.40%)
+munin4 0.186 0.189 0.438 28.238 21.256 2.560 (78.98%) (78.98%) (1.54%) (1.06%) (1.35%) (1.45%)
+munin3 0.165 0.173 0.395 26.503 23.430 2.225 (74.23%) (74.23%) (2.50%) (1.25%) (1.63%) (2.40%)
+diabetes 3.142 3.137 6.479 13.272 106.197 11.352 (54.85%) (54.85%) (1.21%) (0.73%) (0.97%) (1.21%)
+pigs 0.016 0.016 0.036 0.228 0.248 0.114 (94.09%) (94.09%) (7.05%) (6.59%) (6.59%) (8.18%)
+munin1 0.037 0.036 0.101 0.322 0.998 0.416 (89.73%) (89.73%) (14.05%) (11.89%) (11.89%) (12.97%)
+link 0.040 0.040 0.070 0.621 0.512 0.403 (89.200%) (89.20%) (3.51%) (2.95%) (3.09%) (3.23%)
+munin2 0.162 0.162 0.400 28.014 19.650 2.255 (78.94%) (78.94%) (1.30%) (0.60%) (1.20%) (1.098%)
+
+===== PDF PAGE 17 =====
+G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432 427
+Table 5
+Inference time in seconds.
+BN Queries WPBDD OBDD Ace Dlib
+example 17 0.000 0.000 0.015 0.001
+cancer 714 0.001 0.002 0.735 0.138
+earthquake 714 0.001 0.002 0.735 0.139
+survey 4448 0.014 0.023 5.214 2.244
+asia 18360 0.053 0.108 21.041 9.798
+sachs 258324 2.142 5.323 503.670 1471.963
+student_farm 1109885 7.346 17.942 1405.520 2627.214
+poker 145999 2.204 5.229 238.969 3574.706
+child 121647 4.058 14.603 331.598 3545.921
+carpo 213257 7.697 21.340 500.063 3515.298
+powerplant 457407 21.575 64.450 1398.680 3393.056
+alarm 94034 5.062 13.324 297.079 3547.504
+hepar2 26530 16.419 50.950 241.252 3463.509
+weeduk 1051 0.420 1.608 20.541 3586.316
+fungiuk 718 1.911 6.556 19.679 3567.136
+win95pts 13595 50.586 135.639 75.531 3220.060
+insurance 280 1.391 4.477 6.598 3571.825
+pathﬁnder 765 23.501 78.277 30.369 3391.518
+hailﬁnder 875 133.381 432.411 20.879 2448.653
+water 2221 474.047 1319.978 93.262 ∗
+mildew 1312 290.731 1401.271 387.664 ∗
+Avg speedup 2.69 149.65 991.82
+Remember that the computational complexity of inference by Weighted Model Counting (WMC) is linear in the size of 
+the representation [13]. It implies that whenever we obtain a representation of smaller size, we will achieve faster runtimes. 
+This relation between size and inference time is reﬂected in the empirical evaluations between WPBDDs and OBDDs, and 
+can be inferred with regard to other representations like ZBDDs and SDDs.
+Interesting is the comparison to Ace, which uses DNNF representations. It is known that OBDDs support more polytime 
+queries than d-DNNFs [39]. This is partly reﬂected in the results of Table 5. There are two factors that are currently inﬂuenc-
+ing the speedup and that compared to Ace could be improved. The compiler used to create the OBDDs and WPBDDs does 
+not yet support exploitation of determinism, while Ace does. Depending on the amount of determinism (stated in Table 2) 
+this can have a major impact. The other factor concerns the increasing complexity of ﬁnding good orderings as problem 
+sizes grow. The ordering used during compilation directly inﬂuences the size of the representation and inference time, and 
+improving methods for ﬁnding good orderings will become essential in future work.
+We have also achieved a staggering speedup compared to the junction tree algorithm by Dlib, conﬁrmed by an excep-
+tional amount of cache misses reported by cachegrind (Valgrind tool), and other proﬁle information by GNU Gprof and GNU 
+Perf on resource usage. A comparison to HUGIN LITE over a subset of networks provides implications to performance for 
+Bayesian networks of limited size, where we were able to achieve a speedup averaging at over 5x. Although this result 
+provides intuitions on the performance using larger BNs, it should be considered purely indicative. Collectively, compilation 
+and inference results show that WPBDDs make a valuable addition in the ﬁeld of exact probabilistic inference.
+9. Conclusion
+To reduce the cost of Bayesian inference through Weighted Model Counting (WMC), we proposed a new canonical lan-
+guage called Weighted Positive Binary Decision Diagrams that represents probability distributions more concisely. We have 
+provided theoretical results in addition to practical results on compilation size with regard to 30+ Bayesian networks, 
+where we have seen WPBDD induced logical circuits reduced by 60% on average in comparison to OBDD induced circuits. 
+The introduced reduction rule is responsible for a 15% reduction on average among compiled CPTs. These results can be 
+improved even further in the future by ﬁnding a better variable ordering. This is made easier by WPBDDs, as they do not 
+consider probabilities as auxiliary literals and reduce the search space considerably. We have evaluated the costs of infer-
+ence compared to OBDD induced circuits, Ace, Dlib and Hugin. We were able to achieve a speedup of several orders of 
+magnitude. The proposed language thus gives computational beneﬁts during model counting as well as compilation.
+Appendix A. Proofs
+Lemma 1. Let anencoded Boolean function f e :{0, 1}n →{ 0, 1} be deﬁned over A(X), obtained by E( f ), with fd e ﬁ n e d over X. We 
+can rewrite f e using the following equivalence:
+f e = f c ∧
+(
+xi ∧ f e
+∥xi ∨ f e
+|xi
+)
+,
+where f e = f c ∧ f m , and xi ∈ A(x), with x ∈ X.
+
+===== PDF PAGE 18 =====
+428 G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432
+Proof. We show that the lemma holds by reducing the Shannon expansion to the positive Shannon expansion through 
+equivalence. Function f is deﬁned over variables X ={ x}, and encoded as Boolean function f e = f c ∧ f m given E, where
+A(x) ={ x1,..., xn}, f c =
+⎛
+⎝ ⋁
+x j∈A(x)
+x j
+⎞
+⎠ ∧
+⎛
+⎝ ⋀
+xk∈A(x)
+⋀
+xl∈A(x)\xk
+(xk ∨ xl)
+⎞
+⎠,
+f m =1.
+Equation (2) and (3) show that f c has a cardinality of at least two when encoding a non-trivial function, and that f m
+essentially depends on a (non-strict) subset of variables on which f c essentially depends. We therefore chose f m to be 
+simplistic to make the following reductions more intuitive. Note that the at-most-once clauses generated for xi are subsumed 
+by f c at the ﬁnal step.
+f e = f c ∧ f m
+=
+⎛
+⎝ ⋁
+x j∈A(x)
+x j
+⎞
+⎠ ∧
+⎛
+⎝ ⋀
+xk∈A(x)
+⋀
+xl∈A(x)\xk
+(xk ∨ xl)
+⎞
+⎠
+
+ 
+f c
+∧ 1
+
+f m
+= xi ∧
+⎛
+⎝ ⋀
+x j∈A(x)\xi
+x j
+⎞
+⎠
+
+ 
+f e
+|xi
+∨ xi ∧
+⎛
+⎝ ⋁
+x j∈A(x)\xi
+x j
+⎞
+⎠ ∧
+⎛
+⎝ ⋀
+xk∈A(x)\xi
+⋀
+xl∈A(x)\x{ik}
+(xk ∨ xl)
+⎞
+⎠
+
+ 
+f e
+|xi
+Shannon expansion of f e on x i.
+= xi ∧
+⎛
+⎝ ⋀
+x j∈A(x)\xi
+x j
+⎞
+⎠ ∧
+1
+
+f e
+∥xi
+∨ xi ∧
+⎛
+⎝ ⋁
+x j∈A(x)\xi
+x j
+⎞
+⎠ ∧
+⎛
+⎝ ⋀
+xk∈A(x)\xi
+⋀
+xl∈A(x)\x{ik}
+(xk ∨ xl)
+⎞
+⎠
+
+ 
+f e
+|xi
+Positive Shannon expansion of f e on x i. Equivalent by Deﬁnition 3 , and Equation (6).
+= xi ∧
+⎛
+⎝ ⋀
+x j∈A(x)\xi
+x j
+⎞
+⎠ ∧
+f e
+∥xi ∨ xi ∧ f e
+|xi
+=
+⎛
+⎝ ⋀
+x j∈A(x)\xi
+(xi ∨ x j)
+⎞
+⎠ ∧
+(
+xi ∧ f e
+∥xi ∨ f e
+|xi
+)
+= f c ∧
+(
+xi ∧ f e
+∥xi ∨ f e
+|xi
+)
+2
+Theorem 2. Let an encoded Boolean function f e :{0, 1}n →{ 0, 1} be deﬁned over A(X), obtained by E( f ), with fd e ﬁ n e d over X. 
+Equivalent under constraints f c , we can rewrite f e using:
+f e |= xi ∧ f e
+∥xi ∨ f e
+|xi
+,
+where f e = f c ∧ f m , and xi ∈ A(x), with x ∈ X.
+Proof. We ﬁrst show what models are introduced by one reduced positive Shannon expansion, providing clear implications 
+what models are introduced by n expansions (i.e. a decomposition). We then show that f c can be factored out of the 
+positive Shannon decomposed function, and used to remove the introduced models, as they are subsumed by f c.
+Let function f and its encoding be deﬁned as provided in the proof of Lemma 1. We will ﬁrst show that applying one 
+reduced positive Shannon expansion removes at-most-once (AMO) clauses related to the variable we expand.
+f e = f c ∧ f m
+=
+⎛
+⎝ ⋁
+x j∈A(x)
+x j
+⎞
+⎠ ∧
+⎛
+⎝ ⋀
+xk∈A(x)
+⋀
+xl∈A(x)\xk
+(xk ∨ xl)
+⎞
+⎠
+
+ 
+f c
+∧ 1
+
+f m
+
+===== PDF PAGE 19 =====
+G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432 429
+= xi ∧ 1
+
+f e
+∥xi
+∨
+⎛
+⎝ ⋁
+x j∈A(x)\xi
+x j
+⎞
+⎠ ∧
+⎛
+⎝ ⋀
+xk∈A(x)\xi
+⋀
+xl∈A(x)\x{ik}
+(xk ∨ xl)
+⎞
+⎠
+
+ 
+f e
+|xi
+= f w
+We have M j |= f e, with j ={1, ...,  n}, where M j ={ x1, ...,  x j−1, x j, x j+1, ...,  xn} and Mk |= f w, with k ={1, ...,  (n − 1) +
+2(n−1)}, where Mk ={ x1, ...,  xk−1, xk, xk+1, ...,  xn} for 1 ≤ k ≤ n and k ̸= i, and Mk ={ ...,  xi, ... } for the remainder. We 
+conclude that f e ̸≡ f w, because f e has n models, while f w has (n − 1) + 2(n−1). Expanding xi has caused any model 
+containing xi to be true, i.e., model {x1, ...,  xi−1, xi, xi+1, ...,  xn} has changed to the models {...,  xi, ... }. It is precisely those 
+additional models in Mk that are not in M j, which can be removed by AMO clauses created for xi, i.e.:
+f e ≡
+⎛
+⎝ ⋀
+x j∈A(x)\xi
+(xi ∨ x j)
+⎞
+⎠ ∧
+f w.
+Where one expansion on xi removes AMO clauses related to xi, a decomposition clearly removes AMO clauses related to all 
+variables A(x). This holds regardless of ordering, as a positive Shannon decomposition of f e is guaranteed to produce an 
+isomorphic representation due to the symmetric nature of the constraints. We can reduce the positive Shannon expansion 
+to its reduced by form factoring out f c:
+f w = f c ∧ f m
+=
+⎛
+⎝ ⋁
+x j∈A(x)
+x j
+⎞
+⎠ ∧
+⎛
+⎝ ⋀
+xk∈A(x)
+⋀
+xl∈A(x)\xk
+(xk ∨ xl)
+⎞
+⎠
+
+ 
+f c
+∧ 1
+
+f m
+= f c ∧
+⎛
+⎜⎜⎜⎜⎜⎜⎜⎝
+x1 ∧ 1
+
+f e
+∥x1
+∨
+⎛
+⎝ ⋁
+x j∈A(x)\x1
+x j
+⎞
+⎠ ∧
+⎛
+⎝ ⋀
+xk∈A(x)\x1
+⋀
+xl∈A(x)\x{1k}
+(xk ∨ xl)
+⎞
+⎠
+
+ 
+f e
+|x1
+⎞
+⎟⎟⎟⎟⎟⎟⎟⎠
+= f c ∧ (x1 ∨ f c ∧ (x2 ∧ 1
+f e
+∥x2
+∨ ...
+f e
+|x2
+))
+= f c ∧ (x1 ∨ f c ∧ (x2 ∨ f c ∧ (x3 ∧ 1
+f e
+∥x3
+∨ ...
+f e
+|x3
+)))
+= ...
+= f c ∧ (x1 ∨ ( f c ∧ (x2 ∨ ( f c ∧ ... xn−1 ∨ ( f c ∧ xn)))))
+= f c ∧ (x1 ∨ ... ∨ xn)
+= f c
+This conﬁrms that, when using reduced positive Shannon decompositions, equivalence is only achieved under domain clo-
+sure constraints, as AMO clauses are subsumed by f c. 2
+Proposition 1. An OBDD representing Boolean function ga n d an PBDD representing E(g) induce isomorphic logical circuits under 
+Boolean identity, given an appropriate ordering.
+Proof. Le t  E(g) = ge be a Boolean function, with g a Boolean function deﬁned over variables X ={ x1, ...,  xn}. We show 
+that an OBDD representing g is equivalent to a PBDD representing E(g) by comparing their induced logical circuits, under 
+the premise that the collapse rule does not apply distribution, but deletes literals. Note that this comparison requires g to 
+be a Boolean function, and thus each x ∈ X is mapped to two atoms A(x) ={ x1, x2}. For every Shannon expansion on g, 
+there is an equivalent positive Shannon expansion on ge (Fig. 11).
+
+===== PDF PAGE 20 =====
+430 G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432
+Fig. 11. Expansions.
+Fig. 12. Constraints in OBDDψ.
+We have equality, because there exists a trivial mapping between the two decomposition types, namely x = x1 and 
+x = x2. Observe the implication that the collapse rule can be applied to ge whenever the delete rule can be applied to 
+g. Under our pretense we can infer that the OBDD and PBDD induce equivalent circuits, because they are isomorphic due 
+to a trivial mapping for precisely those orderings where, for each x ∈ X, atoms A(x) ={ x1, x2} are placed adjacent in the 
+order, e.g., A(x1) <...< A(xn) and for each x ∈ X we have partial orders x1 < x2. The delete rule alters the circuit if 
+cofactors are equal by applying the distributive law and identity, e.g., x ∧ g ∨ x ∧ g = (x ∨ x) ∧ g = g. The collapse rule 
+forgoes that last step. We therefore conclude that the OBDD and PBDD induce equivalent circuits under Boolean iden-
+tity. 2
+Proposition 2. Given an ordering on A(X), the size of PBDD ϕ is less than the size of OBDD ψ when they both represent E( f ) = f e , 
+where fi s  deﬁned over variables X.
+Proof. In the case where f is not Boolean, we will show that PBDD ϕ is always smaller than OBDD ψ, when they both 
+represent E( f ) = f e. Consider some x ∈ X, for which we ﬁnd atoms A(x) ={ x1, x2, x3, ...,  xn} adjacent in the ordering, 
+where n is the domain size of x. OBDD ψ will contain the subfunction shown in Fig. 12.
+Here, j, k, l and m are subfunctions that essentially depend on {x4, ...,  xn}. We can transition from the OBDD induced 
+logical circuit above to the corresponding logical circuit induced by a PBDD, by removing the bold edges, literals and oper-
+ators. Shannon expansions that have indicator 1a t their root can be removed, which coincides with implicit conditioning. 
+More generally, this allows us to remove ∑n
+i=1(i − 1) nodes from the OBDD. Additionally, the implicates for negative 
+cofactors are removed that are marked by indicator 2.
+Removing the implicate for the negative cofactor together with implicit conditioning, contribute to reducing the size 
+of induced logical circuits by removing operators while maintaining equivalence. The extent to which is lower bounded 
+by:
+∑
+x∈X
+n
+
+negative
+cof actor
++
+n∑
+i=1
+(i − 1) ∗3
+  
+implicit
+conditioning
+,
+where we sum over every x ∈ X, with n the domain size of x, i.e., |A(x)|. This increases when atoms A(x) are not adjacent 
+in the ordering, and is multiplied by the number of distinct subfunctions in OBDD ψ that depend on A(x). Furthermore, we 
+are guaranteed to encounter each x ∈ A(X) in an OBDD along every path from root to the true terminal, which serves as 
+an upper bound regarding PBDDs. The collapse rule can effectively reduce the size of the representation if the structure of 
+f e allows it, by reducing the number of nodes from |A(pa(x))| to |pa(x)| for every subfunction, provided that literals A(y), 
+with y ∈ pa(x), for each parent are adjacent in the ordering. 2
+
+===== PDF PAGE 21 =====
+G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432 431
+References
+[1] J. Pearl, Probabilistic Reasoning in Intelligent Systems: Networks of Plausible Inference, 1988.
+[2] D. Heckerman, J. Breese, Causal independence for probabilistic assessment and inference using Bayesian networks, IEEE Trans. Syst. Man Cybern. Syst. 
+26 (1996) 826–831.
+[3] C. Boutilier, N. Friedman, M. Goldszmidt, D. Koller, Context-speciﬁc independence in Bayesian networks, in: Proceedings of the International Conference 
+on Uncertainty in Artiﬁcial Intelligence, 1996, pp. 115–123.
+[4] F. Jensen, S. Anderson, Approximations in Bayesian belief universe for knowledge based systems, arXiv:1304.1101.
+[5] F. Bacchus, S. Dalmao, T. Pitassi, DPLL with caching: a new algorithm for #SAT and Bayesian inference, in: Proceedings of Electronic Colloquium on 
+Computational Complexity, vol. 10, 2003.
+[6] M. Chavira, A. Darwiche, On probabilistic inference by weighted model counting, Artif. Intell. 172 (2008) 772–799.
+[7] M. Wachter, R. Haenni, Logical compilation of Bayesian networks with discrete variables, in: Symbolic and Quantitative Approaches to Reasoning with 
+Uncertainty, 2007, pp. 536–547.
+[8] J.R. Burch, E.M. Clarke, K.L. McMillan, D.L. Dill, L.-J. Hwang, Symbolic model checking: 1020 states and beyond, in: Proceedings of the Fifth Symposium 
+on Logic in Computer Science, 1990, pp. 428–439.
+[9] R.D. Shachter, B. D’Ambrosio, B. Del Favero, Symbolic probabilistic inference in belief networks, in: Proceedings of Advancement of Artiﬁcial Intelligence, 
+vol. 90, 1990, pp. 126–131.
+[10] C.W .  Barrett, R. Sebastiani, S.A. Seshia, C. Tinelli, Satisﬁability modulo theories, in: Handbook of Satisﬁability, vol. 185, 2009, pp. 825–885.
+[11] F. Somenzi, CUDD: CU Decision Diagram Package Release 3.0.0, Tech. rep., Department of Electrical Computer, and Energy Engineering, University of 
+Colorado at Boulder, 2015.
+[12] A. Choi, D. Kisa, A. Darwiche, Compiling probabilistic graphical models using sentential decision diagrams, in: Symbolic and Quantitative Approaches 
+to Reasoning with Uncertainty, 2013, pp. 121–132.
+[13] M. Bozga, O. Maler, On the representation of probabilities over structured domains, in: Proceedings of Computer Aided Veriﬁcation, 1999, pp. 261–273.
+[14] N.J. Nilsson, Probabilistic logic, Artif. Intell. 28 (1986) 71–87.
+[15] J.Y .  Halpern, An analysis of ﬁrst-order logics of probability, Artif. Intell. 46 (1990) 311–350.
+[16] D. Poole, First-order probabilistic inference, in: Proceedings of the International Joint Conference on Artiﬁcial Intelligence, vol. 3, 2003, pp. 985–991.
+[17] F. Bacchus, S. Dalmao, T. Pitassi, Algorithms and complexity results for #SAT and Bayesian inference, in: Proceedings of the 44th Symposium on 
+Foundations of Computer Science, 2003, pp. 340–351.
+[18] T. Walsh, SAT vs CSP, in: Principles and Practice of Constraint Programming, 2000, pp. 441–456.
+[19] O. Bailleux, Y. Boufkhad, Eﬃcient CNF encoding of Boolean cardinality constraints, in: Proceedings of the Principles and Practice of Constraint Program-
+ming, 2003, pp. 108–122.
+[20] T. Tanjo, N. Tamura, M. Banbara, A compact and eﬃcient SAT-encoding of ﬁnite domain CSP, in: Theory and Applications of Satisﬁability Testing-SAT, 
+2011, pp. 375–376.
+[21] M. Gavanelli, The log-support encoding of CSP into SAT, in: Principles and Practice of Constraint Programming, 2007, pp. 815–822.
+[22] S.-i. Minato, K. Satoh, T. Sato, Compiling Bayesian networks by symbolic probability calculation based on Zero-suppressed BDDs, in: Proceedings of the 
+International Joint Conference on Artiﬁcial Intelligence, 2007, pp. 2550–2555.
+[23] H. Poon, P. Domingos, Sum-product networks: a new deep architecture, in: Proceedings of the International Conference on Computer Vision Workshops, 
+2011, pp. 689–690.
+[24] T. Sang, P. Beame, H.A. Kautz, Performing Bayesian inference by weighted model counting, in: Proceeding of Advancement of Artiﬁcial Intelligence, 
+vol. 5, 2005, pp. 475–481.
+[25] N.L. Zhang, D. Poole, On the role of context-speciﬁc independence in probabilistic inference, in: Proceedings of the International Joint Conference on 
+Artiﬁcial Intelligence, vol. 85, 1999.
+[26] A. Cano, S. Moral, A. Salmeron, Penniless propagation in join trees, Int. J. Intell. Syst. 15 (2000) 1027–1059.
+[27] A. V.  Kozlov, D. Koller, Nonuniform dynamic discretization in hybrid networks, in: Proceedings of the Thirteenth Conference on Uncertainty in Artiﬁcial 
+Intelligence, 1997, pp. 314–325.
+[28] A. Cano, M. Gómez-Olmedo, S. Moral, C.B. Pérez-Ariza, Recursive probability trees for Bayesian networks, in: Current Topics in Artiﬁcial Intelligence, 
+2009, pp. 242–251.
+[29] M. Jaeger, Probabilistic decision graphs, combining veriﬁcation and AI techniques for probabilistic inference, Int. J. Uncertain. Fuzziness Knowl.-Based 
+Syst. 12 (2004) 19–42.
+[30] C.P. Gomes, A. Sabharwal, B. Selman, Model Counting, 2008.
+[31] P. Beame, R. Impagliazzo, T. Pitassi, N. Segerlind, Memoization and DPLL: formula caching proof systems, in: Proceedings of the 18th Conference on 
+Computational Complexity, 2003, pp. 248–259.
+[32] S.M. Majercik, M.L. Littman, Using caching to solve larger probabilistic planning problems, in: Proceedings of Advancement of Artiﬁcial Intelligence, 
+1998, pp. 954–959.
+[33] E. Fischer, J.A. Makowsky, E.V. Ravve, Counting truth assignments of formulas of bounded tree-width or clique-width, Discrete Appl. Math. 156 (2008) 
+511–529.
+[34] P. Sen, A. Deshpande, L. Getoor, PrDB: managing and exploiting rich correlations in probabilistic databases, VLDB J. 18 (2009) 1065–1090.
+[35] K. Kersting, B. Ahmadi, S. Natarajan, Counting belief propagation, in: Proceedings of the Twenty-Fifth Conference on Uncertainty in Artiﬁcial Intelli-
+gence, 2009, pp. 277–284.
+[36] W. Li, P. Poupart, P. Van Beek, Exploiting causal independence using weighted model counting, in: Proceeding of Advancement of Artiﬁcial Intelligence, 
+2008, pp. 337–343.
+[37] P. Sen, A. Deshpande, L. Getoor, Read-once functions and query evaluation in probabilistic databases, Proc. VLDB Endow. 3 (2010) 1068–1079.
+[38] R. Mateescu, R. Dechter, R. Marinescu, AND/OR multi-valued decision diagrams (AOMDDs) for graphical models, J. Artif. Intell. Res. 33 (2008) 465–519.
+[39] A. Darwiche, Decomposable negation normal form, J. Assoc. Comput. Mach. 48 (2001) 608–647.
+[40] T. D.  Nielsen, P.-H. Wuillemin, F.V. Jensen, U. Kjærulff,  Using ROBDDs for inference in Bayesian networks with troubleshooting as an example, in: 
+Proceedings of the Sixteenth Conference on Uncertainty in Artiﬁcial Intelligence, 2000, pp. 426–435.
+[41] E.M. Clarke, K.L. McMillan, X. Zhao, M. Fujita, J. Yang, Spectral transforms for large Boolean functions with applications to technology mapping, in: 
+Proceedings of the 30th Conference on Design Automation, 1993, pp. 54–60.
+[42] Y. -T.  Lai, S. Sastry, Edge-Valued Binary Decision Diagrams for multi-level hierarchical veriﬁcation, in: Proceedings of the 29th Design Automation 
+Conference, 1992, pp. 608–613.
+[43] S. Sanner, D. McAllester, Aﬃne Algebraic Decision Diagrams (AADDs) and their application to structured probabilistic inference, in: Proceedings of the 
+International Joint Conference on Artiﬁcial Intelligence 2005, 2005, pp. 1384–1390.
+[44] A. Darwiche, SDD: a new canonical representation of propositional knowledge bases, in: Proceedings of the International Joint Conference on Artiﬁcial 
+Intelligence, vol. 22, 2011, p. 819.
+
+===== PDF PAGE 22 =====
+432 G.H. Dal, P.J.F. Lucas / International Journal of Approximate Reasoning 90 (2017) 411–432
+[45] S.-i. Minato, Zero-suppressed BDDs for set manipulation in combinatorial problems, in: Proceedings of the 30th Conference on Design Automation, 
+1993, pp. 272–277.
+[46] H.H. Hoos, SAT-encodings, search space structure, and local search performance, in: Proceedings of the International Joint Conference on Artiﬁcial 
+Intelligence, vol. 99, 1999, pp. 296–303.
+[47] C.E. Shannon, A symbolic analysis of relay and switching circuits, Electr. Eng. 57 (12) (1938) 713–723.
+[48] R.E. Bryant, Symbolic Boolean manipulation with ordered binary decision diagrams, ACM Comput. Surv. 24 (1992) 293–318.
+[49] R.E. Bryant, Graph-based algorithms for Boolean function manipulation, IEEE Trans. Comput. 100 (1986) 677–691.
+[50] B. Bollig, I. Wegener, Improving the variable ordering of OBDDs is NP-complete, IEEE Trans. Comput. 45 (1996) 993–1002.
+[51] K.S. Brace, R.L. Rudell, R.E. Bryant, Eﬃcient implementation of a BDD package, in: Proceedings of the Design Automation Conference, 1991, pp. 40–45.

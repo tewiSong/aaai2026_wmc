@@ -1,0 +1,46 @@
+raw                          fmax 0.55835  micro_ap 0.45777  brier 0.01046  logloss 0.04289  ece 0.00141
+max_closure                  fmax 0.56293  micro_ap 0.46013  brier 0.01045  logloss 0.04280  ece 0.00172
+isotonic                     fmax 0.56159  micro_ap 0.46103  brier 0.01042  logloss 0.04269  ece 0.00134
+depth_platt_iso              fmax 0.56002  micro_ap 0.47750  brier 0.01066  logloss 0.04337  ece 0.00401
+term_platt_iso               fmax 0.57004  micro_ap 0.50284  brier 0.01051  logloss 0.04279  ece 0.00463
+neighbor_lr_iso              fmax 0.56210  micro_ap 0.48805  brier 0.01056  logloss 0.04308  ece 0.00405
+same_features_lr_iso         fmax 0.56025  micro_ap 0.47748  brier 0.01066  logloss 0.04337  ece 0.00401
+theta_star_feature_lr_iso    fmax 0.56112  micro_ap 0.47838  brier 0.01065  logloss 0.04334  ece 0.00401
+whole_vector_pca32_lr_iso    fmax 0.56082  micro_ap 0.48699  brier 0.01059  logloss 0.04304  ece 0.00427
+C2                           fmax 0.56336  micro_ap 0.49543  brier 0.01061  logloss 0.04358  ece 0.00463
+{
+ "H1_C2_beats_isotonic": false,
+ "H2_C2_beats_every_fitted_baseline": false,
+ "H2_detail": {
+  "depth_platt_iso": true,
+  "term_platt_iso": false,
+  "neighbor_lr_iso": false,
+  "same_features_lr_iso": true,
+  "theta_star_feature_lr_iso": false,
+  "whole_vector_pca32_lr_iso": false
+ }
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p5_3_locked_time_split_evaluation.py --ns go_cc --input cnn --workers 32 --bootstrap 1000"
+	User time (seconds): 25808.33
+	System time (seconds): 195.47
+	Percent of CPU this job got: 407%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:46:28
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1785788
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 481
+	Minor (reclaiming a frame) page faults: 77807556
+	Voluntary context switches: 11993
+	Involuntary context switches: 96519
+	Swaps: 0
+	File system inputs: 215362
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p5_3_locked_time_split_evaluation_go_cc_cnn_20261022-214835.log

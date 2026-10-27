@@ -1,0 +1,40 @@
+{
+  "ontology": "go_bp",
+  "heuristic": "min-degree",
+  "terms": 28438,
+  "width": 376,
+  "complete": true,
+  "seconds": 1.1,
+  "paper_minfill_width": 269,
+  "n_bags_ge_bag_min": 1797,
+  "bag_size_quantiles": {
+    "0.5": 43,
+    "0.9": 242,
+    "0.99": 340,
+    "1.0": 377
+  }
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p0_3_minfill_width_check_vs_paper.py --ontology go_bp --heuristic min-degree --time-limit-hours 22"
+	User time (seconds): 1.69
+	System time (seconds): 0.84
+	Percent of CPU this job got: 96%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:02.62
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 81536
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 201
+	Minor (reclaiming a frame) page faults: 38620
+	Voluntary context switches: 5419
+	Involuntary context switches: 78
+	Swaps: 0
+	File system inputs: 100488
+	File system outputs: 264
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p0_3_minfill_width_check_vs_paper_go_bp_min-degree_20261016-204228.log

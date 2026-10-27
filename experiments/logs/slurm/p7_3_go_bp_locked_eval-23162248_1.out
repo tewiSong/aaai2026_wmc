@@ -1,0 +1,139 @@
+cores {"cores_old": {"size": [264.2, 447.0, 807.0, 1449.0], "tau_counts": {"0.01": 2858, "0.02": 84, "0.03": 14, "0.05": 11, "0.1": 5, "0.2": 0, "0.3": 0, "0.5": 0, "0.7": 1, "0.9": 0, "0.99": 0, "1.0": 0}}, "cores_new": {"size": [256.6, 407.0, 701.4000000000001, 1306.0], "tau_counts": {"0.01": 2639, "0.02": 31, "0.03": 6, "0.05": 1, "0.1": 0, "0.2": 0, "0.3": 0, "0.5": 0, "0.7": 0, "0.9": 0, "0.99": 0, "1.0": 0}}}
+theta* cache: 0 reused, 5650 to compute
+theta* 200/5650  120s
+theta* 400/5650  325s
+theta* 600/5650  715s
+theta* 800/5650  1193s
+theta* 1000/5650  1818s
+theta* 1200/5650  2871s
+theta* 1400/5650  4731s
+theta* 1600/5650  6394s
+theta* 1800/5650  7758s
+theta* 2000/5650  9256s
+theta* 2200/5650  11130s
+theta* 2400/5650  12844s
+theta* 2600/5650  14115s
+theta* 2800/5650  15960s
+theta* 3000/5650  17321s
+theta* 3200/5650  18385s
+theta* 3400/5650  19599s
+theta* 3600/5650  20502s
+theta* 3800/5650  21670s
+theta* 4000/5650  23005s
+theta* 4200/5650  24195s
+theta* 4400/5650  25164s
+theta* 4600/5650  26600s
+theta* 4800/5650  28111s
+theta* 5000/5650  28896s
+theta* 5200/5650  29725s
+theta* 5400/5650  30759s
+theta* 5600/5650  33510s
+theta* {'computed': 5650, 'seconds': 36994.6, 'err_max_computed': 0.00010115041018088355}
+C2 fit {"seconds": 4935.4, "converged": true, "iterations": 827, "nll": 43.33717368962436, "w": [1.97923, 0.57497, 0.92276, -0.03949, -0.52865, 0.47909, -0.10926, -0.28165, 0.24237, 0.06261, -0.31323, 0.31897, 0.01585, -0.2315, 0.23854, -0.11733, -0.27753, 0.24436, 0.01888, -0.51141, 0.51554, 0.06204, -0.3
+lambda 0.001 {'inner_val_nll': 41.79615576279761, 'converged': False, 'iterations': 1000, 'seconds': 5026.7}
+lambda 0.01 {'inner_val_nll': 41.70461818776575, 'converged': True, 'iterations': 666, 'seconds': 3368.6}
+lambda 0.1 {'inner_val_nll': 41.95079757879291, 'converged': True, 'iterations': 488, 'seconds': 2494.4}
+lambda 1.0 {'inner_val_nll': 42.330074353047, 'converged': True, 'iterations': 430, 'seconds': 2147.9}
+lambda 10.0 {'inner_val_nll': 42.555535960292936, 'converged': True, 'iterations': 170, 'seconds': 882.9}
+C2_term_affine fit {"inner_val": {"0.001": {"inner_val_nll": 41.79615576279761, "converged": false, "iterations": 1000, "seconds": 5026.7}, "0.01": {"inner_val_nll": 41.70461818776575, "converged": true, "iterations": 666, "seconds": 3368.6}, "0.1": {"inner_val_nll": 41.95079757879291, "converged": true, "iterations": 488, "seconds": 2494.4}, "1.0": {"inner_val_nll": 42.330074353047, "converged": true, "iterations":
+raw                          fmax 0.35484  micro_ap 0.25864  brier 0.00573  logloss 0.02637  ece 0.00061
+max_closure                  fmax 0.35838  micro_ap 0.25936  brier 0.00576  logloss 0.02643  ece 0.00100
+isotonic                     fmax 0.35631  micro_ap 0.26165  brier 0.00572  logloss 0.02627  ece 0.00061
+depth_platt_iso              fmax 0.35572  micro_ap 0.26407  brier 0.00574  logloss 0.02664  ece 0.00261
+term_platt_iso               fmax 0.35722  micro_ap 0.27866  brier 0.00572  logloss 0.02646  ece 0.00293
+neighbor_lr_iso              fmax 0.35401  micro_ap 0.26794  brier 0.00572  logloss 0.02659  ece 0.00268
+same_features_lr_iso         fmax 0.35566  micro_ap 0.26407  brier 0.00574  logloss 0.02665  ece 0.00261
+theta_star_feature_lr_iso    fmax 0.35576  micro_ap 0.26399  brier 0.00574  logloss 0.02664  ece 0.00260
+whole_vector_pca32_lr_iso    fmax 0.35410  micro_ap 0.27208  brier 0.00573  logloss 0.02657  ece 0.00298
+C2                           fmax 0.35551  micro_ap 0.21558  brier 0.00619  logloss 0.02803  ece 0.00308
+C2_term_affine               fmax 0.35403  micro_ap 0.23233  brier 0.00610  logloss 0.02764  ece 0.00270
+C2_term_affine - raw                         fmax [-0.004, -0.0008, 0.0026]  ap [-0.0407, -0.0262, -0.0123]
+C2_term_affine - max_closure                 fmax [-0.0076, -0.0045, -0.0011]  ap [-0.0414, -0.0269, -0.0131]
+C2_term_affine - isotonic                    fmax [-0.0055, -0.0023, 0.0012]  ap [-0.044, -0.0293, -0.0152]
+C2_term_affine - depth_platt_iso             fmax [-0.0051, -0.0017, 0.0019]  ap [-0.0461, -0.0317, -0.0178]
+C2_term_affine - term_platt_iso              fmax [-0.0064, -0.0032, -0.0004]  ap [-0.0603, -0.0461, -0.0321]
+C2_term_affine - neighbor_lr_iso             fmax [-0.0036, -0.0002, 0.003]  ap [-0.0501, -0.0356, -0.0215]
+C2_term_affine - same_features_lr_iso        fmax [-0.005, -0.0016, 0.0019]  ap [-0.0461, -0.0317, -0.0178]
+C2_term_affine - theta_star_feature_lr_iso   fmax [-0.005, -0.0018, 0.0015]  ap [-0.0461, -0.0316, -0.0176]
+C2_term_affine - whole_vector_pca32_lr_iso   fmax [-0.003, 0.0001, 0.0035]  ap [-0.0535, -0.0396, -0.0257]
+C2_term_affine - C2                          fmax [-0.0048, -0.0017, 0.0017]  ap [0.0076, 0.0167, 0.026]
+C2 - raw                                     fmax [-0.0011, 0.0009, 0.0028]  ap [-0.0576, -0.0429, -0.0259]
+C2 - max_closure                             fmax [-0.005, -0.0027, -0.0008]  ap [-0.0596, -0.0438, -0.0262]
+C2 - isotonic                                fmax [-0.0026, -0.0007, 0.0014]  ap [-0.0606, -0.0459, -0.0288]
+C2 - depth_platt_iso                         fmax [-0.0021, -0.0, 0.002]  ap [-0.063, -0.0483, -0.0315]
+C2 - term_platt_iso                          fmax [-0.0045, -0.0016, 0.0012]  ap [-0.0778, -0.063, -0.0458]
+C2 - neighbor_lr_iso                         fmax [-0.0006, 0.0014, 0.0035]  ap [-0.0668, -0.0521, -0.0357]
+C2 - same_features_lr_iso                    fmax [-0.0019, 0.0, 0.0021]  ap [-0.063, -0.0483, -0.0316]
+C2 - theta_star_feature_lr_iso               fmax [-0.0021, -0.0001, 0.0019]  ap [-0.0629, -0.0483, -0.0314]
+C2 - whole_vector_pca32_lr_iso               fmax [-0.0005, 0.0018, 0.004]  ap [-0.0714, -0.0563, -0.0397]
+C2 - C2_term_affine                          fmax [-0.0017, 0.0017, 0.0048]  ap [-0.026, -0.0167, -0.0076]
+{
+ "decision_C2_term_affine": {
+  "H1_ap_beats_isotonic": false,
+  "H2_ap_beats_every_fitted_baseline": false,
+  "H2_detail": {
+   "depth_platt_iso": false,
+   "term_platt_iso": false,
+   "neighbor_lr_iso": false,
+   "same_features_lr_iso": false,
+   "theta_star_feature_lr_iso": false,
+   "whole_vector_pca32_lr_iso": false
+  },
+  "H3_fmax_noninferior_to_isotonic_and_fitted": false,
+  "H3_detail": {
+   "isotonic": false,
+   "depth_platt_iso": false,
+   "term_platt_iso": false,
+   "neighbor_lr_iso": true,
+   "same_features_lr_iso": true,
+   "theta_star_feature_lr_iso": false,
+   "whole_vector_pca32_lr_iso": true
+  }
+ },
+ "decision_C2": {
+  "H1_ap_beats_isotonic": false,
+  "H2_ap_beats_every_fitted_baseline": false,
+  "H2_detail": {
+   "depth_platt_iso": false,
+   "term_platt_iso": false,
+   "neighbor_lr_iso": false,
+   "same_features_lr_iso": false,
+   "theta_star_feature_lr_iso": false,
+   "whole_vector_pca32_lr_iso": false
+  },
+  "H3_fmax_noninferior_to_isotonic_and_fitted": true,
+  "H3_detail": {
+   "isotonic": true,
+   "depth_platt_iso": true,
+   "term_platt_iso": true,
+   "neighbor_lr_iso": true,
+   "same_features_lr_iso": true,
+   "theta_star_feature_lr_iso": true,
+   "whole_vector_pca32_lr_iso": true
+  }
+ }
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p7_3_go_bp_locked_time_split_evaluation.py --input cnn --workers 128 --bootstrap 1000"
+	User time (seconds): 5989670.06
+	System time (seconds): 5383.25
+	Percent of CPU this job got: 5638%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 29:32:11
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 38320092
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 799
+	Minor (reclaiming a frame) page faults: 220310686
+	Voluntary context switches: 12786004
+	Involuntary context switches: 4746207
+	Swaps: 0
+	File system inputs: 495768
+	File system outputs: 1306992
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p7_3_go_bp_locked_time_split_evaluation_go_bp_cnn_20261026-001436.log

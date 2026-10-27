@@ -1,0 +1,41 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_5_nested_constrained_model_C2.py
+# sha256 : c3117327ffea46d8e081c0eadc3875030eb92f6e05566926e6b8dffa1a9e082f
+# args   : --ns go_mf --input cnn --workers 32 --bootstrap 1000 --maxiter 300
+# host   : nid002585   slurm_job: 23037335
+# start  : 2026-10-21T17:39:47+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+{"theory": "dgp2_go_mf", "input": "cnn", "eps": 0.001, "stage": "exploratory split (same as P4.3)", "proteins_fit": 1064, "proteins_eval": 1065, "moment_match": {"seconds": 804.6, "err_median": 1.0797055836064828e-06, "err_p99": 6.446945598588933e-05, "err_max": 0.06309593228417812}}
+raw                      fmax 0.49157  micro_ap 0.43008  brier 0.00970  logloss 0.04099  ece 0.00465
+isotonic                 fmax 0.49461  micro_ap 0.43339  brier 0.00968  logloss 0.04082  ece 0.00467
+isotonic_shifted_C2_w0   fmax 0.49386  micro_ap 0.43346  brier 0.00967  logloss 0.04067  ece 0.00411
+C2                       fmax 0.50533  micro_ap 0.45814  brier 0.00907  logloss 0.03897  ece 0.00102
+depth_platt_iso          fmax 0.48909  micro_ap 0.43566  brier 0.00928  logloss 0.03935  ece 0.00118
+term_platt_iso           fmax 0.49277  micro_ap 0.45022  brier 0.00913  logloss 0.03879  ece 0.00085
+neighbor_lr_iso          fmax 0.49002  micro_ap 0.44154  brier 0.00922  logloss 0.03919  ece 0.00107
+{"seconds": 1174.8, "converged": true, "iterations": 282, "nll_at_w0": 15.328887620286027, "nll_fitted": 14.698552503429179, "w": [[4.5101, -0.3178, -0.0438], [0.0743, -0.095, 0.1081], [0.0288, 0.1206, -0.1576], [-0.0137, 0.0637, -0.0223], [-0.0128, 0.1785, -0.1982], [0.165, 0.0749, -0.0417], [0.0171, 0.1731, -0.2003], [0.0343, 0.3932, -0.249], [-0.0527, 0.2418, 0.2413]]}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_5_nested_constrained_model_C2.py --ns go_mf --input cnn --workers 32 --bootstrap 1000 --maxiter 300"
+	User time (seconds): 27447.25
+	System time (seconds): 2.26
+	Percent of CPU this job got: 760%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:00:08
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 337168
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 480
+	Minor (reclaiming a frame) page faults: 164320
+	Voluntary context switches: 14719
+	Involuntary context switches: 20377
+	Swaps: 0
+	File system inputs: 175868
+	File system outputs: 23600
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-21T18:40:01+03:00   exit: 0

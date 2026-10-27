@@ -1,0 +1,386 @@
+{
+  "ns": "go_cc",
+  "input": "fused",
+  "proteins_eval": 1456,
+  "C2_metrics": {
+    "fmax": 0.7061762537332028,
+    "micro_ap": 0.6915290605606176,
+    "brier": 0.01083061338705557,
+    "logloss": 0.04188883731177689,
+    "ece": 0.0007118956615747083
+  },
+  "w0_metrics": {
+    "fmax": 0.6967737897386228,
+    "micro_ap": 0.66720931740455,
+    "brier": 0.011564053079696105,
+    "logloss": 0.043882256536719094,
+    "ece": 0.003575876552075931
+  },
+  "max_metric_difference_vs_p46": 0.0,
+  "w0_error_eval": {
+    "max": 0.07111766615079801,
+    "median": 1.111358135560958e-06,
+    "over_1e_3": 14,
+    "over_1e_2": 10,
+    "nonroot_max": 0.07111766615079801,
+    "nonroot_over_1e_2": 10
+  },
+  "C2_clipping": {
+    "rows": 16,
+    "theta_min": -36.77071642604837,
+    "theta_max": 27.78152690252938,
+    "max_prediction_change": 0.11384337417235924,
+    "max_prediction_change_nonroot": 0.11384337417235924,
+    "stable_metrics": {
+      "fmax": 0.7061762537332028,
+      "micro_ap": 0.6914501683168628,
+      "brier": 0.010831743507949597,
+      "logloss": 0.04190441451768885,
+      "ece": 0.0007141264496617973
+    }
+  },
+  "worst_moment_matches": [
+    {
+      "protein_row": 172,
+      "old_err": 0.062277343178781655,
+      "stable_err": 0.06139242469030952,
+      "theta_min": -27.648140266548534,
+      "theta_max": 23.881157674314924,
+      "clipped_objective_gradient_mismatch": 0.6520302488147969
+    },
+    {
+      "protein_row": 1252,
+      "old_err": 0.0661878926537022,
+      "stable_err": 0.06618735853910211,
+      "theta_min": -27.630065056410963,
+      "theta_max": 25.263187908048266,
+      "clipped_objective_gradient_mismatch": 0.0
+    },
+    {
+      "protein_row": 2494,
+      "old_err": 0.06824240900864073,
+      "stable_err": 0.06819891186046773,
+      "theta_min": -27.395502654548558,
+      "theta_max": 27.631278495401453,
+      "clipped_objective_gradient_mismatch": 0.7551851340106508
+    },
+    {
+      "protein_row": 1480,
+      "old_err": 0.07111766615079801,
+      "stable_err": 0.05473209406904028,
+      "theta_min": -22.112936003937836,
+      "theta_max": 27.697314772577695,
+      "clipped_objective_gradient_mismatch": 0.560419367278788
+    },
+    {
+      "protein_row": 159,
+      "old_err": 0.0914933444720246,
+      "stable_err": 0.09566737696263387,
+      "theta_min": -21.527042628953485,
+      "theta_max": 28.822896330762685,
+      "clipped_objective_gradient_mismatch": 0.04284217257802003
+    }
+  ],
+  "toy_clipping_counterexample": {
+    "theta": [
+      -40.0,
+      40.0
+    ],
+    "reported_A": 13.062115003709668,
+    "true_A": 0.6931471805599472,
+    "reported_gradient": [
+      0.5000055304914514,
+      0.5000055304909529
+    ],
+    "finite_difference": [
+      0.0,
+      1.0000000000331966
+    ],
+    "true_gradient": [
+      0.49999999999999906,
+      0.5000000000000009
+    ]
+  },
+  "ve_checks": [
+    {
+      "row": 2366,
+      "term": 17,
+      "reference": 0.0006815806111532089,
+      "circuit": 0.000681580611158999,
+      "abs_error": 5.7901817021588364e-15
+    },
+    {
+      "row": 314,
+      "term": 17,
+      "reference": 0.00808220088349363,
+      "circuit": 0.008082200883496999,
+      "abs_error": 3.3688329903469594e-15
+    }
+  ],
+  "controls": {
+    "M_original_penalty": {
+      "raw": {
+        "fmax": 0.6975305824983752,
+        "micro_ap": 0.6718475067918968,
+        "brier": 0.01122904843645914,
+        "logloss": 0.042981947918580295,
+        "ece": 0.0011926453394463926
+      },
+      "isotonic": {
+        "fmax": 0.6975353074311201,
+        "micro_ap": 0.6718890513334417,
+        "brier": 0.011228619845855237,
+        "logloss": 0.042972103787207956,
+        "ece": 0.0011939304547434783
+      },
+      "fits": [
+        {
+          "depth": 0,
+          "terms": 1,
+          "success": true,
+          "grad_max": 1.878205730158032e-09,
+          "ridge": 0.001
+        },
+        {
+          "depth": 1,
+          "terms": 3,
+          "success": true,
+          "grad_max": 4.30512941463658e-09,
+          "ridge": 0.001
+        },
+        {
+          "depth": 2,
+          "terms": 129,
+          "success": true,
+          "grad_max": 3.7954881935660986e-09,
+          "ridge": 0.001
+        },
+        {
+          "depth": 3,
+          "terms": 144,
+          "success": true,
+          "grad_max": 1.5911526002416391e-09,
+          "ridge": 0.001
+        },
+        {
+          "depth": 4,
+          "terms": 122,
+          "success": true,
+          "grad_max": 2.1855893538699127e-09,
+          "ridge": 0.001
+        },
+        {
+          "depth": 5,
+          "terms": 115,
+          "success": true,
+          "grad_max": 3.2715169492165096e-10,
+          "ridge": 0.001
+        },
+        {
+          "depth": 6,
+          "terms": 67,
+          "success": true,
+          "grad_max": 9.833240614180814e-11,
+          "ridge": 0.001
+        },
+        {
+          "depth": 7,
+          "terms": 24,
+          "success": true,
+          "grad_max": 3.504823798433873e-08,
+          "ridge": 0.001
+        },
+        {
+          "depth": 8,
+          "terms": 15,
+          "success": true,
+          "grad_max": 2.437825154836756e-08,
+          "ridge": 0.001
+        },
+        {
+          "depth": 9,
+          "terms": 12,
+          "success": true,
+          "grad_max": 1.0834602772626942e-09,
+          "ridge": 0.001
+        }
+      ]
+    },
+    "M_matched_penalty": {
+      "raw": {
+        "fmax": 0.6972299027187597,
+        "micro_ap": 0.671622654925315,
+        "brier": 0.011213580371234337,
+        "logloss": 0.04293930367343607,
+        "ece": 0.0007712710208375145
+      },
+      "isotonic": {
+        "fmax": 0.6973284748936182,
+        "micro_ap": 0.671726954866918,
+        "brier": 0.01121217639107172,
+        "logloss": 0.04292051350692932,
+        "ece": 0.0007655920435371323
+      },
+      "fits": [
+        {
+          "depth": 0,
+          "terms": 1,
+          "success": true,
+          "grad_max": 1.878205730158032e-09,
+          "ridge": 0.001
+        },
+        {
+          "depth": 1,
+          "terms": 3,
+          "success": true,
+          "grad_max": 1.7144158921287775e-09,
+          "ridge": 0.0003333333333333333
+        },
+        {
+          "depth": 2,
+          "terms": 129,
+          "success": true,
+          "grad_max": 8.078133576409475e-09,
+          "ridge": 7.751937984496124e-06
+        },
+        {
+          "depth": 3,
+          "terms": 144,
+          "success": true,
+          "grad_max": 7.609508113858231e-07,
+          "ridge": 6.944444444444445e-06
+        },
+        {
+          "depth": 4,
+          "terms": 122,
+          "success": true,
+          "grad_max": 4.2642563114684605e-09,
+          "ridge": 8.19672131147541e-06
+        },
+        {
+          "depth": 5,
+          "terms": 115,
+          "success": true,
+          "grad_max": 3.775787412573882e-08,
+          "ridge": 8.695652173913044e-06
+        },
+        {
+          "depth": 6,
+          "terms": 67,
+          "success": true,
+          "grad_max": 2.980444736434598e-09,
+          "ridge": 1.4925373134328359e-05
+        },
+        {
+          "depth": 7,
+          "terms": 24,
+          "success": true,
+          "grad_max": 4.887547390888746e-09,
+          "ridge": 4.1666666666666665e-05
+        },
+        {
+          "depth": 8,
+          "terms": 15,
+          "success": true,
+          "grad_max": 9.564550515971207e-08,
+          "ridge": 6.666666666666667e-05
+        },
+        {
+          "depth": 9,
+          "terms": 12,
+          "success": true,
+          "grad_max": 5.2223790910453915e-09,
+          "ridge": 8.333333333333333e-05
+        }
+      ]
+    },
+    "L_matched_penalty": {
+      "raw": {
+        "fmax": 0.6970404557396307,
+        "micro_ap": 0.6716832156611858,
+        "brier": 0.011213565319438033,
+        "logloss": 0.04294195308200772,
+        "ece": 0.0007418791412277338
+      },
+      "isotonic": {
+        "fmax": 0.6975217488321007,
+        "micro_ap": 0.6718272172491313,
+        "brier": 0.01121160430513261,
+        "logloss": 0.04291684472681812,
+        "ece": 0.0007401980334223831
+      },
+      "fits": [
+        {
+          "depth": 0,
+          "terms": 1,
+          "success": true,
+          "grad_max": 1.061596007406523e-08,
+          "ridge": 0.001
+        },
+        {
+          "depth": 1,
+          "terms": 3,
+          "success": true,
+          "grad_max": 1.946736222268111e-08,
+          "ridge": 0.0003333333333333333
+        },
+        {
+          "depth": 2,
+          "terms": 129,
+          "success": true,
+          "grad_max": 5.332173981613251e-09,
+          "ridge": 7.751937984496124e-06
+        },
+        {
+          "depth": 3,
+          "terms": 144,
+          "success": true,
+          "grad_max": 2.723736145108298e-10,
+          "ridge": 6.944444444444445e-06
+        },
+        {
+          "depth": 4,
+          "terms": 122,
+          "success": true,
+          "grad_max": 3.796397171120376e-10,
+          "ridge": 8.19672131147541e-06
+        },
+        {
+          "depth": 5,
+          "terms": 115,
+          "success": true,
+          "grad_max": 2.2159001876265123e-09,
+          "ridge": 8.695652173913044e-06
+        },
+        {
+          "depth": 6,
+          "terms": 67,
+          "success": true,
+          "grad_max": 5.926258982177457e-10,
+          "ridge": 1.4925373134328359e-05
+        },
+        {
+          "depth": 7,
+          "terms": 24,
+          "success": true,
+          "grad_max": 6.564487405691193e-09,
+          "ridge": 4.1666666666666665e-05
+        },
+        {
+          "depth": 8,
+          "terms": 15,
+          "success": true,
+          "grad_max": 3.6170905394373868e-09,
+          "ridge": 6.666666666666667e-05
+        },
+        {
+          "depth": 9,
+          "terms": 12,
+          "success": true,
+          "grad_max": 4.393176681569437e-09,
+          "ridge": 8.333333333333333e-05
+        }
+      ]
+    }
+  }
+}

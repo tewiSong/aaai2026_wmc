@@ -1,0 +1,22 @@
+{
+  "sample_rows": 105,
+  "sample_subjects": 1394,
+  "subjects_absent_from_training": 0,
+  "namespaces": {
+    "go_cc": {
+      "cnn_max_difference": 0.0,
+      "fused_max_difference": 4.941684106363198e-08,
+      "all_label_edge_violations": 0
+    },
+    "go_mf": {
+      "cnn_max_difference": 0.0,
+      "fused_max_difference": 4.9656213807480754e-08,
+      "all_label_edge_violations": 0
+    },
+    "go_bp": {
+      "cnn_max_difference": 0.0,
+      "fused_max_difference": 5.399939162487044e-08,
+      "all_label_edge_violations": 0
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "ontology": "chebi",
+  "heuristic": "min-fill",
+  "bags_analysed": 1126,
+  "bags_total": 1126,
+  "seconds": 102.1,
+  "max_bag_size": 739,
+  "max_log2_states": 623.016,
+  "max_log2_states_lower_bound": 483,
+  "max_dilworth_width": 483,
+  "exact_counted_fraction": 0.705,
+  "note": "dense JT cost ~ 2^max_bag_size; determinism-aware cost ~ 2^max_log2_states (log2_chain_bound is a rigorous upper bound on log2 #up-sets)"
+}
+largest bags (size, width, log2 bound, log2 exact):
+    739   483    623.02 None
+    739   483    620.27 None
+    738   482    621.51 None
+    737   482    621.09 None
+    690   458    584.16 None
+    689   457    582.90 None
+    688   457    582.32 None
+    687   457    581.90 None
+    686   457    581.58 None
+    685   457    581.16 None
+    684   457    580.75 None
+    683   456    579.75 None
+    682   455    579.33 None
+    681   454    578.33 None
+    680   453    576.75 None
+written /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/results/p0_4_determinism_chebi_min-fill.json
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p0_4_determinism_profile_of_treewidth_bags.py --ontology chebi --heuristic min-fill"
+	User time (seconds): 82.04
+	System time (seconds): 21.48
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:44.60
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1802236
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 261
+	Minor (reclaiming a frame) page faults: 3224169
+	Voluntary context switches: 8207
+	Involuntary context switches: 945
+	Swaps: 0
+	File system inputs: 118156
+	File system outputs: 248
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p0_4_determinism_profile_of_treewidth_bags_chebi_20261016-211946.log

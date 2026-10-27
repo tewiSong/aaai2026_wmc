@@ -1,0 +1,16 @@
+{
+  "ontology": "go_mf",
+  "heuristic": "min-degree",
+  "terms": 11170,
+  "width": 42,
+  "complete": true,
+  "seconds": 0.05,
+  "paper_minfill_width": 37,
+  "n_bags_ge_bag_min": 68,
+  "bag_size_quantiles": {
+    "0.5": 20,
+    "0.9": 35,
+    "0.99": 42,
+    "1.0": 43
+  }
+}

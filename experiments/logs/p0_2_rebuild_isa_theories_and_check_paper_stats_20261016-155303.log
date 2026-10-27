@@ -1,0 +1,41 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p0_2_rebuild_isa_theories_and_check_paper_stats.py
+# sha256 : 9c66772b9f97ed992ea32cb8b5232b7c048d4529c13f2beac267d5bd806c2227
+# args   : 
+# host   : nid002473   slurm_job: 22908152
+# start  : 2026-10-16T15:53:03+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+{'name': 'go_cc', 'terms': 4183, 'paper_terms': 4041, 'edges': 4839, 'dropped_isa': 0, 'pct_mp': 14.7, 'paper_pct_mp': 13.0, 'max_parents': 4, 'max_children': 426, 'max_undirected_deg': 427, 'paper_max_deg': 4, 'roots': 1, 'components': 1, 'is_dag': True, 'terms_match': False}
+{'name': 'go_mf', 'terms': 11170, 'paper_terms': 10131, 'edges': 13611, 'dropped_isa': 0, 'pct_mp': 17.56, 'paper_pct_mp': 20.0, 'max_parents': 7, 'max_children': 344, 'max_undirected_deg': 345, 'paper_max_deg': 7, 'roots': 1, 'components': 1, 'is_dag': True, 'terms_match': False}
+{'name': 'go_bp', 'terms': 28438, 'paper_terms': 25950, 'edges': 52305, 'dropped_isa': 0, 'pct_mp': 56.59, 'paper_pct_mp': 53.0, 'max_parents': 9, 'max_children': 197, 'max_undirected_deg': 198, 'paper_max_deg': 9, 'roots': 1, 'components': 1, 'is_dag': True, 'terms_match': False}
+{'name': 'uberon', 'terms': 14975, 'paper_terms': 14977, 'edges': 19387, 'dropped_isa': 0, 'pct_mp': 23.94, 'paper_pct_mp': 24.0, 'max_parents': 7, 'max_children': 347, 'max_undirected_deg': 348, 'paper_max_deg': 7, 'roots': 4, 'components': 4, 'is_dag': True, 'terms_match': False}
+{'name': 'uberon_allterms', 'terms': 14975, 'paper_terms': 14977, 'edges': 19387, 'dropped_isa': 0, 'pct_mp': 23.94, 'paper_pct_mp': 24.0, 'max_parents': 7, 'max_children': 347, 'max_undirected_deg': 348, 'paper_max_deg': 7, 'roots': 4, 'components': 4, 'is_dag': True, 'terms_match': False}
+{'name': 'chebi', 'terms': 205592, 'paper_terms': 205592, 'edges': 285589, 'dropped_isa': 0, 'pct_mp': 24.66, 'paper_pct_mp': 24.7, 'max_parents': 14, 'max_children': 8078, 'max_undirected_deg': 8079, 'paper_max_deg': 14, 'roots': 291, 'components': 290, 'is_dag': True, 'terms_match': True}
+
+written /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/results/p0_2_ontology_structure_vs_paper.tsv
+Which degree column matches the paper's 'Max deg.' is decided from this table; a term-count mismatch must be explained before P1.
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p0_2_rebuild_isa_theories_and_check_paper_stats.py"
+	User time (seconds): 5.72
+	System time (seconds): 5.13
+	Percent of CPU this job got: 92%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:11.68
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 220304
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 199
+	Minor (reclaiming a frame) page faults: 77195
+	Voluntary context switches: 5379
+	Involuntary context switches: 76
+	Swaps: 0
+	File system inputs: 682678
+	File system outputs: 16064
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-16T15:53:20+03:00   exit: 0

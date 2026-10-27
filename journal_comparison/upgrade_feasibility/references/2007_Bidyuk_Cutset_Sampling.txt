@@ -1,0 +1,2701 @@
+PDF PAGE 1
+Cutset sampling for Bayesian networks
+Cutset sampling for Bayesian networks
+Bozhena Bidyuk bbidyuk@ics.uci.edu
+Rina Dechter dechter@ics.uci.edu
+School of Information and Computer Science
+University Of California Irvine
+Irvine, CA 92697-3425
+Abstract
+The paper presents a new sampling methodology for Bayesian networks that samples
+only a subset of variables and applies exact inference to the rest. Cutset sampling is a
+network structure-exploiting application of the Rao-Blackwellisation principl e to sampling
+in Bayesian networks. It improves convergence by exploiting memory-based inference al-
+gorithms. It can also be viewed as an anytime approximation of exact cuts et-conditioning
+algorithm (Pearl, 1988). Cutset sampling can be implemented eﬃciently when the sampled
+variables constitute a loop-cutset of the Bayesian network and, more generally, w hen the
+induced width of the network’s graph conditioned on the observed sampled variables is
+bounded by a constant w. We demonstrate empirically the beneﬁt of this scheme on a
+range of benchmarks.
+1. Introduction
+Sampling is a common method for approximate inference in Bay esian networks. When
+exact algorithms are impractical due to prohibitive time an d memory demands, it is often
+the only feasible approach that oﬀers performance guarante es. Given a Bayesian network
+over the variables X ={X1, ..., Xn}, evidence e, and a set of samples {x(t)}from P (X|e), an
+estimate ˆf (X) of the expected value of function f (X) can be obtained from the generated
+samples via ergodic average:
+E[f (X)|e]≈ˆf (X) = 1
+T
+∑
+t
+f (x(t)) (1)
+where T is the number of samples. ˆf (X) can be shown to converge to the exact value as T
+increases. The central query of interest over Bayesian netw orks is computing the posterior
+marginals P (xi|e) for each value xi of variable Xi, also called belief updating . For this
+query, f (X) equals a δ-function and the above equation reduces to counting the frac tion of
+occurrences of Xi = xi in the samples:
+ˆP (xi|e) = 1
+T
+T∑
+t=1
+δ(xi|x(t)) (2)
+where δ(xi|x(t))=1 iﬀ xi = x(t)
+i and δ(xi|x(t))=0 otherwise. Alternatively, a mixture estima-
+tor can be used:
+ˆP (xi|e)] = 1
+T
+T∑
+t=1
+P (xi|x(t)
+− i) (3)
+1
+
+PDF PAGE 2
+Bidyuk & Dechter
+where x(t)
+− i = x(t)\xi.
+A signiﬁcant limitation of sampling, however, is that the st atistical variance increases
+when the number of variables in the network grows and therefo re the number of samples
+necessary for accurate estimation increases. In this paper , we present a sampling scheme for
+Bayesian networks with discrete variables that reduces the sampling variance by sampling
+from a subset of the variables, a technique also known as collapsing or Rao-Blackwellisation.
+The fundamentals of Rao-Blackwellised sampling were develo ped by Casella and Robert
+(1996) and Liu, Wong, and Kong (1994) for Gibbs sampling and M acEachern, Clyde,
+and Liu (1998) and Doucet, Gordon, and Krishnamurthy (1999) for importance sampling.
+Doucet, de Freitas, Murphy, and Russell (2000) extended Rao -Blackwellisation to Particle
+Filtering in Dynamic Bayesian networks.
+The basic Rao-Blackwellisation scheme can be described as fo llows. Suppose we parti-
+tion the space of variables X into two subsets C and Z. Subsequently, we can re-write any
+function f (X) as f (C, Z). If we can generate samples from distribution P (C|e) and com-
+pute E[f (C, Z)|c, e], then we can perform sampling on subset C only, generating samples
+c(1), c(2), ..., c(T ) and approximating the quantity of interest by:
+E[f (C, Z)|e] = EC[EZ[f (C, Z)|c, e]]≈ˆf (X) = 1
+T
+T∑
+t=1
+EZ[f (C, Z)|c(t), e] (4)
+The posterior marginals’ estimates for the cutset variable s can be obtained using an expres-
+sion similar to Eq.(2):
+ˆP (ci|e) = 1
+T
+∑
+t
+δ(ci|c(t)) (5)
+or using a mixture estimator similar to Eq.(3):
+ˆP (ci|e) = 1
+T
+∑
+t
+P (ci|c(t)
+− i, e) (6)
+For Xi∈X\C, E, E[P (Xi|e)] = EC[P (Xi|c, e)] and Eq.(4) becomes,
+ˆP (Xi|e) = 1
+T
+∑
+t
+P (Xi|c(t), e) (7)
+Since the convergence rate of Gibbs sampler is tied to the max imum correlation between
+two samples (Liu, 2001), we can expect an improvement in the c onvergence rate when
+sampling in a lower dimensional space since 1) some of the hig hly-correlated variables may
+be marginalized out; 2) the dependencies between the variab les inside a smaller set are likely
+to be weaker because the variables will be farther apart and t heir sampling distributions will
+be smoothed out. Additionally, the estimates obtained from sampling in a lower dimensional
+space can be expected to have lower sampling variance and the refore require fewer samples
+to achieve the same accuracy of the estimates. Yet, the cost o f generating each sample may
+increase. Indeed, the principles of Rao-Blackwellised samp ling have been applied only in
+a few classes of probabilistic models with specialized stru cture (Kong, Liu, & Wong, 1994;
+Escobar, 1994; MacEachern, 1994; Liu, 1996; Doucet & Andrie u, 2001; Andrieu, de Freitas,
+& Doucet, 2002; Rosti & Gales, 2004).
+2
+
+PDF PAGE 3
+Cutset sampling for Bayesian networks
+The contribution of this paper is in presenting a general, st ructure-based scheme which
+applies the Rao-Blackwellisation principle to Bayesian net works. The idea is to exploit the
+property that conditioning on a subset of variables simpliﬁ es the network’s structure allow-
+ing eﬃcient query processing by exact algorithms. In genera l, exact inference by variable
+elimination (Dechter, 1999a, 2003) or join-tree algorithms (Lauritzen & Spiegelhalter, 1988;
+Jensen, Lauritzen, & Olesen, 1990) is time and space exponen tial in the induced-width w
+of the network. However, when a subset of the variables is ass igned (i.e., conditioned upon)
+the induced-width of the conditioned network may be reduced.
+The idea of cutset sampling is to choose a subset of variables C such that conditioning
+on C yields a sparse enough Bayesian network having a small induc ed width to allow
+exact inference. Since a sample is an assignment to all cutse t variables, we can generate
+a new sample over the cutset variables eﬃciently over the con ditioned network where the
+computation of P (c|e) and P (Xi|c, e) can be bounded. In particular, if the sampling set C
+cuts all the cycles in the network (i.e., it is a loop-cutset), inference over the conditioned
+network becomes linear. In general, if C is a w-cutset, namely a subset of nodes such
+that when assigned, the induced-width of the conditioned net work is w, the time and space
+complexity of computing the next sample is O(|C|·N· dw+2) where d is the maximum
+domain size and N =|X|.
+The idea of exploiting properties of conditioning on a subse t of variables has been ﬁrst
+proposed for exact belief updating in the context of cutset-c onditioning (Pearl, 1988). This
+scheme requires enumerating all instantiations of the cuts et variables. Since the number of
+instances is exponential in the size of the cutset |C|, sampling over the cutset space may
+be the right compromise when the size of the cutset is too big. Thus, sampling on a cutset
+can also be viewed as an anytime approximation of the cutset-c onditioning approach.
+Although Rao-Blackwellisation in general and cutset sampli ng in particular can be ap-
+plied in the context of any sampling algorithm, we will intro duce the principle in the con-
+text of Gibbs sampling (Geman & Geman, 1984; Gilks, Richards on, & Spiegelhalter, 1996;
+MacKay, 1996), a Markov Chain Monte Carlo sampling method fo r Bayesian networks.
+Extension to any other sampling approach or any other graphi cal model, such as Markov
+networks, should be straight forward. We recently demonstr ated how the idea can be in-
+corporated into importance sampling (Bidyuk & Dechter, 200 6).
+The paper deﬁnes and analyzes the cutset sampling scheme and investigates empirically
+the trade-oﬀs between sampling and exact computation over a v ariety of randomly generated
+networks, grid structure networks as well as known real-life benchmarks such as CPCS
+networks and coding networks. We show that cutset sampling c onverges faster than pure
+sampling in terms of the number of samples, as dictated by the ory, and is also almost always
+time-wise cost eﬀective on all the benchmarks tried. We also d emonstrate the applicability of
+this scheme to some deterministic networks, such as Hailﬁnd er network and coding networks,
+where Markov chain is non-ergodic and Gibbs sampling does not converge.
+Section 2 provides background information. Speciﬁcally, s ection 2.1 introduces Bayesian
+networks, section 2.2 reviews exact inference algorithms f or Bayesian networks, and sec-
+tion 2.3 provides background on Gibbs sampling. The contrib ution of the paper presenting
+the cutset sampling starts in section 3. Section 4 presents t he empirical evaluation of cutset
+sampling. We also present an empirical evaluation of the sam pling variance and the result-
+ing standard error based on the method of batch means (for more details, see Geyer, 1992).
+3
+
+PDF PAGE 4
+Bidyuk & Dechter
+In section 5, we review previous application of Rao-Blackwel lisation and section 6 provides
+summary and conclusions.
+2. Background
+2.1 Preliminaries
+In this section, we deﬁne essential terminology and provide background information on
+Bayesian networks. We use upper case letters without subscr ipts, such as X, to denote sets
+of variables and lower case letters without subscripts to de note an instantiation of a group
+of variables (e.g., x indicates that each variable in set X is assigned a value). We use an
+upper case letter with a subscript, such as Xi, to denote a single variable and a lower case
+letter with a subscript, such as xi, to denote an instantiated variable (e.g., xi denotes an
+arbitrary value in the domain of Xi and means Xi = xi).D(Xi) denotes the domain of the
+variable Xi. A superscript in a subscripted lower case letter would be us ed to distinguish
+diﬀerent speciﬁc values for a variable, i.e., D(Xi) ={x1
+i , x2
+i , ...}. We will use x to denote an
+instantiation of a set of variables x ={x1, ..., xi− 1, xi, xi+1, ..., xn}and x− i = x\xi to denote
+x with element xi removed. Namely, x− i ={x1, x2, ..., xi− 1, xi+1, ..., xn}.
+Definition 2.1 (graph concepts) A directed graph is a pair D=<V ,E>, where V =
+{X1, ..., Xn}is a set of nodes and E ={(Xi, Xj)|Xi, Xj∈V}is the set of edges. Given
+(Xi, Xj)∈E, Xi is called a parent of Xj, and Xj is called a child of Xi. The set of
+Xi’s parents is denoted pa(Xi), or pai, while the set of Xi’s children is denoted ch(Xi), or
+chi. The family of Xi includes Xi and its parents. The moral graph of a directed graph
+D is the undirected graph obtained by connecting the parents o f all the nodes in D and
+removing the arrows. A cycle-cutset of an undirected graph a subset of nodes that, when
+removed, yields a graph without cycles. A loop in a directed graph D is a subgraph of D
+whose underlying graph is a cycle. A directed graph is acycli c if it has no directed loops. A
+directed graph is singly-connected (also called a poly-tree), if its underlying undirected
+graph has no cycles. Otherwise, it is called multiply-connected.
+Definition 2.2 (loop-cutset) A vertex v is a sink with respect to a loop L if the two
+edges adjacent to v inL are directed into v. A vertex that is not a sink with respect to a
+loopL is called an allowed vertex with respect to L. A loop-cutset of a directed graph D
+is a set of vertices that contains at least one allowed vertex with respect to each loop in D.
+Definition 2.3 (Belief Networks) Let X ={X1, ..., Xn}be a set of random variables
+over multi-valued domains D(X1), ...,D(Xn). A belief network (BN) (Pearl, 1988) is
+a pair <G, P > where G is a directed acyclic graph whose nodes are the variables X and
+P ={P (Xi|pai)|i = 1 , ..., n}is the set of conditional probability tables (CPTs) associa ted
+with each Xi. The BN represents a joint probability distribution having the product form:
+P (x1, ...., xn) =
+n∏
+i=1
+P (xi|pa(Xi))
+An evidence e is an instantiated subset of variables E⊂X.
+4
+
+PDF PAGE 5
+Cutset sampling for Bayesian networks
+The structure of the directed acyclic graph G reﬂects the dependencies between the
+variables using d-separation criterion. The parents of a variable Xi together with its children
+and parents of its children form a Markov blanket , denoted markovi, of node Xi. We
+will use xmarkovi to denote x restricted to variables in markovi. We know that the node
+Xi is independent of the rest of the variables conditioned on it s Markov blanket. Namely,
+P (xi|x− i) = P (xi|xmarkovi).
+The most common query over belief networks is belief updating which is the task of
+computing the posterior distribution P (Xi|e) given evidence e and a query variable Xi∈
+X. Reasoning in Bayesian networks is NP-hard (Cooper, 1990). F inding approximate
+posterior marginals with a ﬁxed accuracy is also NP-hard (Dag um & Luby, 1993; Abdelbar
+& Hedetniemi, 1998). When the network is a poly-tree, belief u pdating and other inference
+tasks can be accomplished in time linear in size of the input. In general, exact inference is
+exponential in the induced width of the network’s moral grap h.
+Definition 2.4 (induced-width) The width of a node in an ordered undirected graph
+is the number of the node’s neighbors that precede it in the or dering. The width of an
+ordering d, denoted w(d), is the maximum width over all nodes. The induced width
+of an ordered graph, w∗(d), is the width of the ordered graph obtained by processing the
+nodes from last to ﬁrst as follows: when node X is processed, a ll its preceding neighbors are
+connected. The resulting graph is called induced graph or triangulated graph .
+The task of ﬁnding the minimal induced width of a graph (over a ll possible orderings) is
+NP-complete (Arnborg, 1985).
+2.2 Reasoning in Bayesian networks
+Belief propagation algorithm, which we introduce in Sectio n 2.2.2 below, performs belief
+updating in singly-connected Bayesian networks in time line ar in the size of the input
+(Pearl, 1988). In loopy networks, the two main approaches fo r belief updating are cutset
+conditioning and tree clustering . These algorithms are often referred to as “inference”
+algorithms. We will brieﬂy describe the idea of clustering a lgorithms in Section 2.2.1 and
+the conditioning method in Section 2.2.3.
+2.2.1 V ariable Elimination and Join-Tree Clustering (JTC)
+The join-tree clustering approach (JTC) refers to a family of algorithms including join-
+tree propagation (Lauritzen & Spiegelhalter, 1988; Jensen et al., 1990) and bucket-tree
+elimination (Dechter, 2003, 1999a). The idea is to ﬁrst obta in a tree-decomposition of
+the network into clusters of functions connected as a tree an d then propagate messages
+between the clusters in the tree. The tree-decomposition is a singly-connected undirected
+graph whose nodes, also called clusters, contain subsets of variables and input functions
+deﬁned over those variables. The tree-decomposition must co ntain each function once and
+satisfy running intersection property (Maier, 1983). For a unifying perspective of tree-
+decomposition schemes see (Zhang & Poole, 1994; Dechter, 19 99b; Kask, Dechter, Larrosa,
+& Dechter, 2005).
+Given a tree-decomposition of the network, the message propa gation over this tree can
+be synchronized. We select any one cluster as the root of the t ree and propagate messages
+5
+
+PDF PAGE 6
+Bidyuk & Dechter
+up and down the tree. A message from cluster Vi to neighbor Vj is a function over the
+separator set Vi∩Vj that is a marginalization of the product of all functions in Vi and
+all messages that Vi received from its neighbors besides Vj. Assuming that the maximum
+number of variables in a cluster is w + 1 and maximum domain size is d, the time and
+space required to process one cluster is O(d(w+1)). Since the maximum number of clusters
+is bounded by |X|= N , the complexity of variable-elimination algorithms and clus ter-tree
+propagation schemes is O(N· d(w+1)). The parameter w, the maximum cluster size minus
+1, is called the tree-width of the tree decomposition. The min imal tree-width is identical to
+the minimal induced width of a graph.
+2.2.2 Iterative Belief Propagation (IBP)
+Belief propagation (BP) is an iterative message-passing alg orithm that performs exact infer-
+ence for singly-connected Bayesian networks (Pearl, 1988). In each iteration, every node Xi
+sends a πj(Xi) message to each child j and receives a λj(Xi) message from each child. The
+message-passing order can be organized so that it converges i n two iterations. In essence the
+algorithm is the same as the join-tree clustering approach ap plied directly to the poly-tree.
+Applied to Bayesian networks with loops, the algorithm usua lly iterates longer (until it may
+converge) and hence, is known as Iterative Belief Propagati on (IBP) or loopy belief prop-
+agation. IBP provides no guarantees on convergence or quali ty of approximate posterior
+marginals but was shown to perform well in practice (Rish, Ka sk, & Dechter, 1998; Murphy,
+Weiss, & Jordan, 1999). It is considered the best algorithm f or inference in coding networks
+(Frey & MacKay, 1997; Kschischang & Frey, 1998) where ﬁnding the most probable variable
+values equals the decoding process (McEliece, MacKay, & Che ng, 1997). Algorithm IBP
+requires linear space and usually converges fast if it conve rges. In our benchmarks, IBP
+converged within 25 iterations or less (see Section 4).
+2.2.3 Cutset Conditioning
+When the tree-width w of the Bayesian network is too large and the requirements of i nference
+schemes such as bucket elimination and join-tree clustering (JTC) exceed available memory,
+we can switch to the alternative cutset conditioning schemes (Pearl, 1988; Peot & Shachter,
+1992; Shachter, Andersen, & Solovitz, 1994). The idea of cut set conditioning is to select
+a subset of variables C⊂X\E, the cutset, and obtain posterior marginals for any node
+Xi∈X\C, E using:
+P (xi|e) =
+∑
+c∈D (C)
+P (xi|c, e)P (c|e) (8)
+Eq.(8) above implies that we can enumerate all instantiatio ns over C, perform exact infer-
+ence for each cutset instantiation c to obtain P (xi|c, e) and P (c|e) and then sum up the
+results. The total computation time is exponential in the si ze of the cutset because we have
+to enumerate all instantiations of the cutset variables.
+If C is a loop-cutset, then, when the nodes in C are assigned, the Bayesian network can
+be transformed into an equivalent poly-tree and P (xi|c, e) and P (c|e) can be computed via
+BP in time and space linear in the size of the network. For exam ple, the subset {A, D}is a
+loop-cutset of the belief network shown in Figure 1, left, wit h evidence E = e. On the right,
+6
+
+PDF PAGE 7
+Cutset sampling for Bayesian networks
+  
+ 
+
+
+
+
+
+
+ 
+
+ 
+ 
+Figure 1: When nodes A and D in the loopy Bayesian network (left) are instantiated, the
+network can be transformed into an equivalent singly-connec ted network (right).
+In the transformation process, a replica of an observed node is created for each
+child node.
+Figure 1 shows an equivalent singly-connected network resul ting from assigning values to A
+and D.
+It is well-known that the minimum induced width w∗ of the network is always less than
+the size of the smallest loop-cutset (Bertele & Brioschi, 197 2; Dechter, 2003). Namely,
+w∗ + 1≤|C|for any C. Thus, inference approaches (e.g., bucket elimination) ar e never
+worse and often are better than cutset conditioning time-wis e. However, when w∗ is too
+large we must resort to cutset conditioning search in order t o trade space for time. Those
+considerations yield a hybrid search and inference approac h. Since observed variables can
+break down the dependencies in the network, a network with an observed subset of variables
+C often can be transformed into an equivalent network with a sm aller induced width, wC,
+which we will term the adjusted induced width . Hence, when any subset of variables C⊂X
+is observed, complexity is bounded exponentially by the adj usted induced width of the
+graph wC.
+Definition 2.5 (adjusted induced width) Given a graph G=<X,E>, the adjusted
+induced width of G relative to C, denoted wC, is its induced width once C is removed
+from its moral graph.
+Definition 2.6 ( w-cutset) Given a graph G=<X,E>, a subset of nodes C ⊂X is a
+w-cutset of G if its adjusted induced width equals w.
+If C is a w-cutset, the quantities P (xi|c, e) and P (c|e) can be computed in time and
+space exponential in w, which can be much smaller than the tree-width of the uncondit ioned
+network. The resulting scheme requires memory exponential in w and time O(d|C|·N·d(w+1))
+where N is the size of the network and d is the maximum domain size. Thus, the performance
+can be tuned to the available system memory resource via the b ounding parameter w.
+Given a constant w, ﬁnding a minimal w-cutset (to minimize the cutset conditioning
+time) is also a hard problem. Several greedy heuristic appro aches have been proposed by
+7
+
+PDF PAGE 8
+Bidyuk & Dechter
+Geiger and Fishelson (2003) and by Bidyuk and Dechter (2003, 2004). We elaborate more
+in Section 3.5.
+2.3 Gibbs Sampling
+Since the complexity of inference algorithms is memory expo nential in the network’s induced
+width (or tree-width) and since resorting to the cutset-condi tioning scheme may take too
+much time when the w-cutset size is too large, we must often resort to approximati on
+methods. Sampling methods for Bayesian networks are common ly used approximation
+techniques. This section provides background on Gibbs samp ling, a Markov Chain Monte
+Carlo method, which is one of the most popular sampling schem es and is the focus of this
+paper. Although the method may be applied to the networks wit h continuous distributions,
+we limit our attention in this paper to discrete random varia bles with ﬁnite domains.
+2.3.1 Gibbs sampling for Bayesian networks
+Ordered Gibbs Sampler
+Input: A belief networkB over X={X1, ..., Xn}and evidence e={(Xi = ei)|Xi∈E⊆X}.
+Output: A set of samples {x(t)}, t = 1...T .
+1. Initialize: Assign random value x(0)
+i to each variable Xi∈X\E fromD(Xi). Assign
+evidence variables their observed values.
+2. Generate samples:
+For t = 1 to T, generate a new sample x(t):
+For i = 1 to N, compute a new value x(t)
+i for variable Xi:
+Compute distribution P (Xi|x(t)
+markovi) and sample x(t)
+i ←P (Xi|x(t)
+markovi).
+Set Xi = x(t)
+i .
+End For i
+End For t
+Figure 2: A Gibbs sampling Algorithm
+Given a Bayesian network over the variables X ={X1, ..., Xn}, and evidence e, Gibbs
+sampling (Geman & Geman, 1984; Gilks et al., 1996; MacKay, 19 96) generates a set of
+samples{x(t)}where each sample x(t) ={x(t)
+1 , ..., x(t)
+n}is an instantiation of all the variables.
+The superscript t denotes a sample index and x(t)
+i is the value of Xi in sample t. The ﬁrst
+sample can be initialized at random. When generating a new sa mple from sample x(t)
+i , a
+new value for variable Xi is sampled from probability distribution P (Xi|x(t)
+− i) (recall that
+P (Xi|x(t)
+− i) = P (Xi|x(t+1)
+1 , ..., x(t+1)
+i− 1 , x(t)
+i+1, ..., x(t)
+n )) which we will denote as xi←P (Xi|x(t)
+− i).
+The next sample x(t+1)
+i is generated from the previous sample x(t)
+i following one of two
+schemes.
+Random Scan Gibbs Sampling. Given a sample x(t) at iteration t, pick a variable
+Xi at random and sample a new value xi from the conditional distribution xi←P (Xi|x(t)
+− i)
+leaving other variables unchanged.
+8
+
+PDF PAGE 9
+Cutset sampling for Bayesian networks
+Systematic Scan (Ordered) Gibbs Sampling. Given a sample x(t), sample a new
+value for each variable in some order:
+x1 ←P (X1|x(t)
+2 , x(t)
+3 , ..., x(t)
+n )
+x2 ←P (X2|x(t+1)
+1 , x(t)
+3 , ..., x(t)
+n )
+...
+xi ←P (Xi|x(t+1)
+1 , ..., x(t+1)
+i− 1 , x(t)
+i+1, ..., x(t)
+n )
+...
+xn ←P (Xn|x(t+1)
+1 , x(t+1)
+2 , ..., x(t+1)
+n− 1 )
+In Bayesian networks, the conditional distribution P (Xi|x(t)
+− i) is dependent only on the
+assignment to the Markov blanket of variable Xi. Thus, P (Xi|x(t)
+− i)=P (Xi|x(t)
+markovi) where
+x(t)
+markovi is the restriction of x(t) to markovi. Given a Markov blanket of Xi, the sampling
+probability distribution is given explicitly by (Pearl, 19 88):
+P (xi|x(t)
+markovi) = αP (xi|x(t)
+pai)
+∏
+{j|Xj ∈ chj }
+P (x(t)
+j |x(t)
+paj ) (9)
+Thus, generating a complete new sample can be done in O(n· r) multiplication steps
+where r is the maximum family size and n is the number of variables.
+The sequence of samples x(1), x(2), ... can be viewed as a sequence of states in a Markov
+chain. The transition probability from state {x(t+1)
+1 , ..., x(t+1)
+i− 1 , x(t)
+i , x(t)
+i+1, ..., x(t)
+n}to state
+{x(t+1)
+1 , ..., x(t+1)
+i− 1 , x(t+1)
+i , x(t)
+i+1, ..., x(t)
+n}is deﬁned by the sampling distribution P (Xi|x(t)
+− i).
+By construction, a Markov chain induced by Gibbs sampling ha s an invariant distribution
+P (X|e). However, since the values assigned by the Gibbs sampler to variables in a sample
+x(t+1) depend on the assignment of values in the previous sample x(t), it follows that the
+sample x(n) depends on the initial state x(0). The convergence of the Markov chain is
+deﬁned by the rate at which the distance between the distribu tion P (x(n)|x(0), e) and the
+stationary distribution P (X|e) (i.e., variational distance, L1-distance, or χ2) converges to 0
+as a function of n. Intuitively, it reﬂects how quickly the inital state x(0) can be “forgotten.”
+The convergence is guaranteed as T→∞if Markov chain is ergodic (Pearl, 1988; Gelfand
+& Smith, 1990; MacKay, 1996). A Markov chain with a ﬁnite numb er of states is ergodic if
+it is aperiodic and irreducible (Liu, 2001). A Markov chain is aperiodic if it does not have
+regular loops. A Markov chain is irreducible if we can get fro m any state Si to any state
+Sj (including Si) with non-zero probability in a ﬁnite number of steps. The irr educibility
+guarantees that we will be able to visit (as number of samples increases) all statistically
+important regions of the state space. In Bayesian networks, the conditions are almost always
+satisﬁed as long as all conditional probabilities are posit ive (Tierney, 1994).
+To ensure that the collected samples are drawn from distribu tion close to P (X|e), a
+“burn-in” time may be allocated. Namely, assuming that it tak es≈K samples for the
+Markov chain to get close to the stationary distribution, th e ﬁrst K samples may not be in-
+cluded into the computation of posterior marginals. Howeve r, determining K is hard (Jones
+& Hobert, 2001). In general, the “burn-in” is optional in the s ense that the convergence of
+9
+
+PDF PAGE 10
+Bidyuk & Dechter
+the estimates to the correct posterior marginals does not de pend on it. For completeness
+sake, the algorithm is given in Figure 2.
+When convergence conditions are satisﬁed, an ergodic avera ge fT (X) = 1
+T
+∑
+t f (xt) for
+any function f (X) is guaranteed to converge to the expected value E[f (X)] as T increases.
+In other words, |fT (X)−E[f (X)]|→0 as T→∞. For a ﬁnite-state Markov chain that is
+irreducible and aperiodic, the following result applies (s ee Liu, 2001, Theorem 12.7.2):
+√
+T|fT (X)−E[f (X)]|→N (0, σ(f )2) (10)
+for any initial assignment to x(0). The variance term σ(f )2 is deﬁned as follows:
+σ(f )2 = 2τ (f )σ2
+where σ2 = var[f (X)] and τ (h) is the integrated autocorrelation time.
+Our focus is on computing the posterior marginals P (Xi|e) for each Xi∈X\E. The
+posterior marginals can be estimated using either a histogram estimator:
+ˆP (Xi = xi|e) = 1
+T
+T∑
+t=1
+δ(xi|x(t)) (11)
+or a mixture estimator :
+ˆP (Xi = xi|e) = 1
+T
+T∑
+t=1
+P (xi|x(t)
+− i) (12)
+The histogram estimator corresponds to counting samples wh ere Xi = xi, namely δ(xi|x(t)) =
+1 if x(t)
+i = xi and equals 0 otherwise. (Gelfand & Smith, 1990) have pointed out that since
+mixture estimator is based on estimating conditional expec tation, its sampling variance
+is smaller due to Rao-Blackwell theorem. Thus, mixture estim ator should be preferred.
+Since P (xi|x(t)
+− i) = P (xi|x(t)
+markovi), the mixture estimator is simply an average of conditional
+probabilities:
+ˆP (xi|e) = 1
+T
+T∑
+t=1
+P (xi|x(t)
+markovi) (13)
+As mentioned above, when the Markov chain is ergodic, ˆP (Xi|e) will converge to the exact
+posterior marginal P (Xi|e) as the number of samples increases. It was shown by Roberts a nd
+Sahu (1997) that random scan Gibbs sampler can be expected to converge faster than the
+systematic scan Gibbs sampler. Ultimately, the convergenc e rate of Gibbs sampler depends
+on the correlation between two consecutive samples (Liu, 19 91; Schervish & Carlin, 1992;
+Liu et al., 1994). We review this subject in the next section.
+2.4 V ariance Reduction Schemes
+The convergence rate of the Gibbs sampler depends on the stre ngth of the correlations
+between the samples (which are also the states of the Markov c hain). The term correlation
+is used here to mean that the samples are dependent, as mentio ned earlier. In the case of a
+ﬁnite-state irreducible and aperiodic Markov chain, the con vergence rate can be expressed
+through maximal correlation between states x(0) and x(n) (see Liu, 2001, ch. 12). In practice,
+10
+
+PDF PAGE 11
+Cutset sampling for Bayesian networks
+the convergence rate can be analyzed through covariance cov[f (x(t)), f(x(t+1))], where f is
+some function, also called auto-covariance.
+The convergence of the estimates to the exact values depends on both the convergence
+rate of the Markov chain to the stationary distribution and t he variance of the estimator.
+Both of these factors contribute to the value of the term σ(f )2 in Eq.(10). The two main
+approaches that allow to reduce correlation between sample s and reduce sampling variance
+of the estimates are blocking (grouping variables together and sampling simultaneously )
+and collapsing (integrating out some of the random variables and sampling a subset), also
+known as Rao-Blackwellisation.
+Given a joint probability distribution over three random va riables X, Y , and Z, we can
+depict the essence of those three sampling schemes as follow s:
+1. Standard Gibbs:
+x(t+1) ←P (X|y(t), z(t)) (14)
+y(t+1) ←P (Y|x(t+1), z(t)) (15)
+z(t+1) ←P (Z|x(t+1), y(t+1)) (16)
+2. Collapsed (variable Z is integrated out):
+x(t+1) ←P (X|y(t)) (17)
+y(t+1) ←P (Y|x(t+1)) (18)
+3. Blocking by grouping X and Y together:
+(x(t+1), y(t+1)) ←P (X, Y|z(t)) (19)
+z(t+1) ←P (Z|x(t+1), y(t+1)) (20)
+The blocking reduces the correlation between samples by gro uping highly correlated
+variables into “blocks.” In collapsing, the highly correla ted variables are marginalized out,
+which also results in the smoothing of the sampling distribu tions of the remaining variables
+(P (Y|x) is smoother than P (Y|x, z)). Both approaches lead to reduction of the sampling
+variance of the estimates, speeding up their convergence to the exact values.
+Generally, blocking Gibbs sampling is expected to converge faster than standard Gibbs
+sampler (Liu et al., 1994; Roberts & Sahu, 1997). Variations on this scheme have been
+investigated by Jensen et al. (1995) and Kjaerulﬀ (1995). Gi ven the same number of
+samples, the estimate resulting from collapsed Gibbs sampl er is expected to have lower
+variance (converge faster) than the estimate obtained from blocking Gibbs sampler (Liu
+et al., 1994). Thus, collapsing is preferred to blocking. Th e analysis of the collapsed Gibbs
+sampler can be found in (Escobar, 1994; MacEachern, 1994; Li u, 1994, 1996).
+The caveat in the utilization of the collapsed Gibbs sampler is that computation of the
+probabilities P (X|y) and P (Y|x) must be eﬃcient time-wise. In case of Bayesian networks,
+the task of integrating out some variables is equivalent to p osterior belief updating where
+evidence variables and sampling variables are observed. It s time complexity is therefore
+exponential in the adjusted induced width, namely, in the eﬀ ective width of the network
+after some dependencies are broken by instantiated variabl es (evidence and sampled).
+11
+
+PDF PAGE 12
+Bidyuk & Dechter
+2.5 Importance Sampling
+Since sampling from the target distribution is hard, diﬀere nt sampling methods explore
+diﬀerent trade-oﬀs in generating samples and obtaining esti mates. As we already discussed,
+Gibbs sampling generates dependent samples but guarantees convergence of the sampling
+distribution to the target distribution. Alternative appr oach, called importance sampling,
+is to generate samples from a sampling distribution Q(X) that is diﬀerent from P (X|e) and
+include the weight w(t) = P (x(t)|e)/Q(x(t)) of each sample x(t) in the computation of the
+estimates as follows:
+ˆfT (X) = 1
+T
+T∑
+t=1
+f (xt)w(t) (21)
+The convergence of ˆfT (X) to E[f (X)] is guaranteed as long as the condition P (x|e)̸=
+0⇒Q(x)̸= 0 holds. The convergence speed depends on the distance betw een Q(X) and
+P (X|e).
+One of the simplest forms of importance sampling for Bayesia n networks is likelihood
+weighting (Fung & Chang, 1989; Shachter & Peot, 1989) which p rocesses variables in topo-
+logical order, sampling root variables from their priors an d the remaining variables from
+conditional distribution P (Xi|pai) deﬁned by their conditional probability table (the evi-
+dence variables are assigned their observed values). Its sa mpling distribution is close to the
+prior and, as a result, it usually converges slowly when the e vidence is concentrated around
+the leaf nodes (nodes without children) and when the probabi lity of evidence is small. Adap-
+tive (also called dynamic) importance sampling is a method t hat attempts to speed up the
+convergence by updating the sampling distribution based on the weight of previously gen-
+erated samples. Adaptive importance sampling methods incl ude self-importance sampling,
+heuristic importance sampling (Shachter & Peot, 1989), and , more recently, AIS-BN (Cheng
+& Druzdzel, 2000) and EPIS-BN (Yuan & Druzdzel, 2003). In the e mpirical section, we
+compare the performance of the proposed cutset sampling alg orithm with AIS-BN which
+is considered a state-of-the-art importance sampling algorit hm to date (although EPIS-BN
+was shown to perform better in some networks) and, hence, des cribe AIS-BN here in more
+detail.
+AIS-BN algorithm is based on the observation that if we could s ample each node in
+topological order from distribution P (Xi|pai, e), then the resulting sample would be drawn
+from the target distribution P (X|e). Since this distribution is unknown for any variable
+that has observed descendants, AIS-BN initializes the sampl ing distributions P 0(Xi|pai, e)
+equal to either P (Xi|pai) or a uniform distribution and then updates each distributi on
+P k(Xi|pai, e) every l samples so that the next sampling distribution P k+1(Xi|pai, e) will be
+closer to P (Xi|pai, e) than P k(Xi|pai, e) as follows:
+P k+1(xi|pai, e) = P k(xi|pai, e) + η(k)· (P ′(xi|pai, e)−P k(xi|pai, e))
+where η(k) is a positive function that determines the learning rate an d P ′(xi|pai, e) is an
+estimate of P (xi|pai, e) based on the last l samples.
+12
+
+PDF PAGE 13
+Cutset sampling for Bayesian networks
+3. Cutset Sampling
+This section presents the cutset sampling scheme. As we disc ussed above, sampling on a
+cutset is guaranteed to be more statistically eﬃcient. Cuts et sampling scheme is a compu-
+tationally eﬃcient way of sampling from a “collapsed” varia ble subset C⊂X, tying the
+complexity of sample generation to the structure of the Baye sian network.
+3.1 Cutset sampling algorithm
+The cutset sampling scheme partitions the variable set X into two subsets C and X\C.
+The objective is to generate samples from space C={C1, C2, ..., Cm}where each sample c(t)
+is an instantiation of all the variables in C. Following the Gibbs sampling principles, we
+wish to generate a new sample c(t) by sampling a value c(t)
+i from the probability distribution
+P (Ci|c(t)
+− i) = P (Ci|c(t+1)
+1 , c(t+1)
+2 , ..., c(t+1)
+i− 1 , c(t)
+i+1, ..., c(t)
+m ). We will use left arrow to denote that
+value ci is drawn from distribution P (Ci|c(t)
+− i):
+ci←P (Ci|c(t)
+− i, e) (22)
+If we can compute the probability distribution P (Ci|c(t)
+− i, e) eﬃciently for each sampling
+variable Ci∈C, then we can generate samples eﬃciently. The relevant condi tional distri-
+butions can be computed by exact inference whose complexity is tied to the network struc-
+ture. We denote by J T C(B,Xi,e) a generic algorithm in the class of variable-elimination
+or join-tree clustering algorithms which, given a belief net workB and evidence e, outputs
+the posterior probabilities P (Xi|e) for variable Xi∈X (Lauritzen & Spiegelhalter, 1988;
+Jensen et al., 1990; Dechter, 1999a). When the network’s ide ntity is clear, we will use the
+notation J T C(Xi, e).
+Cutset Sampling
+Input: A belief network B, a cutset C ={C1, ..., Cm}, evidence e.
+Output: A set of samples ct, t = 1...T .
+1. Initialize: Assign random value c0
+i to each Ci∈C and assign e.
+2. Generate samples:
+For t = 0 to T-1, generate a new sample c(t+1) as follows:
+For i = 1 to m, compute new value c(t)
+i for variable Ci as follows:
+a. Compute J T C(Ci, c(t)
+− i, e).
+b. Compute P (Ci|c(t)
+− i, e) = αP (Ci, c(t)
+− i, e).
+c. Sample:
+c(t+1)
+i ←P (Ci|c(t)
+− i, e) (23)
+End For i
+End For t
+Figure 3: w-Cutset sampling Algorithm
+Therefore, for each sampling variable Ci and for each value ci∈D(Ci), we can compute
+P (Ci, c(t)
+− i, e) via J T C(Ci, c(t)
+− i, e) and obtain P (Ci|c(t)
+− i, e) via normalization: P (Ci|c(t)
+− i, e) =
+αP (Ci, c(t)
+− i, e).
+13
+
+PDF PAGE 14
+Bidyuk & Dechter
+Cutset sampling algorithm that uses systematic scan Gibbs s ampler is given in Figure 3.
+Clearly, it can be adapted to be used with the random scan Gibb s sampler as well. Steps (a)-
+(c) generate sample ( t+ 1) from sample ( t). For every variable Ci∈C in sequence, the main
+computation is in step (a), where the distribution P (Ci, c(t)
+− i, e) over Ci is generated. This
+requires executing JTC for every value ci∈D(Ci), separately. In step (b), the conditional
+distribution is derived by normalization. Finally, step (c ) samples a new value from the
+obtained distribution. Note that we only use P (Ci|c(t)
+− i, e) as a short-hand notation for
+P (Ci|c(t+1)
+1 , ..., c(t+1)
+i− 1 , c(t)
+i+1, ..., c(t)
+k , e). Namely, when we sample a new value for variable Ci,
+the values of variables C1 through Ci− 1 have already been updated.
+We will next demonstrate the process using the special case o f loop-cutset (see Deﬁni-
+tion 2.1).
+Example 3.1 Consider the belief network previously shown in Figure 1 wit h the observed node
+E = e and loop-cutset {A, D}. We begin the sampling process by initializing sampling var iables to
+a(0) and d(0). Next, we compute new sample values a(1), d(1) as follows:
+P (A|d(0), e) = αPJT C (A, c(0), e) (24)
+a(1) ←P (A|d(0), e) (25)
+P (D|a(1), e) = αPJT C (D, a(1), e) (26)
+d(1) ←P (D|a(1), e) (27)
+The process above corresponds to two iterations of the inner loop in Figure 3. Eq. (24)-(25), where
+we sample a new value for variable A, correspond to steps (a)-(c) of the ﬁrst iteration. In the sec ond
+iteration, Eq.(26)-(27), we sample a new value for variable D. Since the conditioned network is a
+poly-tree (Figure 1, right), computing probabilities PJT C (A|d(t), e) and PJT C (D|a(t+1), e) via JTC
+reduces to Pearl’s belief propagation algorithm and the dis tributions can be computed in linear time.
+3.2 Estimating Posterior Marginals
+Once a set of samples over a subset of variables C is generated, we can estimate the posterior
+marginals of any variable in the network using mixture estim ator. For sampling variables,
+the estimator takes the form similar to Eq.(12):
+ˆP (Ci|e) = 1
+T
+T∑
+t=1
+P (Ci|c(t)
+− i, e) (28)
+For variables in X\C, E, the posterior marginal estimator is:
+ˆP (Xi|e) = 1
+T
+T∑
+t=1
+P (Xi|c(t), e) (29)
+We can use J T C(Xi, c(t), e) to obtain the distribution P (Xi|c(t), e) over the input Bayesian
+network conditioned on c(t) and e as shown before.
+If we maintain a running sum of the computed distributions P (Ci|c(t)
+− i, e) and P (Xi|c(t), e)
+during sample generation, the sums in the right hand side of E q.(28)-(29) will be readily
+available. As we noted before, the estimators ˆP (Ci|e) and ˆP (Xi|e) are guaranteed to con-
+verge to their corresponding exact posterior marginals as T increases as long as the Markov
+14
+
+PDF PAGE 15
+Cutset sampling for Bayesian networks
+chain over the cutset C is ergodic. While for the cutset variables the estimator is a simple
+ergodic average, for Xi∈X\C, E the convergence can also be derived directly from ﬁrst
+principles:
+Theorem 3.2 Given a Bayesian network B over X, evidence variables E⊂X, and cutset
+C⊂X\E, and given a set of T samples c(1), c(2), ..., c(T ) obtained via Gibbs sampling from
+P (C|e), and assuming the Markov chain corresponding to sampling fr om C is ergodic, then
+for any Xi ∈X\C, E assuming ˆP (Xi|E) is deﬁned by Eq.(29), ˆP (Xi|e)→P (Xi|e) as
+T→∞.
+Proof. By deﬁnition:
+ˆP (Xi|e) = 1
+T
+T∑
+t=1
+P (Xi|c(t), e) (30)
+Instead of summing over samples, we can rewrite the expressi on above to sum over all
+possible tuples c∈D(C) and group together the samples corresponding to the same tu ple
+instance c. Let q(c) denote the number of times a tuple C = c occurs in the set of samples
+so that ∑
+c∈D (C) q(c) = T . It is easy to see that:
+ˆP (Xi|e) =
+∑
+c∈D (C)
+P (Xi|c, e) q(c)
+T (31)
+The fraction q(c)
+T is a histogram estimator for the posterior marginal ˆP (c|e). Thus, we get:
+ˆP (Xi|e) =
+∑
+c∈D (C)
+P (Xi|c, e) ˆP (c|e) (32)
+Since the Markov chain formed by samples from C is ergodic, ˆP (c|e)→P (c|e) as T→∞
+and therefore:
+ˆP (Xi|e)→
+∑
+c∈D (C)
+P (Xi|c, e)P (c|e) = P (Xi|e)
+3.3 Complexity
+The time and space complexity of generating samples and esti mating the posterior marginals
+via cutset sampling is dominated by the complexity of J T C in line (a) of the algorithm
+(Figure 3). Only linear amount of additional memory is requi red to maintain the running
+sums of P (Ci|c(t)
+− i, e) and P (Xi|c(t), e) used in the posterior marginal estimators.
+3.3.1 Sample Generation Complexity
+Clearly, when JTC is applied to the network B conditioned on all the cutset variables C
+and evidence variables E, its complexity is time and space exponential in the induced width
+w of the conditioned network. It is O(N· d(w+1)) when C is a w-cutset (see Deﬁnition 2.6).
+15
+
+PDF PAGE 16
+Bidyuk & Dechter
+Using the notion of a w-cutset, we can balance sampling and exact inference. At one e nd
+of the spectrum we have plain Gibbs sampling where sample gen eration is fast, requiring
+linear space, but may have high variance. At the other end, we have exact algorithm
+requiring time and space exponential in the induced width of the moral graph. In between
+these two extremes, we can control the time and space complex ity using w as follows.
+Theorem 3.3 (Complexity of sample generation) Given a network B over X, evi-
+dence E, and a w-cutset C, the complexity of generating a new sample is time and space
+O(|C|·N· d(w+2)) where d bounds the variable’s domain size and N =|X|.
+Proof. If C is a w-cutset and d is the maximum domain size, then the complexity of
+computing joint probability P (ci, c(t)
+− i, e) over the conditioned network is O(N· d(w+1)).
+Since this operation must be repeated for each ci∈D(Ci), the complexity of processing one
+variable (computing distribution P (Ci|c(t)
+− i, e)) is O(N· d· d(w+1)) = O(N· d(w+2)). Finally,
+since ordered Gibbs sampling requires sampling each variab le in the cutset, generating one
+sample is O(|C|·N· d(w+2)).
+3.3.2 Complexity of estimator computation
+The posterior marginals for any cutset variable Ci∈C are easily obtained at the end of
+sampling process without incurring additional computatio n overhead. As mentioned earlier,
+we only need to maintain a running sum of probabilities P (ci|c(t)
+− i, e) for each ci∈D(Ci).
+Estimating P (Xi|e), Xi∈X\C, E, using Eq.(29) requires computing P (Xi|c(t), e) once a
+sample c(t) is generated. In summary:
+Theorem 3.4 (Computing Marginals) Given a w-cutset C, the complexity of comput-
+ing posteriors for all variables Xi ∈X\E using T samples over the cutset variables is
+O(T· [|C|+ d]· N· d(w+1)).
+Proof. As we showed in Theorem 3.3, the complexity of generating one sample is O(|C|·
+N· d(w+2)). Once a sample c(t) is generated, the computation of the posterior marginals
+for the remaining variables requires computing P (Xi|c(t), e) via J T C(Xi, c(t), e) which is
+O(N· d(w+1)). The combined computation time for one sample is O(|C|·N· d(w+2) +
+N· d(w+1)) = O([|C|+ d]· N· d(w+1)). Repeating the computation for T samples, yields
+O(T· [|C|+ d]· N· d(w+1)).
+Note that the space complexity of w-cutset sampling is bounded by O(N· d(w+1)).
+3.3.3 Complexity of loop-cutset.
+When the cutset C is a loop-cutset, algorithm J T C reduces to belief propagation (Pearl,
+1988) that computes the joint distribution P (Ci, c(t)
+− i, e) in linear time. We will refer to the
+special case as loop-cutset sampling and to the general as w-cutset sampling .
+A loop-cutset is also a w-cutset where w equals the maximum number of unobserved
+parents (upper bounded by the maximum indegree of a node). Ho wever, since processing
+16
+
+PDF PAGE 17
+Cutset sampling for Bayesian networks
+poly-trees is linear even for large w, the induced width does not capture its complexity
+properly. The notion of loop-cutset could be better captured via the hyperwidth of the
+network (Gottlob, Leone, & Scarello, 1999; Kask et al., 2005 ). The hyperwidth of a poly-
+tree is 1 and therefore, a loop-cutset can be deﬁned as a 1-hyper cutset. Alternatively, we
+can express the complexity via the network’s input size M which captures the total size of
+conditional probability tables to be processed as follows:
+Theorem 3.5 (Complexity of loop-cutset sample generation) If C is a loop-cutset,
+the complexity of generating each sample is O(|C|·d· M ) where M is the size of the input
+network.
+Proof. When a loop-cutset of a network is instantiated, belief propa gation (BP) can
+compute the joint probability P (ci, c(t)
+− i, e) in linear time O(M ) (Pearl, 1988) yielding total
+time and space of O(|C|·d· M ) for each sample.
+3.4 Optimizing cutset sampling performance
+Our analysis of the complexity of generating samples (Theor em 3.3) is overly pessimistic in
+assuming that the computation of the sampling distribution for each variable in the cutset
+is independent. While all variables may change a value when m oving from one sample to
+the next, the change occurs one variable at a time in some sequ ence so that much of the
+computation can be retained when moving from one variable to the next .
+We will now show that sampling all the cutset variables can be done more eﬃciently
+reducing the factor of N·|C|in Theorem 3.3 to ( N +|C|·δ) where δ bounds the number of
+clusters in the tree decomposition used by JTC that contains any node Ci∈C. We assume
+that we can control the order by which cutset variables are sa mpled.
+  
+ 
+     
+     
+    
+   
+  
+X1X2Y1 X2X3Y2 X3X4Y3 Xn-1XnYn-1 
+Figure 4: A Bayesian network (top) and corresponding cluste r-tree (bottom).
+Consider a simple network with variables X={X1, ....Xn}, Y ={Y1, ..., Yn− 1}and CPTs
+P (Xi+1|Xi, Yi) and P (Yi+1|Xi) deﬁned for every i as shown in Figure 4, top. The join-tree
+of this network is a chain of cliques of size 3 given in Figure 4 , bottom. Since Y is a loop-
+cutset, we will sample variables in Y . Let’s assume that we use the ordering Y1, Y2, ...Yn− 1
+to generate a sample. Given the current sample, we are ready t o generate the next sample
+17
+
+PDF PAGE 18
+Bidyuk & Dechter
+by applying JTC (or bucket-elimination) to the network whose cutset variables are assigned.
+This makes the network eﬀectively singly-connected and leav es only 2 actual variables in
+each cluster. The algorithm sends a message from the cluster containing Xn towards the
+cluster containing X1. When cluster ( X1, X2, Y1) gets the relevant message from cluster
+(X2, X3, Y2) we can sample Y1. This can be accomplished by d linear computations in clique
+(X1, X2, Y1) for each yi∈D(Yi) yielding the desired distribution P (Y1|.) (we can multiply
+all functions and incoming messages in this cluster, sum out X1 and X2 and normalize). If
+the cutset is a w-cutset, each computation in a single clique is O(d(w+1)).
+Once we have P (Y1|·), Y1 is sampled and assigned a new value, y1. Cluster ( X1, X2, Y1 =
+y1) then sends a message to cluster ( X2, X3, Y2) which now has all the information necessary
+to compute P (Y2|.) in O(d(w+2)). Once P (Y2|.) is available, a new value Y2 = y2 is sampled.
+The cluster than computes and sends a message to cluster ( X3, X4, Y3), and so on. At the
+end, we obtain a full sample via two message passes over the co nditioned network having
+computation complexity of O(N· d(w+2)). This example can be generalized as follows.
+Theorem 3.6 Given a Bayesian network having N variables, a w-cutset C, a tree-decomposition
+Tr, and given a sample c1, ..., c|C|, a new sample can be generated in O((N +|C|·δ)· d(w+2))
+where δ is the maximum number of clusters containing any variable Ci∈C.
+Proof. Given w-cutset C, by deﬁnition, there exists a tree-decomposition Tr of the network
+(that includes the cutset variables) such that when the cuts et variables C are removed, the
+number of variables remaining in each cluster of Tr is bounded by w + 1. Let’s impose
+directionality on Tr starting at an arbitrary cluster that we call R as shown in Figure 5. Let
+TCi denote the connected subtree of Tr whose clusters include Ci. In Figure 5, for clarity,
+we collapse the subtree over Ci into a single node. We will assume that cutset nodes are
+sampled in depth-ﬁrst traversal order dictated by the cluste r tree rooted in R.
+Given a sample c(t), JTC will send messages from leaves of Tr towards the root cluster.
+We can assume without loss of generality that R contains cutset node C1 which is the ﬁrst to
+be sampled in c(t+1). JTC will now pass messages from root down only to clusters re stricted
+to TC1 (note that R∈TC1). Based on these messages P (C1 = c1, c(t)
+− 1) can be computed
+in O(d(w+1)). We will repeat this computation for each other value of C1 involving only
+clusters in TC1 and obtain the distribution P (C1|·) in O(d(w+2)) and sample a new value
+for C1. Thus, if C1 appears in δ clusters, the number of message passing computations
+(after the initial O(N ) pass) is O(δ) and we can generate the ﬁrst distribution P (C1|·) in
+O(δ· d(w+2)).
+The next node in the depth-ﬁrst traversal order is TC2 and thus, the second variable to
+be sampled is C2. The distance between variables C1 and C2, denoted dist1,2, is the shortest
+path along Tr from a cluster that contains C1 to a cluster that contains C2. We apply JTC’s
+mesage-passing along that path only which will take at most O(dist1,2· d(w+1)). Then, to
+obtain the conditional distribution P (C2|·), we will recompute messages in the subtree of
+TC2 for each value c2∈D(C2) in O(δ· d(w+2)). We continue the computation in a similar
+manner for other cutset nodes.
+If JTC traverses the tree in the depth-ﬁrst order, it only need s to pass messages along
+each edge twice (see Figure 5). Thus, the sum of all distances traveled is ∑|C|
+i=2 disti,i− 1 =
+O(N ). What may be repeated is the computation for each value of th e sampled variable.
+18
+
+PDF PAGE 19
+Cutset sampling for Bayesian networks
+TC6 
+TCk 
+TC4 
+TC5 
+TC3 
+TC2 
+TC1 R
+Figure 5: A cluster-tree rooted in cluster R where a subtree over each cutset node Ci is
+collapsed into a single node marked TCi.
+This, however, can be accomplished via message-passing rest ricted to individual variables’
+subtrees and is bounded by its δ. We can conclude that a new full sample can be generated
+in O((N +|C|·δ)· d(w+2)).
+It is worthwhile noting that the complexity of generating a s ample can be further reduced
+by a factor of d/(d−1) (which amounts to a factor of 2 when d = 2) by noticing that whenever
+we move from variable Ci to Ci+1, the joint probability P (c(t+1)
+1 , ..., c(t+1)
+i , c(t)
+i+1, ..., c(t)
+k ) is
+already available from the previous round and should not be r ecomputed. We only need
+to compute P (c(t+1)
+1 , ..., c(t+1)
+i , ci+1, ..., c(t)
+k ) for ci+1 ̸= c(t)
+i+1. Buﬀering the last computed
+joint probability, we only need to apply JTC algorithm d−1 times. Therefore, the total
+complexity of generating a new sample is O((N +|C|·δ)· (d−1)· d(w+1)).
+Example 3.7 Figure 6 demonstrates the application of the enhancements d iscussed. It
+depicts the moral graph (a), already triangulated, and the c orresponding join-tree (b) for the
+Bayesian network in Figure 1. With evidence variable E removed, variables B and D form
+a 1-cutset. The join-tree of the network with cutset and evid ence variables removed is shown
+in Figure 6 (c). Since removing D and E from cluster DF E leaves only one variable, F ,
+we combine clusters BDF and DF E into one cluster, F G. Assuming that cutset variables
+have domains of size 2, we can initialize B = b0 and D = d0.
+Selecting cluster AC as the root of the tree, JTC ﬁrst propagates messages from lea ves
+to the root as shown in Figure 6 (c) and then computes P (b0, d0, e) in cluster AC. Next, we
+set B = b1; updating all functions containing variable B, and propagating messages through
+the subtree of B consisting of clusters AC and CF (Figure 6 (d)), we obtain P (b1, d0, e).
+19
+
+PDF PAGE 20
+Bidyuk & Dechter
+DFE 
+P(E|D,F) 
+ABC 
+P(B|A),P(C|A), 
+P(A) 
+BCF 
+P(F|B,C) 
+A
+B
+C
+F
+D
+G
+E
+DFG 
+P(D|B), P(G|D,F) 
+AC 
+P(b 0|A),P(C|A), 
+P(A) 
+CF 
+P(F|b 0,C),P(d 0|b 0)
+FG 
+P(e|d 0,F),P(G|d 0,F) 
+AC 
+P(b 1|A),P(C|A), 
+P(A) 
+CF 
+P(F|b 1,C),P(d 0|b 1)
+FG 
+P(e|d 0,F),P(G|d 0,F) 
+AC 
+P(b 1|A),P(C|A), 
+P(A) 
+CF 
+P(F|b 1,C),P(d 1|b 1)
+FG 
+P(e|d 1,F),P(G|d 1,F) 
+AC 
+P(b 1|A),P(C|A), 
+P(A) 
+CF 
+P(F|b 1,C),P(d 0|b 1)
+FG 
+P(e|d 0,F),P(G|d 0,F) 
+(a) (b) (c) (d) (e) (f) 
+B=b 0, D=d 0, E=e B=b 1 D=d 1 D=d 0
+Figure 6: A join-tree of width 2 (b) for a moral graph (a) is tran sformed into a join-tree of
+width 1 (c) when evidence variable E and cutset variables B and D are instanti-
+ated (in the process, clusters BDF and BCF are merged into cluster CF ). The
+clusters contain variables and functions from the original network. The cutset
+nodes have domains of size 2, D(B) ={b0, b1},D(D) ={d0, d1}. Starting with a
+sample{b0, d0}, messages are propagated in (c)-(e) to ﬁrst, sample a new valu e
+of variable B (d) and then variable D (e). Then messages are propagated up the
+tree to compute posterior marginals P (·|b1, d0, e) for the rest of the variables (f).
+Normalizing the two joint probabilities, we obtain distribu tion P (B|d0, e) and sample a new
+value of B. Assume we sampled value b1.
+Next, we need to compute P (D|b1, e) to sample a new value for variable D. The joint
+probability P (d0, b1, e) is readily available since it was computed for sampling a new value of
+B. Thus, we set D = d1 and compute the second probability P (d1, b1, e) updating functions
+in clusters CF and F G and sending an updated message from CF to F G (Figure 6 (e)).
+We obtain distribution P (D|b1, e) by normalizing the joint probabilities and sample a new
+value d0 for D. Since the value has changed from latest computation, we upd ate again
+functions in the clusters CF and F G and propagate updated messages in the subtree CD
+(send message from CF to F G).
+In order to obtain the distributions P (·|b1, d0, e) for the remaining variables A, C, F ,
+and G, we only need to send updated messages up the join-tree, from F G to CF and then
+from CF to AC as shown in Figure 6 (f ). The last step also serves as the initi alization
+step for the next sample generation.
+In this example the performance of cutset sampling is signiﬁ cantly better than its worst
+case. We have sent a total of 5 messages to generate a new sampl e while the worst case
+suggests at least N·|C|·d = 3· 2· 2 = 12 messages (here, N equals the number of clusters).
+20
+
+PDF PAGE 21
+Cutset sampling for Bayesian networks
+3.5 On ﬁnding a w-cutset
+Clearly, w-cutset sampling will be eﬀective only when the w-cutset is small. This calls for
+the task of ﬁnding a minimum size w-cutset. The problem is NP-hard; yet, several heuristic
+algorithms have been proposed. We next brieﬂy survey some of those proposals.
+Larossa and Dechter (2003) obtain w-cutset when processing variables in the elimination
+order. The next node to be eliminated (selected using some tr iangulation heuristics) is added
+to the cutset if its current induced width (or degree) is grea ter than w. Geiger and Fishelson
+(2003) agument this idea with various heuristics.
+Bidyuk and Dechter (2003) select the variables to be include d in the cutset using greedy
+heuristics based on the node’s basic graph properties (such as the degree of a node). One
+scheme starts from an empty w-cutset and then heuristically adds nodes to the cutset until
+a tree-decomposition of width ≤w can be obtained. The other scheme starts from a set
+C = X\E containing all nodes in the network as a cutset and then remov es nodes from the
+set in some order. The algorithm stops when removing the next node would result in a tree
+decomposition of width > w .
+Alternatively, Bidyuk and Dechter (2004) proposed to ﬁrst o btain a tree-decomposition
+of the network and then ﬁnd the minimal w-cutset of the tree-decomposition (also an NP-
+hard problem) via a well-known greedy algorithm used for set c over problem. This approach
+is shown to yield a smaller cutset than previously proposed h euristics and is used for ﬁnding
+w-cutset in our experiments (section 4.4) with a modiﬁcation t hat a tree-decomposition is
+re-computed each time a node is removed from the tree and added to the w-cutset.
+4. Experiments
+In this section, we present empirical studies of cutset samp ling algorithms for several classes
+of problems. We use the mean square error of the posterior mar ginals’ estimates as a
+measure of accuracy. We compare with traditional Gibbs samp ling, likelihood weighting
+(Fung & Chang, 1989; Shachter & Peot, 1989), and the state of t he art AIS-BN adaptive
+importance sampling algorithm (Cheng & Druzdzel, 2000). We implemented AIS-BN using
+the parameters speciﬁed by Cheng and Druzdzel (2000). By usi ng our own implementation,
+we made sure that all sampling algorithms used the same data a ccess routines and the
+same error measures providing a uniform framework for compa ring their performance. For
+reference we also report the performance of Iterative Belie f Propagation (IBP) algorithm.
+4.1 Methodology
+4.1.1 Sampling Methodology
+In all sampling algorithms we restarted the Markov chain eve ry T samples. The samples
+from each chain (batch) m are averaged separately:
+ˆPm(xi|e) = 1
+T
+T∑
+t=1
+P (xi|c(t), e)
+21
+
+PDF PAGE 22
+Bidyuk & Dechter
+The ﬁnal estimate is obtained as a sample average over M chain s:
+ˆP (xi|e) = 1
+M
+M∑
+m=1
+ˆPm(xi|e)
+Restarting a Markov chain is known to improve the sampling co nvergence rate. A single
+chain can become “stuck” generating samples from a single hi gh-probability region without
+ever exploring large number of other high-probability tuple s. By restarting a Markov chain
+at a diﬀerent random point, a sampling algorithm can achieve a better coverage of the
+sampling space. In our experiments, we did not observe any si gniﬁcant diﬀerence in the
+estimates obtained from a single chain of size M· T or M chains of size T and therefore,
+we only choose to report the results for multiple Markov chai ns. However, we rely on the
+independence of random values ˆPm(xi|e) to estimate 90% conﬁdence interval for ˆP (xi|e).
+In our implementation of Gibbs sampling schemes, we use zero “burn-in” time (see
+section 2.3.1). As we mentioned earlier, the idea of burn-in t ime is to throw away the
+ﬁrst K samples to ensure that the remaining samples are drawn from d istribution close
+to target distribution P (X|e). While conservative methods for estimating K through drift
+and minorization conditions were proposed by Rosenthal (19 95) and Roberts and Tweedie
+(1999, 2001), the required analysis is beyond the scope of th is paper. We consider our
+comparison between Gibbs sampling and cutset sampling, whi ch is the objective, fair in the
+sense that both schemes use K=0. Further, our experimental results showed no positive
+indication that burn-in time would be beneﬁcial. In practice , burn-in is the “pre-processing”
+time used by the algorithm to ﬁnd the high-probability region s in the distribution P (C|e)
+in case it initially spends disproportionally large period of time in low probability regions.
+Discarding a large number of low-probability tuples obtaine d initially, the frequency of the
+remaining high-probability tuples is automatically adjust ed to better reﬂect their weight.
+cpcs360b, N=360, |E|=32, w*=21 
+0.00E+00 
+2.00E -05 
+4.00E -05 
+6.00E -05 
+8.00E -05 
+1.00E -04 
+1.20E -04 
+1.40E -04 
+1.60E -04 
+0 2000 4000 6000 8000 10000 
+# samples 
+MSE 
+LCS 
+cpcs360b, N=360, |E|=32, |LC|=26, w*=21 
+0
+100 
+200 
+300 
+400 
+500 
+600 
+700 
+800 
+0 2000 4000 6000 8000 10000 
+# samples 
+# unique samples 
+LCS 
+Figure 7: Comparing loop-cutset sampling MSE vs. number of sa mples (left) and and num-
+ber of unique samples vs. number of samples (right) in cpcs36 0b. Results are
+averaged over 10 instances with diﬀerent observations.
+In our benchmarks, we observed that both full Gibbs sampling and cutset sampling
+were able to ﬁnd high probability tuples fast relative to the number of samples generated.
+For example, in one of the benchmarks, cpcs360b, the rate of g enerating unique samples,
+namely, the ratio of cutset instances that have not been seen to the number of samples,
+22
+
+PDF PAGE 23
+Cutset sampling for Bayesian networks
+decreases over time. Speciﬁcally, loop-cutset sampling gen erates 200 unique tuples after the
+ﬁrst 1000 samples, an additional 100 unique tuples while gen erating the next 1000 samples,
+and then the rate of generating unique tuples slows to 50 per 1 000 samples in the range
+from 2000 to 10000 samples as shown in Figure 7, right. That me ans that after the ﬁrst
+few hundred samples, the algorithm spends most of the time re visiting high-probability
+tuples. In other benchmarks, the number of unique tuple inst ances generated increases
+linearly (as in cpcs54) and, thus, the tuples appear to be dis tributed nearly uniformly. In
+this case, there is no need for burn-in because there are no str ongly-expressed heavy-weight
+tuples. Instead of using burn-in times, we sample initial var iable values from the posterior
+marginal estimates generated by IBP in all of our experiment s. Our sampling time includes
+the pre-processing time of IBP.
+All experiments were performed on 1.8 GHz CPU.
+4.1.2 Measures of Performance
+For each problem instance deﬁned by a Bayesian networkB having variables X ={X1, ..., Xn}
+and evidence E⊂X, we derived the exact posterior marginals P (Xi|e) using bucket-tree
+elimination (Dechter, 2003, 1999a) and computed the mean sq uare error (MSE) of the
+approximate posterior marginals ˆP (Xi|e) for each algorithm where MSE is deﬁned by:
+M SE = 1
+∑
+Xi∈ X\ E|D(Xi)|
+∑
+Xi∈ X\ E
+∑
+D(Xi)
+[P (xi|e)−ˆP (xi|e)]2
+While the mean square error is our primary accuracy measure, the results are consistent
+across other well-known measures such as average absolute er ror, KL-distance, and squared
+Hellinger’s distance which we show only for loop-cutset samp ling. The absolute error ∆ is
+averaged over all values of all unobserved variables:
+∆ = 1∑
+Xi∈ X\ E|D(Xi)|
+∑
+Xi∈ X\ E
+∑
+D(Xi)
+|P (xi|e)−ˆP (xi|e)|
+KL-distance DK between the distribution P (Xi|e) and the estimator ˆP (Xi|e) is deﬁned as
+follows:
+DK(P (Xi|e), ˆP (Xi|e)) =
+∑
+D(Xi)
+P (xi|e) lg P (xi|e)
+ˆP (xi|e)
+For each benchmark instance, we compute the KL-distance for e ach variable Xi∈X\E and
+then average the results:
+DK(P, ˆP ) = 1
+|X\E|
+∑
+Xi∈ X\ E
+DK(P (Xi|e), ˆP (Xi|e))
+The squared Hellinger’s distance DH between the distribution P (Xi|e) and the estimator
+ˆP (Xi|e) is obtained as:
+DH (P (Xi|e), ˆP (Xi|e)) =
+∑
+D(Xi)
+[
+√
+P (xi|e)−
+√
+ˆP (xi|e)]2
+23
+
+PDF PAGE 24
+Bidyuk & Dechter
+The average squared Hellinger’s distance for a benchmark in stance is the average of the
+distances between posterior distributions of one variable :
+DH (P, ˆP ) = 1
+|X\E|
+∑
+Xi∈ X\ E
+DH (P (Xi|e), ˆP (Xi|e))
+The average errors for diﬀerent network instances are then a veraged over all instances of
+the given network (typically, 20 instances).
+We also report the conﬁdence interval for the estimate ˆP (xi|e) using an approach similar
+to the well-known batch means method (Billingsley, 1968; Gey er, 1992; Steiger & Wilson,
+2001). Since chains are restarted independently, the estim ates ˆPm(xi|e) are independent.
+Thus, the conﬁdence interval can be obtained by measuring th e variance in the estimators
+ˆP (Xi|e). We report results in Section 4.5.
+4.2 Benchmarks
+We experimented with four classes of networks:
+CPCS. We considered four CPCS networks derived from the Computer -based Patient
+Case Simulation system (Parker & Miller, 1987; Pradhan, Pro van, Middleton, & Henrion,
+1994). CPCS network representation is based on INTERNIST 1 ( Miller, Pople, & Myers,
+1982) and Quick Medical Reference (QMR) (Miller, Masarie, & Myers, 1986) expert sys-
+tems. The nodes in CPCS networks correspond to diseases and ﬁ ndings and conditional
+probabilities describe their correlations. The cpcs54 network consists of N =54 nodes and
+has a relatively large loop-cutset of size |LC|=16 ( > 25% of the nodes). Its induced width
+is 15. cpcs179 network consists of N =179 nodes. Its induced width is w∗=8. It has a
+small loop-cutset of size |LC|=8 but with a relatively large corresponding adjusted induc ed
+width wLC=7. The cpcs360b is a larger CPCS network with 360 nodes, adjusted induced
+width of 21, and loop-cutset |LC|=26. Exact inference on cpcs360b averaged ∼30 minutes.
+The largest network, cpcs422b, consisted of 422 nodes with induced width w∗=22 and
+loop-cutset of size 47. The exact inference time for cpcs422b is about 50 minutes.
+Hailﬁnder network . It is a small network with only 56 nodes. The exact inference in
+Hailﬁnder network is easy since its loop-cutset size is only 5 . Yet, this network has some
+zero probabilities and, therefore, is a good benchmark for d emonstrating the convergence
+of cutset sampling in contrast to Gibbs sampling.
+Random networks . We experimented with several classes of random networks: r an-
+dom networks, 2-layer networks, and grid networks. The random networks were generated
+with N =200 binary nodes (domains of size 2). The ﬁrst 100 nodes, {X1, ..., X100}, were
+designated as root nodes. Each non-root node Xi , i > 100, was assigned 3 parents selected
+randomly from the list of predecessors {X1, ..., Xi− 1}. We will refer to this class of random
+networks as multi-partite random networks to distinguish from bi-partite (2-layer) ran dom
+networks. The random 2-layer networks were generated with 50 root nodes (ﬁrst layer)
+and 150 leaf nodes (second layer), yielding a total of 200 nod es. A sample 2-layer random
+network is shown in Figure 8, left. Each non-root node (second layer) was assigned 1-3
+parents selected at random among the root nodes. All nodes we re assigned a domain of size
+2,D(Xi) ={x0
+i , x1
+i}.
+For both 2-layer and multi-partite random networks, the root n odes were assigned uni-
+form priors while conditional probabilities were chosen ra ndomly. Namely, each value
+24
+
+PDF PAGE 25
+Cutset sampling for Bayesian networks
+Figure 8: Sample random networks: 2-layer (left), grid (cent er), coding (right).
+P (x0
+i|pai) was drawn from uniform distribution over interval (0 , 1) and used to compute
+the complementary probability value P (x1
+i|pai) = 1−P (x0
+i|pai).
+The directed grid networks (as opposed to grid-shaped undirected Markov Random
+Fields) of size 15x30 with 450 nodes were also constructed wi th uniform priors (on the single
+root node) and random conditional probability tables (as de scribed above). A sample grid
+network is shown in Figure 8, center. Those networks had an av erage induced width of
+size 20 (exact inference using bucket elimination required about 30 minutes). They had the
+most regular structure of all and the largest loop-cutset con taining nearly a half of all the
+unobserved nodes.
+Coding networks . We experimented with coding networks with 50 code bits and 5 0
+parity check bits. The parity check matrix was randomized; e ach parity check bit had three
+parents. A sample coding network with 4 code bits, 4 parity ch ecking bits, and total of 8
+transmitted bits is shown in Figure 8, center. The total numb er of variables in each network
+in our experiments was 200 (50 code bits, 50 parity check bits , and 1 transmitted bit for
+each code or parity check bit). An average loop-cutset size wa s 26 and induced width was
+21. The Markov chain produced by Gibbs sampling over the whol e coding network is not
+ergodic due to the deterministic parity check function. As a result, Gibbs sampling does
+not converge. However, the Markov chain corresponding to sa mpling the subspace of coding
+bits only is ergodic and, thus, all of the cutset sampling sch emes have converged as we will
+show in the next two sections.
+In all networks, except coding and grid networks, evidence n odes were selected at random
+among the leaf nodes (nodes without children). Since a grid n etwork has only one leaf
+node, the evidence in the grid networks was selected at rando m among all nodes. For each
+benchmark, we report on the chart title the number of nodes in the network N , average
+number of evidence nodes |E|, size of loop-cutset |LC|, and average induced width of the
+input instance denoted w∗ to distinguish from the induced width w of the network adjusted
+for its w-cutset.
+4.3 Results for Loop-Cutset Sampling
+In this section we compare loop-cutset sampling with pure Gib bs sampling, likelihood
+weighting, AIS-BN, and IBP. In all benchmarks, the cutset was selected so that the evidence
+25
+
+PDF PAGE 26
+Bidyuk & Dechter
+and sampling nodes together constitute a loop-cutset of the n etwork using the algorithm
+proposed by Becker et al. (2000). We show the accuracy of Gibb s and loop-cutset sampling
+as a function of the number of samples and time.
+cpcs54, N=54, |LC|=16, w*=15, |E|=8 
+0.0E+00 
+5.0E-05 
+1.0E-04 
+1.5E-04 
+2.0E-04 
+2.5E-04 
+3.0E-04 
+3.5E-04 
+4.0E-04 
+0 5000 10000 15000 20000 25000 30000 
+# samples 
+MSE 
+Gibbs 
+LCS 
+IBP 
+cpcs54, N=54, |LC|=16, w*=15, |E|=8 
+0.0E+00 
+5.0E-05 
+1.0E-04 
+1.5E-04 
+2.0E-04 
+2.5E-04 
+3.0E-04 
+0 2 4 6 8 10 12 14 
+Time (sec) 
+MSE 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+cpcs54, N=54, |LC|=16, w*=15, |E|=8 
+0.0E+00 
+2.0E-06 
+4.0E-06 
+6.0E-06 
+8.0E-06 
+1.0E-05 
+1.2E-05 
+1.4E-05 
+0 2 4 6 8 10 12 14 
+Time (sec) 
+KL-distance 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+cpcs54, N=54, |LC|=16, w*=15, |E|=8 
+0.0E+00 
+1.0E-06 
+2.0E-06 
+3.0E-06 
+4.0E-06 
+5.0E-06 
+6.0E-06 
+7.0E-06 
+0 2 4 6 8 10 12 14 
+Time (sec) 
+Hellinger-distance 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+cpcs54, N=54, |LC|=16, w*=15, |E|=8 
+0.0E +00 
+3.0E-04 
+6.0E-04 
+9.0E-04 
+1.2E-03 
+1.5E-03 
+1.8E-03 
+2.1E-03 
+0 2 4 6 8 10 12 14 
+Time (sec) 
+Absolute Error 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+Figure 9: Comparing loop-cutset sampling (LCS), wLC=5, Gibbs sampling (Gibbs), like-
+lihood weighting (L W), AIS-BN, and IBP on cpcs54 network, ave raged over 20
+instances, showing MSE as a function of the number of samples (top left) and time
+(top right) and KL-distance (middle left), squared Hellinge r’s distance (middle
+right), and an average error (bottom) as a function of time.
+CPCS networks. The results are summarized in Figures 9-12. The loop-cutset cu rve
+in each chart is denoted LCS (for Loop Cutset Sampling). The i nduced width of the network
+26
+
+PDF PAGE 27
+Cutset sampling for Bayesian networks
+cpcs179, N=179, |LC|=8, w*=8, |E|=17 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+0 2 4 6 8 10 12 14 
+Time (sec) 
+Absolute Error 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+cpcs179, N=179, |LC|=8, w*=8, |E|=17 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+0 2 4 6 8 10 12 14 
+Time (sec) 
+MSE 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+cpcs179, N=179, |LC|=8, w*=8, |E|=17 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+1.0E+00 
+0 2 4 6 8 10 12 14 
+Time (sec) 
+KL-distance 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+cpcs179, N=179, |LC|=8, w*=8, |E|=17 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+0 2 4 6 8 10 12 14 
+Time (sec) 
+Hellinger-distance 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+cpcs179, N=179, |LC|=8, w*=8, |E|=17 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+0 2 4 6 8 10 12 14 
+Time (sec) 
+Absolute Error 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+Figure 10: Comparing loop-cutset sampling (LCS), wLC=7, Gibbs sampling (Gibbs), like-
+lihood weighting (L W), AIS-BN, and IBP on cpcs179 network, av eraged over
+20 instances, showing MSE as a function of the number of sampl es (top left)
+and time (top right) and KL-distance (middle left), squared H ellinger’s distance
+(middle right), and an average error (bottom) as a function o f time.
+27
+
+PDF PAGE 28
+Bidyuk & Dechter
+cpcs360b, N=360, |LC|=26, w*=21, |E|=15 
+0.0E+00 
+5.0E-05 
+1.0E-04 
+1.5E-04 
+2.0E-04 
+2.5E-04 
+0 5000 10000 15000 20000 25000 
+# samples 
+MSE 
+Gibbs 
+LCS 
+IBP 
+cpcs360b, N=360, |LC|=26, w*=21, |E|=15 
+1.E-05 
+1.E-04 
+1.E-03 
+1.E-02 
+0 2 4 6 8 10 12 14 
+Time (sec) 
+MSE 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+cpcs360b, N=360, |LC|=26, w*=21, |E|=15 
+1.E-06 
+1.E-05 
+1.E-04 
+1.E-03 
+1.E-02 
+0 2 4 6 8 10 12 14 
+Time (sec) 
+KL-distance 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+cpcs360b, N=360, |LC|=26, w*=21, |E|=15 
+1.E-07 
+1.E-06 
+1.E-05 
+1.E-04 
+1.E-03 
+1.E-02 
+0 2 4 6 8 10 12 14 
+Time (sec) 
+Hellinger-distance 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+cpcs360b, N=360, |LC|=26, w*=21, |E|=15 
+1.E-04 
+1.E-03 
+1.E-02 
+1.E-01 
+0 5 10 15 20 25 30 
+Time (sec) 
+Absolute Error 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+Figure 11: Comparing loop-cutset sampling (LCS), wLC=3, Gibbs sampling (Gibbs), like-
+lihood weighting (L W), AIS-BN, and IBP on cpcs360b network, a veraged over
+20 instances, showing MSE as a function of the number of sampl es (top left)
+and time (top right) and KL-distance (middle left), squared H ellinger’s distance
+(middle right), and an average error (bottom) as a function o f time.
+28
+
+PDF PAGE 29
+Cutset sampling for Bayesian networks
+cpcs422b, N=422, |LC|=47, w*=22, |E|=28 
+0.0E+00 
+5.0E-05 
+1.0E-04 
+1.5E-04 
+2.0E-04 
+2.5E-04 
+3.0E-04 
+3.5E-04 
+4.0E-04 
+0 1000 2000 3000 4000 5000 6000 
+# samples 
+MSE 
+Gibbs 
+LCS 
+IBP 
+cpcs422b, N=422, |LC|=47, w*=22, |E|=28 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+0 10 20 30 40 50 60 
+Time (sec) 
+MSE 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+cpcs422b, N=422, |LC|=47, w*=22, |E|=28 
+1.0E-06 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+1.0E+00 
+0 10 20 30 40 50 60 
+Time (sec) 
+KL-distance 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+cpcs422b, N=422, |LC|=47, w*=22, |E|=28 
+1.0E-06 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+0 10 20 30 40 50 60 
+Time (sec) 
+Hellinger-distance 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+cpcs422b, N=422, |LC|=47, w*=22, |E|=28 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+0 10 20 30 40 50 60 
+Time (sec) 
+Absolute Error 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+Figure 12: Comparing loop-cutset sampling (LCS), wLC=14, Gibbs sampling (Gibbs), like-
+lihood weighting (L W), AIS-BN sampling, and IBP on cpcs422b n etwork, aver-
+aged over 10 instances, showing MSE as a function of the numbe r of samples
+(top left) and time (top right) and KL-distance (middle left) , squared Hellinger’s
+distance (middle right), and an average error (bottom) as a f unction of time.
+29
+
+PDF PAGE 30
+Bidyuk & Dechter
+wLC when loop-cutset nodes are observed is speciﬁed in the captio n. It is identical to the
+largest family size in the poly-tree generated when cutset va riables are removed. We plot
+the time on the x-axis and the accuracy (MSE) on the y-axis. In the CPCS networks, IBP
+always converged and converged fast (within seconds). Cons equently, IBP curve is always
+a straight horizontal line as the results do not change after the convergence is achieved.
+The curves corresponding to Gibbs sampling, loop-cutset sam pling, likelihood weighting,
+and AIS-BN demonstrate the convergence of the sampling schem es with time. In the three
+CPCS networks loop-cutset sampling converges much faster th an Gibbs sampling. The only
+exception is cpcs422b (Figure 12, right) where the induced w idth of the conditioned singly-
+connected network remains high ( wLC = 14) due to large family sizes and thus, loop-cutset
+sampling generates samples very slowly (4 samples/second) compared to Gibbs sampling
+(300 samples/second). Since computing sampling distribut ion is exponential in w, sampling
+a single variable is O(214) (all variables have domains of size 2). As a result, althoug h loop-
+cutset sampling shows a signiﬁcant reduction in MSE as a func tion of the number of samples
+(Figure 12, left), it is not enough to compensate for the two o rders of magnitude diﬀerence
+in the loop-cutset rate of sample generation. For cpcs54 (Fig ure 9), cpcs179 (Figure 10),
+and cpcs360b (Figure 11) loop-cutset sampling achieves grea ter accuracy than IBP within
+10 seconds or less.
+In comparison with importance sampling schemes, we observe that the AIS-BN algo-
+rithm consistently outperforms likelihood weighting and A IS-BN is slightly better than loop-
+cutset sampling in cpcs54, where the probability of evidenc e P (e)=0.0928 is relatively high.
+In cpcs179, where probability of evidence P (e)=4E-05 is smaller, LCS outperforms AIS-BN
+while Gibbs sampling curves falls in between AIS-BN and likel ihood weighting. Both Gibbs
+sampling and loop-cutset sampling outperform AIS-BN in cpcs3 60b and cpcs422b where
+probability of evidence is small. In cpcs360b average P (e)=5E-8 and in cpcs422b the prob-
+ability of evidence varies from 4E-17 to 8E-47. Note that likel ihood weighting and AIS-BN
+performed considerably worse than either Gibbs sampling or loop-cutset sampling in all of
+those benchmarks as a function of the number of samples. Cons equently, we left them oﬀ
+the charts showing the convergence of Gibbs and loop-cutset s ampling as a function of the
+number of samples in order to zoom in on the two algorithms whi ch are the focus of the
+empirical studies.
+Coding Networks . The results for coding networks are shown in Figure 13. We
+computed error measures over all coding bits and averaged ov er 100 instances (10 instances,
+with diﬀerent observed values, of each of the 10 networks wit h diﬀerent coding matrices). As
+we noted earlier, the Markov chains corresponding to Gibbs s ampling over coding networks
+are not ergodic and, as a result, Gibbs sampling does not conv erge. However, the Markov
+chain corresponding to sampling the subspace of code bits on ly is ergodic and therefore,
+loop-cutset sampling, which samples a subset of coding bits, converges and even achieves
+higher accuracy than IBP with time. In reality, IBP is certai nly preferable for coding
+networks since the size of the loop-cutset grows linearly wit h the number of code bits.
+Random networks. In random multi-part networks (Figure 14, top) and random
+2-layer networks (Figure 14, middle), loop-cutset sampling a lways converged faster than
+Gibbs sampling. The results are averaged over 10 instances o f each network type. In
+both cases, loop-cutset sampling achieved accuracy of IBP in 2 seconds or less. In 2-layer
+30
+
+PDF PAGE 31
+Cutset sampling for Bayesian networks
+coding, N=200, P=3, |LC|=26, w*=21 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+1.0E+00 
+0 2 4 6 8 10 
+Time (sec) 
+Absolute Error 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+coding, N=200, P=3, |LC|=26, w*=21 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+0 2 4 6 8 10 
+Time (sec) 
+MSE 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+coding, N=200, P=3, |LC|=26, w*=21 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+1.0E+00 
+1.0E+01 
+0 2 4 6 8 10 
+Time (sec) 
+KL-distance 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+coding, N=200, P=3, |LC|=26, w*=21 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+1.0E+00 
+0 2 4 6 8 10 
+Time (sec) 
+Hellinger-distance 
+LW 
+AIS-BN 
+Gibbs 
+LCS 
+IBP 
+Figure 13: Comparing loop-cutset sampling (LCS), wLC=3, Gibbs sampling (Gibbs), like-
+lihood weighting (L W), AIS-BN, and IBP on coding networks, σ=0.4, averaged
+over 10 instances of 10 coding networks (100 instances total ). The graphs show
+average absolute error ( top left), MSE (top right), KL-dista nce (bottom left),
+and squared Hellinger’s distance (bottom right) as a functi on of time.
+networks, Iterative Belief Propagation performed particu larly poorly. Both Gibbs sampling
+and loop-cutset sampling obtained more accurate results in l ess than a second.
+Hailﬁnder network . We used this network (in addition to coding networks) to com -
+pare the behavior of cutset sampling and Gibbs sampling in de terministic networks. Since
+Hailﬁnder network contains many deterministic probabilit ies, the Markov chain correspond-
+ing to Gibbs sampling over all variables is non-ergodic. As ex pected, Gibbs sampling fails
+while loop-cutset sampling computes more accurate marginal s (Figure 15).
+In summary, the empirical results demonstrate that loop-cut set sampling is cost-eﬀective
+time-wise and superior to Gibbs sampling. We measured the rat io R = Mg
+Mc of the number
+of samples Mg generated by Gibbs to the number of samples Mc generated by loop-cutset
+sampling in the same time period (it is relatively constant f or any given network and only
+changes slightly between problem instances that diﬀer with observations). For cpcs54,
+cpcs179, cpcs360b, and cpcs422b the ratios were correspond ingly 2.5, 3.75, 0.7, and 75
+(see Table 2 in section 4.4). We also obtained R=2.0 for random networks and R=0.3 for
+random 2-layer networks. The ratio values > 1 indicate that the Gibbs sampler generates
+samples faster than loop-cutset sampling which is usually th e case. In those instances,
+31
+
+PDF PAGE 32
+Bidyuk & Dechter
+random, N=200, |E|=20, |C|=30, w*=22 
+0.0E+00 
+3.0E-05 
+6.0E-05 
+9.0E-05 
+1.2E-04 
+1.5E-04 
+1.8E-04 
+0 5 10 15 20 25 30 
+Time (sec) 
+MSE 
+Gibbs 
+LCS 
+IBP 
+2-layer, R=50, P=3, N=200, |E|=16, |LC|=17, w*=16 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+0 2 4 6 8 10 12 
+Time (sec) 
+MSE 
+Gibbs 
+LCS 
+IBP 
+Figure 14: Comparing loop-cutset sampling (LCS), Gibbs samp ling (Gibbs), and IBP on
+random networks (left) and 2-layer random networks (right), wLC=3 in both
+classes of networks, averaged over 10 instances each. MSE as a function of time.
+Hailfinder, N=56, |LC|=5, w*=5, |E|=4 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+0 1 2 3 4 5 6 7
+Time (sec) 
+MSE 
+Gibbs 
+LCS 
+IBP 
+Figure 15: Comparing loop-cutset sampling (LCS), wLC=7, Gibbs sampling, and IBP on
+Hailﬁnder network, 10 instances. MSE as a function of time.
+variance reduction compensated for the increased computat ion time because fewer samples
+are needed to converge resulting in the overall better perfo rmance of loop-cutset sampling
+compared to Gibbs sampling. In some cases, however, the redu ction in the sample size
+also compensates for the overhead computation in the sampli ng of one variable value. In
+such cases, loop-cutset sampling generated samples faster t han Gibbs yielding ratio R < 1.
+Then, the improvement in the accuracy is due both to larger nu mber of samples and to
+faster convergence.
+32
+
+PDF PAGE 33
+Cutset sampling for Bayesian networks
+4.4 w-cutset Sampling
+In this section, we compare the general w-cutset scheme for diﬀerent values of w against
+Gibbs sampling. The main goal is to study how the performance of w-cutset sampling
+varies with w. For completeness sake, we include results of loop-cutset sa mpling shown in
+section 4.3.
+In this empirical study, we used the greedy algorithm for set cover problem, mentioned
+in section 3.5, for ﬁnding minimal w-cutset. We apply the algorithm in such a manner that
+each ( w + 1)-cutset is a proper subset of a w-cutset and, thus, can be expected to have a
+lower variance and converge faster than sampling on w-cutset in terms of number of samples
+required (following the Rao-Blackwellisation theory). We f ocus the empirical study on the
+trade-oﬀs between cutset size reduction and the associated i ncrease in sample generation
+time as we gradually increase the bound w.
+We used the same benchmarks as before and included also grid n etworks. All sampling
+algorithms were given a ﬁxed time bound. When sampling small networks, such as cpcs54
+(w∗=15) and cpcs179 ( w∗=8), where exact inference is easy, sampling algorithms wer e
+allocated 10 seconds and 20 seconds respectively. For large r networks we allocated 100-200
+seconds depending on the complexity of the network which was only a fraction of exact
+computation time.
+Table 1 reports the size of the sampling set used by each algor ithm where each column
+reports the size of the corresponding w-cutset. For example, for cpcs360b, the average
+size of Gibbs sample (all nodes except evidence) is 345, the l oop-cutset size is 26, the size
+of 2-cutset is 22, and so on. Table 2 shows the rate of sample gen eration by diﬀerent
+algorithms per second. As we observed previously in the case of loop-cutset sampling,
+in some special cases cutset sampling generated samples fas ter than Gibbs sampler. For
+example, for cpcs360b, loop-cutset sampling and 2-cutset sam pling generated 600 samples
+per second while the Gibbs sampler was able to generate only 4 00 samples. We attribute
+this to the size of cutset sample (26 nodes or less as reported in Table 1) compared to the
+size of the Gibbs sample (over 300 nodes).
+Sampling Set Size
+Gibbs LC w=2 w=3 w=4 w=5 w=6 w=7 w=8
+cpcs54 51 16 17 15 11 9 8 - -
+cpcs179 162 8 11 9 7 5 - - -
+cpcs360b 345 26 22 19 16 15 14 13 -
+cpcs422b 392 47 65 57 50 45 40 35 -
+grid15x30 410 169 163 119 95 75 60 50 13
+random 190 30 61 26 25 24 18 17 -
+2layer 185 17 22 15 13 13 11 - -
+coding 100 26 38 23 18 18 - - -
+Table 1: Markov chain sampling set size as a function of w.
+CPCS networks. We present two charts. One chart demonstrates the convergen ce
+over time for several values of w. The second chart depicts the change in the quality
+of approximation (MSE) as a function of w for two time points, at the half of the total
+33
+
+PDF PAGE 34
+Bidyuk & Dechter
+No. of Samples
+Gibbs LC w=2 w=3 w=4 w=5 w=6 w=7 w=8
+cpcs54 5000 2000, w= 5 3000 2400 800 500 300 - -
+cpcs179 1500 400, w= 7 400 150 40 10 - - -
+cpcs360b 400 600, w= 3 600 400 160 100 40 20 -
+cpcs422b 300 4, w=14 200 150 90 50 30 15 -
+grid15x30 2000 500, w= 2 300 260 150 105 60 35 20
+random 2000 1000, w= 3 1400 700 450 300 140 75 -
+2layer 200 700, w= 3 900 320 150 75 40 - -
+coding 2400 1000, w= 3 1000 400 200 120 100 - -
+Table 2: Average number of samples generated per second as a f unction of w.
+cpcs54, N=54, |LC|=16, w*=15, |E|=8 
+0.0E+00 
+5.0E-05 
+1.0E-04 
+1.5E-04 
+2.0E-04 
+2.5E-04 
+3.0E-04 
+0 2 4 6 8 10 12 14 
+Time (sec) 
+MSE 
+Gibbs 
+IBP 
+LCS,w=5 
+|C|=16,w=2 
+|C|=15,w=3 
+|C|=11,w=4 
+|C|=9,w=5 
+cpcs54, N=54, |LC|=16, w*=15, |E|=8 
+0.0E+00 
+5.0E-05 
+1.0E-04 
+1.5E-04 
+2.0E-04 
+2.5E-04 
+Gibbs w=2 w=3 w=4 LCS, 
+w=5 
+w=5 w=6 
+MSE 
+IBP 
+Cutset, 5 sec 
+Cutset, 10 sec 
+Figure 16: MSE as a function of time (left) and w (right) in cpcs54, 20 instances, time
+bound=12 seconds.
+sampling time and at the end of total sampling time. The perfo rmance of Gibbs sampling
+and cutset sampling for cpcs54 is shown in Figure 16. The resu lts are averaged over 20
+instances with 5-10 evidence variables. The graph on the left in Figure 16 shows the mean
+square error of the estimated posterior marginals as a funct ion of time for Gibbs sampling,
+loop-cutset sampling, and w-cutset sampling for w=2, 3, 4, and 5. The second chart shows
+accuracy as a function of w. The ﬁrst point corresponds to Gibbs sampling; other points
+correspond to loop-cutset sampling and w-cutset sampling with w ranging from 2 to 6. The
+loop-cutset result is embedded with the w-cutset values at w=5. As explained in section 3.3,
+the loop-cutset corresponds to the w-cutset where w is the maximum number of parents in
+the network. Initially, the best results were obtained by 2- and 3-cutset sampling followed
+by the loop-cutset sampling. With time, 2- and 5-cutset sampli ng become the best.
+The results for cpcs179 are reported in Figure 17. Both chart s show that loop-cutset
+sampling and w-cutset sampling for w in range from 2 to 5 are superior to Gibbs sampling.
+The chart on the left shows that the best of the cutset samplin g schemes, having the lowest
+MSE curves, are 2- and 3-cutset sampling. The loop-cutset curv e falls in between 2- and
+3-cutset at ﬁrst and is outperformed by both 2- and 3-cutset aft er 12 seconds. Loop-cutset
+34
+
+PDF PAGE 35
+Cutset sampling for Bayesian networks
+cpcs179, N=179, |LC|=8, w*=8, |E|=17 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+0 2 4 6 8 10 12 14 
+Time (sec) 
+MSE 
+Gibbs 
+IBP 
+LCS,w=7 
+|C|=11,w=2 
+|C|=9,w=3 
+|C|=7,w=4 
+|C|=5,w=5 
+cpcs179, N=179, |LC|=8, w*=8, |E|=17 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+Gibbs 
+w=2 
+w=3 
+w=4 
+w=5 
+LCS,w=7 
+MSE 
+IBP 
+Cutset, 10 sec 
+Cutset, 20 sec 
+Figure 17: MSE as a function of time (left) and w (right) in cpcs179, 20 instances, time
+bound=12 seconds. Y-scale is exponential due to large variat ion in performance
+of Gibbs and cutset sampling.
+cpcs360b, N=360, |LC|=26, w*=21, |E|=15 
+1.E-06 
+1.E-05 
+1.E-04 
+1.E-03 
+0 10 20 30 40 50 60 70 
+Time (sec) 
+MSE 
+Gibbs 
+IBP 
+LCS,w=3 
+|C|=23,w=2 
+|C|=19,w=3 
+|C|=16,w=4 
+|C|=15,w=5 
+cpcs360b, N=360, |E|=18, |LC|=26, w*=15 
+0.E+00 
+2.E-05 
+4.E-05 
+6.E-05 
+8.E-05 
+1.E-04 
+Gibbs 
+w=2 
+LC,w=3 
+w=3 
+w=4 
+w=5 
+w=6 
+w=7 
+MSE 
+IBP 
+cutset,t=30sec 
+cutset,t=60sec 
+Figure 18: MSE as a function of time (left) and w (right) in cpcs360b, 20 instances, time
+bound=60 seconds. Y-scale is exponential due to large variat ion in performance
+of Gibbs and cutset sampling.
+sampling and 2- and 3-cutset sampling outperform Gibbs sampl ing by nearly two orders of
+magnitude as their MSE falls below 1E-04 while Gibbs MSE remain s on the order of 1E-
+02. The 4- and 5-cutset sampling results fall in between, achi eving the MSE ≈1E-03. The
+curves corresponding to loop-cutset sampling and 2-, 3- and 4-c utset sampling fall below
+the IBP line which means that all four algorithms outperform IBP in the ﬁrst seconds of
+execution (IBP converges in less than a second). The 5-cutset outperforms IBP after 8
+seconds. In Figure 17 on the right, we see the accuracy result s for all sampling algorithms
+after 10 seconds and 20 seconds. They are in agreement with th e convergence curves on the
+left.
+In cpcs360b (Figure 18), loop-cutset sampling and 2- and 3-cut set sampling have similar
+performance. The accuracy of the estimates slowly degrades as w increases. Loop-cutset
+35
+
+PDF PAGE 36
+Bidyuk & Dechter
+cpcs422b, N=422, |LC|=47, w*=22, |E|=28 
+0.0E+00 
+3.0E-05 
+6.0E-05 
+9.0E-05 
+1.2E-04 
+1.5E-04 
+1.8E-04 
+2.1E-04 
+0 20 40 60 80 100 120 140 
+Time (sec) 
+MSE 
+Gibbs 
+IBP 
+LCS,w=2 
+|C|=65,w=2 
+|C|=57,w=3 
+|C|=50,w=4 
+|C|=45,w=5 
+cpcs422b, N=422, |LC|=47, w*=22, |E|=28 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+Gibbs w=2 w=3 w=4 w=5 w=6 w=7 
+MSE 
+IBP 
+Cutset, 100 sec 
+Cutset, 200 sec 
+Figure 19: MSE as a function of time (left) and w (right) in cpcs422b, 10 instances, time
+bound=200 seconds. Y-scale is exponential due to large varia tion in performance
+of Gibbs and cutset sampling.
+sampling and w-cutset sampling substantially outperform Gibbs sampling f or all values w
+and exceed the accuracy of IBP within 1 minute.
+On the example of cpcs422b, we demonstrate the signiﬁcance o f the adjusted induced
+width of the conditioned network in the performance of cutse t sampling. As we reported
+in section 4.3, its loop-cutset is relatively small |LC|=47 but wLC=14 and thus, sampling
+just one new loop-cutset variable value is exponential in the big adjusted induced width.
+As a result, loop-cutset sampling computes only 4 samples per second while the 2-, 3-
+and 4-cutset, which are only slightly larger having 65, 57, an d 50 nodes respectively (see
+Table 1), compute samples at rates of 200, 150, and 90 samples per second (see Table 2).
+The 5-cutset that is closest to loop-cutset in size, |C5|= 45, computes 50 samples per
+second which is an order of magnitude more than loop-cutset sa mpling. The results for
+cpcs422b are shown in Figure 19. The loop-cutset sampling res ults are excluded due to its
+poor performance. The chart on the right in Figure 19 shows th at w-cutset performed well
+in range of w = 2−7 and is far superior to Gibbs sampling. When allowed enough t ime,
+w-cutset sampling outperformed IBP as well. The IBP converged in 5 seconds. The 2-, 3-,
+and 4-cutset improved over IBP within 30 seconds, and 5-cutset after 50 seconds.
+Random networks. Results from 10 instances of random multi-partite and 10 in-
+stances of 2-layer networks are shown in Figure 20. As we can se e, w-cutset sampling
+substantially improves over Gibbs sampling and IBP reachin g optimal performance for
+w = 2−3 for both classes of networks. In this range, its performanc e is similar to that of
+loop-cutset sampling. In case of 2-layer networks, the accura cy of both Gibbs sampling and
+IBP is an order-of-magnitude less compared to cutset sampling (Figure 20, bottom right).
+The poor convergence and accuracy of IBP on 2-layer networks w as observed previously
+(Murphy et al., 1999).
+Grid networks. Grid networks having 450 nodes (15x30) were the only class of bench-
+marks where full Gibbs sampling was able to produce estimate s comparable to cutset-
+sampling (Figure 21). With respect to accuracy, the Gibbs sa mpler, loop-cutset sampling,
+and 3-cutset sampling were the best performers and achieved s imilar results. Loop-cutset
+36
+
+PDF PAGE 37
+Cutset sampling for Bayesian networks
+random, R=50, N=200, P=3, |LC|=30, w*=22 
+0.0E+00 
+5.0E-05 
+1.0E-04 
+1.5E-04 
+2.0E-04 
+2.5E-04 
+0 10 20 30 40 50 
+Time (sec) 
+MSE 
+Gibbs 
+IBP 
+|LC|=30,w*=3 
+|C|=61,w*=2 
+|C|=26,w*=3 
+|C|=25,w*=4 
+|C|=24,w*=5 
+random, R=50, N=200, P=3, |LC|=30, w*=22 
+0.0E+00 
+5.0E-05 
+1.0E-04 
+1.5E-04 
+2.0E-04 
+Gibbs 
+w=2 
+w=3 
+LC,w=3 
+w=4 
+w=5 
+w=6 
+w=7 
+MSE 
+IBP 
+cutset,t=30sec 
+cutset,t=60sec 
+2layer, R=50, N=200, P=3, |LC|=17, w*=16 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+0 5 10 15 20 25 
+Time (sec) 
+MSE 
+Gibbs 
+IBP 
+|LC|=17,w*=3 
+|C|=22,w*=2 
+|C|=15,w*=3 
+|C|=13,w*=4 
+|C|=12,w*=5 
+2layer, R=50, N=200, P=3, |LC|=17, w*=16 
+1.0E-05 
+1.0E-04 
+1.0E-03 
+1.0E-02 
+1.0E-01 
+Gibbs w =2 LC,w =3 w =3 w =4 w =5 w =6 
+MSE 
+IBP 
+cutset,t=10sec 
+cutset,t=20sec 
+Figure 20: Random multi-partite networks (top) and 2-layer ne tworks (bottom), 200 nodes,
+10 instances. MSE as a function of the number of samples (left ) and w (right).
+grid, 15x30, |E|=60, |LC|=169, w*=15, MSE 
+5.0E-05 
+1.0E-04 
+1.5E-04 
+2.0E-04 
+2.5E-04 
+0 20 40 60 80 100 120 
+Time (sec) 
+MSE 
+Gibbs 
+IBP 
+|LC|=169,w*=2 
+|C|=163,w*=2 
+|C|=119,w*=3 
+|C|=95,w*=4 
+|C|=75,w*=5 
+grid, 15x30, |E|=40, |LC|=169, w*=20 
+0.0E+00 
+3.0E-05 
+6.0E-05 
+9.0E-05 
+1.2E-04 
+1.5E-04 
+Gibbs 
+w*=2 
+LC,w*=2 
+w*=3 
+w*=4 
+w*=5 
+w*=6 
+w*=7 
+w*=8 
+MSE 
+IBP 
+cutset,t=50sec 
+cutset,t=100sec 
+Figure 21: Random networks, 450 nodes, 10 instances. MSE as a function of the number
+of samples (left) and w (right).
+37
+
+PDF PAGE 38
+Bidyuk & Dechter
+sampling was the fastest and most accurate among cutset samp ling schemes. Still, it gen-
+erated samples about 4 times more slowly compared to Gibbs sa mpling (Table 2) since
+loop-cutset is relatively large. The accuracy of loop-cutset sampling was closely followed
+by 2-, 3- and 4-cutset sampling slowly degrading as w increased. Grid networks are an
+example of benchmarks with regular graph structure (that cu tset sampling cannot exploit
+to its advantage) and small CPTs (in a two-dimensional grid ne twork each node has at most
+2 parents) where Gibbs sampling is strong.
+coding 50x50, N=200, P=3, |LC|=26, w*=19 
+0.0E+00 
+5.0E -05 
+1.0E -04 
+1.5E -04 
+2.0E -04 
+2.5E -04 
+3.0E -04 
+0 2 4 6 8 10 
+Time (sec) 
+MSE 
+IBP 
+|LC|=26,w*=3 
+|C|=38,w*=2 
+|C|=21,w*=3 
+|C|=18,w*=4 
+coding, 50x50, N=200, P=3, |LC|=26, w*=19 
+0.0E+00 
+5.0E-05 
+1.0E-04 
+1.5E-04 
+2.0E-04 
+2.5E-04 
+w=2 w=3 LC,w=3 w=4 
+MSE 
+IBP 
+cutset,t=5sec 
+cutset,t=10sec 
+Figure 22: Coding networks, 50 code bits, 50 parity check bit s, σ=0.4, 100 instances, time
+bound=6 minutes.
+Coding Networks. The cutset sampling results for coding networks are shown in
+Figure 22. Here, the induced width varied from 18 to 22 allowi ng for exact inference.
+However, we additionally tested and observed that the compl exity of the network grows
+exponentially with the number of coding bits (even after a sm all increase in the number of
+coding bits to 60 yielding a total of 240 nodes after correspo nding adjustments to the number
+of parity-checking bits and transmitted code size, the induc ed width exceeds 24) while the
+time for each sample generation scales up linearly. We colle cted results for 10 networks
+(10 diﬀerent parity check matrices) with 10 diﬀerent eviden ce instantiations (total of 100
+instances). In decoding, the Bit Error Rate (BER) is a standa rd error measure. However,
+we computed MSE over all unobserved nodes to evaluate the qua lity of approximate results
+more precisely. As expected, Gibbs sampling did not converg e (because the Markov chain
+was non-ergodic) and was left oﬀ the charts. The charts in Figu re 22 show that loop-cutset
+is an optimal choice for coding networks whose performance i s closely followed by 2-cutset
+sampling. As we saw earlier, cutset sampling outperforms IB P.
+4.5 Computing an Error Bound
+Second to the issue of convergence of sampling scheme is alwa ys the problem of predicting
+the quality of the estimates and deciding when to stop sampli ng. In this section, we compare
+empirically the error intervals for Gibbs and cutset sampli ng estimates.
+Gibbs sampling and cutset sampling are guaranteed to conver ge to the correct posterior
+distribution in ergodic networks. However, it is hard to est imate how many samples are
+needed to achieve a certain degree of convergence. It is poss ible to derive bounds on the
+absolute error based on sample variance for any sampling met hod if the samples are inde-
+38
+
+PDF PAGE 39
+Cutset sampling for Bayesian networks
+Markov Chain Length T
+Time Gibbs LC w=2 w=3 w=4 w=5 w=6
+cpcs54 20 sec 4500 2200 4000 2400 800 500 -
+cpcs179 40 sec 1500 400 400 150 40 10 -
+cpcs360b 100 sec 2000 3000 3000 2000 800 500 200
+cpcs422b 200 sec 3000 20 2000 1500 900 500 250
+grid15x30 100 sec 2000 500 300 260 150 105 60
+random 50 sec 2000 1000 1400 700 450 300 140
+2layer 20 sec 200 700 900 320 150 75 40
+coding 20 sec 650 450 800 600 250 150 100
+Table 3: Individual Markov chain length as a function of w. The length of each chain M was
+adjusted for each sampling scheme for each benchmark so that the total processing
+time across all sampling algorithms was the same.
+pendent. In Gibbs and other MCMC methods, samples are depend ent and we cannot apply
+the conﬁdence interval estimate directly. In case of Gibbs s ampling, we can apply the batch
+means method that is a special case of standardized time series method and is used by the
+BUGS software package (Billingsley, 1968; Geyer, 1992; Ste iger & Wilson, 2001).
+The main idea is to “split” a Markov chain of length M· T into M chains of length
+T . Let ˆPm(xi|e) be an estimate derived from a single chain m∈[1, ..., M] of length T
+(meaning, containing T samples) as deﬁned in equations (28)-(29). The estimates ˆPm(x|e)
+are assumed approximately independent for large enough M . Assuming that convergence
+conditions are satisﬁed and the central limit theorem holds , the ˆPm(x|e) is distributed
+according to N (E[P (xi|e)], σ2) so that the posterior marginal ˆP (Xi|e) is obtained as an
+average of the M results obtained from each chain, namely:
+ˆP (x|e) = 1
+M
+M∑
+m=1
+ˆPm(x|e) (33)
+and the sampling variance is computed as usually:
+σ2 = 1
+M−1
+M∑
+m=1
+( ˆPm(x|e)−ˆP (x|e))2
+An equivalent expression for the sampling variance is:
+σ2 =
+∑M
+m=1 ˆP 2
+m(x|e)−M ˆP 2(x|e)
+M−1 (34)
+where σ2 is easy to compute incrementally storing only the running su ms of ˆPm(x|e) and
+ˆP 2
+m(x|e). Therefore, we can compute the conﬁdence interval in the 10 0(1−α) percentile
+used for random variables with normal distribution for smal l sampling set sizes. Namely:
+P
+
+ P (x|e)∈[ ˆP (x|e)±t α
+2 ,(M − 1)
+√
+σ2
+M
+
+ = 1−α (35)
+39
+
+PDF PAGE 40
+Bidyuk & Dechter
+where t α
+2 ,(M − 1) is a table value from t distribution with ( M−1) degrees of freedom.
+We used the batch means approach to estimate the conﬁdence in terval in the posterior
+marginals with one modiﬁcation. Since we were working with r elatively small sample sets
+(a few thousand samples) and the notion of “large enough” M is not well deﬁned, we
+restarted the chain after every T samples to guarantee that the estimates ˆPm(x|e) were
+truly independent. The method of batch means only provides m eaningful error estimates
+assuming that the samples are drawn from the stationary dist ribution. We assume that in
+our problems the chains mix fast enough so that the samples ar e drawn from the target
+distribution.
+Average Error and Conﬁdence Interval
+Gibbs LC w=2 w=3 w=4 w=5 w=6
+cpcs54 ∆ 0.00056 0.00036 0.00030 0.00030 0.00040 0.00036 0.00067
+∆0.9 0.00119 0.00076 0.00064 0.00063 0.00098 0.00112 0.00116
+cpcs179 ∆ 0.01577 0.00086 0.00074 0.00066 0.00113 0.00178 -
+∆0.9 0.02138 0.00148 0.00111 0.00164 0.00235 0.00392 -
+cpcs360b ∆ 0.00051 0.00011 0.00010 0.00008 0.00014 0.00012 0.00022
+∆0.9 0.00113 0.00022 0.00023 0.00021 0.00030 0.00028 0.00046
+cpcs422b ∆ 0.00055 - 0.00018 0.00020 0.00018 0.00027 0.00037
+∆0.9 0.00119 - 0.00033 0.00035 0.00043 0.00060 0.00074
+random ∆ 0.00091 0.00039 0.00119 0.00091 0.00099 0.00109 0.00113
+∆0.9 0.00199 0.00080 0.00247 0.00205 0.00225 0.00222 0.00239
+2layer ∆ 0.00436 0.00066 0.00063 0.00082 0.00117 0.00134 0.00197
+∆0.9 0.00944 0.00145 0.00144 0.00185 0.00235 0.00302 0.00341
+coding ∆ - 0.00014 0.00019 0.00019 0.000174 - -
+∆0.9 - 0.00030 0.00035 0.00034 0.000356 - -
+grid15x30 ∆ 0.00108 0.00099 0.00119 0.00091 0.00099 0.00109 0.00113
+∆0.9 0.00248 0.00214 0.00247 0.00205 0.00225 0.00222 0.00239
+Table 4: Average absolute error ∆ (measured) and estimated c onﬁdence interval ∆ 0.9 as a
+function of w over 20 Markov Chains.
+We applied this approach to estimate the error bound in the Gi bbs sampler and the
+cutset sampler. We have computed a 90% conﬁdence interval fo r the estimated posterior
+marginal P (xi|e) based on the sampling variance of Pm(xi|e) over 20 Markov chains as
+described above. We computed sampling variance σ2 from Eq.(34) and the 90% conﬁdence
+interval ∆0.9(xi) from Eq.(35) and averaged over all nodes:
+∆0.9 = 1
+N ∑
+i|D(Xi)|
+∑
+i
+∑
+xi∈D (Xi)
+∆0.9(xi)
+The estimated conﬁdence interval can be too large to be pract ical. Thus, we compared ∆ 0.9
+with the empirical average absolute error ∆:
+∆ = 1
+N ∑
+i|D(Xi)|
+∑
+i
+∑
+xi∈D (Xi)
+|ˆP (xi|e)−P (xi|e))
+40
+
+PDF PAGE 41
+Cutset sampling for Bayesian networks
+The objective of this study was to observe whether the comput ed conﬁdence interval ∆ 0.9
+(estimated absolute error) accurately reﬂects the true abs olute error ∆, namely, to verify
+that ∆ < ∆0.9, and if so, then investigate empirically whether conﬁdence interval for cutset-
+sampling estimates will be smaller compared to Gibbs sampli ng as we would expect due to
+variance reduction.
+Table 4 presents the average conﬁdence interval and average absolute error for our
+benchmarks. For each benchmark, the ﬁrst row of results (row ∆) reports the average
+absolute error and the second row of results (row ∆ 0.9) reports the 90% conﬁdence interval.
+Each column in Table 4 corresponds to a sampling scheme. The ﬁ rst column reports results
+for Gibbs sampling. The second column reports results for lo op-cutset sampling. The
+remaining columns report results for w-cutset sampling for w in range 2−6. The loop-cutset
+sampling results for cpcs422b are not included due to statis tically insigniﬁcant number of
+samples generated by loop-cutset sampling. The Gibbs sampli ng results for coding networks
+are left out because the network is not ergodic (as mentioned earlier) and Gibbs sampling
+does not converge.
+We can see that for all the networks ∆ < ∆0.9 which validates our method for measuring
+conﬁdence interval. In most cases the estimated conﬁdence i nterval ∆ 0.9 is no more than
+2-3 times the size of average error ∆ and is relatively small. I n case of cutset sampling, the
+largest conﬁdence interval max ∆ 0.9 = 0 .00247 is reported in grid networks for loop-cutset
+sampling. Thus, the conﬁdence interval estimate could be us ed as a criteria reﬂecting the
+quality of the posterior marginal estimate by the sampling a lgorithm in practice. Subse-
+quently, comparing the results for Gibbs sampling and cutse t sampling, we observe not
+only a signiﬁcant reduction in the average absolute error, b ut also a similar reduction in the
+estimated conﬁdence interval. Across all benchmarks, the e stimated conﬁdence interval of
+the Gibbs sampler remains ∆ 0.9 > 1E-3. At the same time, for cutset sampling we obtain
+∆0.9 < 1E-3 in 5 out of 8 classes of networks (excluded are the cpcs179 , grid, and 2-layer
+networks).
+4.6 Discussion
+Our empirical evaluation of the performance of cutset sampl ing demonstrates that, except
+for grid networks, sampling on a cutset usually outperforms Gibbs sampling. We show that
+convergence of cutset sampling in terms of number of samples dramatically improves as
+predicted theoretically.
+The experiments clearly show that there exists a range of w-values where w-cutset
+sampling outperforms Gibbs sampler. The performance of w-cutset sampling deteriorates
+when increase in w yields only a small reduction in the cutset size. An example i s cpcs360b
+network where starting with w=4, increasing w by 1 results in the reducing the sampling
+set by only 1 node (shown in Table 1).
+We observe that the loop-cutset is a good choice of cutset samp ling as long as the
+induced width of network wLC conditioned on loop-cutset is reasonably small. When wLC
+is large (as in cpcs422b), loop-cutset sampling is computati onally less eﬃcient then w-cutset
+sampling for w < w LC.
+We also showed in Section 4.3 that both Gibbs sampling and loo p-cutset sampling
+outperform the state-of-the-art AIS-BN adaptive importance sa mpling method when the
+41
+
+PDF PAGE 42
+Bidyuk & Dechter
+probability of evidence is small. Consequently, all the w-cutset sampling schemes in Sec-
+tion 4.4 that outperformed Gibbs sampler in cpcs360b and cpc s422b would also outperfrom
+AIS-BN.
+5. Related Work
+We mention here some related work. The idea of marginalising out some variables to
+improve eﬃciency of Gibbs sampling was ﬁrst proposed by Liu e t al. (1994). It was
+successfully applied in several special classes of Bayesia n models. Kong et al. (1994),
+applied collapsing to the bivariate Gaussian problem with m issing data. Liu (1994) deﬁnes
+a collapsed Gibbs sampling algorithm for ﬁnding repetitive motifs in biological sequences
+applies by integrating out two parameters from the model. Si milarly, Gibbs sampling set is
+collapsed in (Escobar, 1994; MacEachern, 1994; Liu, 1996) f or learning the nonparametric
+Bayes problem. In all of the instances above, special relati onships between problem variables
+have been exploited to integrate several variables out resu lting in a collapsed Gibbs sampling
+approach. Compared to this previous research work, our cont ribution is in deﬁning a generic
+scheme for collapsing Gibbs sampling in Bayesian networks w hich takes advantage of the
+network’s graph properties and does not depend on the speciﬁ c form of the relationships
+between variables.
+Jensen et al. (1995) combined sampling and exact inference i n a blocking Gibbs sam-
+pling scheme. Groups of variables were sampled simultaneou sly using exact inference to
+compute the needed conditional distributions. Their empir ical results demonstrate a sig-
+niﬁcant improvement in the convergence of the Gibbs sampler over time. Yet, in proposed
+blocking Gibbs sampling, the sample contains all variables in the network. In contrast,
+cutset sampling reduces the set of variables that are sample d. As noted previously, collaps-
+ing produces lower variance estimates than blocking and, th erefore, cutset sampling should
+require fewer samples to converge.
+A diﬀerent combination of sampling and exact inference for j oin-trees was described
+in Koller et al. (1998) and Kjaerulﬀ (1995). Both papers prop osed to sample the proba-
+bility distribution in each cluster for computing the outgo ing messages. Kjaerulﬀ (1995)
+used Gibbs sampling only for large clusters to estimate the j oint probability distribution
+P (Vi), Vi⊂X in cluster i. The estimated ˆP (Vi) is recorded instead of the true joint dis-
+tribution to conserve memory. The motivation is that only hi gh-probability tuples will be
+recorded while the remaining low-probability tuples are ass umed to have probability 0. In
+small clusters, the exact joint distribution P (Vi) is computed and recorded. However, the
+paper does not analyze the introduced errors or compare the p erformance of this scheme
+with standard Gibbs sampler or the exact algorithm. No analy sis of error is given nor
+comparison with other approaches.
+Koller et al. (1998) used sampling used to compute messages s ent from cluster i to
+cluster j and the posterior joint distributions in a cluster-tree that contains both discrete
+and continuous variables. This approach subsumes (Kjærulﬀ , 1995) and includes rigorous
+analysis of the error in the estimated posterior distributi ons. The method has diﬃculties
+with propagation of evidence. The empirical evaluation is l imited to two hybrid network
+instances and compares the quality of the estimates to those of likelihood weighting, an
+42
+
+PDF PAGE 43
+Cutset sampling for Bayesian networks
+instance of importance sampling that does not perform well i n presence of low-probability
+evidence.
+The eﬀectiveness of collapsing of sampling set has been demo nstrated in the context
+of Particle Filtering method for Dynamic Bayesian networks in (Doucet, Andrieu, & God-
+sill, 2000a; Doucet, deFreitas, & Gordon, 2001; Doucet, de F reitas, Murphy, & Russell,
+2000b). It was shown that sampling from a subspace combined w ith exact inference (Rao-
+Blackwellised Particle Filtering) yields a better approxi mation than Particle Filtering on
+the full set of variables. However, the objective of the stud y has been limited to observa-
+tion of the eﬀect in special cases where some of the variables can be integrated out easily.
+Our cutset sampling scheme oﬀers a generic approach to colla psing a Gibbs sampler in any
+Bayesian network.
+6. Conclusion
+The paper presents the w-cutset sampling scheme, a general scheme for collapsing Gib bs
+sampler in Bayesian networks. We showed theoretically and e mpirically that cutset sam-
+pling improves the convergence rate and allows sampling fro m non-ergodic network that
+has ergodic subspace. By collapsing the sampling set, we red uce the dependence between
+samples by marginalising out some of the highly correlated v ariables and smoothing the
+sampling distributions of the remaining variables. The est imators obtained by sampling
+from a lower-dimensional space also have a lower sampling var iance. Using the induced
+width w as a controlling parameter, w-cutset sampling provides a mechanism for balancing
+sampling and exact inference.
+We studied the power of cutset sampling when the sampling set is a loop-cutset and,
+more generally, when the sampling set is a w-cutset of the network (deﬁned as a subset of
+variables such that, when instantiated, the induced width o f the network is ≤w). Based
+on Rao-Blackwell theorem, cutset sampling requires fewer sa mples than regular sampling
+for convergence. Our experiments showed that this reductio n in number of samples was
+time-wise cost-eﬀective. We conﬁrmed this over a range of rand omly generated and real
+benchmarks. We also demonstrated that cutset sampling is su perior to the state of the art
+AIS-BN importance sampling algorithm when the probability o f evidence is small.
+Since the size of the cutset and the correlations between the variables are two main
+factors contributing to the speed of convergence, w-cutset sampling may be optimized fur-
+ther with the advancement of methods for ﬁnding minimal w-cutset. Another promising
+direction for future research is to incorporate the heurist ics for avoiding selecting strongly-
+correlated variables into a cutset since those correlation s are driving factors in the speed
+of convergence of Gibbs sampling. Alternatively, we could c ombine sample collapsing with
+blocking.
+In summary, w-cutset sampling scheme is a simple yet powerful extension of sampling
+in Bayesian networks that is likely to dominate regular samp ling for any sampling method.
+While we focused on Gibbs sampling with better convergence c haracteristics, other sampling
+schemes can be implemented with the cutset sampling princip le. For initial results with
+likelihood weighting see (Bidyuk & Dechter, 2006).
+43
+
+PDF PAGE 44
+Bidyuk & Dechter
+References
+Abdelbar, A. M., & Hedetniemi, S. M. (1998). Approximating m aps for belief networks is
+NP-hard and other theorems. Artiﬁcial Intelligence , 102, 21–38.
+Andrieu, C., de Freitas, N., & Doucet, A. (2002). Rao-Blackwe llised particle ﬁltering via
+data augmentation. In Advances in Neural Information Processing Systems . MIT
+Press.
+Arnborg, S. A. (1985). Eﬃcient algorithms for combinatoria l problems on graphs with
+bounded decomposability - a survey. BIT, 25, 2–23.
+Becker, A., Bar-Yehuda, R., & Geiger, D. (2000). Random algor ithms for the loop cutset
+problem. Journal of Artiﬁcial Intelligence Research , 12, 219–234.
+Bertele, U., & Brioschi, F. (1972). Nonserial Dynamic Programming . Academic Press.
+Bidyuk, B., & Dechter, R. (2003). Empirical study of w-cutset sampling for Bayesian net-
+works. In Proceedings of the 19th Conference on Uncertainty in Artiﬁci al Intelligence
+(UAI), pp. 37–46. Morgan Kaufmann.
+Bidyuk, B., & Dechter, R. (2004). On ﬁnding minimal w-cutset p roblem. In Proceedings
+of the 20th Conference on Uncertainty in Artiﬁcial Intellige nce (UAI) , pp. 43–50.
+Morgan Kaufmann.
+Bidyuk, B., & Dechter, R. (2006). Cutset Sampling with Likel ihood Weighting. In Pro-
+ceedings of the 22nd Conference on Uncertainty in Artiﬁcial I ntelligence (UAI) , pp.
+39–46. Morgan Kaufmann.
+Billingsley, P. (1968). Convergence of Probability Measures. John Wiley & Sons, New York.
+Casella, G., & Robert, C. P. (1996). Rao-Blackwellisation of sampling schemes. Biometrika,
+83 (1), 81–94.
+Cheng, J., & Druzdzel, M. J. (2000). AIS-BN: An adaptive impor tance sampling algorithm
+for evidenctial reasoning in large baysian networks. Journal of Aritiﬁcial Intelligence
+Research, 13, 155–188.
+Cooper, G. (1990). The computational complexity of probabi listic inferences. Artiﬁcial
+Intelligence, 42, 393–405.
+Dagum, P., & Luby, M. (1993). Approximating probabilistic i nference in Bayesian belief
+networks is NP-hard. Artiﬁcial Intelligence , 60 (1), 141–153.
+Dechter, R. (1999a). Bucket elimination: A unifying framew ork for reasoning. Artiﬁcial
+Intelligence, 113, 41–85.
+Dechter, R. (1999b). Bucket elimination: A unifying framew ork for reasoning. Artiﬁcial
+Intelligence, 113 (1–2), 41–85.
+Dechter, R. (2003). Constraint Processing. Morgan Kaufmann.
+Doucet, A., & Andrieu, C. (2001). Iterative algorithms for s tate estimation of jump Markov
+linear systems. IEEE Trans. on Signal Processing , 49 (6), 1216–1227.
+Doucet, A., Andrieu, C., & Godsill, S. (2000a). On sequentia l Monte Carlo sampling meth-
+ods for Bayesian ﬁltering. Statistics and Computing , 10 (3), 197–208.
+44
+
+PDF PAGE 45
+Cutset sampling for Bayesian networks
+Doucet, A., de Freitas, N., Murphy, K., & Russell, S. (2000b) . Rao-Blackwellised particle
+ﬁltering for dynamic Bayesian networks. In Proceedings of the 16th Conference on
+Uncertainty in Artiﬁcial Intelligence (UAI) , pp. 176–183.
+Doucet, A., deFreitas, N., & Gordon, N. (2001). Sequential Monte Carlo Methods in Practice.
+Springer-Verlag, New York, Inc.
+Doucet, A., Gordon, N., & Krishnamurthy, V. (1999). Particl e ﬁlters for state estima-
+tion of jump markov linear systems. Tech. rep., Cambridge Un iversity Engineering
+Department.
+Escobar, M. D. (1994). Estimating normal means iwth a dirich let process prior. Journal of
+the American Statistical Aasociation , 89, 268–277.
+Frey, B. J., & MacKay, D. J. C. (1997). A revolution: Belief pr opagation in graphs with
+cycles. In Neural Information Processing Systems , Vol. 10.
+Fung, R., & Chang, K.-C. (1989). Weighing and integrating evi dence for stochastic simu-
+lation in Bayesian networks. In Proceedings of the 5th Conference on Uncertainty in
+Artiﬁcial Intelligence (UAI) , pp. 209–219. Morgan Kaufmann.
+Geiger, D., & Fishelson, M. (2003). Optimizing exact geneti c linkage computations. In Pro-
+ceedings of the 7th Annual International Conf. on Computati onal Molecular Biology ,
+pp. 114–121. Morgan Kaufmann.
+Gelfand, A., & Smith, A. (1990). Sampling-based approaches t o calculating marginal den-
+sities. Journal of the American Statistical Association , 85, 398–409.
+Geman, S., & Geman, D. (1984). Stochastic relaxations, Gibb s distributions and the
+Bayesian restoration of images. IEEE Transaction on Pattern analysis and Machine
+Intelligence, 6, 721–742.
+Geyer, C. J. (1992). Practical Markov Chain Monte Carlo. Statistical Science, 7, 473–483.
+Gilks, W., Richardson, S., & Spiegelhalter, D. (1996). Markov chain Monte Carlo in practice .
+Chapman and Hall.
+Gottlob, G., Leone, N., & Scarello, F. (1999). A comparison o f structural CSP decomposition
+methods. In Proceedings of the 16th International Joint Conference on A rtiﬁcial
+Intelligence (IJCAI) , pp. 394–399. Morgan Kaufmann.
+Jensen, C., Kong, A., & Kjærulﬀ, U. (1995). Blocking Gibbs sa mpling in very large prob-
+abilistic expert systems. Int. J. of Human Computer Studies. Special Issue on Real-
+World Applications of Uncertain Reasoning , 42 (6), 647–666.
+Jensen, F. V., Lauritzen, S. L., & Olesen, K. G. (1990). Bayes ian updating in causal
+probabilistic networks by local computation. Computational Statistics Quarterly , 4,
+269–282.
+Jones, G., & Hobert, J. P. (2001). Honest exploration of intr actable probability distributions
+via Markov Chain Monte Carlo. Statist. Sci. , 16 (4), 312–334.
+Kask, K., Dechter, R., Larrosa, J., & Dechter, A. (2005). Uni fying cluster-tree decomposi-
+tions for reasoning in graphical models. Artiﬁcial Intelligence , 166, 165–193.
+45
+
+PDF PAGE 46
+Bidyuk & Dechter
+Kjærulﬀ, U. (1995). HUGS: Combining exact inference and Gib bs sampling in junction
+trees. In Proceedings of the 11th Conference on Uncertainty in Artiﬁci al Intelligence
+(UAI), pp. 368–375. Morgan Kaufmann.
+Koller, D., Lerner, U., & Angelov, D. (1998). A general algor ithm for approximate inference
+and its application to hybrid Bayes nets. In Proceedings of the 14th Conference on
+Uncertainty in Artiﬁcial Intelligence (UAI) , pp. 324–333.
+Kong, A., Liu, J. S., & Wong, W. (1994). Sequential imputatio ns and Bayesian missing
+data problems. J. of the American Statistical Association , 89 (425), 278–288.
+Kschischang, F. R., & Frey, B. J. (1998). Iterative decoding of compound codes by proba-
+bility propagation in graphical models. IEEE Journal on Selected Areas in Commu-
+nications, 16, 219–230.
+Larrosa, J., & Dechter, R. (2003). Boosting search with vari able elimination in constraint
+optimization and constraint satisfaction problems. Constraints, 8 (3), 303–326.
+Lauritzen, S., & Spiegelhalter, D. (1988). Local computati on with probabilities on graphical
+structures and their application to expert systems. Journal of the Royal Statistical
+Society, Series B , 50(2), 157–224.
+Liu, J. (1991). Correlation Structure and Convergence Rate of the Gibbs Sam pler, Ph.D.
+Thesis. University of Chicago.
+Liu, J. (1994). The collapsed Gibbs sampler in Bayesian comp utations with applications to
+a gene regulation problem. Journal of the American Statistical Association , 89 (427),
+958–966.
+Liu, J., Wong, W., & Kong, A. (1994). Covariance structure of the Gibbs sampler with
+applications to the comparison of estimators and augmentat ion schemes. Biometrika,
+81 (1), 27–40.
+Liu, J. S. (1996). Nonparametric hierarchical bayes via seq uential imputations. Annals of
+Statistics, 24 (3), 911–930.
+Liu, J. S. (2001). Monte Carlo Strategies in Scientiﬁc Computing . Springer-Verlag, New
+York, Inc.
+MacEachern, S., Clyde, M., & Liu, J. (1998). Sequential impo rtance sampling for nonpara-
+metric bayes models: The next generation. The Canadian Journal of Statistics , 27,
+251–267.
+MacEachern, S. N. (1994). Estimating normal means with a con jugate style dirichlet process
+prior. Communications in Statistics-Simulation and Computation , 23 (3), 727–741.
+MacKay, D. (1996). Introduction to Monte Carlo methods. In Proceedings of NATO Ad-
+vanced Study Institute on Learning in Graphical Models. Sep t 27-Oct 7 , pp. 175–204.
+Maier, D. (1983). The theory of relational databases. In Computer Science Press, Rockville,
+MD.
+McEliece, R., MacKay, D., & Cheng, J.-F. (1997). Turbo decodi ng as an instance of Pearl’s
+belief propagation algorithm. IEEE J. Selected Areas in Communication , 16, 140–152.
+46
+
+PDF PAGE 47
+Cutset sampling for Bayesian networks
+Miller, R., Masarie, F., & Myers, J. (1986). Quick medical re ference (QMR) for diagnostic
+assistance. Medical Computing, 3 (5), 34–38.
+Miller, R., Pople, H., & Myers, J. (1982). Internist-1: An exp erimental computerbased
+diagnostic consultant for general internal medicine. New English Journal of Medicine ,
+307 (8), 468–476.
+Murphy, K. P., Weiss, Y., & Jordan, M. I. (1999). Loopy belief propagation for approximate
+inference: An empirical study. In Proceedings of the 15th Conference on Uncertainty
+in Artiﬁcial Intelligence (UAI) , pp. 467–475. Morgan Kaufmann.
+Parker, R., & Miller, R. (1987). Using causal knowledge to cr eate simulated patient cases:
+the CPCS project as an extension of INTERNIST-1. In Proceedings of the 11th Symp.
+Comp. Appl. in Medical Care , pp. 473–480.
+Pearl, J. (1988). Probabilistic Reasoning in Intelligent Systems . Morgan Kaufmann.
+Peot, M. A., & Shachter, R. D. (1992). Fusion and propagation with multiple observations
+in belief networks. Artiﬁcial Intelligence , 48, 299–318.
+Pradhan, M., Provan, G., Middleton, B., & Henrion, M. (1994) . Knowledge engineering for
+large belief networks. In Proceedings of 10th Conference on Uncertainty in Artiﬁcial
+Intelligence, Seattle, WA , pp. 484–490.
+Rish, I., Kask, K., & Dechter, R. (1998). Empirical evaluati on of approximation algorithms
+for probabilistic decoding. In Proceedings of the 14th Conference on Uncertainty in
+Artiﬁcial Intelligence (UAI) , pp. 455–463. Morgan Kaufmann.
+Roberts, G. O., & Sahu, S. K. (1997). Updating schemes; corre lation structure; blocking
+and parameterization for the Gibbs sampler. Journal of the Royal Statistical Society,
+Series B , 59 (2), 291–317.
+Roberts, G. O., & Tweedie, R. L. (1999). Bounds on regenerati on times and convergence
+rates for Markov chains. Stochastic Processes and Their Applications , 80, 211–229.
+Roberts, G. O., & Tweedie, R. L. (2001). Corregendum to bound s on regeneration times and
+convergence rates for Markov chains. Stochastic Processes and Their Applications , 91,
+337–338.
+Rosenthal, J. S. (1995). Convergence rates for Markov Chain s. SIAM Review , 37 (3), 387–
+405.
+Rosti, A.-V., & Gales, M. (2004). Rao-Blackwellised Gibbs sam pling for switching linear
+dynamical systems. In IEEE International Conference on Acoustics, Speech, and
+Signal Processing (ICASSP 2004) , pp. 809–812.
+Schervish, M., & Carlin, B. (1992). On the convergence of suc cessive substitution sampling.
+Journal of Computational and Graphical Statistics , 1, 111–127.
+Shachter, R. D., Andersen, S. K., & Solovitz, P. (1994). Glob al conditioning for probabilistic
+inference in belief networks. In Proceedings of the 10th Conference on Uncertainty in
+Artiﬁcial Intelligence (UAI) , pp. 514–522.
+Shachter, R. D., & Peot, M. A. (1989). Simulation approaches to general probabilistic
+inference on belief networks. In Proceedings of the 5th Conference on Uncertainty in
+Artiﬁcial Intelligence (UAI) , pp. 221—231.
+47
+
+PDF PAGE 48
+Bidyuk & Dechter
+Steiger, N. M., & Wilson, J. R. (2001). Convergence properti es of the batch means method
+for simulation output analysis. INFORMS Journal on Computing , 13 (4), 277–293.
+Tierney, L. (1994). Markov chains for exploring posterior d istributions. Annals of Statistics ,
+22 (4), 1701–1728.
+Yuan, C., & Druzdzel, M. (2003). An importance sampling algo rithm based on evidence
+pre-propagation. In Proceedings of the 19th Conference on Uncertainty in Artiﬁci al
+Intelligence (UAI) , pp. 624–631.
+Zhang, N., & Poole, D. (1994). A simple algorithm for Bayesia n network computations. In
+Proceedings of the 10th Canadian Conference on Artiﬁcial In telligence, pp. 171–178.
+48

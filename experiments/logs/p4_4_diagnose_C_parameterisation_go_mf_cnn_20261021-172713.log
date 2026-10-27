@@ -1,0 +1,99 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_4_diagnose_C_parameterisation.py
+# sha256 : 92b19a3a8f2d7518af81336391fa93e9a40fe2b39932dcb83f564ca480c098d6
+# args   : --ns go_mf --input cnn --proteins 100
+# host   : uan04   slurm_job: none
+# start  : 2026-10-21T17:27:13+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+{
+ "theory": "dgp2_go_mf",
+ "input": "cnn",
+ "proteins": 100,
+ "eps": 0.001,
+ "moment_match_max_abs_err": {
+  "median": 8.547433808164806e-05,
+  "max": 0.02975969506461079
+ },
+ "depth_affine_own_score": {
+  "R2": 0.18721295488309708,
+  "marginal_err_vs_target_median": 0.9770761047028425,
+  "marginal_mae_vs_target": 0.16186512874053624
+ },
+ "tree": {
+  "R2": 0.5808245151043026,
+  "marginal_err_vs_target_median": 0.9831741057440782,
+  "marginal_mae_vs_target": 0.09987017357471391
+ },
+ "theta_star_minus_logit_s_by_depth": [
+  {
+   "depth": 0,
+   "mean": -7.918133162327908,
+   "sd": 7.078807408778797
+  },
+  {
+   "depth": 1,
+   "mean": -0.7203641927145358,
+   "sd": 3.5224742911526405
+  },
+  {
+   "depth": 2,
+   "mean": 3.209497696889057,
+   "sd": 4.7059614293370515
+  },
+  {
+   "depth": 3,
+   "mean": 4.621101652256291,
+   "sd": 3.6967030785177033
+  },
+  {
+   "depth": 4,
+   "mean": 6.505236215905833,
+   "sd": 2.9910335159183536
+  },
+  {
+   "depth": 5,
+   "mean": 6.9011728026745605,
+   "sd": 2.6306734186122536
+  },
+  {
+   "depth": 6,
+   "mean": 7.213546548951962,
+   "sd": 2.4063136602541606
+  },
+  {
+   "depth": 7,
+   "mean": 7.915785204283487,
+   "sd": 2.177172269490101
+  },
+  {
+   "depth": 8,
+   "mean": 8.516832754134812,
+   "sd": 2.218358689944425
+  }
+ ]
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_4_diagnose_C_parameterisation.py --ns go_mf --input cnn --proteins 100"
+	User time (seconds): 384.34
+	System time (seconds): 3.04
+	Percent of CPU this job got: 100%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 6:25.34
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 100080
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 476
+	Minor (reclaiming a frame) page faults: 36465
+	Voluntary context switches: 7663
+	Involuntary context switches: 79549
+	Swaps: 0
+	File system inputs: 175338
+	File system outputs: 376
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-21T17:33:44+03:00   exit: 0

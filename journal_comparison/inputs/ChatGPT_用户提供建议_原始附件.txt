@@ -1,0 +1,717 @@
+你这里卡住的地方，核心原因是论文实际上同时用了三层东西：ontology DAG、Boolean theory \(T\)、constraint graph \(G_T\)。前面如果把它们混在一起讲，就会越讲越乱。
+
+先把这三层彻底分开。
+
+假设 ontology 里面有：
+
+\[
+c\ \text{isA}\ a
+\]
+
+这里的 \(c,a\) 就是 ontology DAG 里的两个 ontology terms。例如：
+
+```text
+c = "mitochondrial inner membrane"
+a = "membrane"
+```
+
+ontology DAG 里面有一条有方向的边：
+
+```text
+c ──isA──> a
+```
+
+这表达 ontology 的语义：如果一个东西属于 \(c\)，那么它也属于更一般的 \(a\)。
+
+论文接下来给每个 ontology term 建一个 Boolean variable：
+
+\[
+y_c\in\{0,1\},\qquad y_a\in\{0,1\}.
+\]
+
+意思是，对于当前预测对象 \(x\)：
+
+\[
+y_c=1
+\]
+
+表示“\(x\) 有标签 \(c\)”。
+
+所以 ontology 中的
+
+\[
+c\text{ isA }a
+\]
+
+被翻译成逻辑约束：
+
+\[
+y_c\Rightarrow y_a.
+\]
+
+论文把所有这些逻辑约束放在一起，叫：
+
+\[
+T.
+\]
+
+所以非常重要：
+
+\[
+\boxed{T\text{ 是 Boolean formula，不是图。}}
+\]
+
+论文明确写的是 ontology 被表示成 Boolean formula \(T\)，对于 child \(c\) 和 parent \(\pi\)，加入
+
+\[
+y_c\Rightarrow y_\pi.
+\]
+
+实验中主要就是这些 binary child-parent implications。31384_Scaling_Ontology_Conditi
+
+然后才从 \(T\) 再造出一个图：
+
+\[
+G_T.
+\]
+
+这个才叫 constraint graph。
+
+论文的定义是：
+
+> 每个 Boolean variable 是一个 node；如果两个 variable 同时出现在 \(T\) 的某一个 clause 中，就在它们之间连边。31384_Scaling_Ontology_Conditi
+
+例如：
+
+\[
+y_c\Rightarrow y_a
+\]
+
+等价于：
+
+\[
+\neg y_c\lor y_a.
+\]
+
+这个 clause 同时包含 \(y_c,y_a\)。
+
+于是 constraint graph 里：
+
+```text
+y_c -------- y_a
+```
+
+注意这里已经没有箭头了。
+
+所以对你问的：
+
+> constraint graph 和 ontology DAG 到底有什么区别？
+
+在这篇论文当前实验的 binary `is-a` setting 下，确实非常接近。
+
+可以这样看：
+
+| | Ontology DAG | Boolean theory \(T\) | Constraint graph \(G_T\) |
+|---|---|---|---|
+| node | ontology term \(c,a\) | Boolean variable \(y_c,y_a\) | Boolean variable \(y_c,y_a\) |
+| relation | \(c\overset{isA}{\to}a\) | \(y_c\Rightarrow y_a\) | \(y_c-y_a\) |
+| 有方向吗 | 有 | implication 有方向 | 没方向 |
+| 用来干什么 | 表示 ontology 语义 | 定义合法 assignment | 做 treewidth、variable elimination、module 分解 |
+
+所以你刚才说：
+
+> “这两个不就是一个东西吗？”
+
+对于这篇论文实验里只有 binary is-a implication 的情况，从**图的邻接结构**看，基本就是：
+
+\[
+\boxed{
+\text{constraint graph}
+\approx
+\text{ontology DAG 去掉边方向}
+}
+\]
+
+你选中的那句话想表达的就是这个。
+
+但概念上仍然需要区分，因为论文理论允许 \(T\) 有其他 grounded Horn clauses。31384_Scaling_Ontology_Conditi
+
+比如以后有：
+
+\[
+A\land B\Rightarrow C.
+\]
+
+Boolean clause 是：
+
+\[
+\neg A\lor\neg B\lor C.
+\]
+
+那么 constraint graph 会变成：
+
+```text
+A ----- B
+ \     /
+  \   /
+    C
+```
+
+三个变量两两相连。
+
+这时候它就已经不能简单理解成原 ontology DAG 去方向了。
+
+所以论文引入 \(G_T\) 的主要原因不是为了重新定义 ontology，而是因为：
+
+\[
+\boxed{
+\text{WMC 的计算复杂度取决于 Boolean constraint graph 的结构}
+}
+\]
+
+treewidth、variable elimination、core、module、separator 都是在 \(G_T\) 上定义的。论文也明确这么做。31384_Scaling_Ontology_Conditi
+
+---
+
+然后讲你问的 **0.9 和 0.8333**。
+
+这里我先纠正一个容易误导你的地方：
+
+**论文里的 0.9 不是“当前 WMC 主流算法都会算成 0.9”。**
+
+论文是在自己构造一个很简单的 **path-wise calculation**，用它说明：
+
+> 如果把两条 path 当成彼此独立的信息来源，就会重复计算 shared evidence。
+
+论文正文给的例子是这个 diamond：
+
+```text
+        a
+       / \
+      b   c
+       \ /
+        d
+```
+
+对应 ontology implication：
+
+\[
+d\Rightarrow b
+\]
+
+\[
+d\Rightarrow c
+\]
+
+\[
+b\Rightarrow a
+\]
+
+\[
+c\Rightarrow a.
+\]
+
+每个节点原始 predictor probability 都设成：
+
+\[
+p_a=p_b=p_c=p_d=\frac12.
+\]
+
+论文明确给出：
+
+\[
+P_{\mathrm{WMC}}(a=1)=\frac56\approx0.8333
+\]
+
+而一个 path-wise calculation 得到：
+
+\[
+0.9.
+\]
+
+31384_Scaling_Ontology_Conditi
+
+现在我们自己把两个数字真正算一遍。
+
+### 为什么 exact WMC 是 \(5/6\)
+
+因为所有 \(p=0.5\)，16 个 Boolean assignment 原始权重全部一样：
+
+\[
+(0.5)^4=\frac1{16}.
+\]
+
+所以只需要数有多少合法 assignment。
+
+四个 constraint：
+
+\[
+d\Rightarrow b,
+\quad
+d\Rightarrow c,
+\quad
+b\Rightarrow a,
+\quad
+c\Rightarrow a.
+\]
+
+如果：
+
+\[
+a=0,
+\]
+
+那么因为
+
+\[
+b\Rightarrow a,\qquad c\Rightarrow a,
+\]
+
+必须：
+
+\[
+b=0,c=0.
+\]
+
+进一步 \(d\) 也必须为 0。
+
+所以 \(a=0\) 只有一个合法情况：
+
+```text
+a b c d
+0 0 0 0
+```
+
+如果：
+
+\[
+a=1,
+\]
+
+合法情况有：
+
+```text
+a b c d
+1 0 0 0
+1 1 0 0
+1 0 1 0
+1 1 1 0
+1 1 1 1
+```
+
+一共 5 个。
+
+所以合法 assignment 总共：
+
+\[
+1+5=6.
+\]
+
+其中 5 个满足 \(a=1\)。
+
+因此：
+
+\[
+\boxed{
+P(a=1\mid T)=\frac56=0.83333...
+}
+\]
+
+这就是 monolithic exact WMC 的答案。
+
+---
+
+### 那 0.9 到底怎么算出来？
+
+问题出在它把这两个 path：
+
+```text
+d → b → a
+```
+
+和
+
+```text
+d → c → a
+```
+
+当成两个独立来源。
+
+先只看：
+
+```text
+d → b → a
+```
+
+约束：
+
+\[
+d\Rightarrow b,\qquad b\Rightarrow a.
+\]
+
+合法 assignment 有四个：
+
+```text
+a b d
+0 0 0
+
+1 0 0
+1 1 0
+1 1 1
+```
+
+其中：
+
+\[
+a=0
+\]
+
+有 1 个，
+
+\[
+a=1
+\]
+
+有 3 个。
+
+所以这条 path 给 \(a\) 的相对支持是：
+
+\[
+a=1:a=0=3:1.
+\]
+
+另外一条：
+
+```text
+d → c → a
+```
+
+完全一样，也给：
+
+\[
+3:1.
+\]
+
+如果错误地认为这两条 path 独立，就把两个 evidence 相乘：
+
+\[
+3\times3:1\times1
+=
+9:1.
+\]
+
+归一化：
+
+\[
+P(a=1)
+=
+\frac9{9+1}
+=
+\boxed{0.9}.
+\]
+
+错误就在这里：
+
+```text
+d → b → a
+```
+
+和
+
+```text
+d → c → a
+```
+
+并没有独立。
+
+它们共享同一个：
+
+\[
+d.
+\]
+
+你在第一条 path 里面已经使用了 \(d\) 的信息；第二条 path 又把同一个 \(d\) 当成另一份独立 evidence 使用一次。
+
+所以 shared evidence 被算了两遍。
+
+论文正文对此说得很明确：两个 path 共享 \(d\)，但最终 update 把两个 message 当成 independent。31384_Scaling_Ontology_Conditi
+
+---
+
+### 这里的 message passing 是 GNN 的 message passing 吗？
+
+不是同一个算法。
+
+GNN 里的 message passing 通常是：
+
+\[
+h_v^{(l+1)}
+=
+f_\theta
+\left(
+h_v^{(l)},
+\operatorname{AGG}\{h_u^{(l)}\}
+\right),
+\]
+
+里面有 learned neural parameters。
+
+这里讲的是 probabilistic graphical model 里的 message passing，例如 sum-product belief propagation：
+
+\[
+m_{u\rightarrow v}(x_v)
+=
+\sum_{x_u}
+\psi(x_u,x_v)
+\prod_{w\neq v}
+m_{w\rightarrow u}(x_u).
+\]
+
+没有训练 neural network。
+
+只是两者都有“邻居之间传信息”这个表面形式。
+
+论文实验中真正的 approximate baseline 叫：
+
+**synchronous loopy sum-product belief propagation (BP)**，
+
+论文引用的是 Pearl 1988。31384_Scaling_Ontology_Conditi
+
+所以：
+
+\[
+\boxed{\text{这里的 BP 不是 GNN message passing。}}
+\]
+
+---
+
+### 现在 WMC 的主流方法是不是 message passing？
+
+不是。
+
+这个地方要彻底分开。
+
+WMC 的目标是：
+
+\[
+\sum_{y\models T}w(y).
+\]
+
+exact WMC 常见路线包括：
+
+- knowledge compilation；
+- DPLL / model-counting 类方法；
+- variable elimination；
+- junction tree；
+- compiled arithmetic circuits 等。
+
+这篇论文自己也明确说，实际 exact WMC 的方法包括 knowledge compilation 和 variable elimination，而且复杂度可能随 structural width 指数增长。31384_Scaling_Ontology_Conditi
+
+这篇论文实验中的 monolithic exact baseline 用的就是：
+
+\[
+\boxed{\text{Junction Tree}}
+\]
+
+不是 loopy BP。31384_Scaling_Ontology_Conditi
+
+Loopy BP 在它这里是一个**近似 baseline**。
+
+所以不要形成这个理解：
+
+```text
+以前 WMC
+↓
+message passing
+↓
+算错成 0.9
+↓
+这篇论文修好了
+```
+
+这条理解是错的。
+
+更准确的是：
+
+```text
+Exact WMC
+→ 答案正确，例如 5/6
+→ 但是大图上可能非常贵
+
+Local / path-wise approximate propagation
+→ 便宜
+→ 但可能丢失 dependency
+→ diamond 例子可以得到 9/10
+
+这篇论文
+→ 想保留 exact WMC 的 joint dependency
+→ 同时避免整个 ontology 一次性做 monolithic exact inference
+```
+
+这才是论文真正的 motivation。
+
+---
+
+### 那 0.9 这个算法到底是哪篇论文里的？
+
+这个问题也需要纠正我前面对你的说法。
+
+**论文没有说“9/10 是某篇已有论文提出的算法得到的结果”。**
+
+它写的是：
+
+> “A path-wise calculation ... gives \(9/10\).”
+
+也就是说，这个 \(9/10\) 是这篇稿子自己构造出来的 illustrative calculation，用来展示 duplicate evidence。31384_Scaling_Ontology_Conditi
+
+正文说具体 arithmetic 在 technical appendix；你上传的这个 9 页版本里没有那个 appendix。
+
+论文真正使用的 **Loopy BP baseline** 才引用了 Pearl 1988。31384_Scaling_Ontology_Conditi
+
+所以我不会把：
+
+\[
+9/10
+\]
+
+说成“Pearl 1988 的算法一定在这个 diamond 上输出 9/10”。
+
+稿子没有证明这个说法。
+
+这一点必须分清：
+
+\[
+\boxed{
+9/10=\text{作者构造的 path-wise independence calculation}
+}
+\]
+
+而：
+
+\[
+\boxed{
+Loopy BP=\text{实际实验中的一个标准 approximate inference baseline}
+}
+\]
+
+二者有关联，因为都是 local propagation / dependency approximation 的背景，但论文没有把二者严格等同。
+
+---
+
+### 那这篇论文是不是为了解决“0.9 算错”？
+
+可以说这个例子体现了它想解决的问题之一，但这句话还不够完整。
+
+真正的问题是：
+
+\[
+\boxed{
+\text{如何让大 ontology 上的 WMC 可计算，同时保留 reconvergent paths 产生的 joint dependence？}
+}
+\]
+
+Exact WMC：
+
+\[
+5/6
+\]
+
+是目标。
+
+问题是直接在整个 ontology 上算 exact WMC，treewidth 大时很贵。
+
+论文于是说：
+
+不要像 path-wise 方法一样把两条路径独立处理。
+
+例如某个 region 最后同时影响 \(b,c\)，就不要只保存：
+
+\[
+P(b),P(c).
+\]
+
+保存一个 joint separator：
+
+\[
+F(b,c).
+\]
+
+这样 \(b,c\) 之间因为共同的 \(d\) 产生的相关性不会丢掉。
+
+这就是 separator 的真正作用。
+
+论文说得很直接：
+
+> 一个被消去的 region 如果接触多个 retained variables，就必须用 joint boundary factor 来总结。31384_Scaling_Ontology_Conditi
+
+所以在这个 diamond toy example 上，如果使用论文的 **exact separator**，最终应该回到：
+
+\[
+\boxed{\frac56=0.83333}
+\]
+
+因为 Proposition 1 保证：所有 separator 都 exact 时，modular computation 和 monolithic WMC 的 posterior 完全相同。31384_Scaling_Ontology_Conditi
+
+所以你的这个问题答案很明确：
+
+> 用论文 exact 方法算完，会不会从 0.9 回到 0.833？
+
+**会。**
+
+如果用的是 approximate TT separator，则不保证严格等于 \(5/6\)，目标是逼近 exact WMC。论文也明确写了，只要
+
+\[
+\hat F_j\neq F_j,
+\]
+
+最终 posterior 就是 approximate。31384_Scaling_Ontology_Conditi
+
+---
+
+最后，你问这和之前我们讨论 AIJ revision 时说的事情是否一致。
+
+是一致的，而且现在反而更能看出来为什么 reviewer 会有那些意见。
+
+如果投 AIJ，论文不能把故事写成：
+
+> “local message passing 会算出 0.9，我们的方法算出 0.833，所以我们解决了这个问题。”
+
+这个故事太小，而且会被追问：
+
+> exact WMC、junction tree、knowledge compilation 本来就能算出 \(5/6\)，你的新东西在哪里？
+
+真正应该写的是：
+
+\[
+\boxed{
+\text{Exact WMC already has the correct semantics;
+the unresolved issue is scaling that semantics while preserving joint dependence.}
+}
+\]
+
+也就是说：
+
+1. **语义层面**：WMC 已经定义正确答案，diamond 是 \(5/6\)。
+2. **计算层面**：monolithic exact WMC 在高 treewidth ontology 上代价太大。
+3. **简单分解的问题**：如果模块之间只传 singleton/path-wise information，会丢 shared dependence，diamond 的 \(0.9\) 用来说明这个风险。
+4. **论文的方法**：module 内消元后保存 **joint separator factor**，然后只在 reduced core 做 global inference。
+5. **exact separator**：保持原始 WMC，diamond 回到 \(5/6\)。
+6. **wide separator**：用 TT 压缩 joint factor，换取 scalability，但进入 approximation。
+
+而我之前给你 AIJ 的修改建议——加强与 **junction tree / knowledge compilation / compositional WMC / tensor methods** 的关系，补强现代 exact WMC baseline，解释 large-scale approximate mode 的 end-to-end accuracy，把“ontology method”重新定位成一般的 modular probabilistic reasoning 方法——和现在这个理解完全一致。
+
+甚至 constraint graph 这里本身就暴露出论文写作上的一个问题：现在稿子从 ontology DAG 一下跳到 \(T\)，再跳到 \(G_T\)，对于不是做 graphical-model/WMC 的读者，非常容易产生你现在这个疑问。AIJ 版本应该专门用一张极小图把：
+
+\[
+\boxed{
+\text{Ontology DAG}
+\rightarrow
+\text{Boolean theory }T
+\rightarrow
+\text{Constraint graph }G_T
+\rightarrow
+\text{WMC inference}
+}
+\]
+
+这四步一次讲清楚。

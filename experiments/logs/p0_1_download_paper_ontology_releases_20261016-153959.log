@@ -1,0 +1,57 @@
+# script : /project/project_462001792/WMC_aaai_rejected/experiments/scripts/p0_1_download_paper_ontology_releases.sh
+# sha256 : ee3992e247aeb76293747c6a9aa32a7bf171e1b40e25d54d8a326a15ecd246fe
+# args   : 
+# host   : uan04   slurm_job: none
+# start  : 2026-10-16T15:39:59+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+downloading go-basic_2021-11-16.obo
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0100    167   0    167   0      0   1190      0                              0100    167   0    167   0      0   1190      0                              0
+  0      0   0      0   0      0      0      0                              0100 29.46M 100 29.46M   0      0 61.01M      0                              0100 29.46M 100 29.46M   0      0 61.01M      0                              0100 29.46M 100 29.46M   0      0 61.00M      0                              0
+downloading uberon-basic_2026-06-19.obo
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0
+  0      0   0      0   0      0      0      0                              0100 11.51M 100 11.51M   0      0 10.52M      0   00:01   00:01              0100 11.51M 100 11.51M   0      0 10.52M      0   00:01   00:01              0100 11.51M 100 11.51M   0      0 10.52M      0   00:01   00:01              0
+downloading uberon-basic_2026-06-19.owl
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0
+  0      0   0      0   0      0      0      0                              0 66 47.77M  66 31.82M   0      0 23.74M      0   00:02   00:01   00:01 31.58M100 47.77M 100 47.77M   0      0 25.95M      0   00:01   00:01         31.58M100 47.77M 100 47.77M   0      0 25.95M      0   00:01   00:01         31.58M100 47.77M 100 47.77M   0      0 25.95M      0   00:01   00:01         31.58M
+downloading chebi_rel252.obo.gz
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0  5 42.83M   5  2.29M   0      0  1.99M      0   00:21   00:01   00:20  2.22M 13 42.83M  13  5.94M   0      0  2.74M      0   00:15   00:02   00:13  2.90M 23 42.83M  23 10.18M   0      0  3.20M      0   00:13   00:03   00:10  3.33M 32 42.83M  32 14.12M   0      0  3.38M      0   00:12   00:04   00:08  3.47M 43 42.83M  43 18.69M   0      0  3.60M      0   00:11   00:05   00:06  3.69M 54 42.83M  54 23.21M   0      0  3.75M      0   00:11   00:06   00:05  4.15M 64 42.83M  64 27.45M   0      0  3.81M      0   00:11   00:07   00:04  4.27M 71 42.83M  71 30.70M   0      0  3.74M      0   00:11   00:08   00:03  4.08M 80 42.83M  80 34.59M   0      0  3.76M      0   00:11   00:09   00:02  4.07M 89 42.83M  89 38.20M   0      0  3.74M      0   00:11   00:10   00:01  3.88M 97 42.83M  97 41.57M   0      0  3.71M      0   00:11   00:11          3.65M100 42.83M 100 42.83M   0      0  3.70M      0   00:11   00:11          3.65M100 42.83M 100 42.83M   0      0  3.70M      0   00:11   00:11          3.65M100 42.83M 100 42.83M   0      0  3.70M      0   00:11   00:11          3.65M
+file	bytes	sha256	version_header
+go-basic_2021-11-16.obo	30894516	dd5f9adc35b6309412161c43f7b39d23dc1954bcb81ff035ffddd379de3e1031	data-version: releases/2021-11-16
+uberon-basic_2026-06-19.obo	12078648	b27618d347df171d0dbbfc6178217487b98b96424641b8c8b4ece77256e67a14	data-version: uberon/releases/2026-06-19/uberon-basic.owl
+uberon-basic_2026-06-19.owl	50094875	5a5290f7f64f5e06efa77c77b1703565f6cd7779926a059126aeeb37692962c4	versionIRI rdf:resource="http://purl.obolibrary.org/obo/uberon/releases/2026-06-19/uberon-basic.owl"
+chebi_rel252.obo	259560362	f7072fac790ad20332991c622a4dadd5a6c4f18d5b470481991966b4f78dde83	data-version: 252
+P0.1 OK: all three releases match the manuscript
+	Command being timed: "/project/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh bash /project/project_462001792/WMC_aaai_rejected/experiments/scripts/p0_1_download_paper_ontology_releases.sh"
+	User time (seconds): 3.16
+	System time (seconds): 3.32
+	Percent of CPU this job got: 31%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:20.71
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 43544
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 198
+	Minor (reclaiming a frame) page faults: 28483
+	Voluntary context switches: 6926
+	Involuntary context switches: 366
+	Swaps: 0
+	File system inputs: 83746
+	File system outputs: 776496
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-16T15:40:27+03:00   exit: 0

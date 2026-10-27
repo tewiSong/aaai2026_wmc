@@ -1,0 +1,11 @@
+{
+  "ontology": "go_cc",
+  "heuristic": "min-degree",
+  "terms": 4183,
+  "width": 11,
+  "complete": true,
+  "seconds": 0.02,
+  "paper_minfill_width": 12,
+  "n_bags_ge_bag_min": 0,
+  "bag_size_quantiles": {}
+}

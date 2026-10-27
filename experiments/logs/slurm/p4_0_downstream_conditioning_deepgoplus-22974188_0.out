@@ -1,0 +1,127 @@
+{
+ "theory": "dgp_go_cc",
+ "terms": 632,
+ "proteins": 2912,
+ "metrics": {
+  "raw": {
+   "fmax": 0.6890515999834815,
+   "aupr": 0.6419626306947698,
+   "brier": 0.012729735331901668,
+   "ece": 0.00373576412001459,
+   "violation_rate": 0.10057315637977303
+  },
+  "max_closure": {
+   "fmax": 0.6919472872420573,
+   "aupr": 0.6427561098854486,
+   "brier": 0.012644168712715082,
+   "ece": 0.0031973070529831165,
+   "violation_rate": 0.0
+  },
+  "exact_wmc": {
+   "fmax": 0.6770316311287417,
+   "aupr": 0.6107824910098318,
+   "brier": 0.013322868323448334,
+   "ece": 0.008527166199853371,
+   "violation_rate": 0.0
+  },
+  "bp": {
+   "fmax": 0.6767192826142144,
+   "aupr": 0.6079972905145662,
+   "brier": 0.01334807572443401,
+   "ece": 0.008580685049730861,
+   "violation_rate": 0.0
+  }
+ },
+ "exact_minus_other_95ci": {
+  "raw": {
+   "fmax": [
+    -0.0141963646101903,
+    -0.011951734280839066,
+    -0.009761210705435243
+   ],
+   "aupr": [
+    -0.034384095522812345,
+    -0.03118608642979498,
+    -0.02802931351063917
+   ],
+   "brier": [
+    0.0005493904285592992,
+    0.0005951644291382722,
+    0.0006432594555783846
+   ],
+   "ece": [
+    0.00456254390006724,
+    0.004804953519592169,
+    0.00503477480034297
+   ]
+  },
+  "max_closure": {
+   "fmax": [
+    -0.01719676035284422,
+    -0.014840378433941148,
+    -0.01230486037148548
+   ],
+   "aupr": [
+    -0.035335181988032226,
+    -0.03194249713315911,
+    -0.028426265362768342
+   ],
+   "brier": [
+    0.0006279189766002194,
+    0.0006800720835017631,
+    0.0007310496947150616
+   ],
+   "ece": [
+    0.005092602107670919,
+    0.005343229874569509,
+    0.005583080056159791
+   ]
+  },
+  "bp": {
+   "fmax": [
+    0.00011764496588275164,
+    0.00041031684600695284,
+    0.0007849372450717429
+   ],
+   "aupr": [
+    0.002547070371830845,
+    0.0027989297688165715,
+    0.0030702393348190304
+   ],
+   "brier": [
+    -2.7629388137037202e-05,
+    -2.529426282616657e-05,
+    -2.3123252797885383e-05
+   ],
+   "ece": [
+    -6.31675605676155e-05,
+    -5.317301085278059e-05,
+    -3.991047938740953e-05
+   ]
+  }
+ }
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_0_downstream_conditioning_deepgoplus_cc_mf.py --ns go_cc --bootstrap 1000"
+	User time (seconds): 2977.34
+	System time (seconds): 132.23
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 51:49.98
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 245140
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 420
+	Minor (reclaiming a frame) page faults: 21707737
+	Voluntary context switches: 6336
+	Involuntary context switches: 4523
+	Swaps: 0
+	File system inputs: 137802
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p4_0_downstream_conditioning_deepgoplus_cc_mf_go_cc_20261019-232342.log

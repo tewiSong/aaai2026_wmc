@@ -1,0 +1,87 @@
+{
+ "theory": "dgp2_go_mf",
+ "input": "fused",
+ "proteins": 2129,
+ "by_depth": [
+  {
+   "depth": 1,
+   "terms": 18,
+   "label_rate": 0.0848337769427483,
+   "raw_mean": 0.053024997029491865,
+   "exact_mean": 0.06923074998806805,
+   "raw_mean_on_pos": 0.45193073196755734,
+   "exact_mean_on_pos": 0.6029917654571559,
+   "positives": 3251
+  },
+  {
+   "depth": 2,
+   "terms": 59,
+   "label_rate": 0.04095182746733964,
+   "raw_mean": 0.026329343173266507,
+   "exact_mean": 0.0248871905199993,
+   "raw_mean_on_pos": 0.3505990676688042,
+   "exact_mean_on_pos": 0.4022998630046422,
+   "positives": 5144
+  },
+  {
+   "depth": 3,
+   "terms": 185,
+   "label_rate": 0.012179300013964176,
+   "raw_mean": 0.008333198024223134,
+   "exact_mean": 0.004904986347969483,
+   "raw_mean_on_pos": 0.29726989183784525,
+   "exact_mean_on_pos": 0.27283969423986687,
+   "positives": 4797
+  },
+  {
+   "depth": 4,
+   "terms": 212,
+   "label_rate": 0.009223481659384776,
+   "raw_mean": 0.0062488999997340955,
+   "exact_mean": 0.002920984820989422,
+   "raw_mean_on_pos": 0.31186746630502926,
+   "exact_mean_on_pos": 0.24912568420816986,
+   "positives": 4163
+  },
+  {
+   "depth": 5,
+   "terms": 152,
+   "label_rate": 0.00785518281377469,
+   "raw_mean": 0.005144952590966183,
+   "exact_mean": 0.001933548490299199,
+   "raw_mean_on_pos": 0.2910284818499671,
+   "exact_mean_on_pos": 0.19896523867090096,
+   "positives": 2542
+  },
+  {
+   "depth": 6,
+   "terms": 84,
+   "label_rate": 0.005932809948779888,
+   "raw_mean": 0.003978721301985054,
+   "exact_mean": 0.0014258602112275198,
+   "raw_mean_on_pos": 0.302034212876294,
+   "exact_mean_on_pos": 0.18588532743704542,
+   "positives": 1061
+  },
+  {
+   "depth": 7,
+   "terms": 17,
+   "label_rate": 0.0053877821678225074,
+   "raw_mean": 0.003951717523232931,
+   "exact_mean": 0.0005566660927399197,
+   "raw_mean_on_pos": 0.2496428668656732,
+   "exact_mean_on_pos": 0.07160933684244684,
+   "positives": 195
+  },
+  {
+   "depth": 8,
+   "terms": 2,
+   "label_rate": 0.0009394081728511038,
+   "raw_mean": 0.001063351978700239,
+   "exact_mean": 1.595487434991808e-05,
+   "raw_mean_on_pos": 0.2050455566495657,
+   "exact_mean_on_pos": 0.005721239041000206,
+   "positives": 4
+  }
+ ]
+}

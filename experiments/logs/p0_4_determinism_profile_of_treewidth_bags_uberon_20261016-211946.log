@@ -1,0 +1,62 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p0_4_determinism_profile_of_treewidth_bags.py
+# sha256 : 450a0b2c1bf3b6f733d1bc3d8e209239e3f019541df2710f5e0539fb72ca0be5
+# args   : --ontology uberon --heuristic min-fill
+# host   : nid002447   slurm_job: 22919441
+# start  : 2026-10-16T21:19:46+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+{
+  "ontology": "uberon",
+  "heuristic": "min-fill",
+  "bags_analysed": 163,
+  "bags_total": 163,
+  "seconds": 0.1,
+  "max_bag_size": 46,
+  "max_log2_states": 35.766,
+  "max_log2_states_lower_bound": 31,
+  "max_dilworth_width": 31,
+  "exact_counted_fraction": 1.0,
+  "note": "dense JT cost ~ 2^max_bag_size; determinism-aware cost ~ 2^max_log2_states (log2_chain_bound is a rigorous upper bound on log2 #up-sets)"
+}
+largest bags (size, width, log2 bound, log2 exact):
+     46    30     38.59 35.068
+     46    31     39.44 35.766
+     45    30     38.60 34.472
+     44    29     36.85 33.529
+     44    29     37.44 33.741
+     43    29     36.59 33.497
+     43    28     36.44 32.755
+     43    30     36.92 34.497
+     42    29     36.44 33.012
+     42    27     35.00 31.756
+     42    29     36.00 32.554
+     41    28     35.60 32.015
+     41    27     34.85 31.756
+     41    29     35.51 32.553
+     41    27     34.68 31.627
+written /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/results/p0_4_determinism_uberon_min-fill.json
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p0_4_determinism_profile_of_treewidth_bags.py --ontology uberon --heuristic min-fill"
+	User time (seconds): 0.67
+	System time (seconds): 1.08
+	Percent of CPU this job got: 76%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:02.29
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 51200
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 268
+	Minor (reclaiming a frame) page faults: 30917
+	Voluntary context switches: 6343
+	Involuntary context switches: 122
+	Swaps: 0
+	File system inputs: 114748
+	File system outputs: 40
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-16T21:19:53+03:00   exit: 0

@@ -1,0 +1,311 @@
+{
+ "summary": {
+  "ontology": "go_mf",
+  "heuristic": "min-fill",
+  "bags_analysed": 49,
+  "bags_total": 49,
+  "seconds": 0.0,
+  "max_bag_size": 39,
+  "max_log2_states": 27.669,
+  "max_log2_states_lower_bound": 23,
+  "max_dilworth_width": 23,
+  "exact_counted_fraction": 1.0,
+  "note": "dense JT cost ~ 2^max_bag_size; determinism-aware cost ~ 2^max_log2_states (log2_chain_bound is a rigorous upper bound on log2 #up-sets)"
+ },
+ "bags": [
+  {
+   "size": 39,
+   "dilworth_width": 22,
+   "log2_chain_bound": 31.002,
+   "log2_exact_upsets": 26.916
+  },
+  {
+   "size": 39,
+   "dilworth_width": 23,
+   "log2_chain_bound": 31.247,
+   "log2_exact_upsets": 27.669
+  },
+  {
+   "size": 38,
+   "dilworth_width": 22,
+   "log2_chain_bound": 30.68,
+   "log2_exact_upsets": 26.699
+  },
+  {
+   "size": 37,
+   "dilworth_width": 22,
+   "log2_chain_bound": 30.265,
+   "log2_exact_upsets": 26.143
+  },
+  {
+   "size": 36,
+   "dilworth_width": 21,
+   "log2_chain_bound": 28.34,
+   "log2_exact_upsets": 25.345
+  },
+  {
+   "size": 36,
+   "dilworth_width": 21,
+   "log2_chain_bound": 28.832,
+   "log2_exact_upsets": 25.411
+  },
+  {
+   "size": 36,
+   "dilworth_width": 22,
+   "log2_chain_bound": 29.587,
+   "log2_exact_upsets": 25.634
+  },
+  {
+   "size": 35,
+   "dilworth_width": 21,
+   "log2_chain_bound": 28.85,
+   "log2_exact_upsets": 25.686
+  },
+  {
+   "size": 35,
+   "dilworth_width": 21,
+   "log2_chain_bound": 28.51,
+   "log2_exact_upsets": 24.826
+  },
+  {
+   "size": 34,
+   "dilworth_width": 19,
+   "log2_chain_bound": 27.095,
+   "log2_exact_upsets": 23.536
+  },
+  {
+   "size": 33,
+   "dilworth_width": 19,
+   "log2_chain_bound": 26.68,
+   "log2_exact_upsets": 23.097
+  },
+  {
+   "size": 33,
+   "dilworth_width": 20,
+   "log2_chain_bound": 27.435,
+   "log2_exact_upsets": 24.101
+  },
+  {
+   "size": 32,
+   "dilworth_width": 19,
+   "log2_chain_bound": 26.265,
+   "log2_exact_upsets": 22.694
+  },
+  {
+   "size": 31,
+   "dilworth_width": 18,
+   "log2_chain_bound": 25.002,
+   "log2_exact_upsets": 22.102
+  },
+  {
+   "size": 30,
+   "dilworth_width": 18,
+   "log2_chain_bound": 24.34,
+   "log2_exact_upsets": 20.906
+  },
+  {
+   "size": 28,
+   "dilworth_width": 15,
+   "log2_chain_bound": 21.925,
+   "log2_exact_upsets": 18.33
+  },
+  {
+   "size": 28,
+   "dilworth_width": 17,
+   "log2_chain_bound": 23.095,
+   "log2_exact_upsets": 21.312
+  },
+  {
+   "size": 27,
+   "dilworth_width": 15,
+   "log2_chain_bound": 21.51,
+   "log2_exact_upsets": 17.81
+  },
+  {
+   "size": 27,
+   "dilworth_width": 14,
+   "log2_chain_bound": 20.662,
+   "log2_exact_upsets": 17.622
+  },
+  {
+   "size": 27,
+   "dilworth_width": 14,
+   "log2_chain_bound": 20.662,
+   "log2_exact_upsets": 17.531
+  },
+  {
+   "size": 26,
+   "dilworth_width": 15,
+   "log2_chain_bound": 21.265,
+   "log2_exact_upsets": 18.662
+  },
+  {
+   "size": 25,
+   "dilworth_width": 15,
+   "log2_chain_bound": 20.51,
+   "log2_exact_upsets": 18.662
+  },
+  {
+   "size": 24,
+   "dilworth_width": 15,
+   "log2_chain_bound": 19.925,
+   "log2_exact_upsets": 17.046
+  },
+  {
+   "size": 23,
+   "dilworth_width": 14,
+   "log2_chain_bound": 18.755,
+   "log2_exact_upsets": 17.925
+  },
+  {
+   "size": 23,
+   "dilworth_width": 13,
+   "log2_chain_bound": 18.51,
+   "log2_exact_upsets": 15.524
+  },
+  {
+   "size": 23,
+   "dilworth_width": 13,
+   "log2_chain_bound": 18.17,
+   "log2_exact_upsets": 15.984
+  },
+  {
+   "size": 21,
+   "dilworth_width": 12,
+   "log2_chain_bound": 16.925,
+   "log2_exact_upsets": 15.102
+  },
+  {
+   "size": 21,
+   "dilworth_width": 12,
+   "log2_chain_bound": 16.925,
+   "log2_exact_upsets": 14.109
+  },
+  {
+   "size": 21,
+   "dilworth_width": 14,
+   "log2_chain_bound": 17.662,
+   "log2_exact_upsets": 16.0
+  },
+  {
+   "size": 20,
+   "dilworth_width": 13,
+   "log2_chain_bound": 16.925,
+   "log2_exact_upsets": 15.358
+  },
+  {
+   "size": 20,
+   "dilworth_width": 14,
+   "log2_chain_bound": 17.34,
+   "log2_exact_upsets": 14.989
+  },
+  {
+   "size": 19,
+   "dilworth_width": 11,
+   "log2_chain_bound": 15.34,
+   "log2_exact_upsets": 13.229
+  },
+  {
+   "size": 18,
+   "dilworth_width": 13,
+   "log2_chain_bound": 15.925,
+   "log2_exact_upsets": 14.282
+  },
+  {
+   "size": 18,
+   "dilworth_width": 12,
+   "log2_chain_bound": 15.17,
+   "log2_exact_upsets": 14.714
+  },
+  {
+   "size": 18,
+   "dilworth_width": 12,
+   "log2_chain_bound": 15.34,
+   "log2_exact_upsets": 13.482
+  },
+  {
+   "size": 18,
+   "dilworth_width": 11,
+   "log2_chain_bound": 14.925,
+   "log2_exact_upsets": 12.814
+  },
+  {
+   "size": 18,
+   "dilworth_width": 10,
+   "log2_chain_bound": 14.247,
+   "log2_exact_upsets": 11.557
+  },
+  {
+   "size": 17,
+   "dilworth_width": 11,
+   "log2_chain_bound": 14.17,
+   "log2_exact_upsets": 13.34
+  },
+  {
+   "size": 17,
+   "dilworth_width": 11,
+   "log2_chain_bound": 14.17,
+   "log2_exact_upsets": 12.907
+  },
+  {
+   "size": 17,
+   "dilworth_width": 12,
+   "log2_chain_bound": 14.755,
+   "log2_exact_upsets": 13.322
+  },
+  {
+   "size": 17,
+   "dilworth_width": 13,
+   "log2_chain_bound": 15.17,
+   "log2_exact_upsets": 13.96
+  },
+  {
+   "size": 17,
+   "dilworth_width": 12,
+   "log2_chain_bound": 14.755,
+   "log2_exact_upsets": 14.053
+  },
+  {
+   "size": 17,
+   "dilworth_width": 11,
+   "log2_chain_bound": 14.17,
+   "log2_exact_upsets": 12.833
+  },
+  {
+   "size": 17,
+   "dilworth_width": 11,
+   "log2_chain_bound": 14.34,
+   "log2_exact_upsets": 12.229
+  },
+  {
+   "size": 16,
+   "dilworth_width": 11,
+   "log2_chain_bound": 13.755,
+   "log2_exact_upsets": 12.907
+  },
+  {
+   "size": 16,
+   "dilworth_width": 11,
+   "log2_chain_bound": 13.585,
+   "log2_exact_upsets": 12.46
+  },
+  {
+   "size": 16,
+   "dilworth_width": 11,
+   "log2_chain_bound": 13.755,
+   "log2_exact_upsets": 13.171
+  },
+  {
+   "size": 16,
+   "dilworth_width": 11,
+   "log2_chain_bound": 13.755,
+   "log2_exact_upsets": 11.644
+  },
+  {
+   "size": 16,
+   "dilworth_width": 10,
+   "log2_chain_bound": 13.34,
+   "log2_exact_upsets": 11.171
+  }
+ ]
+}

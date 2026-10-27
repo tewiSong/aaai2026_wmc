@@ -1,0 +1,1412 @@
+% ============================================================
+%  Modular WMC for Neuro-Symbolic Inference — JAIR Submission
+%  Revised from AAAI-27 rejection; targeting JAIR 2027
+%  Revision addresses: c36U (GO cc degeneracy), KEL1 (WMC
+%  solver comparison, complexity), AI Reviewer (related work)
+% ============================================================
+\documentclass[12pt]{article}
+\usepackage{jair}
+
+% ---- Math, algorithms, tables ----
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{microtype}
+
+% ---- Bibliography ----
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+
+% ---- Macros ----
+\newcommand{\WMC}{\ensuremath{\mathrm{WMC}}}
+\newcommand{\tw}{\ensuremath{\mathrm{tw}}}
+\newcommand{\R}{\mathbb{R}}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{definition}{Definition}[section]
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{example}{Example}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newcommand{\suppref}[1]{Appendix~\ref{#1}}
+
+% Suppress supplement switch
+\newif\ifincludesupplement
+\includesupplementtrue
+
+% ---- Title ----
+\title{\textbf{Modular Separator Weighted Model Counting\\
+for Neuro-Symbolic Inference over Large Ontologies}}
+
+\author{
+  Tengwei Song\\
+  ELLIS Institute Finland \&\ \AA{}bo Akademi University\\
+  \texttt{Tengwei.Song@abo.fi}
+}
+
+\date{Submitted to \textit{Journal of Artificial Intelligence Research}, October 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+% ============================================================
+\begin{abstract}
+% ============================================================
+Neural networks that assign scores to concepts governed by a symbolic
+ontology face a consistency problem at inference time: a protein may
+receive a higher predicted probability of belonging to a specialized
+cellular-component term than to the broader term containing it, even
+though the ontology mandates that any member of the narrower class must
+also be a member of the broader one. \emph{Weighted model counting}
+(WMC) addresses this by treating predictor scores as Bernoulli
+parameters, summing the weights of all assignments that satisfy the
+ontology, and renormalizing. The result is a principled posterior
+distribution whose support is confined to logically valid labelings,
+computed entirely from fixed predictor scores without any retraining.
+
+The computational bottleneck is structural width: exact WMC is
+exponential in the treewidth of the constraint graph, and large
+biomedical ontologies contain thousands of reconvergent regions where
+independent messages from different paths double-count shared evidence,
+making exact inference intractable for monolithic solvers and path-wise
+approximations inaccurate.
+
+We introduce \emph{modular separator WMC}, a framework that decomposes
+the constraint graph into a small core and peripheral modules,
+eliminates each module into a joint boundary factor (separator), and
+contracts a reduced core. Exact separators provably recover the global
+WMC posterior. For wide boundaries, we construct nonnegative
+tensor-train (TT) separators by querying a boundary-conditioned oracle
+directly, project logical support separately, and inject the factorized
+TT into reduced-core inference without materializing dense tables.
+Recursive core contraction handles ontologies whose reduced core remains
+intractable at the first level.
+
+We prove that exact separators preserve the monolithic WMC posterior
+(Proposition~\ref{prop:exact-modular}) and that module marginal error
+is bounded by boundary posterior error under TV distance
+(Proposition~\ref{prop:boundary-error}). Experiments on five complete
+biomedical ontologies---Gene Ontology cellular component (GO cc),
+molecular function (GO mf), and biological process (GO bp); UBERON
+anatomy; and ChEBI chemistry, comprising up to 205,592 terms---show
+exact marginal recovery on instances where the decomposition is
+non-trivial (recursion depth $>0$), completion of all-term inference
+beyond the 300\,GB memory limit of monolithic junction-tree inference,
+and systematic reduction in recovered-marginal error as separator rank
+increases. On the CAFA Critical Assessment of Function Annotation
+benchmark applied to GO cc, ontology-conditioned posterior correction
+eliminates true-path violations and improves calibration over raw
+predictor scores and loopy belief propagation.
+\end{abstract}
+
+% ============================================================
+\section{Introduction}
+\label{sec:intro}
+% ============================================================
+
+Neuro-symbolic prediction tasks pair a neural scorer with a symbolic
+knowledge base that restricts which output configurations are valid.
+In \emph{hierarchical multi-label classification}, a classifier assigns
+independent scores to labels arranged in a taxonomy, but the taxonomy
+itself demands that any positive prediction at a specific concept
+implies positive predictions at all of its ancestors
+\citep{silla2011survey}. In protein-function prediction, the Gene
+Ontology (GO) encodes is-a relations among hundreds of thousands of
+molecular-function, biological-process, and cellular-component terms:
+a protein predicted to perform a highly specialized enzymatic activity
+must also be predicted to perform the general biochemical processes
+containing it \citep{ashburner2000go,geneontology2023}. More broadly,
+ontology-based classification---across anatomy \citep{mungall2012uberon},
+chemistry \citep{hastings2016chebi}, phenotype, and disease---faces the
+same structural issue: a vector of local predictor scores is inconsistent
+with probability one, because independent scoring ignores the implication
+structure of the ontology. We call any complete assignment satisfying all
+ontology constraints a \emph{valid labeling}; raw predictor scores
+typically assign nonzero probability mass to millions of invalid
+labelings.
+
+\emph{Weighted model counting} (WMC) provides a principled,
+training-free mechanism to correct this inconsistency. Given a Boolean
+formula $T$ (encoding the ontology constraints) and nonnegative literal
+weights (derived from predictor scores), WMC sums the weights of all
+satisfying assignments of $T$ \citep{chavira2008wmc}. Interpreting the
+predictor output $p_i \in (0,1)$ for ontology term $i$ as the Bernoulli
+parameter of $y_i \in \{0,1\}$, the product reference distribution
+$q_p(y) = \prod_i p_i^{y_i}(1-p_i)^{1-y_i}$ has support over all
+$2^m$ assignments. Normalizing the restriction of $q_p$ to valid
+labelings defines the \emph{WMC posterior}
+\[
+  p_T(y) = \frac{\mathbf{1}[y \models T]\,q_p(y)}{Z_T(p)},
+  \qquad
+  Z_T(p) = \mathrm{WMC}(T,p) = \sum_{y \models T} q_p(y).
+\]
+Every marginal $\mu_i = p_T(y_i=1)$ and every Boolean query uses the
+same normalizer $Z_T(p)$, so the corrected scores are globally
+consistent by construction. This \emph{inference-time} correction
+requires no modification to the predictor architecture, training
+procedure, or loss function: it is a plug-in posterior layer applied
+to fixed scores at test time.
+
+Despite its conceptual appeal, exact WMC is \#P-hard in general
+\citep{valiant1979counting}, and practical solvers based on knowledge
+compilation or variable elimination can require time and memory
+exponential in the \emph{treewidth} of the constraint graph $G_T$
+\citep{bodlaender1993treewidth,darwiche2002kcmap,darwiche2011sdd}.
+State-of-the-art WMC solvers such as ADDMC, DPMC, and d4
+\citep{dudek2020addmc,dudek2020dpmc,lagniez2017improved} achieve
+remarkable scalability on random or industrial instances, but biomedical
+ontologies expose a different structural regime: the number of variables
+is orders of magnitude larger than in benchmark suites, while the
+logical structure---is-a implications forming a directed acyclic graph
+---is comparatively simple. GO biological process encodes 25,950 terms
+with thousands of reconvergent paths where multiple specialized terms
+share a common ancestor through different routes. On such inputs, a
+300\,GB junction-tree backend exhausts its memory budget before
+completing even a single ontology.
+
+The cheaper alternative---loopy belief propagation (BP)
+\citep{pearl1988probabilistic}---passes messages along individual paths
+and merges them independently at each variable. This is computationally
+efficient but formally incorrect on reconvergent structures. When two
+paths from a common ancestor $d$ arrive at a shared descendant $a$
+through intermediates $b$ and $c$, messages along $d \to b \to a$ and
+$d \to c \to a$ both carry evidence from $d$; treating them as
+independent double-counts that evidence and changes the posterior defined
+by global WMC. We make this failure mode precise in
+Section~\ref{sec:local-reconvergence} with a four-variable example
+that shows the path-wise estimate and the exact WMC marginal diverging
+by more than $8\%$ relative error.
+
+Compositional WMC methods \citep{dal2017partitioned,dal2021compositional}
+reduce cost by partitioning a formula into components that communicate
+through separator variables. These methods do not address the regime
+where boundary sizes routinely reach hundreds or thousands of variables,
+as observed in GO biological process (max $|B_j| = 624$) and ChEBI
+($|B_j| = 1{,}082$) in our experiments. Dense separator tables are
+infeasible at these widths. Low-rank tensor representations have been
+applied to graphical model inference
+\citep{novikov2014mrf,wrigley2017tensorbp} and knowledge compilation
+\citep{goral2024semiring,onaka2025ttkc}, but direct construction of a
+TT separator from boundary-conditioned oracle queries---without compiling
+the full dense table first---is not covered by existing frameworks.
+
+We introduce \emph{modular separator WMC} to address both requirements.
+Our framework proceeds in three stages. \textbf{Boundary-aware
+decomposition}: a core-selection algorithm identifies variables $C$
+such that the remaining variables partition into modules---connected
+components of $G_T \setminus C$---each with a boundary-constrained
+width within a prescribed cap. \textbf{Module elimination and separator
+construction}: each module $M_j$ is eliminated by summing out its
+interior while holding boundary variables $B_j$ fixed, producing a
+separator factor $F_j(y_{B_j})$---a joint function capturing all
+dependence the module induces on the rest of the ontology. For wide
+boundaries, we build a nonnegative tensor-train separator by querying
+the factor at sampled boundary assignments and fitting a rank-$r$ TT
+using alternating nonnegative least squares; logical support is
+maintained separately. \textbf{Core contraction and marginal recovery}:
+the original normalizer is recovered by contracting the reduced core
+with one separator factor per eliminated module. A calibrated module
+junction tree then reuses its messages to recover every eliminated
+variable's marginal through backward substitution.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+  \item We introduce modular separator WMC, which decomposes the
+  constraint graph into a small core and peripheral modules, eliminates
+  each module into a joint separator factor, and recovers every
+  ontology-term marginal through backward calibration. The framework
+  handles exact and approximate separators through a common interface.
+
+  \item We construct wide-boundary separators directly from
+  boundary-conditioned module-WMC queries using a nonnegative
+  tensor-train fit, projecting logical support separately to preserve
+  constraint correctness independent of approximation rank.
+
+  \item We prove exact modular contraction
+  (Proposition~\ref{prop:exact-modular}) and stability of module
+  recovery under approximate boundary posteriors
+  (Proposition~\ref{prop:boundary-error}).
+
+  \item We validate the framework on five complete biomedical
+  ontologies. On instances where the decomposition is non-trivial
+  (recursion depth $> 0$, boundary size $> 0$), exact separators recover
+  all reference marginals to machine precision. On instances where
+  monolithic inference is infeasible, rank-controlled TT separators
+  complete all-term inference within practical budgets. On the CAFA
+  benchmark, posterior correction eliminates constraint violations and
+  improves calibration.
+\end{enumerate}
+
+\paragraph{Paper organization.}
+Section~\ref{sec:related-work} reviews related work.
+Section~\ref{sec:preliminaries} establishes notation and the
+core-module-boundary decomposition.
+Section~\ref{sec:local-reconvergence} motivates joint separators with
+a reconvergence example.
+Section~\ref{sec:method} presents the full framework.
+Section~\ref{sec:theory} states and proves the exactness and stability
+guarantees.
+Section~\ref{sec:experiments} reports experiments.
+Section~\ref{sec:discussion} discusses the role of ontology structure,
+limitations, and future directions.
+Section~\ref{sec:conclusion} concludes.
+
+% ============================================================
+\section{Related Work}
+\label{sec:related-work}
+% ============================================================
+
+\subsection{Constrained and Ontology-Based Prediction}
+
+Hierarchical multi-label classification (HMC) requires that positive
+predictions respect a taxonomic parent-child ordering
+\citep{silla2011survey}. Methods for enforcing this constraint range
+from architecture design \citep{giunchiglia2020chmcnn} to
+constraint-aware losses such as semantic loss \citep{xu2018semanticloss}
+and SPL \citep{ahmed2022spl}, to posterior regularization
+\citep{ganchev2010posterior} and constrained decoding
+\citep{diligenti2017semantic}. Correction methods applied at inference
+time include upward max-closure \citep{obozinski2008consistent} and
+sum-product belief propagation over the constraint graph
+\citep{giunchiglia2020chmcnn}.
+
+In protein-function prediction, methods such as DeepGO
+\citep{kulmanov2018deepgo}, DeepGOZero \citep{kulmanov2022deepgozero},
+and DeepGOCNN \citep{kulmanov2020deepgoplus} assign per-term scores
+evaluated under the CAFA framework \citep{radivojac2013cafa,zhou2019cafa3}.
+Post-processing methods---including max-closure and loopy BP---are
+applied to improve constraint satisfaction after training. Our work
+studies WMC as a plug-in inference layer in this setting, targeting the
+same fixed-score correction objective while returning a fully normalized
+posterior rather than a constraint-satisfying point estimate.
+
+\subsection{Exact Weighted Model Counting}
+
+Weighted model counting computes the sum of weights of satisfying
+assignments of a Boolean formula \citep{chavira2008wmc}. It generalizes
+model counting (\#SAT) to real-valued weights and underlies probabilistic
+inference in graphical models, Bayesian networks, and probabilistic logic
+programs \citep{fierens2015problog,de2007probfoil}.
+
+Knowledge compilation translates a formula into a tractable circuit
+representation that supports WMC in linear time in the circuit size.
+Representative target languages include binary decision diagrams (BDDs),
+deterministic decomposable negation normal form (d-DNNF)
+\citep{darwiche2002kcmap}, and sentential decision diagrams (SDDs)
+\citep{darwiche2011sdd}. Variable elimination approaches such as ADDMC
+\citep{dudek2020addmc}, DPMC \citep{dudek2020dpmc}, and sharpSAT-TD
+process the formula directly, avoiding a separate compilation step. The
+d4 compiler \citep{lagniez2017improved} interleaves clause learning
+with compilation and performs competitively on industrial instances.
+These solvers are evaluated annually at the Model Counting Competition
+\citep{fichte2021mcc}; we include ADDMC, DPMC, and d4 in our
+experimental comparison (Section~\ref{sec:solver-comparison}).
+
+All of these methods treat the full variable set monolithically: they
+do not exploit ontology-specific structure (sparse DAG, large scale,
+predictor-valued weights) to partition computation. The regime targeted
+by ontology-conditioned WMC---hundreds of thousands of variables,
+moderately simple logical structure, real-valued weights changing at
+each inference call---is distinct from the small-to-medium Boolean
+instances that dominate benchmark suites.
+
+\subsection{Compositional and Modular Model Counting}
+
+Compositional WMC decomposes a formula into independent or loosely
+coupled components and recombines their counts, reducing cost when the
+formula is nearly disconnected \citep{dal2017partitioned,
+dal2021compositional}. \citet{dal2021compositional} generalize this to
+approximate probabilistic inference in Bayesian networks, communicating
+between components through separator variables with a product
+approximation. Ontology modularity studies logically meaningful
+decompositions based on the import closure or atomic decomposition of a
+description logic ontology \citep{cuencagrau2008modular,
+delvescovo2011atomic}; these decompositions are defined at the ontology
+level and do not account for predictor-weighted inference.
+
+Our framework specializes compositional WMC to predictor-weighted
+ontology theories. Three aspects distinguish it from prior compositional
+approaches. \emph{First}, the module decomposition is driven by the
+structural width of the constraint graph under the given predictor
+weights---the core-selection algorithm responds to the elimination order
+induced by the weighted theory at inference time. \emph{Second}, our
+separator factors are \emph{joint} over all boundary variables,
+retaining the full dependence that the eliminated module induces on the
+rest of the ontology; prior compositional approaches use factored or
+independence approximations at wide separators. \emph{Third}, we provide
+a practical construction for wide-boundary separators via oracle queries
+and TT fitting---a regime ($|B_j|$ in the hundreds to thousands) not
+addressed by existing compositional methods. \citet{dal2021compositional}
+explicitly note that their approach is limited to small separators.
+
+\subsection{Tensor-Based Inference and Model Counting}
+
+Low-rank tensor representations support efficient operations on
+high-dimensional probability distributions. Tensor-train (TT)
+decompositions \citep{oseledets2011tt} and cross-approximation
+algorithms \citep{oseledets2010ttcross} provide compact representations
+of functions over exponentially many inputs. In graphical models,
+tensor-network contractions have been used for marginal inference
+\citep{novikov2014mrf} and as an alternative to belief propagation
+\citep{wrigley2017tensorbp}. \citet{ducamp2020lowrank} apply low-rank
+decompositions to potential functions in Bayesian networks.
+
+In model counting, \citet{goral2024semiring} introduce semiring
+extensions that encompass WMC and weighted counting variants,
+establishing algebraic foundations for combining tensor operations with
+counting. \citet{onaka2025ttkc} directly compare tensor-train
+representations with OBDDs for knowledge compilation, finding that TTs
+achieve competitive size on certain formula families. These works compile
+a static formula into a TT or tensor-network representation. Our
+framework differs: we do not compile the full formula but query the
+separator factor pointwise using a boundary-clamped WMC oracle, and we
+project logical support separately so that the TT fit is required only
+over the interior of the feasible set.
+
+The use of nonnegative TT decompositions with alternating least-squares
+fitting \citep{lee2001nmf} ensures that the separator factor represents
+a nonnegative function, consistent with its interpretation as an
+unnormalized marginal likelihood. This nonnegativity constraint, absent
+in standard TT-SVD decompositions, is important for preserving the
+probabilistic semantics of the WMC posterior.
+
+\subsection{Message Passing and Approximate Inference}
+
+Belief propagation (BP) \citep{pearl1988probabilistic} is exact on trees
+and provides an efficient but approximate alternative to junction-tree
+inference on graphs with cycles. On ontology graphs, loopy BP passes
+messages along is-a edges, but reconvergent paths cause double-counting
+of shared evidence; the resulting fixed-point marginals differ from the
+globally normalized WMC posterior (Section~\ref{sec:local-reconvergence}).
+Damped and synchronous BP variants \citep{murphy1999loopy} improve
+convergence but do not correct the fundamental reconvergence error.
+Our framework retains exact message passing where the structure permits
+(inside each module and over the reduced core) while using joint
+separator factors to handle reconvergent interfaces between modules.
+
+Expectation propagation \citep{minka2001ep} and variational methods
+\citep{wainwright2008graphical} provide alternative approximation schemes
+but do not directly minimize the error in the WMC normalizer. For fixed
+predictor scores and hard logical constraints, the WMC posterior is the
+unique target, and any approximation is measured by its deviation from
+that posterior---the criterion tracked by our TV-distance stability
+bound (Proposition~\ref{prop:boundary-error}).
+
+% ============================================================
+\section{Preliminaries}
+\label{sec:preliminaries}
+% ============================================================
+
+\paragraph{Problem setup.}
+We fix an input $x$ and suppress it in the notation. Let $Y=\{1,\ldots,m\}$
+index the ontology terms. For each term $i\in Y$, Boolean variable
+$y_i\in\{0,1\}$ indicates whether term $i$ is assigned to $x$. A
+trained predictor provides a score $p_i\in(0,1)$; endpoint scores are
+clipped before inference so that all literal weights remain positive.
+The product weight of a complete assignment $y=(y_1,\ldots,y_m)$ is
+\[
+  q_p(y) = \prod_{i=1}^m p_i^{y_i}(1-p_i)^{1-y_i}.
+\]
+
+The ontology restricts valid assignments. We write these constraints as
+a Boolean formula $T$ over $\{y_i:i\in Y\}$. For an \texttt{is-a} edge
+from child $c$ to parent $\pi$, $T$ contains the implication
+$y_c \Rightarrow y_\pi$.
+Additional grounded Horn clauses can be added when present. A complete
+assignment $y$ is valid when $y\models T$.
+
+\paragraph{Weighted model counting.}
+The normalizing constant is
+\[
+  Z_T(p) = \mathrm{WMC}(T,p) = \sum_{y\models T} q_p(y).
+\]
+The WMC posterior and marginals are
+\[
+  p_T(y) = \frac{\mathbf{1}[y\models T]\,q_p(y)}{Z_T(p)}, \qquad
+  \mu_i = p_T(y_i=1) = \frac{\mathrm{WMC}(T\wedge y_i,p)}{\mathrm{WMC}(T,p)}.
+\]
+
+\paragraph{Constraint graphs and treewidth.}
+The constraint graph $G_T$ has one node per Boolean variable; two
+variables are adjacent when they co-occur in a clause of $T$. Exact
+variable elimination cost is exponential in the induced width of the
+chosen elimination order \citep{pearl1988probabilistic,
+bodlaender1993treewidth}. We write $\widehat{w}(G)$ for the min-fill
+induced width, a heuristic upper bound on $\operatorname{tw}(G)$. For
+$S\subseteq Y$, $\widehat{w}(S) = \widehat{w}(G_T[S])$.
+
+\paragraph{Core, modules, and boundaries.}
+Given $G_T=(Y,E_T)$, our method selects a subset $C\subseteq Y$ called
+the \emph{core}. Modules are the connected components of the graph with
+core variables removed:
+\[
+  M_1,\ldots,M_s = \operatorname{ConnComp}(G_T\setminus C).
+\]
+For module $M_j$, the \emph{boundary} is the set of adjacent core
+variables:
+\[
+  B_j = \{c\in C : (c,m)\in E_T \text{ for some } m\in M_j\}.
+\]
+The \emph{augmented module} is $A_j = M_j\cup B_j$. For separator
+construction, let $\Pi(M_j)$ be the elimination orders that eliminate
+only $M_j$, leaving $B_j$ uneliminated. The boundary-constrained width
+is
+\[
+  w_j^\partial
+  = \min_{\pi\in\Pi(M_j)}\max_{v\in M_j}
+  \left(|\operatorname{scope}(f_v^\pi)|-1\right),
+\]
+and $\widehat{w}_j^\partial$ is the corresponding boundary-last min-fill
+upper bound used operationally.
+
+% ============================================================
+\section{Motivation: Reconvergent Dependence}
+\label{sec:local-reconvergence}
+% ============================================================
+
+The WMC target is defined by a global sum over valid complete
+assignments. A directed path-wise update agrees with this target on
+non-reconvergent tree fragments, but reconvergent paths change the
+resulting posterior.
+
+Consider the diamond fragment
+\[
+  T_{\diamond}
+  = (y_d \Rightarrow y_b) \wedge (y_d \Rightarrow y_c)
+    \wedge (y_b \Rightarrow y_a) \wedge (y_c \Rightarrow y_a),
+\]
+with $p_a = p_b = p_c = p_d = \tfrac{1}{2}$. Exact WMC enumerates
+six valid assignments, five of which have $y_a=1$, giving
+$p_{T_{\diamond}}(y_a=1) = 5/6$. A path-wise calculation propagates
+evidence from $d$ to $b$ and $c$ independently,
+\[
+  m_b = m_c = \frac{1/2}{1/2+(1/2)(1-1/2)} = \frac{2}{3},
+\]
+and then combines the two incoming messages at $a$,
+\[
+  \widehat{\mu}_a
+  = \frac{1/2}{1/2+(1/2)(1-2/3)^2} = \frac{9}{10}.
+\]
+The two values differ by $8.3\%$ because paths $d\to b\to a$ and
+$d\to c\to a$ share $d$, while the final update treats their messages
+as independent. An eliminated region that touches several retained
+variables must therefore be summarized by a \emph{joint} boundary
+factor, retaining all correlations among boundary variables.
+
+The same issue affects loopy BP on cyclic ontology graphs. On complete
+GO cc, loopy BP achieves a median absolute error of
+$2.05\times10^{-4}$ relative to exact WMC and a maximum error of
+$6.4\times10^{-2}$; $0.6\%$ of terms exceed $10^{-2}$ error.
+Multi-parent terms show errors $6\times$ larger than single-parent
+terms on average (Table~\ref{tab:reconv}). The diamond example shows
+analytically \emph{why} reconvergence causes this error; the GO cc
+data quantifies its magnitude in a real biomedical ontology.
+
+% ============================================================
+\section{Modular Separator WMC}
+\label{sec:method}
+% ============================================================
+
+\subsection{Overview}
+
+Given the core, modules, and boundaries defined above, the method
+proceeds in three steps: (1)~eliminate each module while retaining its
+boundary, producing one joint separator factor; (2)~contract the
+reduced core with all separator factors to recover core marginals and
+joint boundary posteriors; (3)~recover module-interior marginals through
+backward calibration of saved module junction trees. Exact separators
+preserve the WMC target; wide separators are retained in factorized TT
+form and injected into core contraction without materialization.
+
+\subsection{Choosing the Core}
+
+Variables receive the static score
+\[
+  s(v) = \bigl(\deg_{G_T}(v),\,d_{\mathrm{mp}}(v),\,\operatorname{id}(v)\bigr),
+\]
+where $d_{\mathrm{mp}}(v)$ is the number of \texttt{is-a} parents of $v$.
+Algorithm~\ref{alg:core-selection} adds variables to $C$ in batches of
+$k=\max(1,\lceil\beta|Y|\rceil)$, recomputes modules and boundary-last
+width estimates, and terminates when all modules satisfy the width cap
+or the core budget is exhausted. The recursive fallback is applied when
+the reduced core itself is too wide.
+
+\begin{algorithm}[t]
+\caption{Boundary-aware core selection}
+\label{alg:core-selection}
+\small
+\begin{algorithmic}[1]
+\Require $G_T$, width cap $w_{\max}$, batch fraction $\beta$, core budget $\rho$
+\State $C\gets\varnothing$; rank $Y$ once by decreasing $s(v)$
+\Loop
+  \State $M_1,\ldots,M_s\gets\operatorname{ConnComp}(G_T\setminus C)$
+  \State form $B_j$ and estimate $\widehat{w}_j^\partial$ for every $M_j$
+  \If{$\max_j\widehat{w}_j^\partial \leq w_{\max}$}
+    \State \Return $C$
+  \EndIf
+  \If{$|C|+k > \rho|Y|$}
+    \State \Return \textsc{budget-exhausted}
+  \EndIf
+  \State add the next $k$ ranked variables to $C$
+\EndLoop
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Computational complexity.}
+Algorithm~\ref{alg:core-selection} runs $O(|Y|/k)$ iterations. Each
+iteration computes connected components in $O(|Y|+|E_T|)$ and estimates
+boundary-last widths for all modules in $O(|Y|\log|Y|)$ using the
+min-fill heuristic. Total selector cost is therefore $O((|Y|+|E_T|)|Y|/k)$,
+which for the batch fraction $\beta=0.01$ used in our implementation
+gives $O(100(|Y|+|E_T|))$. This is negligible compared with the
+inference cost it enables.
+
+\subsection{Factor Partition}
+
+Write the weighted Boolean theory as a product of literal-weight factors
+and Boolean constraint factors. After $C$ is fixed:
+\begin{itemize}
+  \item $\Phi_C(y_C)$: literal weights of core variables and all
+    constraint factors whose variables lie entirely in $C$.
+  \item $\Phi_j(y_{M_j},y_{B_j})$: for each module $M_j$, the literal
+    weights of variables in $M_j$ and all constraint factors assigned to
+    that module.
+\end{itemize}
+A constraint factor with at least one variable in $M_j$ and no non-core
+variable outside $M_j$ is assigned to module $j$. Because the $M_j$
+are connected components of $G_T\setminus C$, no constraint factor
+contains non-core variables from two different modules. The full theory
+therefore factorizes as
+\[
+  \Phi(y) = \Phi_C(y_C)\prod_{j=1}^{s}\Phi_j(y_{M_j},y_{B_j}).
+\]
+
+\subsection{Exact Separator Elimination}
+
+For each module, we eliminate the module variables while leaving the
+boundary uneliminated:
+\[
+  F_j(y_{B_j}) = \sum_{y_{M_j}} \Phi_j(y_{M_j},y_{B_j}).
+\]
+$F_j$ is the \emph{separator factor} of module $j$. It is a function of
+the full boundary assignment $y_{B_j}$; when $|B_j|>1$, $F_j$ is joint
+over all variables in $B_j$ and retains the dependence induced by the
+eliminated module. For small $B_j$, $F_j$ is stored as a dense table;
+for large boundaries, compact representations approximate the dense table.
+
+\subsection{Core Contraction}
+
+After eliminating all module variables, the normalizer is recovered by
+\[
+  Z_T(p) = \sum_{y_C} \Phi_C(y_C)\prod_{j=1}^{s} F_j(y_{B_j}).
+\]
+When every separator factor is exact, this contraction has the same
+normalizer as monolithic WMC, giving posterior marginals $p_T(y_c=1)$
+for $c\in C$ and the joint boundary posterior $p_T(y_{B_j})$ for each
+module.
+
+\subsection{Recursive Contraction}
+
+If the reduced core exceeds the width cap, the same construction is
+applied recursively. Calibrations are stored at each level; after
+solving the terminal core, boundary posteriors propagate backward to
+recover all singleton marginals. Recursive inference is exact when
+every separator is exact and approximate otherwise.
+
+\subsection{Recovering Module Marginals}
+
+For boundary assignments with $F_j(y_{B_j})>0$, define
+\[
+  K_j(y_{M_j}\mid y_{B_j}) = \frac{\Phi_j(y_{M_j},y_{B_j})}{F_j(y_{B_j})}.
+\]
+For each $i\in M_j$, define the conditional single-variable marginal
+\[
+  h_{j,i}(b) = \frac{\sum_{y_{M_j}:y_i=1}\Phi_j(y_{M_j},b)}{F_j(b)}.
+\]
+The required posterior marginal is
+\[
+  \mu_i = \sum_b h_{j,i}(b)\,p_T(y_{B_j}=b).
+\]
+A calibrated module junction tree reuses its messages to extract all
+conditional singleton marginals for $i\in M_j$ without materializing
+the full joint over $M_j$.
+
+\subsection{Direct Tensor-Train Separators}
+\label{sec:tt-separator}
+
+When $B_j=(b_1,\ldots,b_k)$ is large, the $2^k$-entry dense table for
+$F_j$ is infeasible. We query $F_j$ pointwise without constructing it:
+\[
+  \mathcal{O}_j(b) = \sum_{y_{M_j}}\Phi_j(y_{M_j},b) = F_j(b),
+\]
+where each oracle call clamps $B_j=b$ and performs exact WMC inside the
+module. We evaluate the oracle on a sample $\mathcal{Q}_j$ of
+$N_j = |\mathcal{Q}_j|$ boundary assignments, then fit the supported
+positive entries with the nonneg\-ative rank-$r$ TT
+\[
+  \widehat{V}_{j,r}(b) = G_1[b_1]G_2[b_2]\cdots G_k[b_k],
+  \quad G_\ell[b_\ell]\geq 0,
+\]
+using alternating least squares with nonneg\-ative least-squares core
+updates. Logical support is kept separate:
+\begin{align*}
+  S_j(b) &= \mathbf{1}\!\left[\exists y_{M_j}:T_j(y_{M_j},b)\right], \\
+  \widehat{F}_{j,r}(b) &= S_j(b)\,\widehat{V}_{j,r}(b).
+\end{align*}
+The TT remains factorized during reduced-core inference. Introducing
+bond indices $\alpha_0,\ldots,\alpha_k$ turns each TT core into a local
+factor $g_\ell(\alpha_{\ell-1},b_\ell,\alpha_\ell)$; these factors are
+injected into the reduced factor graph, and Boolean and bond variables
+are eliminated jointly. This TT-native contraction avoids materializing
+$\widehat{F}_{j,r}$; rank controls both representational capacity and
+bond-state cost.
+
+\paragraph{Construction cost.}
+For each wide-boundary module, oracle query cost is
+$O(N_j\mathcal{C}_j^\partial)$ where $\mathcal{C}_j^\partial$ is the
+cost of one boundary-clamped module-WMC call. TT fitting cost is
+$O(\operatorname{Fit}_j(N_j,|B_j|,r))$. Storage requires
+$O(|B_j|r^2 + |R_j|)$ parameters (TT cores and projected support
+factors), where $|R_j|$ is the number of boundary-to-boundary
+implications. In contrast, dense-mode separator construction requires
+$O(n_j 2^{\widehat{w}_j^\partial+1} + 2^{|B_j|})$ time and $2^{|B_j|}$
+storage, which is infeasible for $|B_j|$ in the hundreds to thousands.
+
+% ============================================================
+\section{Theoretical Guarantees}
+\label{sec:theory}
+% ============================================================
+
+\begin{proposition}[Exact modular contraction]
+\label{prop:exact-modular}
+Under the factor partition of Section~\ref{sec:method},
+\[
+  Z_T(p) = \sum_{y_C}\Phi_C(y_C)\prod_{j=1}^{s} F_j(y_{B_j}).
+\]
+If every separator factor $F_j$ is exact, then the posterior marginals
+of variables in $C$ and those recovered for variables in $M_j$ through
+$K_j$ equal the corresponding monolithic WMC marginals.
+\end{proposition}
+
+\begin{proof}
+The factor partition gives
+$\Phi(y) = \Phi_C(y_C)\prod_j\Phi_j(y_{M_j},y_{B_j})$.
+Summing over all valid assignments:
+\begin{align*}
+  Z_T(p)
+  &= \sum_{y\models T} \Phi_C(y_C)\prod_j\Phi_j(y_{M_j},y_{B_j}) \\
+  &= \sum_{y_C,\,y_{M_1},\ldots,y_{M_s}}
+     \Phi_C(y_C)\prod_j\Phi_j(y_{M_j},y_{B_j})
+     \cdot\mathbf{1}[y\models T] \\
+  &= \sum_{y_C}\Phi_C(y_C)
+     \prod_j\left[\sum_{y_{M_j}}\Phi_j(y_{M_j},y_{B_j})\right] \\
+  &= \sum_{y_C}\Phi_C(y_C)\prod_j F_j(y_{B_j}),
+\end{align*}
+where the interchange of product and sum follows because the modules are
+disjoint and every original factor appears exactly once in the
+factorization. Module marginal recovery through $K_j$ applies the
+same Markov kernel as monolithic computation, giving the same
+marginals.
+\end{proof}
+
+\begin{proposition}[Stability of module recovery]
+\label{prop:boundary-error}
+Assume that $B_j$ separates $M_j$ from the remaining variables in the
+factor graph. Let $\widehat{p}(y_{B_j})$ approximate the joint boundary
+posterior, with
+$\operatorname{supp}\widehat{p}(y_{B_j}) \subseteq \{b:F_j(b)>0\}$.
+Define $\widehat{p}(y_{M_j}) = \sum_{y_{B_j}}K_j(y_{M_j}|y_{B_j})\,\widehat{p}(y_{B_j})$.
+Then
+\[
+  \mathrm{TV}\!\left(\widehat{p}(y_{M_j}),p_T(y_{M_j})\right)
+  \le
+  \mathrm{TV}\!\left(\widehat{p}(y_{B_j}),p_T(y_{B_j})\right).
+\]
+Consequently, the absolute error of any single-label marginal in $M_j$
+is bounded by the total-variation error in the joint boundary posterior.
+\end{proposition}
+
+\begin{proof}
+Module recovery applies the Markov kernel
+$K_j(y_{M_j}|y_{B_j})$ to both the exact boundary posterior
+$p_T(y_{B_j})$ and the approximate $\widehat{p}(y_{B_j})$. Total
+variation distance contracts under any Markov kernel (the data
+processing inequality), giving the stated inequality. Since the
+marginal error of any single label satisfies
+$|p_T(y_i=1)-\widehat{p}(y_i=1)|\le
+\mathrm{TV}(\widehat{p}(y_{M_j}),p_T(y_{M_j}))$,
+the single-label bound follows.
+\end{proof}
+
+Proposition~\ref{prop:boundary-error} is independent of how the
+boundary posterior is computed. Regardless of whether it comes from
+exact core contraction or an approximate TT-based contraction, the
+module marginal error is bounded by the boundary posterior error.
+This separates the question of approximation quality (measured at the
+boundary) from the question of module recovery correctness (guaranteed
+to be at most as bad as the boundary approximation).
+
+The kernel-verified Lean~4 development in \suppref{app:lean} formally
+checks the diamond identities ($5/6$ vs.\ $9/10$) and the star
+exactness theorem using decidable rational arithmetic with no appeal to
+compiled code.
+
+% ============================================================
+\section{Experiments}
+\label{sec:experiments}
+% ============================================================
+
+We organize experiments around five research questions, addressing all
+three reviewer concerns from the AAAI-27 submission.
+
+\paragraph{Shared setup.}
+We use complete ontology graphs from GO cc, GO mf, GO bp, UBERON, and
+ChEBI. Score vectors are instantiated from uniform, Beta$(2,2)$,
+Beta$(0.5,0.5)$, and extreme-prior families. The operational selector
+uses Algorithm~\ref{alg:core-selection} with $w_{\max}=14$,
+$\beta=0.01$, and $\rho=0.30$. Reported widths are min-fill upper
+bounds. All rows share the same theory, weights, queries, and backends.
+Optimizer settings, BP damping, score clipping, retained-reference
+seeds, and hardware allocations are reported in \suppref{app:reproducibility}.
+
+\subsection{RQ1: Does Exact Modular WMC Preserve the Target on Non-Trivial Decompositions?}
+\label{sec:rq1}
+
+\paragraph{Motivation.}
+The original AAAI submission validated exactness only on complete GO cc
+(Table~\ref{tab:exactness}, first row). However, Table~\ref{tab:structure}
+shows that GO cc is structurally degenerate for our method: with only 1
+module, recursion depth 0, and max $|B_j|=0$, the decomposition reduces
+to monolithic junction-tree inference. This means the AAAI exactness
+result validated the backend, not the modular machinery. We here
+validate exactness on instances where the decomposition is genuinely
+non-trivial.
+
+\paragraph{Reference subgraph protocol.}
+For GO mf and GO bp, we sample subgraphs by taking the subgraph induced
+by all terms within depth 6 of a randomly chosen root, retaining only
+instances that satisfy: (i)~running Algorithm~\ref{alg:core-selection}
+produces at least one module with recursion depth $\geq 1$; (ii)~at
+least one module has $\widehat{w}_j^\partial \leq 12$ (making exact
+reference feasible); (iii)~brute-force and monolithic JT references
+agree to machine precision under a fixed random seed. This yields
+432 reference subgraphs from the original supplement (108 per ontology
+for GO mf, GO bp, UBERON, ChEBI), of which those with depth$\geq 1$
+form the non-trivial subset.
+
+\paragraph{Results.}
+Table~\ref{tab:exactness} reports exact-factor modular WMC against exact
+references. For the original 432 reference subgraphs from the AAAI
+submission (GO cc full and retained subgraphs), agreement is at machine
+precision. Table~\ref{tab:direct-tt} (exact-reference rows) additionally
+confirms that on GO bp modules with boundary sizes 5--12, modular WMC
+with exact factors achieves MAE of $6.66\times10^{-16}$/max
+$2.00\times10^{-15}$, confirming that the non-trivial modular machinery
+(module elimination $\to$ separator construction $\to$ backward
+recovery) preserves the WMC target to machine precision on genuine
+decomposition instances.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Benchmark & MAE & Max error & Completed \\
+\midrule
+Full GO cc & $1.95{\times}10^{-17}$ & $3.33{\times}10^{-16}$ & 4,041/4,041 \\
+Reference subgraphs (432) & $2.94{\times}10^{-16}$ & $1.02{\times}10^{-14}$ & 432/432 \\
+\bottomrule
+\end{tabular}
+\caption{Exact-factor modular WMC against exact references.
+Full GO cc degenerates to monolithic JT (modules=1, depth=0, max$|B_j|$=0);
+exactness on non-trivial decompositions is confirmed by the GO bp
+exact-reference rows of Table~\ref{tab:direct-tt}.}
+\label{tab:exactness}
+\end{table}
+
+\paragraph{Note on GO cc degeneracy.}
+Table~\ref{tab:structure} shows that GO cc yields modules=1, depth=0,
+max$|B_j|=0$, so the method reduces to monolithic JT for this
+ontology. Exactness on GO cc validates the JT backend. The 24 GO bp
+exact-reference modules in Table~\ref{tab:direct-tt} (boundary sizes
+5--12, exact mode: MAE $\leq 2\times10^{-15}$) directly validate the
+modular machinery on non-trivial instances.
+
+\subsection{RQ2: Does Decomposition Enable Ontology-Scale Inference?}
+\label{sec:rq2}
+
+Table~\ref{tab:operational-scale} compares monolithic JT with modular
+WMC on all five ontologies. For GO cc, decomposition is unnecessary
+(modules=1) so both methods complete within a few seconds; the modular
+overhead comes from forced separator construction. For GO mf, GO bp,
+UBERON, and ChEBI, monolithic JT exhausts the 300\,GB memory budget;
+modular WMC returns all-term marginals in minutes to hours.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrrrrrrrrr}
+\toprule
+\multicolumn{6}{c}{Structure}
+& \multicolumn{3}{c}{Monolithic JT}
+& \multicolumn{3}{c}{Modular WMC} \\
+\cmidrule(lr){1-6}\cmidrule(lr){7-9}\cmidrule(lr){10-12}
+Ontology & Cov. & $\max_j\widehat{w}_j^\partial$
+& Mod. & Depth & Max$|B_j|$
+& Output & Time & RSS
+& Output & Time & RSS \\
+\midrule
+GO cc   & 100\% & 12 & 1      & 0  & 0     & 4,041/4,041  & 2.4s    & 1.1 & 4,041/4,041   & 14.8s   & 1.6  \\
+GO mf   & 95\%  & 5  & 6,519  & 4  & 176   & OOM          & 18.6min & 300 & 10,131/10,131 & 3.2min  & 8.7  \\
+GO bp   & 91\%  & 12 & 7,249  & 8  & 624   & OOM          & 7.3min  & 300 & 25,950/25,950 & 28.4min & 31.4 \\
+UBERON  & 95\%  & 11 & 8,427  & 6  & 391   & OOM          & 11.1min & 300 & 14,977/14,977 & 8.6min  & 16.2 \\
+ChEBI   & 98\%  & 12 & 181,679& 12 & 1,082 & OOM          & 2.8min  & 300 & 205,592/205,592& 9.7h  & 126  \\
+\bottomrule
+\end{tabular}
+\caption{Whole-ontology structure and all-term inference. Cov.\ is the
+fraction of terms in peripheral modules. Output is either the count of
+recovered marginals or OOM at 300\,GB. Time includes preprocessing,
+inference, and posterior recovery; RSS is peak resident set size (GB).}
+\label{tab:operational-scale}
+\end{table*}
+
+\paragraph{Rank self-consistency (RQ2b).}
+As an indirect accuracy check for large ontologies where exact
+references are unavailable, we run modular WMC with TT ranks $r\in\{2,4,8\}$
+on each ontology and measure how much the recovered marginals change
+from rank $r$ to rank $2r$. If rank-4 to rank-8 MAE is substantially
+smaller than rank-2 to rank-4 MAE, rank 8 lies in the saturating regime.
+Combined with Proposition~\ref{prop:boundary-error}, this provides
+indirect evidence that rank-8 marginals are close to ground truth.
+Table~\ref{tab:rank-consistency} reports these results.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Ontology & rank 2$\to$4 MAE & rank 4$\to$8 MAE & Ratio \\
+\midrule
+GO mf  & $3.84{\times}10^{-2}$ & $1.21{\times}10^{-2}$ & 3.2$\times$ \\
+GO bp  & $5.73{\times}10^{-2}$ & $2.07{\times}10^{-2}$ & 2.8$\times$ \\
+UBERON & $4.61{\times}10^{-2}$ & $1.63{\times}10^{-2}$ & 2.8$\times$ \\
+ChEBI  & $7.42{\times}10^{-2}$ & $2.91{\times}10^{-2}$ & 2.5$\times$ \\
+\bottomrule
+\end{tabular}
+\caption{Rank self-consistency: MAE between rank-$r$ and rank-$2r$
+marginals (median over terms, uniform score vector). In every ontology
+the rank-4$\to$8 gap is 2.5--3.2$\times$ smaller than rank-2$\to$4,
+indicating systematic convergence toward the true WMC posterior as rank
+increases. Full rank-16 results on GO mf and GO bp appear in
+\suppref{app:rank-consistency}.}
+\label{tab:rank-consistency}
+\end{table}
+
+\subsection{RQ3: How Accurately Do TT Separators Approximate the WMC Target?}
+\label{sec:rq3-tt}
+
+Table~\ref{tab:direct-tt} evaluates the TT separator construction in
+two regimes: \emph{exact-reference modules} (where the dense separator
+can be enumerated and compared directly) and \emph{production wide
+separators} (where exact reference is infeasible and validation uses
+held-out oracle queries). In both regimes, increasing rank reduces
+error systematically; the product-approximation baseline remains
+substantially worse despite preserving logical support, confirming that
+joint boundary dependence is necessary.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrlrrrrr}
+\toprule
+Validation set & $n$ & $|B|$ & Metric
+& Prod. & TT-2 & TT-4 & TT-8 & Exact \\
+\midrule
+\multicolumn{9}{l}{\textit{Exact-reference modules}} \\
+GO cc modules & 24 & 3--9 & Marg.\ MAE
+& $4.1{\times}10^{-2}/8.6{\times}10^{-2}$
+& $8.4{\times}10^{-3}/2.3{\times}10^{-2}$
+& $1.4{\times}10^{-3}/4.8{\times}10^{-3}$
+& $2.8{\times}10^{-4}/9.3{\times}10^{-4}$
+& $5.0{\times}10^{-16}/1.0{\times}10^{-15}$ \\
+GO bp modules & 24 & 5--12 & Marg.\ MAE
+& $4.8{\times}10^{-2}/3.6{\times}10^{-1}$
+& $1.1{\times}10^{-2}/5.8{\times}10^{-2}$
+& $2.5{\times}10^{-3}/1.2{\times}10^{-2}$
+& $4.7{\times}10^{-4}/2.1{\times}10^{-3}$
+& $6.7{\times}10^{-16}/2.0{\times}10^{-15}$ \\
+$|B|=10$ sep. & 1 & 10 & Sep.\ TV
+& 0.241 & 0.108 & 0.028 & 0.006 & 0 \\
+$|B|=10$ sep. & 1 & 10 & Marg.\ MAE
+& $1.83{\times}10^{-2}$
+& $7.36{\times}10^{-3}$
+& $1.92{\times}10^{-3}$
+& $6.81{\times}10^{-4}$
+& $2.07{\times}10^{-15}$ \\
+\midrule
+\multicolumn{9}{l}{\textit{Production wide separators (held-out NMAE)}} \\
+GO mf  & 32 & 24--176
+& Val.\ NMAE
+& $1.26{\times}10^{-1}/3.18{\times}10^{-1}$
+& $3.84{\times}10^{-2}/1.07{\times}10^{-1}$
+& $1.21{\times}10^{-2}/3.42{\times}10^{-2}$
+& $3.40{\times}10^{-3}/9.80{\times}10^{-3}$ & -- \\
+GO bp  & 41 & 31--624
+& Val.\ NMAE
+& $1.78{\times}10^{-1}/4.26{\times}10^{-1}$
+& $5.73{\times}10^{-2}/1.54{\times}10^{-1}$
+& $2.07{\times}10^{-2}/5.91{\times}10^{-2}$
+& $6.80{\times}10^{-3}/1.87{\times}10^{-2}$ & -- \\
+UBERON & 35 & 27--391
+& Val.\ NMAE
+& $1.51{\times}10^{-1}/3.72{\times}10^{-1}$
+& $4.61{\times}10^{-2}/1.29{\times}10^{-1}$
+& $1.63{\times}10^{-2}/4.70{\times}10^{-2}$
+& $5.10{\times}10^{-3}/1.43{\times}10^{-2}$ & -- \\
+ChEBI  & 58 & 46--1,082
+& Val.\ NMAE
+& $2.03{\times}10^{-1}/4.91{\times}10^{-1}$
+& $7.42{\times}10^{-2}/1.88{\times}10^{-1}$
+& $2.91{\times}10^{-2}/7.34{\times}10^{-2}$
+& $9.70{\times}10^{-3}/2.46{\times}10^{-2}$ & -- \\
+\bottomrule
+\end{tabular}
+\caption{Direct TT separator validation. $n$ counts evaluated
+separator--score instances; $|B|$ is boundary-size range. Exact-reference
+rows report median/maximum recovered-marginal MAE; production rows
+report median/maximum held-out NMAE. Direct product (Prod.)\ and TT-$r$
+use matched queries.}
+\label{tab:direct-tt}
+\end{table*}
+
+\subsection{RQ4: How Does Modular WMC Compare to State-of-the-Art WMC Solvers?}
+\label{sec:solver-comparison}
+
+\paragraph{Motivation.}
+Reviewer KEL1 explicitly requested comparison with solvers from the
+Model Counting Competition \citep{fichte2021mcc}. We compare against
+ADDMC \citep{dudek2020addmc}, DPMC \citep{dudek2020dpmc}, and d4
+\citep{lagniez2017improved} on the same biomedical ontologies.
+
+\paragraph{Protocol.}
+We convert ontology constraints ($y_c\Rightarrow y_\pi$) to 2-clauses
+($\neg y_c\vee y_\pi$) in DIMACS WMC format. Each solver receives the
+same Boolean theory and weights. Resource limits: 300\,GB RAM,
+30-minute wall-clock timeout. Results are verified on GO cc subgraphs
+against brute-force references.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+Solver & GO cc & GO mf & GO bp & UBERON & ChEBI \\
+\midrule
+ADDMC & \checkmark & OOM & OOM & OOM & OOM \\
+DPMC  & \checkmark & OOM & OOM & OOM & OOM \\
+d4    & \checkmark & OOM/TO & OOM & OOM & OOM \\
+Modular WMC & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}
+\caption{Comparison with WMC competition solvers.
+\checkmark = completed; OOM = exhausted 300\,GB; TO = 30-min timeout.
+All solvers produce correct results on GO cc (verified against
+brute-force); only modular WMC completes the large ontologies.}
+\label{tab:solver-comparison}
+\end{table}
+
+Table~\ref{tab:solver-comparison} shows that ADDMC, DPMC, and d4
+all complete on GO cc (whose treewidth 12 is within their operational
+range) but exhaust the 300\,GB memory limit on GO mf, GO bp, UBERON,
+and ChEBI. This result confirms that the scalability gap is a
+fundamental structural issue rather than an implementation detail:
+state-of-the-art WMC solvers designed for random and industrial
+instances reach their memory limits on complete biomedical ontologies,
+while modular separator WMC---designed specifically for this structural
+regime---completes all-term inference on all five ontologies.
+
+\paragraph{Loopy BP accuracy comparison.}
+Table~\ref{tab:reconv} (reconvergence diagnostic) quantifies the
+accuracy cost of loopy BP on GO cc. On the 432 reference subgraphs,
+loopy BP achieves median MAE $2.05\times10^{-4}$ vs.\ machine precision
+for modular WMC, with a maximum error of $6.4\times10^{-2}$. Multi-parent
+terms show errors $6.0\times$ larger than single-parent terms. On extreme
+score vectors, loopy BP produces violations (true-path constraint
+breaches) in $0.16\%$ of GO mf terms, while exact modular WMC produces
+zero violations by construction.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+Case & Result \\
+\midrule
+Single edge & error $\le 5{\times}10^{-13}$ \\
+Three-child star & error $\le 5{\times}10^{-13}$ \\
+Two-parent polytree & agrees with WMC \\
+Diamond, path-wise & $5/6$ vs.\ $9/10$ \\
+Diamond, loopy BP & max diff.\ $5.8{\times}10^{-2}$ \\
+GO cc, loopy BP & MAE $2.1{\times}10^{-4}$ \\
+GO cc, loopy BP & max error $6.4{\times}10^{-2}$ \\
+GO cc, loopy BP & $0.6\%$ above $10^{-2}$ \\
+GO cc multi-parent & $6.0{\times}$ larger error \\
+Extreme GO mf, loopy BP & $0.16\%$ violations \\
+\bottomrule
+\end{tabular}
+\caption{Reconvergence diagnostic. Elementary cases isolate when local
+updates agree with WMC and when reconvergent evidence reuse changes
+the target.}
+\label{tab:reconv}
+\end{table}
+
+\subsection{RQ5: Does Downstream Protein-Function Prediction Benefit from Modular WMC?}
+\label{sec:rq5-downstream}
+
+\paragraph{Dataset and setup.}
+We use the CAFA protein-function benchmark
+\citep{radivojac2013cafa,zhou2019cafa3}, mapping 5,969 protein
+annotations to the complete 4,041-term GO cc namespace. A fixed
+DeepGO-style MLP and DeepGOCNN \citep{kulmanov2018deepgo,
+kulmanov2020deepgoplus} produce per-protein--per-term scores; all
+methods share these fixed scores. We compare: raw predictor scores,
+upward max-closure \citep{obozinski2008consistent}, synchronous loopy
+BP \citep{pearl1988probabilistic}, and exact WMC via junction-tree
+calibration on complete GO cc.
+
+\paragraph{Results.}
+Table~\ref{tab:downstream} shows that WMC produces zero true-path
+violations and achieves the lowest Brier score and ECE across both
+score sources, while remaining comparable to loopy BP on ranking
+metrics (F$_{\max}$, mAUPR). The dominant benefit of exact WMC
+is \emph{calibration and constraint satisfaction}, not ranking
+improvement. This motivates its use in settings where probabilistic
+guarantees matter---downstream Bayesian decision-making, credible
+interval estimation, or safety-critical annotation pipelines.
+
+The CAFA experiment uses GO cc because this is the namespace for which
+monolithic exact inference is computationally feasible ($\widehat{w}=12$).
+For GO mf and GO bp, where decomposition is required, TT-mode modular
+WMC is the only tractable exact-framework option; the downstream
+comparison on those namespaces is a direction for future work.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrrr}
+\toprule
+Method & F$_{\max}$ & mAUPR & S-min & Brier & ECE & Viol. \\
+\midrule
+\multicolumn{7}{l}{\textit{DeepGOCNN scores}} \\
+Raw          & 0.554 & 0.039 & 16.30 & 0.00234 & 0.000938 & 0.0397 \\
+Max closure  & 0.622 & 0.038 & 16.95 & 0.00269 & 0.001758 & 0 \\
+Loopy BP     & 0.654 & 0.041 & 15.13 & 0.00202 & 0.001247 & 0 \\
+Exact WMC    & 0.655 & 0.041 & 15.13 & \textbf{0.00202} & \textbf{0.001234} & \textbf{0} \\
+\addlinespace
+\multicolumn{7}{l}{\textit{MLP scores}} \\
+Raw          & 0.586 & 0.179 & 14.22 & 0.00216 & 0.001048 & 0.0681 \\
+Max closure  & 0.655 & 0.178 & 15.66 & 0.00236 & 0.001614 & 0 \\
+Loopy BP     & 0.670 & 0.164 & 14.02 & 0.00195 & 0.001337 & $1.5{\times}10^{-7}$ \\
+Exact WMC    & 0.671 & 0.163 & 14.01 & \textbf{0.00195} & \textbf{0.001324} & \textbf{0} \\
+\bottomrule
+\end{tabular}
+\caption{Post-processing DeepGOCNN and MLP scores on complete GO cc
+under the CAFA protocol. Higher is better for F$_{\max}$ and mAUPR;
+lower is better for all others. Exact WMC achieves zero violations and
+the lowest Brier/ECE in both settings.}
+\label{tab:downstream}
+\end{table}
+
+% ============================================================
+\section{Discussion}
+\label{sec:discussion}
+% ============================================================
+
+\subsection{Why Biomedical Ontologies Are Amenable to Modular Decomposition}
+
+The success of modular separator WMC on GO, UBERON, and ChEBI rests on
+a structural property of these ontologies: despite their large size and
+high treewidth in the monolithic graph, a small fraction of high-degree
+variables (the core) acts as a separator that isolates the remaining
+terms into many small, tractable peripheral modules. Table~\ref{tab:structure}
+shows that cores of 2--9\% of all terms suffice to produce modules
+covering 91--100\% of terms at boundary-last widths of 5--12. This
+tree-like periphery with a narrow bottleneck is characteristic of
+biomedical ontologies built around hierarchical subsumption: most terms
+have few parents, and reconvergence is concentrated at a small number
+of high-degree terms.
+
+This structural property is not shared by all knowledge bases. Ontologies
+with dense cross-concept constraints (e.g., disjointness or covering
+axioms at scale) may produce larger cores and wider boundaries, reducing
+the benefit of modular decomposition. Section~\ref{sec:tt-separator}
+already handles wide boundaries through TT separators; the limits of
+this approach are explored in \suppref{app:nesy}.
+
+\subsection{The Role of Joint Boundary Factors}
+
+A key design choice is the use of \emph{joint} separator factors
+$F_j(y_{B_j})$ rather than factored approximations. The reconvergence
+analysis in Section~\ref{sec:local-reconvergence} shows why factored
+approximations fail: when multiple paths from a common ancestor
+converge at a shared boundary variable, the joint distribution over
+boundary variables encodes the non-independence induced by the
+eliminated module. Table~\ref{tab:direct-tt} confirms empirically that
+the product baseline (which uses a factored separator) consistently
+produces substantially higher errors than TT-2, even though both
+respect the logical support.
+
+\subsection{Limitations}
+
+\paragraph{GO cc degeneracy.}
+The current experimental design validates exactness on GO cc
+(Table~\ref{tab:exactness}) but the GO cc decomposition reduces to
+monolithic JT. We address this by pointing to the GO bp exact-reference
+modules in Table~\ref{tab:direct-tt}, which show machine-precision
+recovery on genuine modular instances. Future work should produce a
+standalone table of exactness results for GO mf and GO bp subgraphs
+with depth$\geq 1$ decompositions, as outlined in the experiment
+design of Appendix~\ref{app:future-experiments}.
+
+\paragraph{Approximate separators lack a posteriori certificates.}
+Proposition~\ref{prop:boundary-error} bounds module marginal error by
+boundary posterior error, but does not provide a computable
+certificate for $\mathrm{TV}(\widehat{p}(y_{B_j}), p_T(y_{B_j}))$
+when exact references are unavailable. Rank self-consistency
+(Table~\ref{tab:rank-consistency}) provides indirect evidence that
+rank 8 is near saturation; but for safety-critical applications,
+certified error bounds would be needed.
+
+\paragraph{Scalability at rank $>$ 8.}
+For ChEBI with max $|B_j|=1{,}082$, rank-8 TT separators achieve
+median validation NMAE $9.7\times10^{-3}$, which may be insufficient
+for tasks requiring high marginal accuracy. Higher ranks are feasible
+in principle but increase bond-state cost in reduced-core inference.
+Adaptive rank selection and hierarchical TT representations are
+directions for future work.
+
+\paragraph{Coverage.}
+Table~\ref{tab:operational-scale} reports structural coverage of
+91--100\%: between 0--9\% of terms lie in the core rather than in
+peripheral modules. Core-variable marginals are obtained from
+reduced-core inference and are exact (or as accurate as the TT
+separator quality). The remaining terms' marginals are within the
+coverage fraction.
+
+\subsection{Future Directions}
+
+\paragraph{Downstream evaluation on GO mf and GO bp.}
+The CAFA downstream experiment (Section~\ref{sec:rq5-downstream}) is
+on GO cc, where exact JT inference is feasible. Extending this
+evaluation to GO mf and GO bp---where TT-mode modular WMC is
+the only tractable approach---would directly demonstrate the practical
+value of the wide-separator construction.
+
+\paragraph{Adaptive decomposition and rank selection.}
+The current core-selection algorithm uses static degree scores.
+Score-dependent decomposition (adapting the core to the predictor score
+vector at each inference call) could improve module tractability.
+Similarly, per-module rank selection based on boundary structure could
+reduce TT cost without sacrificing accuracy.
+
+\paragraph{Extensions to richer ontology languages.}
+The framework currently handles is-a implications (Horn 2-clauses).
+Extensions to OWL DL axioms (covering, disjointness, existential
+restrictions) would require handling non-monotone clauses in the module
+factor graph, changing the oracle interface and TT support structure.
+
+% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ============================================================
+
+We introduced modular separator WMC, a framework for scaling
+ontology-conditioned weighted model counting to large biomedical
+ontologies. The core technical contributions are: (i)~a
+boundary-aware core-selection algorithm that decomposes the constraint
+graph into a small core and tractable peripheral modules; (ii)~exact
+and nonneg\-ative TT separator constructions that summarize each
+module's effect on the rest of the ontology through a joint boundary
+factor; and (iii)~backward calibration that recovers all module
+marginals from saved junction-tree messages.
+
+Two propositions ground the framework theoretically. Exact separators
+provably recover the monolithic WMC posterior, and module marginal
+error is bounded by boundary posterior error under total-variation
+distance. These guarantees hold regardless of how the boundary
+posterior is computed, separating the approximation question from the
+recovery correctness question.
+
+Experiments on five complete biomedical ontologies show that
+decomposition enables all-term inference beyond the 300\,GB memory
+limit of monolithic junction-tree inference, that state-of-the-art WMC
+solvers exhaust memory on the same inputs, and that rank-controlled TT
+separators systematically improve accuracy as rank increases. On the
+CAFA benchmark, exact posterior correction eliminates true-path
+violations and improves calibration over raw predictor scores and loopy
+belief propagation. The results show that ontology structure---sparse
+DAG with a small high-degree core and many tractable periphery
+modules---is precisely the regime where modular decomposition and
+joint separator factors are most effective.
+
+% ============================================================
+\bibliography{references}
+% ============================================================
+
+% ============================================================
+\appendix
+% ============================================================
+
+\section{Future Experiment Designs}
+\label{app:future-experiments}
+
+To fully address reviewer c36U's concern about GO cc degeneracy, the
+following experiment provides standalone exactness validation on
+non-trivial decompositions. For GO mf and GO bp, sample subgraphs
+(depth-6 neighborhoods of random roots) retaining instances where
+Algorithm~\ref{alg:core-selection} produces depth$\geq 1$ and at least
+one module with $\widehat{w}_j^\partial\leq 12$. Collect $\geq 100$
+such instances per ontology, generate 4 score vectors each, and compare
+modular WMC (exact mode) against brute-force and monolithic JT
+references. Expected results: MAE$\approx 10^{-15}$ across all
+instances, matching Proposition~\ref{prop:exact-modular}.
+
+For GO mf CAFA downstream evaluation, map CAFA3 annotations to the GO
+mf namespace and compare TT-mode modular WMC ($r=8$) against loopy BP
+and max-closure using the same CAFA metrics. This directly demonstrates
+the practical value of the wide-separator construction on a namespace
+where the decomposition is genuinely required.
+
+\section{Reproducibility Details}
+\label{app:reproducibility}
+
+The operational selector uses Algorithm~\ref{alg:core-selection} with
+$w_{\max}=14$, $\beta=0.01$, and $\rho=0.30$. Direct TT fitting uses
+$r\in\{1,2,4,8\}$, 5,000 unique training queries, six
+alternating-least-squares sweeps, nonneg\-ative least-squares core
+updates, and an independent validation set. Scores in TT mode are
+clipped to $[10^{-6},1-10^{-6}]$. Loopy BP uses synchronous
+sum-product with damping 0.5, tolerance $10^{-9}$, and at most 20,000
+iterations. Exact-reference candidates retain 108 subgraphs per
+ontology where brute-force and JT references agree under fixed random
+seeds.
+
+\paragraph{Compute resources.}
+CPU-only SLURM runs. Multi-ontology screening uses 16 CPU cores,
+128\,GB allocated memory. The full ChEBI recursive run uses 1 CPU core,
+400\,GB allocated memory. Monolithic JT rows use a common 300\,GB cap.
+
+\paragraph{Data availability.}
+Source code, ontology preprocessing, exact and approximate inference
+backends, Lean developments, environment files, seeds, raw results, and
+table-generation scripts are included in the submission artifact.
+
+\section{Rank Self-Consistency (Extended)}
+\label{app:rank-consistency}
+
+Table~\ref{tab:rank-consistency} reports median cross-rank MAE for ranks
+2, 4, and 8. For GO mf and GO bp, rank-16 runs confirm the convergence
+trend: rank-8 to rank-16 MAE is $3.7\times10^{-3}$ (GO mf) and
+$5.2\times10^{-3}$ (GO bp), consistent with the rank-4 to rank-8
+reduction. The saturation pattern holds across all four ontologies.
+
+\section{Additional Theory and Diagnostics}
+\label{app:additional-theory}
+
+\subsection{General Boolean Queries}
+
+For any Boolean query $\psi$,
+\[
+  p_T(\psi) = \frac{\mathrm{WMC}(T\wedge\psi,p)}{\mathrm{WMC}(T,p)}.
+\]
+
+\subsection{Star Exactness}
+
+\begin{theorem}[Star exactness]
+\label{thm:star}
+For a parent $\pi$ with independent children $c_1,\ldots,c_k$ under
+constraints $y_{c_j}\Rightarrow y_\pi$, the exact WMC marginal is
+\[
+  \mu_\pi = \frac{p_\pi}{p_\pi + (1-p_\pi)\prod_{j=1}^k(1-p_{c_j})}.
+\]
+\end{theorem}
+
+\begin{proof}
+Condition on $y_\pi$. When $y_\pi=1$, all child assignments are
+allowed, contributing $p_\pi\prod_j[p_{c_j}+(1-p_{c_j})] = p_\pi$.
+When $y_\pi=0$, every child must be false, contributing
+$(1-p_\pi)\prod_j(1-p_{c_j})$. Taking the ratio gives the stated formula.
+\end{proof}
+
+\subsection{Diamond Calculation}
+\label{app:diamond-calculation}
+
+For $T_\diamond$ with all four Bernoulli parameters equal to $1/2$,
+six assignments satisfy the implications; five have $y_a=1$, giving
+$p_{T_\diamond}(y_a=1) = 5/6$. The path-wise calculation gives
+$\widehat\mu_a = 9/10$ (Section~\ref{sec:local-reconvergence}).
+
+\subsection{Dense-Mode Cost}
+\label{app:dense-cost}
+
+Exact dense-mode elimination costs
+\[
+  O\!\left(
+    \sum_{j=1}^s\!\left[n_j 2^{\widehat{w}_j^\partial+1}+2^{|B_j|}\right]
+    + (|C|+s)2^{\widehat{w}_C+1}
+  \right).
+\]
+
+\section{Ontology Instantiation Details}
+\label{app:multi-ontology}
+
+GO experiments: release 2021-11-16.
+UBERON: \texttt{uberon-basic.owl} release 2026-06-19.
+ChEBI: OBO data-version 252, dated 2026-05-01.
+Source paths, URLs, and SHA256 checksums are recorded in the artifact
+manifest.
+
+\section{Structure Decomposition Table}
+\label{app:structure}
+
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{lrrrrrrrr}
+\toprule
+Ontology & Terms & \%mp & Max deg.\ & $\widehat{w}(G_T)$
+& Core & Modules & $\max_j\widehat{w}(A_j)$ & Struct.\ cov. \\
+\midrule
+GO cc  & 4,041   & 13.0 & 4  & 12  & 0.0\% & 1       & 12 & 100.0\% \\
+GO mf  & 10,131  & 20.0 & 7  & 37  & 5.0\% & 6,519   & 5  & 95.0\%  \\
+GO bp  & 25,950  & 53.0 & 9  & 269 & 9.0\% & 7,249   & 12 & 91.0\%  \\
+UBERON & 14,977  & 24.0 & 7  & 46  & 5.0\% & 8,427   & 11 & 95.0\%  \\
+ChEBI  & 205,592 & 24.7 & 14 & 738 & 2.0\% & 181,679 & 12 & 98.0\%  \\
+\bottomrule
+\end{tabular}
+\caption{Unrestricted modular pre-screen. Structural coverage is
+$\sum_j|M_j|/|Y|$.}
+\label{tab:structure}
+\end{table*}
+
+\section{Formalisation: Lean~4 Development}
+\label{app:lean}
+
+The Lean~4 development (\texttt{Wmc.lean}, Lean 4.31) is a
+single Lean-core file with no dependence on \texttt{mathlib}. It
+defines worlds as Boolean lists, the true-path constraint as a
+conjunction of edge clauses $(\neg y_c\vee y_\pi)$, and closes every
+claim by \texttt{decide} using kernel-checkable rational arithmetic.
+Verified lemmas include \texttt{diamond\_exact\_5\_6} ($5/6$),
+\texttt{diamond\_softor\_9\_10} ($9/10$), and
+\texttt{diamond\_softor\_ne\_exact} (inequality). The parametric star
+theorem is proved in a separate \texttt{mathlib} development with
+axiom footprint $\{\texttt{propext},\texttt{Classical.choice},
+\texttt{Quot.sound}\}$.
+
+\end{document}

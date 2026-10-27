@@ -1,0 +1,10 @@
+{
+ "alpha": 0.64,
+ "fused_abs_diff_median": 0.0,
+ "fused_abs_diff_max": 0.64,
+ "old_raw_fmax_release": 0.5392583347891009,
+ "old_raw_fmax_recomputed": 0.5389074744334672,
+ "passed": true,
+ "targets": 2677,
+ "targets_with_hits": 2206
+}

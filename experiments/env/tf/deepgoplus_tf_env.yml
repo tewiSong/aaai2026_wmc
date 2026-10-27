@@ -1,0 +1,15 @@
+# Container to run the released DeepGOPlus 1.0.6 CNN (model.h5) exactly as its code base pinned:
+# deepgoplus commit 585d9c56d3 requirements: tensorflow 2.3.1, numpy 1.18.5, pandas 1.1.2.
+name: dgp_tf
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pip
+  - pip:
+      - tensorflow-cpu==2.3.1
+      - numpy==1.18.5
+      - pandas==1.1.2
+      - h5py==2.10.0
+      - click==7.1.2
+      - protobuf==3.20.3   # TF 2.3 generated protos need protobuf <= 3.20

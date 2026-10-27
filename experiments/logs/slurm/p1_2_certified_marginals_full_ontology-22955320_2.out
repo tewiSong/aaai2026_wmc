@@ -1,0 +1,125 @@
+  0 P50086     most_i nnz= 127 core=  127 delta=1.1e-05 core_t=0.132s | BP outside=93 certErr>=2.16e-03 maxdiff=2.17e-03 conv=True
+  1 Q63912     most_i nnz=  95 core=   95 delta=1.1e-05 core_t=0.114s | BP outside=59 certErr>=1.84e-04 maxdiff=1.84e-04 conv=True
+  2 P0A8D6     most_i nnz= 114 core=  114 delta=1.1e-05 core_t=0.116s | BP outside=91 certErr>=4.64e-03 maxdiff=4.64e-03 conv=True
+  3 Q9P0V3     most_i nnz=  90 core=   90 delta=1.1e-05 core_t=0.114s | BP outside=38 certErr>=5.04e-04 maxdiff=5.04e-04 conv=True
+  4 F1MWM0     most_i nnz= 174 core=  174 delta=1.1e-05 core_t=0.125s | BP outside=93 certErr>=1.06e-02 maxdiff=1.06e-02 conv=True
+  5 P06687     most_i nnz= 160 core=  160 delta=1.1e-05 core_t=0.12s | BP outside=74 certErr>=1.31e-02 maxdiff=1.31e-02 conv=True
+  6 P50993     most_i nnz= 173 core=  173 delta=1.1e-05 core_t=0.127s | BP outside=74 certErr>=1.38e-02 maxdiff=1.38e-02 conv=True
+  7 Q92123     most_i nnz= 160 core=  160 delta=1.1e-05 core_t=0.122s | BP outside=75 certErr>=1.34e-02 maxdiff=1.34e-02 conv=True
+  8 O60706     most_i nnz= 161 core=  161 delta=1.1e-05 core_t=0.127s | BP outside=95 certErr>=1.07e-03 maxdiff=1.07e-03 conv=True
+  9 P19620     most_i nnz= 125 core=  125 delta=1.1e-05 core_t=0.117s | BP outside=84 certErr>=1.57e-03 maxdiff=1.57e-03 conv=True
+ 10 Q09428     most_i nnz= 162 core=  162 delta=1.1e-05 core_t=0.155s | BP outside=92 certErr>=1.19e-03 maxdiff=1.19e-03 conv=True
+ 11 P08238     most_i nnz=  88 core=   88 delta=1.1e-05 core_t=0.115s | BP outside=41 certErr>=7.14e-03 maxdiff=7.14e-03 conv=True
+ 12 P30946     most_i nnz=  88 core=   88 delta=1.1e-05 core_t=0.118s | BP outside=41 certErr>=7.20e-03 maxdiff=7.20e-03 conv=True
+ 13 P41887     most_i nnz=  88 core=   88 delta=1.1e-05 core_t=0.124s | BP outside=41 certErr>=6.78e-03 maxdiff=6.78e-03 conv=True
+ 14 P82995     most_i nnz=  88 core=   88 delta=1.1e-05 core_t=0.111s | BP outside=41 certErr>=7.23e-03 maxdiff=7.23e-03 conv=True
+ 15 Q18688     most_i nnz=  88 core=   88 delta=1.1e-05 core_t=0.119s | BP outside=41 certErr>=7.07e-03 maxdiff=7.07e-03 conv=True
+ 16 O54853     most_i nnz= 112 core=  112 delta=1.1e-05 core_t=0.117s | BP outside=84 certErr>=1.11e-02 maxdiff=1.11e-02 conv=True
+ 17 O92972     most_i nnz=  79 core=   79 delta=1.1e-05 core_t=0.112s | BP outside=31 certErr>=2.27e-03 maxdiff=2.27e-03 conv=True
+ 18 P26663     most_i nnz=  83 core=   83 delta=1.1e-05 core_t=0.114s | BP outside=35 certErr>=2.25e-03 maxdiff=2.25e-03 conv=True
+ 19 P93157     most_i nnz= 125 core=  125 delta=1.1e-05 core_t=0.119s | BP outside=97 certErr>=1.00e-03 maxdiff=1.00e-03 conv=True
+ 20 Q913V3     most_i nnz=  79 core=   79 delta=1.1e-05 core_t=0.113s | BP outside=31 certErr>=2.24e-03 maxdiff=2.24e-03 conv=True
+ 21 Q9SGH2     most_i nnz= 105 core=  105 delta=1.1e-05 core_t=0.114s | BP outside=82 certErr>=4.71e-03 maxdiff=4.71e-03 conv=True
+ 22 Q4JIM5     most_i nnz= 175 core=  175 delta=1.1e-05 core_t=0.117s | BP outside=68 certErr>=1.57e-04 maxdiff=1.57e-04 conv=True
+ 23 Q8NET8     most_i nnz=  89 core=   89 delta=1.1e-05 core_t=0.112s | BP outside=48 certErr>=1.97e-04 maxdiff=1.97e-04 conv=True
+ 24 Q9WTR1     most_i nnz=  79 core=   79 delta=1.1e-05 core_t=0.115s | BP outside=45 certErr>=3.16e-03 maxdiff=3.16e-03 conv=True
+ 25 P32790     most_i nnz=  75 core=   75 delta=1.1e-05 core_t=0.114s | BP outside=35 certErr>=2.74e-02 maxdiff=2.74e-02 conv=True
+ 26 Q9UPN9     most_i nnz= 178 core=  178 delta=1.1e-05 core_t=0.128s | BP outside=100 certErr>=1.45e-02 maxdiff=1.45e-02 conv=True
+ 27 Q12788     most_i nnz=  74 core=   74 delta=1.1e-05 core_t=0.11s | BP outside=58 certErr>=7.29e-04 maxdiff=7.29e-04 conv=True
+ 28 Q4VNC1     most_i nnz= 157 core=  157 delta=1.1e-05 core_t=0.122s | BP outside=102 certErr>=4.88e-03 maxdiff=4.88e-03 conv=True
+ 29 Q79VI7     most_i nnz=  88 core=   88 delta=1.1e-05 core_t=0.112s | BP outside=68 certErr>=3.17e-02 maxdiff=3.17e-02 conv=True
+ 30 C8V3W5     most_i nnz=  89 core=   89 delta=1.1e-05 core_t=0.111s | BP outside=57 certErr>=5.23e-03 maxdiff=5.24e-03 conv=True
+ 31 P12682     most_i nnz=  98 core=   98 delta=1.1e-05 core_t=0.113s | BP outside=53 certErr>=3.19e-04 maxdiff=3.19e-04 conv=True
+ 32 P14772     most_i nnz= 149 core=  149 delta=1.1e-05 core_t=0.121s | BP outside=92 certErr>=1.84e-03 maxdiff=1.84e-03 conv=True
+ 33 P16615     most_i nnz= 162 core=  162 delta=1.1e-05 core_t=0.141s | BP outside=86 certErr>=2.88e-03 maxdiff=2.88e-03 conv=True
+ 34 P60122     most_i nnz=  73 core=   73 delta=1.1e-05 core_t=0.11s | BP outside=55 certErr>=3.19e-02 maxdiff=3.19e-02 conv=True
+ 35 P97943     most_i nnz=  73 core=   73 delta=1.1e-05 core_t=0.112s | BP outside=29 certErr>=2.41e-04 maxdiff=2.41e-04 conv=True
+ 36 P04191     most_i nnz= 162 core=  162 delta=1.1e-05 core_t=0.122s | BP outside=86 certErr>=3.31e-03 maxdiff=3.31e-03 conv=True
+ 37 P36898     most_i nnz= 186 core=  186 delta=1.1e-05 core_t=0.12s | BP outside=105 certErr>=3.29e-03 maxdiff=3.29e-03 conv=True
+ 38 P80204     most_i nnz= 167 core=  167 delta=1.1e-05 core_t=0.117s | BP outside=93 certErr>=4.78e-03 maxdiff=4.78e-03 conv=True
+ 39 Q96LA6     most_i nnz=  81 core=   81 delta=1.1e-05 core_t=0.116s | BP outside=47 certErr>=3.52e-04 maxdiff=3.53e-04 conv=True
+ 40 D3ZHR2     most_i nnz= 170 core=  170 delta=1.1e-05 core_t=0.125s | BP outside=101 certErr>=7.80e-03 maxdiff=7.80e-03 conv=True
+ 41 O14022     most_i nnz= 160 core=  160 delta=1.1e-05 core_t=0.122s | BP outside=88 certErr>=9.68e-03 maxdiff=9.68e-03 conv=True
+ 42 P23497     most_i nnz= 102 core=  102 delta=1.1e-05 core_t=0.112s | BP outside=56 certErr>=3.04e-04 maxdiff=3.04e-04 conv=True
+ 43 P59047     most_i nnz= 107 core=  107 delta=1.1e-05 core_t=0.113s | BP outside=71 certErr>=1.96e-03 maxdiff=1.96e-03 conv=True
+ 44 P70539     most_i nnz= 164 core=  164 delta=1.1e-05 core_t=0.12s | BP outside=96 certErr>=4.33e-03 maxdiff=4.33e-03 conv=True
+ 45 Q00961     most_i nnz= 120 core=  120 delta=1.1e-05 core_t=0.117s | BP outside=56 certErr>=1.48e-03 maxdiff=1.48e-03 conv=True
+ 46 Q01098     most_i nnz= 120 core=  120 delta=1.1e-05 core_t=0.116s | BP outside=56 certErr>=1.44e-03 maxdiff=1.44e-03 conv=True
+ 47 Q9BQ69     most_i nnz=  80 core=   80 delta=1.1e-05 core_t=0.111s | BP outside=62 certErr>=2.76e-03 maxdiff=2.76e-03 conv=True
+ 48 Q9SIZ8     most_i nnz=  71 core=   71 delta=1.1e-05 core_t=0.112s | BP outside=41 certErr>=2.16e-03 maxdiff=2.16e-03 conv=True
+ 49 Q9YH06     most_i nnz=  98 core=   98 delta=1.1e-05 core_t=0.112s | BP outside=53 certErr>=3.43e-04 maxdiff=3.43e-04 conv=True
+ 50 O14756     random nnz=  48 core=   48 delta=1.1e-05 core_t=0.11s | BP outside=13 certErr>=9.83e-05 maxdiff=9.83e-05 conv=True
+ 51 B9RXW0     random nnz=  49 core=   49 delta=1.1e-05 core_t=0.108s | BP outside=12 certErr>=8.77e-06 maxdiff=8.78e-06 conv=True
+ 52 Q9FI98     random nnz=  51 core=   51 delta=1.1e-05 core_t=0.11s | BP outside=0 certErr>=8.78e-14 maxdiff=4.61e-09 conv=True
+ 53 Q9FIX5     random nnz=  11 core=   11 delta=1.1e-05 core_t=0.112s | BP outside=0 certErr>=0.00e+00 maxdiff=1.00e-09 conv=True
+ 54 Q8L3B2     random nnz=   9 core=    9 delta=1.1e-05 core_t=0.104s | BP outside=0 certErr>=0.00e+00 maxdiff=1.00e-09 conv=True
+ 55 Q9H0A0     random nnz=  17 core=   17 delta=1.1e-05 core_t=0.108s | BP outside=7 certErr>=3.85e-02 maxdiff=3.85e-02 conv=True
+ 56 O35710     random nnz=  34 core=   34 delta=1.1e-05 core_t=0.11s | BP outside=28 certErr>=8.23e-04 maxdiff=8.23e-04 conv=True
+ 57 Q07133     random nnz=  22 core=   22 delta=1.1e-05 core_t=0.108s | BP outside=4 certErr>=4.43e-06 maxdiff=4.43e-06 conv=True
+ 58 O17966     random nnz=  48 core=   48 delta=1.1e-05 core_t=0.109s | BP outside=41 certErr>=5.17e-03 maxdiff=5.17e-03 conv=True
+ 59 P24587     random nnz=  15 core=   15 delta=1.1e-05 core_t=0.106s | BP outside=0 certErr>=0.00e+00 maxdiff=1.81e-08 conv=True
+ 60 Q05098     random nnz=  32 core=   32 delta=1.1e-05 core_t=0.107s | BP outside=3 certErr>=1.78e-08 maxdiff=2.45e-08 conv=True
+ 61 Q99385     random nnz=  33 core=   33 delta=1.1e-05 core_t=0.11s | BP outside=13 certErr>=6.24e-07 maxdiff=6.25e-07 conv=True
+ 62 Q13950     random nnz=  35 core=   35 delta=1.1e-05 core_t=0.109s | BP outside=27 certErr>=1.23e-02 maxdiff=1.23e-02 conv=True
+ 63 P26392     random nnz=  16 core=   16 delta=1.1e-05 core_t=0.105s | BP outside=0 certErr>=0.00e+00 maxdiff=3.69e-08 conv=True
+ 64 Q8WY54     random nnz=  52 core=   52 delta=1.1e-05 core_t=0.115s | BP outside=21 certErr>=3.19e-05 maxdiff=3.20e-05 conv=True
+ 65 P51828     random nnz=  65 core=   65 delta=1.1e-05 core_t=0.11s | BP outside=17 certErr>=8.87e-04 maxdiff=8.88e-04 conv=True
+ 66 E9Q9W4     random nnz=  69 core=   69 delta=1.1e-05 core_t=0.11s | BP outside=38 certErr>=5.72e-03 maxdiff=5.72e-03 conv=True
+ 67 B2UP57     random nnz=  20 core=   20 delta=1.1e-05 core_t=0.107s | BP outside=7 certErr>=7.18e-04 maxdiff=7.19e-04 conv=True
+ 68 Q68AP4     random nnz=   6 core=    6 delta=1.1e-05 core_t=0.107s | BP outside=0 certErr>=0.00e+00 maxdiff=1.00e-09 conv=True
+ 69 Q71MR7     random nnz= 141 core=  141 delta=1.1e-05 core_t=0.118s | BP outside=49 certErr>=2.12e-04 maxdiff=2.12e-04 conv=True
+ 70 A7LXT3     random nnz=  11 core=   11 delta=1.1e-05 core_t=0.123s | BP outside=0 certErr>=0.00e+00 maxdiff=9.86e-09 conv=True
+ 71 Q13724     random nnz=   9 core=    9 delta=1.1e-05 core_t=0.139s | BP outside=0 certErr>=0.00e+00 maxdiff=1.00e-09 conv=True
+ 72 Q99LM3     random nnz= 112 core=  112 delta=1.1e-05 core_t=0.119s | BP outside=38 certErr>=9.16e-05 maxdiff=9.16e-05 conv=True
+ 73 Q62386     random nnz=  13 core=   13 delta=1.1e-05 core_t=0.112s | BP outside=0 certErr>=0.00e+00 maxdiff=1.00e-09 conv=True
+ 74 Q69028     random nnz=  19 core=   19 delta=1.1e-05 core_t=0.107s | BP outside=0 certErr>=0.00e+00 maxdiff=1.00e-09 conv=True
+ 75 P21836     random nnz=  41 core=   41 delta=1.1e-05 core_t=0.108s | BP outside=14 certErr>=5.06e-04 maxdiff=5.07e-04 conv=True
+ 76 Q57532     random nnz=  50 core=   50 delta=1.1e-05 core_t=0.11s | BP outside=41 certErr>=8.48e-03 maxdiff=8.48e-03 conv=True
+ 77 A0A1D8PN14 random nnz=  43 core=   43 delta=1.1e-05 core_t=0.11s | BP outside=13 certErr>=4.98e-08 maxdiff=5.77e-08 conv=True
+ 78 P07830     random nnz=  66 core=   66 delta=1.1e-05 core_t=0.111s | BP outside=40 certErr>=1.02e-03 maxdiff=1.02e-03 conv=True
+ 79 Q9P0M6     random nnz=  55 core=   55 delta=1.1e-05 core_t=0.11s | BP outside=42 certErr>=1.04e-02 maxdiff=1.04e-02 conv=True
+ 80 O80562     random nnz=   8 core=    8 delta=1.1e-05 core_t=0.107s | BP outside=0 certErr>=0.00e+00 maxdiff=1.00e-09 conv=True
+ 81 D2X8K2     random nnz=  31 core=   31 delta=1.1e-05 core_t=0.109s | BP outside=11 certErr>=6.30e-06 maxdiff=6.30e-06 conv=True
+ 82 A0A0K8RDH6 random nnz=   6 core=    6 delta=1.1e-05 core_t=0.105s | BP outside=0 certErr>=0.00e+00 maxdiff=1.00e-09 conv=True
+ 83 Q9SR96     random nnz= 100 core=  100 delta=1.1e-05 core_t=0.118s | BP outside=32 certErr>=1.43e-05 maxdiff=1.43e-05 conv=True
+ 84 P32466     random nnz=  88 core=   88 delta=1.1e-05 core_t=0.116s | BP outside=30 certErr>=3.87e-06 maxdiff=3.87e-06 conv=True
+ 85 P08037     random nnz=  22 core=   22 delta=1.1e-05 core_t=0.127s | BP outside=1 certErr>=1.02e-12 maxdiff=5.13e-09 conv=True
+ 86 Q9W197     random nnz=   8 core=    8 delta=1.1e-05 core_t=0.124s | BP outside=0 certErr>=0.00e+00 maxdiff=1.00e-09 conv=True
+ 87 Q5SF95     random nnz=   7 core=    7 delta=1.1e-05 core_t=0.126s | BP outside=0 certErr>=0.00e+00 maxdiff=1.00e-09 conv=True
+ 88 P53597     random nnz=  41 core=   41 delta=1.1e-05 core_t=0.12s | BP outside=31 certErr>=1.39e-03 maxdiff=1.39e-03 conv=True
+ 89 Q9H9H4     random nnz=   4 core=    4 delta=1.1e-05 core_t=0.105s | BP outside=0 certErr>=0.00e+00 maxdiff=1.00e-09 conv=True
+ 90 Q16236     random nnz=  41 core=   41 delta=1.1e-05 core_t=0.107s | BP outside=20 certErr>=1.17e-02 maxdiff=1.17e-02 conv=True
+ 91 P60520     random nnz=  23 core=   23 delta=1.1e-05 core_t=0.109s | BP outside=0 certErr>=0.00e+00 maxdiff=9.87e-09 conv=True
+ 92 Q8L7Z9     random nnz=  16 core=   16 delta=1.1e-05 core_t=0.104s | BP outside=10 certErr>=9.04e-04 maxdiff=9.04e-04 conv=True
+ 93 Q61645     random nnz=  28 core=   28 delta=1.1e-05 core_t=0.106s | BP outside=6 certErr>=1.09e-04 maxdiff=1.09e-04 conv=True
+ 94 A0QQJ4     random nnz=  16 core=   16 delta=1.1e-05 core_t=0.106s | BP outside=8 certErr>=1.13e-04 maxdiff=1.13e-04 conv=True
+ 95 P31324     random nnz=  82 core=   82 delta=1.1e-05 core_t=0.11s | BP outside=65 certErr>=5.59e-03 maxdiff=5.59e-03 conv=True
+ 96 Q10457     random nnz=  11 core=   11 delta=1.1e-05 core_t=0.108s | BP outside=0 certErr>=0.00e+00 maxdiff=2.81e-08 conv=True
+ 97 Q6ZPK0     random nnz= 120 core=  120 delta=1.1e-05 core_t=0.115s | BP outside=91 certErr>=1.96e-03 maxdiff=1.96e-03 conv=True
+ 98 Q19Q52     random nnz=  34 core=   34 delta=1.1e-05 core_t=0.109s | BP outside=29 certErr>=9.96e-03 maxdiff=9.96e-03 conv=True
+ 99 P9WQ39     random nnz=  70 core=   70 delta=1.1e-05 core_t=0.11s | BP outside=53 certErr>=4.61e-03 maxdiff=4.61e-03 conv=True
+written /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/results/p1_2_certified_go_mf_prop_clip1e-09.json
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_2_certified_marginals_full_ontology_real_scores.py --ontology go_mf --diamond-key prop --proteins 100 --clip 1e-9 --delta-target 1e-3 --d4-timeout 600"
+	User time (seconds): 29.42
+	System time (seconds): 2.35
+	Percent of CPU this job got: 96%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:32.83
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 62472
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 439
+	Minor (reclaiming a frame) page faults: 354251
+	Voluntary context switches: 6576
+	Involuntary context switches: 313
+	Swaps: 0
+	File system inputs: 256664
+	File system outputs: 104
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p1_2_certified_marginals_full_ontology_real_scores_go_mf_prop_20261019-105904.log

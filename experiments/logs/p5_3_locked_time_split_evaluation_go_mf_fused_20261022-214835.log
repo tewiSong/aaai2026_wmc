@@ -1,0 +1,54 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p5_3_locked_time_split_evaluation.py
+# sha256 : 08c29b9eb6f0a2d56a039c375ace71a9f18b66aa3e6f95a4924e400d050c7dfa
+# args   : --ns go_mf --input fused --workers 32 --bootstrap 1000
+# host   : nid002499   slurm_job: 23087247
+# start  : 2026-10-22T21:48:35+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+raw                          fmax 0.61065  micro_ap 0.51706  brier 0.00592  logloss 0.02527  ece 0.00199
+max_closure                  fmax 0.61099  micro_ap 0.51766  brier 0.00592  logloss 0.02519  ece 0.00190
+isotonic                     fmax 0.60985  micro_ap 0.51714  brier 0.00593  logloss 0.02523  ece 0.00199
+depth_platt_iso              fmax 0.60814  micro_ap 0.52501  brier 0.00591  logloss 0.02503  ece 0.00175
+term_platt_iso               fmax 0.59597  micro_ap 0.52017  brier 0.00594  logloss 0.02498  ece 0.00136
+neighbor_lr_iso              fmax 0.61458  micro_ap 0.53652  brier 0.00582  logloss 0.02473  ece 0.00179
+same_features_lr_iso         fmax 0.60808  micro_ap 0.52502  brier 0.00591  logloss 0.02502  ece 0.00173
+theta_star_feature_lr_iso    fmax 0.60797  micro_ap 0.52610  brier 0.00591  logloss 0.02500  ece 0.00174
+whole_vector_pca32_lr_iso    fmax 0.61231  micro_ap 0.52309  brier 0.00589  logloss 0.02483  ece 0.00177
+C2                           fmax 0.62459  micro_ap 0.55655  brier 0.00582  logloss 0.02432  ece 0.00298
+{
+ "H1_C2_beats_isotonic": true,
+ "H2_C2_beats_every_fitted_baseline": true,
+ "H2_detail": {
+  "depth_platt_iso": true,
+  "term_platt_iso": true,
+  "neighbor_lr_iso": true,
+  "same_features_lr_iso": true,
+  "theta_star_feature_lr_iso": true,
+  "whole_vector_pca32_lr_iso": true
+ }
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p5_3_locked_time_split_evaluation.py --ns go_mf --input fused --workers 32 --bootstrap 1000"
+	User time (seconds): 36643.06
+	System time (seconds): 101.77
+	Percent of CPU this job got: 517%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:58:16
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1780540
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 490
+	Minor (reclaiming a frame) page faults: 37321682
+	Voluntary context switches: 12594
+	Involuntary context switches: 80805
+	Swaps: 0
+	File system inputs: 208260
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-22T23:46:56+03:00   exit: 0

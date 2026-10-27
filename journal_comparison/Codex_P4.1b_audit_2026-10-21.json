@@ -1,0 +1,488 @@
+{
+  "date": "2026-10-21",
+  "author": "OpenAI Codex",
+  "cases": {
+    "go_cc_cnn": {
+      "proteins": 2912,
+      "terms_evaluated": 631,
+      "input_sha256": "123cd7a9f387d97b1ca6c59d8f8e52a6eb8c30e036291b5440fdfe8390b4a491",
+      "isotonic_info": {
+        "iterations": 170,
+        "max_violation": 9.941861283876974e-10
+      },
+      "isotonic_range": [
+        9.999999974752427e-07,
+        0.9958105683326721
+      ],
+      "isotonic_micro_ap_round8": 0.6013587158183529,
+      "isotonic_micro_ap_round6": 0.6013577279340666,
+      "full_vector_brier_raw_iso": [
+        0.012733376192152103,
+        0.012698486251529736
+      ],
+      "ve_check": {
+        "protein": "PO2F3_HUMAN",
+        "term": "GO:0005634",
+        "ve": 0.055921361179894165,
+        "circuit": 0.05592136117989432,
+        "abs_error": 1.5265566588595902e-16
+      },
+      "recomputed_metrics": {
+        "raw": {
+          "fmax": 0.6582995146541624,
+          "micro_ap": 0.598719710828065,
+          "brier": 0.012659874315187326,
+          "ece": 0.003445136714956818
+        },
+        "max_closure": {
+          "fmax": 0.6608577790517419,
+          "micro_ap": 0.599609904243411,
+          "brier": 0.012583326943725083,
+          "ece": 0.0029231928206218854
+        },
+        "isotonic": {
+          "fmax": 0.6604856184756265,
+          "micro_ap": 0.6013582185126356,
+          "brier": 0.012628304258419064,
+          "ece": 0.0034386792467646604
+        },
+        "exact_wmc": {
+          "fmax": 0.6432490540528247,
+          "micro_ap": 0.5610594385586487,
+          "brier": 0.013341343272334438,
+          "ece": 0.008549064558863192
+        }
+      },
+      "metric_abs_differences": {
+        "raw": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "max_closure": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "isotonic": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "exact_wmc": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        }
+      },
+      "paired_fmax_95ci_vs_raw": {
+        "max_closure": [
+          0.0018124624198494754,
+          0.002835367579371695,
+          0.004062248793519265
+        ],
+        "isotonic": [
+          0.001385270450626494,
+          0.0022276533427651457,
+          0.0031152336420846856
+        ],
+        "exact_wmc": [
+          -0.01712069722234666,
+          -0.014685571249240026,
+          -0.012240170866072457
+        ]
+      },
+      "ci_max_abs_difference_from_saved": {
+        "max_closure": 1.6653345369377348e-16,
+        "isotonic": 1.0538445116559103e-16,
+        "exact_wmc": 2.1684043449710089e-16
+      }
+    },
+    "go_cc_fused": {
+      "proteins": 2912,
+      "terms_evaluated": 631,
+      "input_sha256": "123cd7a9f387d97b1ca6c59d8f8e52a6eb8c30e036291b5440fdfe8390b4a491",
+      "isotonic_info": {
+        "iterations": 170,
+        "max_violation": 4.772093783501907e-10
+      },
+      "isotonic_range": [
+        9.999999974752427e-07,
+        0.997507631778717
+      ],
+      "isotonic_micro_ap_round8": 0.6740694834124782,
+      "isotonic_micro_ap_round6": 0.6740684554267817,
+      "full_vector_brier_raw_iso": [
+        0.011518052278174493,
+        0.01151045789560113
+      ],
+      "ve_check": {
+        "protein": "NGG1_YEAST",
+        "term": "GO:0000124",
+        "ve": 0.07230223626067576,
+        "circuit": 0.07230223626067558,
+        "abs_error": 1.8041124150158794e-16
+      },
+      "recomputed_metrics": {
+        "raw": {
+          "fmax": 0.6978250233626566,
+          "micro_ap": 0.673345384013593,
+          "brier": 0.011396397078590461,
+          "ece": 0.003906336442968543
+        },
+        "max_closure": {
+          "fmax": 0.6992620237906048,
+          "micro_ap": 0.6731518148100265,
+          "brier": 0.011367388076021405,
+          "ece": 0.0036899879932617806
+        },
+        "isotonic": {
+          "fmax": 0.6990629024204512,
+          "micro_ap": 0.6740693447677935,
+          "brier": 0.011390203798348746,
+          "ece": 0.003908438069282662
+        },
+        "exact_wmc": {
+          "fmax": 0.6754591093816729,
+          "micro_ap": 0.6262276196448948,
+          "brier": 0.012215709460923886,
+          "ece": 0.007976391485050383
+        }
+      },
+      "metric_abs_differences": {
+        "raw": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "max_closure": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "isotonic": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "exact_wmc": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        }
+      },
+      "paired_fmax_95ci_vs_raw": {
+        "max_closure": [
+          0.000718704002545395,
+          0.001441288239926064,
+          0.0023730285125275474
+        ],
+        "isotonic": [
+          0.0005426280215100915,
+          0.0013082698282605998,
+          0.002171657282607744
+        ],
+        "exact_wmc": [
+          -0.026026099717011558,
+          -0.022452421751656404,
+          -0.018975108569562776
+        ]
+      },
+      "ci_max_abs_difference_from_saved": {
+        "max_closure": 2.220446049250313e-16,
+        "isotonic": 1.1102230246251565e-16,
+        "exact_wmc": 1.0061396160665481e-16
+      }
+    },
+    "go_mf_cnn": {
+      "proteins": 2129,
+      "terms_evaluated": 729,
+      "input_sha256": "6a20e3fe99a738fa5eb80ce72d9530903d099c43d11b81aab0b2c82347582342",
+      "isotonic_info": {
+        "iterations": 140,
+        "max_violation": 4.862797942095654e-10
+      },
+      "isotonic_range": [
+        9.999999974752427e-07,
+        0.9991081282496452
+      ],
+      "isotonic_micro_ap_round8": 0.44587802306344004,
+      "isotonic_micro_ap_round6": 0.44587635053050034,
+      "full_vector_brier_raw_iso": [
+        0.010384413031347118,
+        0.010342234964084802
+      ],
+      "ve_check": {
+        "protein": "SPR2E_HUMAN",
+        "term": "GO:0003810",
+        "ve": 0.041301219085602324,
+        "circuit": 0.04130121908560258,
+        "abs_error": 2.5673907444456745e-16
+      },
+      "recomputed_metrics": {
+        "raw": {
+          "fmax": 0.49484416381530555,
+          "micro_ap": 0.44255465975437874,
+          "brier": 0.010087583158124672,
+          "ece": 0.005143473159903185
+        },
+        "max_closure": {
+          "fmax": 0.5003998125745774,
+          "micro_ap": 0.4466938745239184,
+          "brier": 0.009965501367243414,
+          "ece": 0.004667679925411827
+        },
+        "isotonic": {
+          "fmax": 0.4978205860643961,
+          "micro_ap": 0.4458490998770037,
+          "brier": 0.010069122902752598,
+          "ece": 0.005158012190186472
+        },
+        "exact_wmc": {
+          "fmax": 0.4590237248836069,
+          "micro_ap": 0.3697896954439323,
+          "brier": 0.010801826662067363,
+          "ece": 0.009546542436639162
+        }
+      },
+      "metric_abs_differences": {
+        "raw": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "max_closure": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "isotonic": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "exact_wmc": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        }
+      },
+      "paired_fmax_95ci_vs_raw": {
+        "max_closure": [
+          0.00373284953248164,
+          0.005585786739224746,
+          0.007740001900931291
+        ],
+        "isotonic": [
+          0.0014039853105179566,
+          0.003070530063009752,
+          0.004943821190294699
+        ],
+        "exact_wmc": [
+          -0.041500802882289085,
+          -0.03600916181457725,
+          -0.03038791948877406
+        ]
+      },
+      "ci_max_abs_difference_from_saved": {
+        "max_closure": 1.0495077029659683e-16,
+        "isotonic": 1.0842021724855044e-16,
+        "exact_wmc": 1.0755285551056204e-16
+      }
+    },
+    "go_mf_fused": {
+      "proteins": 2129,
+      "terms_evaluated": 729,
+      "input_sha256": "6a20e3fe99a738fa5eb80ce72d9530903d099c43d11b81aab0b2c82347582342",
+      "isotonic_info": {
+        "iterations": 130,
+        "max_violation": 5.481428644316111e-10
+      },
+      "isotonic_range": [
+        9.999999974752427e-07,
+        0.9799204468727112
+      ],
+      "isotonic_micro_ap_round8": 0.6509309745609427,
+      "isotonic_micro_ap_round6": 0.6509290169595925,
+      "full_vector_brier_raw_iso": [
+        0.008024840100479286,
+        0.008020355541651886
+      ],
+      "ve_check": {
+        "protein": "SPR2E_HUMAN",
+        "term": "GO:0003810",
+        "ve": 0.09769594098204508,
+        "circuit": 0.09769594098204565,
+        "abs_error": 5.689893001203927e-16
+      },
+      "recomputed_metrics": {
+        "raw": {
+          "fmax": 0.6811959719087562,
+          "micro_ap": 0.6504379507817758,
+          "brier": 0.007755841985012531,
+          "ece": 0.004633331304029361
+        },
+        "max_closure": {
+          "fmax": 0.6818951794571223,
+          "micro_ap": 0.65148847890191,
+          "brier": 0.007724543490246334,
+          "ece": 0.004490344255902462
+        },
+        "isotonic": {
+          "fmax": 0.6809741792120619,
+          "micro_ap": 0.6509253053204325,
+          "brier": 0.007756086981640457,
+          "ece": 0.004641697979261249
+        },
+        "exact_wmc": {
+          "fmax": 0.6250977031346395,
+          "micro_ap": 0.5711359178640776,
+          "brier": 0.008631276493580227,
+          "ece": 0.007480258005145573
+        }
+      },
+      "metric_abs_differences": {
+        "raw": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "max_closure": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "isotonic": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "exact_wmc": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        }
+      },
+      "paired_fmax_95ci_vs_raw": {
+        "max_closure": [
+          0.00016462354937841483,
+          0.0007157900567109632,
+          0.001402718745602277
+        ],
+        "isotonic": [
+          -0.0009783973850165883,
+          -9.883350098854882e-05,
+          0.0007033259793100513
+        ],
+        "exact_wmc": [
+          -0.062024738537042684,
+          -0.0568074965831441,
+          -0.05163432288416341
+        ]
+      },
+      "ci_max_abs_difference_from_saved": {
+        "max_closure": 1.6653345369377348e-16,
+        "isotonic": 1.6653345369377348e-16,
+        "exact_wmc": 1.1102230246251565e-16
+      }
+    },
+    "go_bp_cnn": {
+      "proteins": 2973,
+      "terms_evaluated": 4474,
+      "input_sha256": "fdf6873fa0cfd03ecdc53dbd472842f3c58e6a823b875c84e3ba74f62697be8b",
+      "sample64_isotonic_info": {
+        "iterations": 200,
+        "max_violation": 4.99622704319691e-10
+      },
+      "bp_exact_reference_available": false,
+      "recomputed_metrics": {
+        "raw": {
+          "fmax": 0.41329461452107585,
+          "micro_ap": 0.3178268988845986,
+          "brier": 0.009120680455458736,
+          "ece": 0.002631491050039369
+        },
+        "max_closure": {
+          "fmax": 0.4168876968607891,
+          "micro_ap": 0.3210824204258249,
+          "brier": 0.00910033351275018,
+          "ece": 0.0023774015202306766
+        }
+      },
+      "metric_abs_differences": {
+        "raw": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "max_closure": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        }
+      }
+    },
+    "go_bp_fused": {
+      "proteins": 2973,
+      "terms_evaluated": 4474,
+      "input_sha256": "fdf6873fa0cfd03ecdc53dbd472842f3c58e6a823b875c84e3ba74f62697be8b",
+      "sample64_isotonic_info": {
+        "iterations": 180,
+        "max_violation": 8.502656703712752e-10
+      },
+      "bp_exact_reference_available": false,
+      "recomputed_metrics": {
+        "raw": {
+          "fmax": 0.5392583347891009,
+          "micro_ap": 0.4317582392442291,
+          "brier": 0.008093675118868281,
+          "ece": 0.0018620879054658725
+        },
+        "max_closure": {
+          "fmax": 0.5402598447871592,
+          "micro_ap": 0.4325383923417234,
+          "brier": 0.008083072908269016,
+          "ece": 0.0017321397463747475
+        }
+      },
+      "metric_abs_differences": {
+        "raw": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        },
+        "max_closure": {
+          "fmax": 0.0,
+          "micro_ap": 0.0,
+          "brier": 0.0,
+          "ece": 0.0
+        }
+      }
+    }
+  },
+  "independent_qp_max_abs_error": 5.408784531368838e-12,
+  "source_hashes": {
+    "consistency.py": "c17f57ea34a5fe8d5cddc912dbdb601978b391c2f66580591c1958d24c2788ef",
+    "p4_1a_build_deepgoplus_v2_inputs.py": "4e7346c66fc6a6087e2778dcc385205d1eac8cc091558af04709a755e53980e3",
+    "p4_1b_downstream_consistency_methods_deepgoplus.py": "7a58c1172afea488fea77cb9335dbdca792280efbb3714698b9fa9f233f9be76"
+  }
+}

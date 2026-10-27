@@ -1,0 +1,365 @@
+{
+  "ns": "go_mf",
+  "input": "cnn",
+  "proteins_eval": 1065,
+  "C2_metrics": {
+    "fmax": 0.5053322116775881,
+    "micro_ap": 0.4581408379344141,
+    "brier": 0.009065509762869253,
+    "logloss": 0.03897383788821473,
+    "ece": 0.0010169381727014295
+  },
+  "w0_metrics": {
+    "fmax": 0.493857439638302,
+    "micro_ap": 0.43346450350583854,
+    "brier": 0.009673934640448247,
+    "logloss": 0.040665519600121484,
+    "ece": 0.004112202878861103
+  },
+  "max_metric_difference_vs_p46": 0.0,
+  "w0_error_eval": {
+    "max": 0.06309593228417812,
+    "median": 1.0437053133902086e-06,
+    "over_1e_3": 8,
+    "over_1e_2": 5,
+    "nonroot_max": 0.06309593228417812,
+    "nonroot_over_1e_2": 5
+  },
+  "C2_clipping": {
+    "rows": 3,
+    "theta_min": -37.62587945994734,
+    "theta_max": 27.408375642810686,
+    "max_prediction_change": 0.26404585675284736,
+    "max_prediction_change_nonroot": 0.26404585675284736,
+    "stable_metrics": {
+      "fmax": 0.5054806062010331,
+      "micro_ap": 0.4582406033439474,
+      "brier": 0.00906440646648969,
+      "logloss": 0.03896587505888108,
+      "ece": 0.0010109595765728093
+    }
+  },
+  "worst_moment_matches": [
+    {
+      "protein_row": 1462,
+      "old_err": 0.024217037187856727,
+      "stable_err": 0.024213818085297545,
+      "theta_min": -27.631041573864167,
+      "theta_max": 25.43194971774645,
+      "clipped_objective_gradient_mismatch": 0.0
+    },
+    {
+      "protein_row": 1256,
+      "old_err": 0.025601727082136982,
+      "stable_err": 0.07394890199470239,
+      "theta_min": -28.032029890996448,
+      "theta_max": 13.281222191187766,
+      "clipped_objective_gradient_mismatch": 0.48027797448832343
+    },
+    {
+      "protein_row": 963,
+      "old_err": 0.031732515005349016,
+      "stable_err": 0.022271635409012266,
+      "theta_min": -27.672758808500188,
+      "theta_max": 22.547606635305847,
+      "clipped_objective_gradient_mismatch": 0.641990719717315
+    },
+    {
+      "protein_row": 2083,
+      "old_err": 0.041861695582256275,
+      "stable_err": 0.04172845427433064,
+      "theta_min": -27.6317100134242,
+      "theta_max": 16.096833735446335,
+      "clipped_objective_gradient_mismatch": 0.7352690031951317
+    },
+    {
+      "protein_row": 1217,
+      "old_err": 0.06309593228417812,
+      "stable_err": 0.06233305552541427,
+      "theta_min": -27.645677724545504,
+      "theta_max": 22.175955337397763,
+      "clipped_objective_gradient_mismatch": 0.282761410992185
+    }
+  ],
+  "toy_clipping_counterexample": {
+    "theta": [
+      -40.0,
+      40.0
+    ],
+    "reported_A": 13.062115003709668,
+    "true_A": 0.6931471805599472,
+    "reported_gradient": [
+      0.5000055304914514,
+      0.5000055304909529
+    ],
+    "finite_difference": [
+      0.0,
+      1.0000000000331966
+    ],
+    "true_gradient": [
+      0.49999999999999906,
+      0.5000000000000009
+    ]
+  },
+  "ve_checks": [
+    {
+      "row": 1749,
+      "term": 17,
+      "reference": 0.002689553937537397,
+      "circuit": 0.0026895539375551957,
+      "abs_error": 1.7798696544391035e-14
+    },
+    {
+      "row": 1443,
+      "term": 17,
+      "reference": 0.0009449929519674584,
+      "circuit": 0.0009449929519442319,
+      "abs_error": 2.3226537880505216e-14
+    }
+  ],
+  "controls": {
+    "M_original_penalty": {
+      "raw": {
+        "fmax": 0.48957049745547876,
+        "micro_ap": 0.43558090663246596,
+        "brier": 0.009278750032713527,
+        "logloss": 0.03937774810152964,
+        "ece": 0.0011467727151931177
+      },
+      "isotonic": {
+        "fmax": 0.489472172830293,
+        "micro_ap": 0.43563074080046255,
+        "brier": 0.009278367439121922,
+        "logloss": 0.03937412467287815,
+        "ece": 0.0011435493567544786
+      },
+      "fits": [
+        {
+          "depth": 0,
+          "terms": 1,
+          "success": true,
+          "grad_max": 1.7714848130068184e-09,
+          "ridge": 0.001
+        },
+        {
+          "depth": 1,
+          "terms": 18,
+          "success": true,
+          "grad_max": 1.4904492425405619e-09,
+          "ridge": 0.001
+        },
+        {
+          "depth": 2,
+          "terms": 59,
+          "success": true,
+          "grad_max": 6.312248569434638e-10,
+          "ridge": 0.001
+        },
+        {
+          "depth": 3,
+          "terms": 185,
+          "success": true,
+          "grad_max": 9.627232200687071e-08,
+          "ridge": 0.001
+        },
+        {
+          "depth": 4,
+          "terms": 212,
+          "success": true,
+          "grad_max": 9.453323720608892e-09,
+          "ridge": 0.001
+        },
+        {
+          "depth": 5,
+          "terms": 152,
+          "success": true,
+          "grad_max": 5.997573677659403e-10,
+          "ridge": 0.001
+        },
+        {
+          "depth": 6,
+          "terms": 84,
+          "success": true,
+          "grad_max": 1.3926833807281075e-10,
+          "ridge": 0.001
+        },
+        {
+          "depth": 7,
+          "terms": 17,
+          "success": true,
+          "grad_max": 1.670229043531377e-09,
+          "ridge": 0.001
+        },
+        {
+          "depth": 8,
+          "terms": 2,
+          "success": true,
+          "grad_max": 6.565708519836594e-09,
+          "ridge": 0.001
+        }
+      ]
+    },
+    "M_matched_penalty": {
+      "raw": {
+        "fmax": 0.4934046610834981,
+        "micro_ap": 0.43634308019686024,
+        "brier": 0.00927267020425458,
+        "logloss": 0.039279186340385915,
+        "ece": 0.0008706852576084519
+      },
+      "isotonic": {
+        "fmax": 0.49346884465866286,
+        "micro_ap": 0.43677153621422415,
+        "brier": 0.009268479384475899,
+        "logloss": 0.0392517919944994,
+        "ece": 0.0009006016232593876
+      },
+      "fits": [
+        {
+          "depth": 0,
+          "terms": 1,
+          "success": true,
+          "grad_max": 1.7714848130068184e-09,
+          "ridge": 0.001
+        },
+        {
+          "depth": 1,
+          "terms": 18,
+          "success": true,
+          "grad_max": 3.2901394698918977e-09,
+          "ridge": 5.555555555555556e-05
+        },
+        {
+          "depth": 2,
+          "terms": 59,
+          "success": true,
+          "grad_max": 3.908522581504925e-09,
+          "ridge": 1.694915254237288e-05
+        },
+        {
+          "depth": 3,
+          "terms": 185,
+          "success": true,
+          "grad_max": 1.1288539139498106e-08,
+          "ridge": 5.405405405405405e-06
+        },
+        {
+          "depth": 4,
+          "terms": 212,
+          "success": true,
+          "grad_max": 3.7178644703277345e-08,
+          "ridge": 4.716981132075472e-06
+        },
+        {
+          "depth": 5,
+          "terms": 152,
+          "success": true,
+          "grad_max": 1.095013060172683e-09,
+          "ridge": 6.578947368421053e-06
+        },
+        {
+          "depth": 6,
+          "terms": 84,
+          "success": true,
+          "grad_max": 2.718582490099039e-10,
+          "ridge": 1.1904761904761905e-05
+        },
+        {
+          "depth": 7,
+          "terms": 17,
+          "success": true,
+          "grad_max": 4.2479056529915946e-10,
+          "ridge": 5.882352941176471e-05
+        },
+        {
+          "depth": 8,
+          "terms": 2,
+          "success": true,
+          "grad_max": 5.723183982097148e-09,
+          "ridge": 0.0005
+        }
+      ]
+    },
+    "L_matched_penalty": {
+      "raw": {
+        "fmax": 0.4927141676718829,
+        "micro_ap": 0.43632564062122864,
+        "brier": 0.009271973692014726,
+        "logloss": 0.03928578811452337,
+        "ece": 0.0008716143329999098
+      },
+      "isotonic": {
+        "fmax": 0.4930546001875938,
+        "micro_ap": 0.4368319528745779,
+        "brier": 0.009266581106153594,
+        "logloss": 0.03925101536994836,
+        "ece": 0.000905053521004931
+      },
+      "fits": [
+        {
+          "depth": 0,
+          "terms": 1,
+          "success": true,
+          "grad_max": 4.0412765107012555e-09,
+          "ridge": 0.001
+        },
+        {
+          "depth": 1,
+          "terms": 18,
+          "success": true,
+          "grad_max": 2.6776497496052223e-11,
+          "ridge": 5.555555555555556e-05
+        },
+        {
+          "depth": 2,
+          "terms": 59,
+          "success": true,
+          "grad_max": 3.4800429853630317e-09,
+          "ridge": 1.694915254237288e-05
+        },
+        {
+          "depth": 3,
+          "terms": 185,
+          "success": true,
+          "grad_max": 2.8868238960250793e-09,
+          "ridge": 5.405405405405405e-06
+        },
+        {
+          "depth": 4,
+          "terms": 212,
+          "success": true,
+          "grad_max": 6.7211797158099e-09,
+          "ridge": 4.716981132075472e-06
+        },
+        {
+          "depth": 5,
+          "terms": 152,
+          "success": true,
+          "grad_max": 6.99925207110284e-09,
+          "ridge": 6.578947368421053e-06
+        },
+        {
+          "depth": 6,
+          "terms": 84,
+          "success": true,
+          "grad_max": 6.72851502254682e-10,
+          "ridge": 1.1904761904761905e-05
+        },
+        {
+          "depth": 7,
+          "terms": 17,
+          "success": true,
+          "grad_max": 5.024995019851434e-08,
+          "ridge": 5.882352941176471e-05
+        },
+        {
+          "depth": 8,
+          "terms": 2,
+          "success": true,
+          "grad_max": 5.11340211495283e-09,
+          "ridge": 0.0005
+        }
+      ]
+    }
+  }
+}

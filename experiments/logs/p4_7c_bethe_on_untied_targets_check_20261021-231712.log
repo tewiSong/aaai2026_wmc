@@ -1,0 +1,38 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7c_bethe_on_untied_targets.py
+# sha256 : 529d261c1453606c6eb142d4e35cda654367218ff7bd7205a991355edb3e9d23
+# args   : 
+# host   : uan04   slurm_job: none
+# start  : 2026-10-21T23:17:12+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+/opt/cotainr/conda/envs/conda_container_env/lib/python3.11/site-packages/numpy/core/fromnumeric.py:3504: RuntimeWarning: Mean of empty slice.
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/opt/cotainr/conda/envs/conda_container_env/lib/python3.11/site-packages/numpy/core/_methods.py:129: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+{"theory": "dgp2_go_mf", "proteins": 0, "skipped_float_ties": 30, "bp_recovers_frac": NaN, "bp_err_median": NaN, "exact_at_bethe_err_median": NaN, "theta_bethe_minus_true_median_max": NaN, "min_gap_median": NaN}
+{"theory": "dgp2_go_cc", "proteins": 2, "skipped_float_ties": 28, "bp_recovers_frac": 0.5, "bp_err_median": 0.5000000000000009, "exact_at_bethe_err_median": 0.9922098039423514, "theta_bethe_minus_true_median_max": Infinity, "min_gap_median": 3.0109374624588885e-22}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7c_bethe_on_untied_targets.py"
+	User time (seconds): 6.19
+	System time (seconds): 2.33
+	Percent of CPU this job got: 154%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:05.54
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 117820
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 326
+	Minor (reclaiming a frame) page faults: 37396
+	Voluntary context switches: 7394
+	Involuntary context switches: 450
+	Swaps: 0
+	File system inputs: 164742
+	File system outputs: 464
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-21T23:17:23+03:00   exit: 0

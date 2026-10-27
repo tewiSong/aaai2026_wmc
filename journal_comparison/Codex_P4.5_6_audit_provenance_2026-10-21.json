@@ -1,0 +1,18 @@
+{
+  "audit_job": "23042249",
+  "files": {
+    "experiments/scripts/learned_constrained.py": "2c9c9fb6447518261501d385556c566bfcf778ba7568c5aedca84781c32e4f36",
+    "experiments/scripts/p4_5_nested_constrained_model_C2.py": "c3117327ffea46d8e081c0eadc3875030eb92f6e05566926e6b8dffa1a9e082f",
+    "experiments/scripts/p4_6_ablation_same_features_without_wmc.py": "8a10b222f2661cceca50513e20d00054e03174ca4a2b7bc491240b724a24f4ee",
+    "journal_comparison/p4_5_6_audit_2026_10_21.py": "b1412aff1dafaa59b547bc64441f02ba0a3fcc6a53b6c2d7914c6fef6d339243",
+    "experiments/results/p4_5_nested_C2_go_cc_cnn.json": "9331ebceb89266b61c3e88b2d7f40a04396aa4c30f6d02e02dc931d6a1c853b6",
+    "experiments/results/p4_5_nested_C2_go_cc_fused.json": "efc862ef03697d58e3a8ab0039847c57117e018352d3ea02b99d4e0831ba3319",
+    "experiments/results/p4_5_nested_C2_go_mf_cnn.json": "2e136c054c7953d9e34824c408118d52ff5c3d58888aa39e2b477970fa55231d",
+    "experiments/results/p4_5_nested_C2_go_mf_fused.json": "8a51ad05efc4e7c67b96ccd1c8ce338334b92a18f2dbb4e7ee39f6e820862d07",
+    "experiments/results/p4_6_ablation_go_cc_cnn.json": "09102352bea020122e98952c1d8621dd308c8042ae712dda5fad4fb85933324f",
+    "experiments/results/p4_6_ablation_go_cc_fused.json": "5c67d8c8e411e77118251bc80f853b44c7474ad04b8b6618ab228afab8331b84",
+    "experiments/results/p4_6_ablation_go_mf_cnn.json": "89c5ac22ec95c7e92103dfc34bbf58ddb44e76f732d12614323a9b44ba6d6b50",
+    "experiments/results/p4_6_ablation_go_mf_fused.json": "459c302d59390db48b886aa4bc2589d73a6c6cad7e237f13e43faed322762aa5"
+  },
+  "audits_validated": 4
+}

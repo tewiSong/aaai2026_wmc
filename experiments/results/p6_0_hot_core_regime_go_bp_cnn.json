@@ -1,0 +1,532 @@
+{
+ "theory": "dgp2_go_bp",
+ "input": "cnn",
+ "terms": 4475,
+ "proteins": 400,
+ "isotonic": {
+  "iterations": 380,
+  "max_violation": 9.477971636695504e-10
+ },
+ "total_odds_mass": [
+  24.985241711780628,
+  51.06276581113789,
+  223.24487082575314,
+  591788.5726934894
+ ],
+ "per_tau": {
+  "0.3": {
+   "core_size": [
+    5.0,
+    15.0,
+    62.0,
+    1594.0
+   ],
+   "cold_odds_mass": [
+    15.381652914387239,
+    26.640003381884945,
+    48.885041584454854,
+    343.89484437830794
+   ]
+  },
+  "0.1": {
+   "core_size": [
+    25.0,
+    55.5,
+    139.10000000000025,
+    2723.0
+   ],
+   "cold_odds_mass": [
+    11.453986414808329,
+    18.56786078314086,
+    31.582856690265004,
+    90.87962223228861
+   ]
+  },
+  "0.03": {
+   "core_size": [
+    95.0,
+    177.5,
+    355.5000000000001,
+    3768.0
+   ],
+   "cold_odds_mass": [
+    7.491557567574795,
+    11.821474025617132,
+    17.0553224852413,
+    30.968557533155806
+   ]
+  },
+  "0.01": {
+   "core_size": [
+    263.70000000000005,
+    462.5,
+    865.2000000000005,
+    4315.0
+   ],
+   "cold_odds_mass": [
+    4.757309314130528,
+    6.741222023336052,
+    8.980091032261035,
+    10.719154649266525
+   ]
+  },
+  "0.003": {
+   "core_size": [
+    717.5,
+    1172.0,
+    1904.2000000000007,
+    4467.0
+   ],
+   "cold_odds_mass": [
+    2.1516537690643247,
+    2.879107894067472,
+    3.4095564290424285,
+    3.897661129432439
+   ]
+  },
+  "0.001": {
+   "core_size": [
+    1520.9,
+    2347.5,
+    3316.8,
+    4475.0
+   ],
+   "cold_odds_mass": [
+    0.5932700046389888,
+    0.9061884283536106,
+    1.0702518242374477,
+    1.1994054768131914
+   ]
+  }
+ },
+ "compile": {
+  "0.03": {
+   "records": [
+    {
+     "core": 817,
+     "seconds": 6.582,
+     "nnf_mb": 4.52
+    },
+    {
+     "core": 354,
+     "seconds": 0.308,
+     "nnf_mb": 0.14
+    },
+    {
+     "core": 82,
+     "seconds": 0.127,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 241,
+     "seconds": 0.257,
+     "nnf_mb": 0.15
+    },
+    {
+     "core": 254,
+     "seconds": 0.151,
+     "nnf_mb": 0.04
+    },
+    {
+     "core": 125,
+     "seconds": 0.17,
+     "nnf_mb": 0.07
+    },
+    {
+     "core": 144,
+     "seconds": 0.125,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 177,
+     "seconds": 0.135,
+     "nnf_mb": 0.02
+    },
+    {
+     "core": 94,
+     "seconds": 0.127,
+     "nnf_mb": 0.02
+    },
+    {
+     "core": 166,
+     "seconds": 0.199,
+     "nnf_mb": 0.07
+    },
+    {
+     "core": 159,
+     "seconds": 0.158,
+     "nnf_mb": 0.05
+    },
+    {
+     "core": 316,
+     "seconds": 0.212,
+     "nnf_mb": 0.08
+    },
+    {
+     "core": 332,
+     "seconds": 0.212,
+     "nnf_mb": 0.08
+    },
+    {
+     "core": 149,
+     "seconds": 0.142,
+     "nnf_mb": 0.03
+    },
+    {
+     "core": 297,
+     "seconds": 0.164,
+     "nnf_mb": 0.04
+    },
+    {
+     "core": 224,
+     "seconds": 0.147,
+     "nnf_mb": 0.03
+    },
+    {
+     "core": 197,
+     "seconds": 0.299,
+     "nnf_mb": 0.19
+    },
+    {
+     "core": 315,
+     "seconds": 0.172,
+     "nnf_mb": 0.05
+    },
+    {
+     "core": 226,
+     "seconds": 0.225,
+     "nnf_mb": 0.11
+    },
+    {
+     "core": 51,
+     "seconds": 0.115,
+     "nnf_mb": 0.0
+    }
+   ],
+   "solved": 20,
+   "of": 20,
+   "seconds_median": 0.167
+  },
+  "0.01": {
+   "records": [
+    {
+     "core": 1394,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 719,
+     "seconds": 14.518,
+     "nnf_mb": 5.34
+    },
+    {
+     "core": 294,
+     "seconds": 0.32,
+     "nnf_mb": 0.05
+    },
+    {
+     "core": 627,
+     "seconds": 5.079,
+     "nnf_mb": 2.07
+    },
+    {
+     "core": 608,
+     "seconds": 2.179,
+     "nnf_mb": 0.94
+    },
+    {
+     "core": 306,
+     "seconds": 2.124,
+     "nnf_mb": 0.73
+    },
+    {
+     "core": 388,
+     "seconds": 0.444,
+     "nnf_mb": 0.1
+    },
+    {
+     "core": 457,
+     "seconds": 1.034,
+     "nnf_mb": 0.3
+    },
+    {
+     "core": 297,
+     "seconds": 1.282,
+     "nnf_mb": 0.55
+    },
+    {
+     "core": 407,
+     "seconds": 7.878,
+     "nnf_mb": 3.61
+    },
+    {
+     "core": 414,
+     "seconds": 5.708,
+     "nnf_mb": 2.45
+    },
+    {
+     "core": 755,
+     "seconds": 2.862,
+     "nnf_mb": 1.25
+    },
+    {
+     "core": 809,
+     "seconds": 4.392,
+     "nnf_mb": 1.36
+    },
+    {
+     "core": 407,
+     "seconds": 3.535,
+     "nnf_mb": 1.47
+    },
+    {
+     "core": 594,
+     "seconds": 1.089,
+     "nnf_mb": 0.37
+    },
+    {
+     "core": 516,
+     "seconds": 2.094,
+     "nnf_mb": 0.99
+    },
+    {
+     "core": 458,
+     "seconds": 44.354,
+     "nnf_mb": 17.62
+    },
+    {
+     "core": 923,
+     "seconds": 35.139,
+     "nnf_mb": 14.63
+    },
+    {
+     "core": 501,
+     "seconds": 2.299,
+     "nnf_mb": 1.05
+    },
+    {
+     "core": 180,
+     "seconds": 0.246,
+     "nnf_mb": 0.01
+    }
+   ],
+   "solved": 19,
+   "of": 20,
+   "seconds_median": 2.299
+  },
+  "0.003": {
+   "records": [
+    {
+     "core": 2287,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 1417,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 979,
+     "seconds": 38.11,
+     "nnf_mb": 12.96
+    },
+    {
+     "core": 1670,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 1437,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 769,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 1052,
+     "seconds": 10.9,
+     "nnf_mb": 3.57
+    },
+    {
+     "core": 1088,
+     "seconds": 230.449,
+     "nnf_mb": 65.91
+    },
+    {
+     "core": 827,
+     "seconds": 101.996,
+     "nnf_mb": 32.39
+    },
+    {
+     "core": 1035,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 895,
+     "seconds": 179.272,
+     "nnf_mb": 56.96
+    },
+    {
+     "core": 1847,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 1954,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 1022,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 1245,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 1299,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 1034,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 2139,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 1383,
+     "seconds": 28.364,
+     "nnf_mb": 11.67
+    },
+    {
+     "core": 582,
+     "seconds": 1.898,
+     "nnf_mb": 0.72
+    }
+   ],
+   "solved": 7,
+   "of": 20,
+   "seconds_median": 38.11
+  },
+  "0.001": {
+   "records": [
+    {
+     "core": 3044,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 2497,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 2082,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 3075,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 2752,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 1618,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 2062,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 2001,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 1916,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 2169,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 1654,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 3265,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 3419,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 2132,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 2144,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 2456,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 2089,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 3433,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 2782,
+     "seconds": null,
+     "error": "TimeoutExpired"
+    },
+    {
+     "core": 1285,
+     "seconds": 165.708,
+     "nnf_mb": 115.58
+    }
+   ],
+   "solved": 1,
+   "of": 20,
+   "seconds_median": 165.708
+  }
+ }
+}

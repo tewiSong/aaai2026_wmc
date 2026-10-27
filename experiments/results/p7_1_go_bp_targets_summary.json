@@ -1,0 +1,13 @@
+{
+ "new_exp_in_ns": 59967,
+ "excluded_had_exp_2021": 57248,
+ "excluded_identical_sequence": 24,
+ "excluded_id_overlap_deepgoplus": 14,
+ "excluded_no_nonroot_label_in_vocab": 4,
+ "targets": 2677,
+ "labels_per_target_median": 24.0,
+ "labels_per_target_q90": 66.0,
+ "also_p5_cc_or_mf_target": 1817,
+ "terms_with_positive": 3416,
+ "terms": 4475
+}

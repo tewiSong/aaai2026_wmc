@@ -1,0 +1,43 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7b_bethe_robustness_to_interior_shift.py
+# sha256 : 7daa8743cc01d8587bdadcded08d7dc65778ceb316be12834d955e747fbc6c0c
+# args   : 
+# host   : uan04   slurm_job: none
+# start  : 2026-10-21T23:16:21+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+{"p_ref": 0.1, "eps": 0.001, "bp_recovers_frac": 0.0, "bp_err_median": 0.9999570043285617, "exact_err_median": 0.9999520165180744, "min_gap_median": 1.4356639698300654e-21}
+{"p_ref": 0.1, "eps": 0.01, "bp_recovers_frac": 0.0, "bp_err_median": 0.9999571232256127, "exact_err_median": 0.9999521799373489, "min_gap_median": 1.4356639698300653e-20}
+{"p_ref": 0.1, "eps": 0.1, "bp_recovers_frac": 0.0, "bp_err_median": 0.9999543513492162, "exact_err_median": 0.9999534288495548, "min_gap_median": 1.4356639698300655e-19}
+Traceback (most recent call last):
+  File "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7b_bethe_robustness_to_interior_shift.py", line 32, in <module>
+    thb = moment_match_bethe(n, edges, mt, gap=gap)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/learned_constrained.py", line 302, in moment_match_bethe
+    raise ValueError("Bethe moment matching needs strictly ordered marginals (mu_child < mu_parent)")
+ValueError: Bethe moment matching needs strictly ordered marginals (mu_child < mu_parent)
+Command exited with non-zero status 1
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7b_bethe_robustness_to_interior_shift.py"
+	User time (seconds): 18.30
+	System time (seconds): 2.71
+	Percent of CPU this job got: 116%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:18.09
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 92004
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 346
+	Minor (reclaiming a frame) page faults: 31185
+	Voluntary context switches: 7437
+	Involuntary context switches: 1412
+	Swaps: 0
+	File system inputs: 131618
+	File system outputs: 368
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
+
+# end    : 2026-10-21T23:16:47+03:00   exit: 1

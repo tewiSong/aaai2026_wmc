@@ -1,0 +1,46 @@
+{
+  "true_joint": {
+    "joint_on_00_10_11": [
+      0.4,
+      0.3,
+      0.3
+    ],
+    "marginals_parent_child": [
+      0.6,
+      0.3
+    ]
+  },
+  "original_product_conditioning": {
+    "joint_on_00_10_11": [
+      0.3181818181818182,
+      0.4772727272727273,
+      0.20454545454545456
+    ],
+    "marginals_parent_child": [
+      0.6818181818181819,
+      0.20454545454545456
+    ]
+  },
+  "naive_conditional_swap": {
+    "joint_on_00_10_11": [
+      0.25,
+      0.37499999999999994,
+      0.37499999999999994
+    ],
+    "marginals_parent_child": [
+      0.7499999999999999,
+      0.37499999999999994
+    ]
+  },
+  "correct_unary_reparameterization": {
+    "joint_on_00_10_11": [
+      0.40000000000000013,
+      0.3,
+      0.3
+    ],
+    "marginals_parent_child": [
+      0.6,
+      0.3
+    ]
+  }
+}

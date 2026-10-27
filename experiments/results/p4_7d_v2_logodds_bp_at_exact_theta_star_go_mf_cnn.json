@@ -1,0 +1,30 @@
+{
+ "theory": "dgp2_go_mf",
+ "proteins": 100,
+ "bp_converged_frac": 1.0,
+ "max_err_quantiles": [
+  0.07905444300565309,
+  0.27325570578186437,
+  0.9872776106405229
+ ],
+ "mae_median": 0.004018041043179431,
+ "frac_max_err_gt_0_1": 0.38,
+ "theta_star_per_protein_max_abs_median": 16.765559296714635,
+ "theta_star_all_abs_median": 1.6674738720024873,
+ "metrics": {
+  "exact_at_theta_star": {
+   "fmax": 0.4695547320903114,
+   "micro_ap": 0.3592585565368551,
+   "brier": 0.01038025569126789,
+   "logloss": 0.043473831436140885,
+   "ece": 0.004413153716894646
+  },
+  "bp_at_theta_star": {
+   "fmax": 0.4472200332212127,
+   "micro_ap": 0.27137092485461367,
+   "brier": 0.011486702890305714,
+   "logloss": 0.07428444052171744,
+   "ece": 0.008784392787461072
+  }
+ }
+}

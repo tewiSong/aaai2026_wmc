@@ -1,0 +1,35 @@
+isotonic 30.6s {'iterations': 380, 'max_violation': 9.477971636695504e-10}
+tau 0.3    core q10/50/90/max [5.0, 15.0, 62.0, 1594.0]  Lambda [15.382, 26.64, 48.885, 343.895]
+tau 0.1    core q10/50/90/max [25.0, 55.5, 139.10000000000025, 2723.0]  Lambda [11.454, 18.568, 31.583, 90.88]
+tau 0.03   core q10/50/90/max [95.0, 177.5, 355.5000000000001, 3768.0]  Lambda [7.492, 11.821, 17.055, 30.969]
+tau 0.01   core q10/50/90/max [263.70000000000005, 462.5, 865.2000000000005, 4315.0]  Lambda [4.757, 6.741, 8.98, 10.719]
+tau 0.003  core q10/50/90/max [717.5, 1172.0, 1904.2000000000007, 4467.0]  Lambda [2.152, 2.879, 3.41, 3.898]
+tau 0.001  core q10/50/90/max [1520.9, 2347.5, 3316.8, 4475.0]  Lambda [0.593, 0.906, 1.07, 1.199]
+compile tau 0.03: solved 20/20, median 0.167 s, core sizes [817, 354, 82, 241, 254, 125, 144, 177, 94, 166, 159, 316, 332, 149, 297, 224, 197, 315, 226, 51]
+compile tau 0.01: solved 19/20, median 2.299 s, core sizes [1394, 719, 294, 627, 608, 306, 388, 457, 297, 407, 414, 755, 809, 407, 594, 516, 458, 923, 501, 180]
+compile tau 0.003: solved 7/20, median 38.11 s, core sizes [2287, 1417, 979, 1670, 1437, 769, 1052, 1088, 827, 1035, 895, 1847, 1954, 1022, 1245, 1299, 1034, 2139, 1383, 582]
+compile tau 0.001: solved 1/20, median 165.708 s, core sizes [3044, 2497, 2082, 3075, 2752, 1618, 2062, 2001, 1916, 2169, 1654, 3265, 3419, 2132, 2144, 2456, 2089, 3433, 2782, 1285]
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_0_hot_core_regime_diagnostic.py --ns go_bp --input cnn"
+	User time (seconds): 10723.28
+	System time (seconds): 37.36
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:02:06
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 667336
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 273656
+	Minor (reclaiming a frame) page faults: 1695913
+	Voluntary context switches: 280925
+	Involuntary context switches: 30875
+	Swaps: 0
+	File system inputs: 2570128
+	File system outputs: 24
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p6_0_hot_core_regime_diagnostic_go_bp_cnn_20261023-101932.log

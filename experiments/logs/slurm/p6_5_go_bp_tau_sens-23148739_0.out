@@ -1,0 +1,31 @@
+{"theory": "dgp2_go_bp", "input": "fused", "proteins": 500, "lower_taus": [0.001, 0.002, 0.003, 0.005, 0.007], "build_seconds": 996.4, "proteins_with_larger_core": 494, "tau_a_counts": {"0.01": 496, "0.02": 1, "0.03": 3}, "tau_b_counts": {"0.001": 210, "0.002": 199, "0.003": 53, "0.005": 23, "0.007": 9}, "core_size_a": [138.3, 303.0, 730.1999999999999, 1228.0], "core_size_b": [637.5, 940.5, 1220.0, 1488.0], "cold_odds_mass_a": [2.270918519333406, 3.4370329317325528, 5.017965272269794], "cold_odds_mass_b": [0.7599113954459558, 1.4495279613457441, 2.4954345143666528]}
+core_A_P6.3      fmax 0.55452  micro_ap 0.44270  brier 0.00781  logloss 0.03375  ece 0.00146
+core_B_larger    fmax 0.55455  micro_ap 0.44215  brier 0.00781  logloss 0.03375  ece 0.00137
+isotonic         fmax 0.55267  micro_ap 0.42218  brier 0.00798  logloss 0.03424  ece 0.00210
+max|B-A| per protein q50/90/99/max [0.00616, 0.01834, 0.04042, 0.14582]
+B - A          fmax [-0.00074, 0.00018, 0.00112]  micro_ap [-0.00104, -0.00054, -0.00012]  brier [-0.0, 0.0, 1e-05]  logloss [-8e-05, -0.0, 7e-05]
+A - isotonic   fmax [-0.00417, 0.00233, 0.00902]  micro_ap [0.01061, 0.02024, 0.03023]  brier [-0.00025, -0.00017, -0.0001]  logloss [-0.00071, -0.00049, -0.00028]
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_5_go_bp_core_tau_sensitivity.py --input fused --sample 500 --workers 64 --bootstrap 1000"
+	User time (seconds): 4103522.00
+	System time (seconds): 41220.48
+	Percent of CPU this job got: 5571%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 20:39:46
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 22022640
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 597
+	Minor (reclaiming a frame) page faults: 1159435723
+	Voluntary context switches: 34133
+	Involuntary context switches: 2040323
+	Swaps: 0
+	File system inputs: 266318
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p6_5_go_bp_core_tau_sensitivity_go_bp_fused_20261025-135159.log

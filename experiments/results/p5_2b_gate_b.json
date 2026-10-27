@@ -1,0 +1,26 @@
+{
+ "release_pairs": 52509,
+ "our_pairs": 52874,
+ "common_pairs": 51221,
+ "jaccard": 0.9456999372253609,
+ "bitscore_abs_diff_median": 2.4000000000000057,
+ "go_cc": {
+  "fused_abs_diff_median": 0.0,
+  "fused_abs_diff_max": 0.52,
+  "old_raw_fmax_release": 0.6978250233626566,
+  "old_raw_fmax_recomputed": 0.6986071947883221,
+  "passed": true,
+  "targets": 1838,
+  "targets_with_hits": 1423
+ },
+ "go_mf": {
+  "fused_abs_diff_median": 0.0,
+  "fused_abs_diff_max": 0.67,
+  "old_raw_fmax_release": 0.6811959719087562,
+  "old_raw_fmax_recomputed": 0.6817792557836013,
+  "passed": true,
+  "targets": 1740,
+  "targets_with_hits": 1485
+ },
+ "passed_all": true
+}

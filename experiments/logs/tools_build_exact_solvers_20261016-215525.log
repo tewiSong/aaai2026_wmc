@@ -1,0 +1,17 @@
+Compiling: objs/Main.o
+Compiling: objs/VariableHeuristicInterface.o
+Compiling: objs/ParserProblem.o
+Compiling: objs/dynamicOccurrenceManager.o
+Compiling: objs/Solver.o
+Makefile:83: warning: pattern recipe did not update peer target 'objs/ParserProblem.od'.
+Makefile:83: warning: pattern recipe did not update peer target 'objs/ParserProblem.op'.
+Makefile:83: warning: pattern recipe did not update peer target 'objs/VariableHeuristicInterface.od'.
+Makefile:83: warning: pattern recipe did not update peer target 'objs/VariableHeuristicInterface.op'.
+Makefile:83: warning: pattern recipe did not update peer target 'objs/dynamicOccurrenceManager.od'.
+Makefile:83: warning: pattern recipe did not update peer target 'objs/dynamicOccurrenceManager.op'.
+Makefile:83: warning: pattern recipe did not update peer target 'objs/Solver.od'.
+Makefile:83: warning: pattern recipe did not update peer target 'objs/Solver.op'.
+Makefile:83: warning: pattern recipe did not update peer target 'objs/Main.od'.
+Makefile:83: warning: pattern recipe did not update peer target 'objs/Main.op'.
+Linking: d4 ( objs/Main.o objs/ClauseBipartiteGraphPartitioner.o objs/MinCutPartitioner.o objs/VarBipartiteGraphPartitioner.o objs/PartitionerInterface.o objs/VariableHeuristicInterface.o objs/CnfOccurrenceManager.o objs/ParserProblem.o objs/dynamicOccurrenceManager.o objs/formulaManager.o objs/greedyOccurrenceManager.o objs/Backbone.o objs/EquivClauseSimplification.o objs/Forgetting.o objs/OccurrenceLitElimination.o objs/Preproc.o objs/PreprocSolver.o objs/Vivification.o objs/HittingSet.o objs/InterpretationRefiner.o objs/Options.o objs/RenamableHorn.o objs/ResidualNotPC.o objs/Solver.o objs/System.o )
+built /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4 at commit 333370cc1e843dd0749c1efe88516e72b5239174

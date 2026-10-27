@@ -1,0 +1,532 @@
+{
+ "theory": "dgp2_go_cc",
+ "input": "fused",
+ "terms": 632,
+ "proteins": 400,
+ "isotonic": {
+  "iterations": 90,
+  "max_violation": 1.5956558296892354e-10
+ },
+ "total_odds_mass": [
+  7.120642392661843,
+  29.60660049427816,
+  88.56651230020424,
+  1975.5887057474606
+ ],
+ "per_tau": {
+  "0.3": {
+   "core_size": [
+    4.0,
+    11.0,
+    20.100000000000023,
+    50.0
+   ],
+   "cold_odds_mass": [
+    2.446421370076206,
+    4.665551808655461,
+    8.682023806933069,
+    15.249806960844818
+   ]
+  },
+  "0.1": {
+   "core_size": [
+    11.0,
+    23.0,
+    40.0,
+    96.0
+   ],
+   "cold_odds_mass": [
+    1.2894533046948833,
+    2.323427539190173,
+    3.8798685114279587,
+    5.977219319630641
+   ]
+  },
+  "0.03": {
+   "core_size": [
+    21.900000000000006,
+    41.0,
+    74.10000000000002,
+    143.0
+   ],
+   "cold_odds_mass": [
+    0.7521215761095154,
+    1.2353067688666548,
+    1.806473587149156,
+    3.092980010136429
+   ]
+  },
+  "0.01": {
+   "core_size": [
+    40.900000000000006,
+    71.0,
+    119.0,
+    236.0
+   ],
+   "cold_odds_mass": [
+    0.4585117144791157,
+    0.6861392061379035,
+    0.9762986067067465,
+    1.245878829126579
+   ]
+  },
+  "0.003": {
+   "core_size": [
+    84.9,
+    138.0,
+    209.20000000000005,
+    382.0
+   ],
+   "cold_odds_mass": [
+    0.23283060064656416,
+    0.33404989242746486,
+    0.4240362265525241,
+    0.5282964049442873
+   ]
+  },
+  "0.001": {
+   "core_size": [
+    171.9,
+    264.0,
+    364.30000000000007,
+    483.0
+   ],
+   "cold_odds_mass": [
+    0.09091570953023241,
+    0.12488403432108316,
+    0.15035117296800038,
+    0.1744789325910735
+   ]
+  }
+ },
+ "compile": {
+  "0.03": {
+   "records": [
+    {
+     "core": 26,
+     "seconds": 0.142,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 53,
+     "seconds": 0.106,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 40,
+     "seconds": 0.105,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 44,
+     "seconds": 0.105,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 119,
+     "seconds": 0.108,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 59,
+     "seconds": 0.105,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 51,
+     "seconds": 0.105,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 30,
+     "seconds": 0.103,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 30,
+     "seconds": 0.104,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 22,
+     "seconds": 0.104,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 54,
+     "seconds": 0.103,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 31,
+     "seconds": 0.103,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 24,
+     "seconds": 0.103,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 82,
+     "seconds": 0.105,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 39,
+     "seconds": 0.103,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 39,
+     "seconds": 0.104,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 28,
+     "seconds": 0.103,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 13,
+     "seconds": 0.104,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 16,
+     "seconds": 0.103,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 33,
+     "seconds": 0.105,
+     "nnf_mb": 0.0
+    }
+   ],
+   "solved": 20,
+   "of": 20,
+   "seconds_median": 0.104
+  },
+  "0.01": {
+   "records": [
+    {
+     "core": 55,
+     "seconds": 0.105,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 79,
+     "seconds": 0.104,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 78,
+     "seconds": 0.106,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 80,
+     "seconds": 0.104,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 176,
+     "seconds": 0.108,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 110,
+     "seconds": 0.105,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 84,
+     "seconds": 0.104,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 72,
+     "seconds": 0.104,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 46,
+     "seconds": 0.104,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 46,
+     "seconds": 0.105,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 102,
+     "seconds": 0.106,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 58,
+     "seconds": 0.105,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 47,
+     "seconds": 0.103,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 116,
+     "seconds": 0.106,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 69,
+     "seconds": 0.104,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 48,
+     "seconds": 0.105,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 52,
+     "seconds": 0.105,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 22,
+     "seconds": 0.104,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 37,
+     "seconds": 0.103,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 78,
+     "seconds": 0.104,
+     "nnf_mb": 0.0
+    }
+   ],
+   "solved": 20,
+   "of": 20,
+   "seconds_median": 0.1045
+  },
+  "0.003": {
+   "records": [
+    {
+     "core": 108,
+     "seconds": 0.106,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 131,
+     "seconds": 0.108,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 151,
+     "seconds": 0.108,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 165,
+     "seconds": 0.107,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 285,
+     "seconds": 0.115,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 154,
+     "seconds": 0.109,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 156,
+     "seconds": 0.108,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 179,
+     "seconds": 0.109,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 105,
+     "seconds": 0.105,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 114,
+     "seconds": 0.107,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 156,
+     "seconds": 0.108,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 113,
+     "seconds": 0.106,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 106,
+     "seconds": 0.107,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 158,
+     "seconds": 0.107,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 129,
+     "seconds": 0.108,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 68,
+     "seconds": 0.104,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 101,
+     "seconds": 0.106,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 68,
+     "seconds": 0.106,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 81,
+     "seconds": 0.104,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 167,
+     "seconds": 0.107,
+     "nnf_mb": 0.0
+    }
+   ],
+   "solved": 20,
+   "of": 20,
+   "seconds_median": 0.107
+  },
+  "0.001": {
+   "records": [
+    {
+     "core": 222,
+     "seconds": 0.111,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 240,
+     "seconds": 0.113,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 304,
+     "seconds": 0.115,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 317,
+     "seconds": 0.116,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 422,
+     "seconds": 0.121,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 271,
+     "seconds": 0.11,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 258,
+     "seconds": 0.11,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 308,
+     "seconds": 0.115,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 182,
+     "seconds": 0.11,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 254,
+     "seconds": 0.112,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 271,
+     "seconds": 0.112,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 219,
+     "seconds": 0.109,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 215,
+     "seconds": 0.11,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 258,
+     "seconds": 0.11,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 271,
+     "seconds": 0.113,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 114,
+     "seconds": 0.106,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 216,
+     "seconds": 0.11,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 149,
+     "seconds": 0.106,
+     "nnf_mb": 0.0
+    },
+    {
+     "core": 190,
+     "seconds": 0.108,
+     "nnf_mb": 0.01
+    },
+    {
+     "core": 317,
+     "seconds": 0.114,
+     "nnf_mb": 0.01
+    }
+   ],
+   "solved": 20,
+   "of": 20,
+   "seconds_median": 0.1105
+  }
+ }
+}

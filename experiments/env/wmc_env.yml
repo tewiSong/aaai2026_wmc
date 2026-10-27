@@ -1,0 +1,34 @@
+# Conda environment baked into the project container (built with cotainr, LUMI-C).
+# P0 needs only the Python stack; the toolchain and solver libraries are included
+# now so the container does not have to be rebuilt for P1 (d4, sharpSAT-TD, DPMC,
+# Schlandals, cotengra, SDD baselines).
+name: wmc
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy=1.26
+  - scipy=1.13
+  - pandas=2.2
+  - networkx=3.3
+  - psutil
+  - curl
+  - git
+  # toolchain for building exact-WMC solvers from source in P1
+  - c-compiler
+  - cxx-compiler
+  - cmake
+  - make
+  - ninja
+  - libboost-devel
+  - gmp
+  - mpfr
+  - zlib
+  - rust
+  - pip
+  - pip:
+      - pysdd==1.0.5
+      - opt_einsum==3.3.0
+      - cotengra==0.6.2
+      - quimb==1.8.4
+      - optuna==3.6.1

@@ -1,0 +1,10 @@
+{
+  "ontology": "chebi",
+  "terms": 205592,
+  "clauses": 285589,
+  "timeout_hours": 46.0,
+  "compile": {
+    "failed": "TimeoutExpired(['/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4', '-dDNNF', '/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/data/theories/chebi.cnf', '-out=/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/data/compiled/chebi.nnf'], 165600.0)"
+  },
+  "compile_peak_rss_gb_children": 114.25
+}

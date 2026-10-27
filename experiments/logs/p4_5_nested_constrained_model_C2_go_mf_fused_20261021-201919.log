@@ -1,0 +1,41 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_5_nested_constrained_model_C2.py
+# sha256 : 0b5d117e143712e04d69eabbce848612b7e6969523aaab6da78f941efe2b9527
+# args   : --ns go_mf --input fused --workers 32 --bootstrap 1000 --maxiter 300
+# host   : nid002521   slurm_job: 23044088
+# start  : 2026-10-21T20:19:19+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+{"theory": "dgp2_go_mf", "input": "fused", "eps": 0.001, "stage": "exploratory split (same as P4.3)", "proteins_fit": 1064, "proteins_eval": 1065, "moment_match": {"seconds": 1304.2, "err_median": 6.813529606075619e-07, "err_p99": 7.650405898980134e-06, "err_max": 1.3832757442266974e-05}}
+raw                      fmax 0.68841  micro_ap 0.66166  brier 0.00724  logloss 0.02977  ece 0.00415
+isotonic                 fmax 0.68819  micro_ap 0.66222  brier 0.00724  logloss 0.02972  ece 0.00416
+isotonic_shifted_C2_w0   fmax 0.68833  micro_ap 0.66234  brier 0.00723  logloss 0.02945  ece 0.00360
+C2                       fmax 0.70413  micro_ap 0.68105  brier 0.00639  logloss 0.02718  ece 0.00140
+depth_platt_iso          fmax 0.68216  micro_ap 0.65924  brier 0.00679  logloss 0.02838  ece 0.00204
+term_platt_iso           fmax 0.67568  micro_ap 0.66011  brier 0.00684  logloss 0.02826  ece 0.00201
+neighbor_lr_iso          fmax 0.68643  micro_ap 0.66713  brier 0.00671  logloss 0.02813  ece 0.00209
+{"seconds": 1129.3, "converged": true, "iterations": 292, "nll_at_w0": 10.313391415915525, "nll_fitted": 9.690403454577448, "w": [[4.5938, -0.3767, -0.2524], [-0.0018, 0.1934, -0.2288], [0.0234, 0.2951, -0.3337], [0.0492, -0.0243, 0.0866], [-0.0218, 0.0344, -0.0469], [-0.0065, 0.0179, -0.0193], [0.0069, 0.0883, -0.1215], [-0.0273, 0.2622, -0.1681], [-0.2107, 0.3988, 0.3969]]}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_5_nested_constrained_model_C2.py --ns go_mf --input fused --workers 32 --bootstrap 1000 --maxiter 300"
+	User time (seconds): 43120.63
+	System time (seconds): 2.18
+	Percent of CPU this job got: 1111%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:04:38
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 325960
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 477
+	Minor (reclaiming a frame) page faults: 170482
+	Voluntary context switches: 13822
+	Involuntary context switches: 55420
+	Swaps: 0
+	File system inputs: 165852
+	File system outputs: 23584
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-21T21:24:03+03:00   exit: 0

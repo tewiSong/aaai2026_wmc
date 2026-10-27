@@ -1,0 +1,57 @@
+{
+ "test_proteins": 3874,
+ "heads": 5862,
+ "alphas": {
+  "mf": 0.67,
+  "bp": 0.64,
+  "cc": 0.52
+ },
+ "go_cc": {
+  "vocabulary_terms": 632,
+  "projected_edges": 733,
+  "heads_merged": 2,
+  "heads_via_alt_or_replaced": 2,
+  "root_in_vocab": true,
+  "label_violations_after_closure": 0,
+  "proteins_with_labels_excl_root": 2912,
+  "alpha": 0.52,
+  "fused_differs_from_cnn": 0.9998946236840214
+ },
+ "go_mf": {
+  "vocabulary_terms": 730,
+  "projected_edges": 923,
+  "heads_merged": 2,
+  "heads_via_alt_or_replaced": 5,
+  "root_in_vocab": true,
+  "label_violations_after_closure": 0,
+  "proteins_with_labels_excl_root": 2129,
+  "alpha": 0.67,
+  "fused_differs_from_cnn": 0.9993550257777526
+ },
+ "go_bp": {
+  "vocabulary_terms": 4475,
+  "projected_edges": 7457,
+  "heads_merged": 5,
+  "heads_via_alt_or_replaced": 6,
+  "root_in_vocab": true,
+  "label_violations_after_closure": 0,
+  "proteins_with_labels_excl_root": 2973,
+  "alpha": 0.64,
+  "fused_differs_from_cnn": 0.9998879220588193
+ },
+ "heads_unmapped": [
+  "GO:0051704",
+  "GO:0051817",
+  "GO:0044766",
+  "GO:1902579",
+  "GO:0051883",
+  "GO:0071427",
+  "GO:0071426",
+  "GO:0071431",
+  "GO:0052188",
+  "GO:0051801",
+  "GO:0052332",
+  "GO:0052185",
+  "GO:0071428"
+ ]
+}

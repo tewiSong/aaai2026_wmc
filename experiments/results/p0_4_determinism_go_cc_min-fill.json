@@ -1,0 +1,16 @@
+{
+ "summary": {
+  "ontology": "go_cc",
+  "heuristic": "min-fill",
+  "bags_analysed": 0,
+  "bags_total": 0,
+  "seconds": 0.0,
+  "max_bag_size": 0,
+  "max_log2_states": 0.0,
+  "max_log2_states_lower_bound": 0,
+  "max_dilworth_width": 0,
+  "exact_counted_fraction": null,
+  "note": "dense JT cost ~ 2^max_bag_size; determinism-aware cost ~ 2^max_log2_states (log2_chain_bound is a rigorous upper bound on log2 #up-sets)"
+ },
+ "bags": []
+}

@@ -1,0 +1,54 @@
+{
+ "args": {
+  "ontology": "go_bp",
+  "subgraph_size": 2000,
+  "n_subgraphs": 4,
+  "families": "uniform,beta22,beta0505,sparse",
+  "scores_per_family": 3,
+  "diamond": "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/data/scores/diamondscore_go_bp.npz",
+  "diamond_key": "raw",
+  "proteins": 12,
+  "d4_timeout": 3600.0,
+  "gibbs_sweeps": 3000,
+  "seed": 9,
+  "tag": "diamond_raw"
+ },
+ "instances": [
+  {
+   "instance": 0,
+   "terms": 2000,
+   "edges": 3462,
+   "pct_multiparent": 53.25,
+   "d4": {
+    "failed": "TimeoutExpired(['/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4', '-dDNNF', '/tmp/tmpxrepq2fj/i0.cnf', '-out=/tmp/tmpxrepq2fj/i0.nnf'], 3600.0)"
+   }
+  },
+  {
+   "instance": 1,
+   "terms": 2000,
+   "edges": 3493,
+   "pct_multiparent": 53.8,
+   "d4": {
+    "failed": "TimeoutExpired(['/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4', '-dDNNF', '/tmp/tmpxrepq2fj/i1.cnf', '-out=/tmp/tmpxrepq2fj/i1.nnf'], 3600.0)"
+   }
+  },
+  {
+   "instance": 2,
+   "terms": 2000,
+   "edges": 3509,
+   "pct_multiparent": 54.65,
+   "d4": {
+    "failed": "TimeoutExpired(['/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4', '-dDNNF', '/tmp/tmpxrepq2fj/i2.cnf', '-out=/tmp/tmpxrepq2fj/i2.nnf'], 3600.0)"
+   }
+  },
+  {
+   "instance": 3,
+   "terms": 2002,
+   "edges": 3468,
+   "pct_multiparent": 53.75,
+   "d4": {
+    "failed": "TimeoutExpired(['/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4', '-dDNNF', '/tmp/tmpxrepq2fj/i3.cnf', '-out=/tmp/tmpxrepq2fj/i3.nnf'], 3600.0)"
+   }
+  }
+ ]
+}

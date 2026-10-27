@@ -1,0 +1,16 @@
+{
+  "ontology": "chebi",
+  "heuristic": "min-degree",
+  "terms": 205592,
+  "width": 783,
+  "complete": true,
+  "seconds": 3.22,
+  "paper_minfill_width": 738,
+  "n_bags_ge_bag_min": 1095,
+  "bag_size_quantiles": {
+    "0.5": 36,
+    "0.9": 502,
+    "0.99": 738,
+    "1.0": 784
+  }
+}

@@ -1,0 +1,173 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_6_ablation_same_features_without_wmc.py
+# sha256 : 4d63350cf353cd3a7b8ecc33895dd3fc4534b1679c87b80ae9af7455897bd241
+# args   : --ns go_cc --input cnn --bootstrap 1000
+# host   : nid002542   slurm_job: 23047068
+# start  : 2026-10-21T21:24:18+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+C2                           fmax 0.66538  micro_ap 0.61790  brier 0.01225  logloss 0.04892  ece 0.00070
+same_features_lr_iso         fmax 0.66261  micro_ap 0.60374  brier 0.01252  logloss 0.04947  ece 0.00089
+same_features_lr             fmax 0.66098  micro_ap 0.60229  brier 0.01255  logloss 0.04959  ece 0.00091
+same_plus_neighbors_lr_iso   fmax 0.66237  micro_ap 0.60910  brier 0.01244  logloss 0.04924  ece 0.00089
+theta_star_feature_lr_iso    fmax 0.66308  micro_ap 0.60379  brier 0.01252  logloss 0.04946  ece 0.00090
+whole_vector_pca32_lr_iso    fmax 0.66336  micro_ap 0.61402  brier 0.01236  logloss 0.04890  ece 0.00093
+isotonic                     fmax 0.66256  micro_ap 0.59680  brier 0.01276  logloss 0.05015  ece 0.00361
+{
+ "same_features_lr_iso": {
+  "fmax": [
+   -0.00018514812474599294,
+   0.002651040817650163,
+   0.0056598885349281
+  ],
+  "micro_ap": [
+   0.010773317744897412,
+   0.014126321215363447,
+   0.01732412617122277
+  ],
+  "brier": [
+   -0.0003156153497959555,
+   -0.0002680852133186383,
+   -0.0002182645511707946
+  ],
+  "logloss": [
+   -0.0007342596631823179,
+   -0.0005515139573333341,
+   -0.0003595155549772413
+  ]
+ },
+ "same_features_lr": {
+  "fmax": [
+   0.001581098584063459,
+   0.004502165120572665,
+   0.00748504617669162
+  ],
+  "micro_ap": [
+   0.01223293367150515,
+   0.015583883754279437,
+   0.018787793365642222
+  ],
+  "brier": [
+   -0.00034184778297419605,
+   -0.00029238551316760047,
+   -0.0002423720339160942
+  ],
+  "logloss": [
+   -0.000847940645168043,
+   -0.0006747890664404975,
+   -0.0004786111846776981
+  ]
+ },
+ "same_plus_neighbors_lr_iso": {
+  "fmax": [
+   0.0004964679278317064,
+   0.0029934773052749386,
+   0.005735173103830326
+  ],
+  "micro_ap": [
+   0.006089108865012368,
+   0.008761664340840802,
+   0.011339552704340916
+  ],
+  "brier": [
+   -0.00022743764970659425,
+   -0.0001864828380395674,
+   -0.0001452302856978711
+  ],
+  "logloss": [
+   -0.0004889519524400923,
+   -0.0003183757153135333,
+   -0.00014235478345933712
+  ]
+ },
+ "theta_star_feature_lr_iso": {
+  "fmax": [
+   -0.0006127832516878984,
+   0.002438065493059749,
+   0.00557555348224342
+  ],
+  "micro_ap": [
+   0.010800283812025229,
+   0.014049309316023828,
+   0.017269202888646043
+  ],
+  "brier": [
+   -0.00031482289723094197,
+   -0.00026645291228269245,
+   -0.0002165330108710479
+  ],
+  "logloss": [
+   -0.0007251525756710863,
+   -0.0005437955907006894,
+   -0.00034879056845223426
+  ]
+ },
+ "whole_vector_pca32_lr_iso": {
+  "fmax": [
+   -0.00038456209372503546,
+   0.0021598292501969762,
+   0.00456440159955003
+  ],
+  "micro_ap": [
+   0.0011675640236574996,
+   0.003873766660613731,
+   0.006417863554099694
+  ],
+  "brier": [
+   -0.00015036002144617339,
+   -0.00010313328183124502,
+   -5.3718027068981134e-05
+  ],
+  "logloss": [
+   -0.00018265922016119217,
+   2.334330440689758e-05,
+   0.0002255445586049502
+  ]
+ },
+ "isotonic": {
+  "fmax": [
+   -0.00023276332721839098,
+   0.002723487724539897,
+   0.005678890689077612
+  ],
+  "micro_ap": [
+   0.016520808936435573,
+   0.021077680442035285,
+   0.02529731060493414
+  ],
+  "brier": [
+   -0.0005838306705138415,
+   -0.0005047921797105264,
+   -0.0004295822050350426
+  ],
+  "logloss": [
+   -0.0014973540854381373,
+   -0.0012322000778093416,
+   -0.0009681627410368173
+  ]
+ }
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_6_ablation_same_features_without_wmc.py --ns go_cc --input cnn --bootstrap 1000"
+	User time (seconds): 1818.54
+	System time (seconds): 71.59
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 31:31.29
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1559408
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 470
+	Minor (reclaiming a frame) page faults: 34747279
+	Voluntary context switches: 6291
+	Involuntary context switches: 29886
+	Swaps: 0
+	File system inputs: 197960
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-21T21:55:54+03:00   exit: 0

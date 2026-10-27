@@ -1,0 +1,148 @@
+{
+  "ns": "go_mf",
+  "proteins": 100,
+  "stages": {
+    "theta_star": {
+      "exact": {
+        "metrics": {
+          "fmax": 0.4695547320903114,
+          "micro_ap": 0.3592585565368551,
+          "brier": 0.01038025569126789,
+          "logloss": 0.043473831436140885,
+          "ece": 0.004413153716894646
+        },
+        "max_error_quantiles": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frac_error_over_point1": 0.0,
+        "seconds": 0.3409717082977295,
+        "converged_fraction": 1.0
+      },
+      "production": {
+        "metrics": {
+          "fmax": 0.4203407119684632,
+          "micro_ap": 0.09544728471650525,
+          "brier": 0.036316679278295766,
+          "logloss": 0.22693450950025942,
+          "ece": 0.041570322740628406
+        },
+        "max_error_quantiles": [
+          0.24241922786869272,
+          0.9979597493546103,
+          0.9988114852157687
+        ],
+        "frac_error_over_point1": 0.67,
+        "seconds": 11.48965072631836,
+        "converged_fraction": 1.0
+      },
+      "logratio05": {
+        "metrics": {
+          "fmax": 0.4472200332212127,
+          "micro_ap": 0.27137092485461367,
+          "brier": 0.011486702890305714,
+          "logloss": 0.07428444052171744,
+          "ece": 0.008784392787461072
+        },
+        "max_error_quantiles": [
+          0.07905444300565309,
+          0.27325570578186437,
+          0.9872776106405229
+        ],
+        "frac_error_over_point1": 0.38,
+        "seconds": 1.2814114093780518,
+        "converged_fraction": 1.0
+      },
+      "logratio01": {
+        "metrics": {
+          "fmax": 0.4472200332212127,
+          "micro_ap": 0.27137240868596857,
+          "brier": 0.011486702890305553,
+          "logloss": 0.0742844405217167,
+          "ece": 0.008784392787460796
+        },
+        "max_error_quantiles": [
+          0.0790544430056449,
+          0.27325570578166414,
+          0.9872776106405537
+        ],
+        "frac_error_over_point1": 0.38,
+        "seconds": 6.573843240737915,
+        "converged_fraction": 1.0
+      }
+    },
+    "C2_exact_trained_weights": {
+      "exact": {
+        "metrics": {
+          "fmax": 0.4817756605916206,
+          "micro_ap": 0.3834161545947548,
+          "brier": 0.010026152656780007,
+          "logloss": 0.04266952643845599,
+          "ece": 0.0013737198934713917
+        },
+        "max_error_quantiles": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "frac_error_over_point1": 0.0,
+        "seconds": 0.3399076461791992,
+        "converged_fraction": 1.0
+      },
+      "production": {
+        "metrics": {
+          "fmax": 0.4660118091008013,
+          "micro_ap": 0.2315773741611971,
+          "brier": 0.01428593260922292,
+          "logloss": 0.0921734048068024,
+          "ece": 0.009577890172401956
+        },
+        "max_error_quantiles": [
+          0.08701210669925372,
+          0.9461598532099189,
+          0.9999784545190357
+        ],
+        "frac_error_over_point1": 0.39,
+        "seconds": 6.134432315826416,
+        "converged_fraction": 1.0
+      },
+      "logratio05": {
+        "metrics": {
+          "fmax": 0.4585601065964433,
+          "micro_ap": 0.32098590445038616,
+          "brier": 0.01096849275532976,
+          "logloss": 0.06424758108289493,
+          "ece": 0.005862623763626537
+        },
+        "max_error_quantiles": [
+          0.08271143777348977,
+          0.21525829105618302,
+          0.8878341570306072
+        ],
+        "frac_error_over_point1": 0.35,
+        "seconds": 1.0899598598480225,
+        "converged_fraction": 1.0
+      },
+      "logratio01": {
+        "metrics": {
+          "fmax": 0.4585601065964433,
+          "micro_ap": 0.32098847617821324,
+          "brier": 0.010968492755329672,
+          "logloss": 0.06424758108289252,
+          "ece": 0.005862623763625913
+        },
+        "max_error_quantiles": [
+          0.0827114377734876,
+          0.21525829105526875,
+          0.887834157030601
+        ],
+        "frac_error_over_point1": 0.35,
+        "seconds": 5.694822549819946,
+        "converged_fraction": 1.0
+      }
+    }
+  },
+  "production_reproduction_max_metric_difference": 0.0,
+  "production_reproduction_max_error_quantile_difference": 0.0
+}

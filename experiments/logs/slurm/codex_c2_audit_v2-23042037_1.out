@@ -1,0 +1,28 @@
+go_cc fused M_original_penalty {'fmax': 0.6975353074311201, 'micro_ap': 0.6718890513334417, 'brier': 0.011228619845855237, 'logloss': 0.042972103787207956, 'ece': 0.0011939304547434783}
+go_cc fused M_matched_penalty {'fmax': 0.6973284748936182, 'micro_ap': 0.671726954866918, 'brier': 0.01121217639107172, 'logloss': 0.04292051350692932, 'ece': 0.0007655920435371323}
+go_cc fused L_matched_penalty {'fmax': 0.6975217488321007, 'micro_ap': 0.6718272172491313, 'brier': 0.01121160430513261, 'logloss': 0.04291684472681812, 'ece': 0.0007401980334223831}
+audit_saved /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/journal_comparison/Codex_P4.5_6_audit_go_cc_fused_2026-10-21.json
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/journal_comparison/p4_5_6_audit_2026_10_21.py --case 1"
+	User time (seconds): 16.01
+	System time (seconds): 1.40
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:17.88
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 357216
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 468
+	Minor (reclaiming a frame) page faults: 122308
+	Voluntary context switches: 6370
+	Involuntary context switches: 122
+	Swaps: 0
+	File system inputs: 189262
+	File system outputs: 24
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p4_5_6_audit_2026_10_21_case1_20261021-194653.log

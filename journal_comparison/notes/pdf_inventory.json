@@ -1,0 +1,47 @@
+[
+  {
+    "file": "journal_comparison/papers/AIJ/2008_Chavira_Probabilistic_Inference_WMC_author.pdf",
+    "pages": 48,
+    "words": 17240
+  },
+  {
+    "file": "journal_comparison/papers/AIJ/2022_Abboud_Approximate_WMI_DNF.pdf",
+    "pages": 25,
+    "words": 19877
+  },
+  {
+    "file": "journal_comparison/papers/AIJ/2024_Spallitta_Structure_Aware_WMI_arxiv.pdf",
+    "pages": 60,
+    "words": 17906
+  },
+  {
+    "file": "journal_comparison/papers/AIJ/2025_Malhotra_Lifted_Inference_arxiv.pdf",
+    "pages": 55,
+    "words": 18648
+  },
+  {
+    "file": "journal_comparison/papers/IJAR/2017_Dal_Weighted_Positive_BDD.pdf",
+    "pages": 22,
+    "words": 13493
+  },
+  {
+    "file": "journal_comparison/papers/IJAR/2021_Dal_Compositional_Knowledge_Compilation.pdf",
+    "pages": 29,
+    "words": 18893
+  },
+  {
+    "file": "journal_comparison/papers/JAIR/2011_Li_Exploiting_Structure_WMC.pdf",
+    "pages": 37,
+    "words": 16430
+  },
+  {
+    "file": "journal_comparison/papers/JAIR/2018_Oztok_Exhaustive_DPLL.pdf",
+    "pages": 32,
+    "words": 16352
+  },
+  {
+    "file": "journal_comparison/papers/JAIR/2025_Bryant_Certified_Knowledge_Compilation.pdf",
+    "pages": 43,
+    "words": 19509
+  }
+]

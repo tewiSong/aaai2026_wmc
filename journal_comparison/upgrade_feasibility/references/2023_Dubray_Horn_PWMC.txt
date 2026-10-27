@@ -1,0 +1,937 @@
+PDF PAGE 1
+Probabilistic Inference by Projected Weighted
+Model Counting on Horn Clauses
+Alexandre Dubray /envel⌢pe
+Institute of Information and Communication Technologies, Electonics and Applied Mathematics
+(ICTEAM), UCLouvain, Belgium
+Pierre Schaus /envel⌢pe
+Institute of Information and Communication Technologies, Electonics and Applied Mathematics
+(ICTEAM), UCLouvain, Belgium
+Siegfried Nijssen /envel⌢pe
+Institute of Information and Communication Technologies, Electonics and Applied Mathematics
+(ICTEAM), UCLouvain, Belgium
+Abstract
+Weighted model counting, that is, counting the weighted number of satisfying assignments of a
+propositional formula, is an important tool in probabilistic reasoning. Recently, the use of projected
+weighted model counting (PWMC) has been proposed as an approach to formulate and answer
+probabilistic queries. In this work, we propose a new simplified modeling language based on PWMC
+in which probabilistic inference tasks are modeled using a conjunction of Horn clauses and a particular
+weighting scheme for the variables. We show that the major problems of inference for Bayesian
+Networks, network reachability and probabilistic logic programming can be modeled in this language.
+Subsequently, we propose a new, relatively simple solver that is specifically optimized to solve the
+PWMC problem for such formulas. Our experiments show that our new solver is competitive with
+state-of-the-art solvers on the major problems studied.
+2012 ACM Subject ClassificationMathematics of computing→ Probabilistic inference problems;
+Computing methodologies → Probabilistic reasoning; Mathematics of computing → Bayesian
+networks
+Keywords and phrasesModel Counting, Bayesian Networks, Probabilistic Networks
+Digital Object Identifier10.4230/LIPIcs.CP.2023.15
+Supplementary Material
+Software (Source Code): https://github.com/aia-uclouvain/schlandals
+archived at swh:1:dir:38ff0f7ce1c12353938ed4056877ef497389440c
+1 Introduction
+Weighted model counters are systems that calculate the weighted number of assignments
+that satisfy a formula in conjunctive normal form (CNF). Weighted model counting (WMC)
+is a hard problem: it is #P complete, and hence building efficient systems for this task is a
+challenge.
+An important application of WMC is probabilistic inference, that is, calculating the
+probability of an observation according to a given probabilistic model. With increasing sizes
+of probabilistic models, the performance of inference remains important. Model counters
+have already been used to solve probabilistic inference problems on
+Bayesian networks (BNs) [6, 9, 20];
+Probabilistic networks (PNs) [12, 27]
+Probabilistic logic programs (PLPs) [13].
+In each of these studies, approaches were proposed for how to model a probabilistic inference
+task as a WMC task on a CNF formula. Unfortunately, the resulting models are not always
+© Alexandre Dubray, Pierre Schaus, and Siegfried Nijssen;
+licensed under Creative Commons License CC-BY 4.0
+29th International Conference on Principles and Practice of Constraint Programming (CP 2023).
+Editor: Roland H. C. Yap; Article No.15; pp.15:1–15:17
+Leibniz International Proceedings in Informatics
+Schloss Dagstuhl – Leibniz-Zentrum für Informatik, Dagstuhl Publishing, Germany
+
+PDF PAGE 2
+15:2 Probabilistic Inference by Projected Weighted Model Counting on Horn Clauses
+simple. For Bayesian networks the CNF formulas are polynomial in size given the size of the
+BN, but a number of papers have proposed increasingly complex models to make solving
+efficient [2, 4, 5]; for PNs and PLPs the CNF can even be exponentially larger than the
+original probabilistic model [27]. A challenge remains how to model inference tasks in a
+simple manner and obtain good performance at the same time.
+A promising solution to this modeling problem may be the use ofprojected (weighted)
+model counting(PWCM) [1] as a general approach for probabilistic inference; it was shown
+that using PWMC a CNF of polynomial size can be used to solve reachability problems
+on PNs [12]. Where in weighted model counting a sum is calculated over all models of a
+formula F, in PWMC the models areprojected on a subset of the variables (the priority
+variables) and a weight is given only to each resulting projected model. For example, if
+F = (a∨b)∧(b∨c∨d), then a model counter will sum over the11 models ofF. On the
+other hand, if the priority variables are{a,c}, then a projected model counter sums over4
+projected models (as settingb =⊤always makesF true).
+In this work, we study the challenge of efficient and simple probabilistic inference using
+PWMC in more detail. We show that the aforementioned probabilistic inference tasks
+can be modeled as PWMC tasks over a simpler form of CNF formulas: CNF formulas of
+Horn clauses with a specific weighting scheme. We will call this task the task ofprojected
+probabilistic Horn model counting(PPHMC). We will argue that the resulting weighted CNF
+models are simple and polynomial in size given the original probabilistic models.
+Subsequently, we will introduce a new solver, the Schlandals solver, which takes full
+advantage of the probabilistic weighting scheme and the fact that all clauses in our formulas
+are Horn clauses. The main intuition behind our solver is that it exploits the well-known
+fact that the SAT problem over conjunctions of Horn clauses can be solved in linear time.
+Using this observation, it is able to efficiently find assignments to the non-priority variables
+that greatly reduce the number of constrained clauses in the input formula (likeb =⊤in the
+example above). At the same time, it is still able to exploit optimizations found in other
+DPLL-style model counters, such as component caching, unit propagation and branching
+strategies, to run with a bounded use of memory.
+An experimental evaluation of our solver shows that it is competitive with state-of-the-art
+existing tools. We compare our solver with the best performing solvers of the 2022 projected
+(weighted) model counting competition on two probabilistic inference tasks: inference in
+Bayesian Networks and reliability estimation in PNs. Our experiments show that our solver
+is able to solve most of the instances for the BN task, beating other tools when using simple
+forms of CNF models, and getting similar performance when compared to optimized complex
+models. On PNs, our solver even outperforms the state-of-the-art, without any optimization
+of our model. These results open up future possibilities for the use of PPHMC.
+2 Related Work
+This work is concerned with the task ofProjected Weighted Model Counting(PWMC). In
+the classicalModel Counting problem, one is interested in finding the number of models
+of a Boolean formulaF, the assignments that makes the formula true. In this work we
+focus on the most common setting, in whichF is a formula in conjunctive normal form
+(CNF). InProjected Model Counting, the goal is to count the assignments to a subset of the
+variables (thepriority variables) such that there exists an assignment to the other variables
+that makesF true. If the set of priority variables contains all variables ofF, the projected
+and unprojected problems are the same. In the rest of this work, we thus assume that the
+subset of priority variable is not empty. In the weighted version of these problems, each valid
+assignment is weighted and the goal is to return the sum of the weights of the models.
+
+PDF PAGE 3
+A. Dubray, P. Schaus, and S. Nijssen 15:3
+More formally, letF be a Boolean formula over a set of variablesV withP⊆Vthe
+priority variables andD =V\P the non-priority variables. In traditional projected weighted
+model counting each priority variable is given two weights,w(v) and w(¬v), one for each
+polarity. We denote bySX an assignment to the variables inX⊆Vand SX[x] the assigned
+value ofx∈X. IfX,Y ⊂Vare two disjoint sets of variables, thenSX∪SY is defined as the
+conjunction of the assignments. We define
+SF ={SP| ∃SD :F[SP∪SD] =⊤}
+as the set of assignments to the priority variables that can be extended with an assignment
+to the non-priority variables and satisfy the formula. The goal of the traditional PWMC
+task is then to find
+∑
+S∈SF
+
+ ∏
+v∈V|S[v]=⊤
+w(v)×
+∏
+v∈V|S[v]=⊥
+w(¬v)
+
+.
+Note that when weighted model counters are used to model probabilistic inference tasks,
+the weights of assignments are set such that this sum corresponds to a probability. If for
+every variablep∈Pit holds thatw(p) +w(¬p) = 1 the resulting sum will always be≤1.
+Unfortunately, the models for some problems require thatw(p) +w(¬p) > 1, and hence
+solvers cannot assume thatw(p) +w(¬p) = 1.
+Various solvers exist to solve the PWMC problem and its unweighted version. In [22], the
+authors presentGanak is a model counter build uponsharpSAT, a DPLL-style model counter
+with component caching [26]. Ganak uses probabilistic component caching while ensuring
+guarantees on the validity of the returned count. Furthermore, the authors propose to use
+information about the cache in the branching heuristics and show that this is beneficial to
+model counters. Ganak can also be used for projected model counting, by first branching on
+the priority variables, but it does not use other specialized techniques. Further modifications
+of Ganak have been proposed and in particular it has been shown that integrating tree
+decomposition in the branching heuristic can have a positive impact [15]. This has led to the
+development of SharpSAT-TD [15], a (weighted) model counter, andGPMC [25], which is also
+able to solve the PWMC problem.
+The projMC solver [17] uses another approach to solve the PWMC problem1. To compute
+the count over a formulaF they first compute a disjunctive decomposition from a model of
+F. They then use the pairwise incompatible parts of the decomposition to simplifyF, and
+they recursively solve the new sub-problems.
+The aforementioned solvers use a strategy in which a limited amount of memory is used.
+This is also the focus of our work. An alternative strategy is to use a model compilation in
+combination with dynamic programming. Recently, Dudek et al. proposed the two-phased
+ProCount solver [11]. In the first phase, the input formula is transformed into a graded
+project-join tree (by aplanner). Then, in the second phase, an executor (based on algebraic
+decision diagrams) is used to compute the count, using a dynamic programming approach.
+3 Problem Definition
+First, let us note that, since this work focuses on probabilistic problems, the weights on the
+priority variables are used to model probabilities. Hence, we refer to those asprobabilistic
+variables while the set of non-priority variables are calleddeterministic variables. In the rest
+1 Although the original paper only describes the unweighted problem, a parameter in the solver enables
+the retrieval of the count as a float, taking into account the weights
+CP 2023
+
+PDF PAGE 4
+15:4 Probabilistic Inference by Projected Weighted Model Counting on Horn Clauses
+of this paper, we denote withP (E) the probability that an eventE occurs. In this work, we
+introduce a combination of two novelties in how to model problems using PWMC. First, a
+constraint on the clauses inF is imposed: we only allow clauses to beHorn clauses.
+▶ Definition 1 (Horn clause). A Horne clauseC is a formula of the form
+v1∧···∧vn⇒vt
+whereI =v1∧···∧vn is called the implicantof the clause andh =vt is the headof the
+clause. Here vi∈Vis a variable, andvt is either a variable inV or⊥. If n = 0 (the
+implicant is empty) then the left-hand side reduces to⊤.
+It can be observed that when a Horn clause is written as an implication, as above, all the
+literals in the clause have the same (positive) polarity. Hence, in order to simplify our
+discussion and notation, we only talk about variables, and not literals. A Horn clauseCi can
+be identified uniquely by its implicantIi and its headhi. In the rest of this paper, we will
+use the notationCi and (Ii,hi) interchangeably. For simplicity of notation, we also denote
+byv∈Ii the fact thatv∈Vis a variable of the implicant ofCi.
+Horn clauses have been well studied in the literature. An important result is that the
+SAT problem over a CNF formula of Horn clauses can be solved in linear time [10]; given
+that the SAT problem in its general form is NP hard, this is a significant simplification.
+Secondly, we add the notion ofdistributions over the probabilistic variables. We assume
+that each probabilistic variablep∈ Pbelongs to exactly one partitionPi ⊆ Pof the
+probabilistic variables. We define adistribution over each such partition, in the following
+simple manner: we require that one weight is specified for each probabilistic variable and
+require that∑
+p∈Piw(p) = 1 for all variables in the partition. Subsequently, we calculate the
+weight of an assignmentS to the probabilistic variables as follows. The weight of a partition,
+given the assignmentS, is defined as follows:
+wPi(S) =
+{ w(p) if there is exactly onep∈Pi for whichS[p] =⊤
+0 otherwise,
+or, in other words, if exactly one variable in the partition is set to⊤, the weight of that
+variable is given to that partition; otherwise, the assignment is invalid. Implicitly, we allow
+only one variable within a partition to be true at the same time. The weight of the assignment
+S is the product of the partition weights givenS and thus the solution of the PPHMC
+problem is given by
+∑
+S∈SF
+∏
+i
+wPi(S),
+where we assume there is at least one partition of probabilistic variables.
+3.1 Models
+As our earlier discussion makes clear, in this work we study a simpler modeling language
+in which non-Horn clauses are not allowed, and we combine this with a different approach
+to weighting. In this section, we will show that even though we apply the aforementioned
+restrictions, a number of different problems can still be modeled in our language.
+
+PDF PAGE 5
+A. Dubray, P. Schaus, and S. Nijssen 15:5
+▶ Example 2 (Bayesian Networks). A Bayesian Network (BN) is a probabilistic model that
+can be represented by a directed acyclic graph. Random variables are represented by nodes
+and conditional dependency relationships by edges. Figure 1(a) shows an example of a BN
+with four nodes. For simplicity, we illustrate the encoding in our language for a network with
+nodes that have two values, but this generalizes for nodes with more than two values.
+In this network, bothB and C depend onA, whileD depends onB and C. In addition
+to the network structure,conditional probability tables(CPTs) give, for each node, the
+probability of its values conditioned by its parent’s value. These are called theparameters of
+the network and for conciseness we writeP(x|u) for the parameter corresponding to the
+probability that a nodeX takes valuex given that its parents take valuesu =u1,...,un.
+Various CNF encodings have been proposed for Bayesian networks [2, 4, 5, 7]. Even
+though the author of these works use Horn clauses, the un-projected nature of their target
+solvers imposes additional, non-Horn, clauses.
+Let us present our encoding for BN by first defining the logical variables. For every
+valuex of nodeX in the network, we define one deterministic variablevx. For the BN in
+Figure 1, we have the following variables:va0,va1,vb0,vb1,vc0,vc1,vd0,vd1. Moreover for
+each parameterP (x|u) we define a corresponding probabilistic variablepx
+u. For the CPT of
+node B, we introduce four such variables:pb0
+a0,pb1
+a0,pb0
+a1,pb1
+a1.
+In our approach, we have to define the distributions over the probabilistic variables. The
+CPTs of the network give a natural partition of the probabilistic variables. That is, for a
+node X in the network, we define one partition for each line of its CPT. Hence, for nodeB
+there are two partitions:PB1 ={pb0
+a0,pb1
+a0}and PB2 ={pb0
+a1,pb1
+a1}. Next, we define the weight
+on the variables. Contrary to previous encodings, only weights on probabilistic variables are
+needed, and we use as weight the parameter they represent:w(px
+u) =P (x|u). For example,
+we have thatw(pb0
+a0) = 0.6 and w(pb1
+a0) = 0.4.
+Finally, we define the clauses: for each parameterP (x|u) with u = u1,...,un, we
+introduce one clausevu1∧...∧vun∧px
+u⇒vx. The clauses for the BN in Figure 1 are shown
+below.
+pa0⇒va0 va0∧pc0
+a0⇒vc0 vb1∧vc0∧pd0
+b1c0
+⇒vd0
+pa1⇒va1 va0∧pc1
+a0⇒vc1 vb1∧vc0∧pd1
+b1c0
+⇒vd1
+va0∧pb0
+a0⇒vb0 va1∧pc0
+a1⇒vc0 vb0∧vc1∧pd0
+b0c1
+⇒vd0
+va0∧pb1
+a0⇒vb1 va1∧pc1
+a1⇒vc1 vb0∧vc1∧pd1
+b0c1
+⇒vd1
+va1∧pb0
+a1⇒vb0 vb0∧vc0∧pd0
+b0c0
+⇒vd0 vb1∧vc1∧pd0
+b1c1
+⇒vd0
+va1∧pb1
+a1⇒vb1 vb0∧vc0∧pd1
+b0c0
+⇒vd1 vb1∧vc1∧pd1
+b1c1
+⇒vd1
+The clauseva0∧pb0
+a0⇒vb0, for instance, represents that ifA has valuea0 and we pick the
+variablepb0
+a0 from the distribution{pb0
+a0,pb1
+a0},B will have valueb0; we believe this is a natural
+and simple representation that directly reflects the BN.
+Note that we can satisfy all clauses by setting thev variables to true. A common inference
+problem on Bayesian Networks is that of calculating a probabilityP (X =x). We can solve
+this problem by adding a clausevx′
+⇒⊥for each valuex′ofX such thatx′̸=x. Effectively
+this removes from the sum those assignments in whichX̸=x.
+This encoding differs in a number of ways from the encodings used in WMC [2, 6]. The
+general idea is similar: for rows of the CPT, clauses are created; probabilistic variables
+receive weights that represent entries in the CPTs. Compared to earlier encodings, we do
+not generate clauses to impose that the indicators variables (vx) are mutually exclusive for a
+node X. Our weighting scheme takes care of this. Furthermore, the earlier encodings have
+CP 2023
+
+PDF PAGE 6
+15:6 Probabilistic Inference by Projected Weighted Model Counting on Horn Clauses
+A
+B
+C
+A
+B
+(a)
+D
+C
+D
+A
+B
+C
+D
+E
+(b)
+Figure 1a) An example of Bayesian Network with four binary variables. In this networkB and
+C depends on A and D depends on B and C. The probability tables are given next to the nodes. b)
+An example of probabilistic network for reliability problems. The numbers labeled on the edges are
+their probability of being present.
+the parameter variables as the head of the implications in the CNFs, while in our encoding
+they are in the implicants; while both representations are equivalent, we believe that in our
+representation the structure of the BN is more closely reflected in the clauses.
+▶ Example 3 (Reliability in Networks) . Reliability in network (RN) problems study the
+connectivity of nodes in probabilistic graphs. In such graphs, as shown in Figure 1(b), each
+edge has a probability of being present. In this work, we consider the computation of the
+probability that two nodes are connected.
+More formally, letG = (V,E ) be a probabilistic graph andfw :E↦→[0, 1] a weighting
+function that assign to each edge a probability of being present or not. We denotes the
+source node,t the target node andRs
+t ( ¯Rs
+t) the fact thatt is (not) reachable froms. The
+goal is then to computeP (Rs
+t).
+The encoding of this problem in our language is similar to that in [12], in which the
+authors propose to computeP ( ¯Rs
+t) and then use the fact thatP (Rs
+t) = 1−P ( ¯Rs
+t) to answer
+the initial query.
+Let us first define the logical variables. For each node X ∈V, we introduce one
+deterministic variablevX. For each edgee∈E from u to v, we introduce two probabilistic
+variablespuv (the edge is present) and¯puv (the edge is not present). The weighting scheme
+of the probabilistic variables uses the weighting function of the edges:w(puv) =fw(e) and
+w(¯puv) = 1−fw(e). A distribution is defined for each edge, containing these two variables:
+Pe ={puv, ¯puv}. Since the probabilistic variables for each edge are in their own distribution,
+and each distribution contains no other variables, it is easy to see that an assignment to the
+probabilistic variables corresponds to a possible instance of the graph.
+We will use the deterministic variablesvX to represent whether in the instance implied
+by the probabilistic variables,X is reachable froms. The clauses, that we define hereafter,
+must ensure that an assignment is a model only ifvt =⊥given the choices for the edges.
+To ensure that, the clauses use the transitive nature of the connectivity. That is, for each
+edge e from u to v, a clausevu∧puv⇒vv is created. This can be interpreted as that if
+u is reachable froms and e is present, thenv is also reachable froms. We impose thats
+is reachable froms by adding the clause⊤⇒s and thatt is not reachable by adding the
+clause vt⇒⊥. The clauses for the queryP ( ¯RA
+E) for the graph in Figure 1 are shown below.
+vA∧pAB⇒vB vB∧pBD⇒vD vC∧pCE⇒vE vE⇒⊥
+vA∧pAC⇒vC vC∧pCD⇒vD vD∧pDE⇒vE ⊤⇒vA
+
+PDF PAGE 7
+A. Dubray, P. Schaus, and S. Nijssen 15:7
+▶ Example 4 (Probabilistic programming). ProbLog is a probabilistic programming language
+that extends Prolog with probabilistic predicates [8]. It can be used to represent both the
+aforementioned inference problems. While a full discussion of this language is beyond the
+scope of this paper, we wish to illustrate how PPHMC can be used in ProbLog. Consider
+the following example ProbLog program, taken from the ProbLog website2:
+0.4 :: heads.
+0.3 :: col(1,red); 0.7 :: col(1,blue).
+0.2 :: col(2,red); 0.3 :: col(2,green); 0.5 :: col(2,blue).
+win :- heads, col(_,red).
+win :- col(1,C), col(2,C).
+query(win).
+For such a logic program, ProbLog performsgrounding, creating a propositional version of
+the program. This propositional version can be represented as follows in our language:
+pheads,pcol(1,red)⇒vwin pcol(1,blue),pcol(2,blue) ⇒vwin
+pheads,pcol(2,red)⇒vwin vwin ⇒⊥
+pcol(1,red),pcol(2,red)⇒vwin
+Here we have these partitions: w(pheads) = 0 .4, w(¯pheads) = 0 .6; w(pcol(1,red)) = 0 .3,
+w(pcol(1,blue)) = 0.7; w(pcol(2,red)) = 0.2, w(pcol(2,green)) = 0.3, w(pcol(2,blue)) = 0.5. The
+probability of the query is obtained by PPHMC on this ground version. Given that our
+previous example showed how reliability problems can be modeled in polynomial space, while
+the model for this problem is exponential in the grounded ProbLog model, we hypothesize
+that this is possible for all grounded programs without cycle breaking.
+4 Algorithm
+In the section we present the main algorithms of our solver. At the core, the problem is solved
+by a backtracking search over the possible assignments for the distributions. When a value
+is assigned to a variable, we call a new propagator designed specifically for the structure of
+the clauses. We first present the general algorithm for a search-based solver for the PWMC
+problem and then the specific propagation algorithm as well as some branching heuristics.
+4.1 General Approach
+The main algorithm is shown in Algorithm 1. In essence, it is similar to other DPLL-based
+solvers. The computation of the count for a non-empty formulaF starts by looking into a
+cache (line 7) to determine if the formula has already been counted. If not, then it chooses
+an unfixed variable (lines 8, 10) and assigns it a value. A residual formula is computed after
+calling a propagation algorithm (line 11) which is then divided into independent components
+(line 14). The components are then solved independently (line 17) and their count is stored
+in the cache (line 18). In order to bound the memory consumption of search based solvers,
+the cache has a limited number of entries. As cache cleaning techniques are not the focus of
+this work, we simply fully clear the cache when the limit is reached.
+2 https://dtai.cs.kuleuven.be/problog/tutorial/advanced/00_inference.html
+CP 2023
+
+PDF PAGE 8
+15:8 Probabilistic Inference by Projected Weighted Model Counting on Horn Clauses
+Algorithm 1 General PPHMC search algorithm.
+1 F unctionPWMC(F,P)
+input : A Horn-CNF formulaF with probabilistic variablesP
+output :The projected (onP) weighted model count ofF
+2 C←newCache()
+3 return PWMCr(F,P,C )
+4
+5 F unctionPWMCr(F,P,C )
+input : F,P same as PWMC()
+input : C the cache of previously found counts
+output :Same as PWMC()
+6 ifP =∅then return 1
+7 if F∈C then return C[F ]
+8 P←a distribution ofP such that∃v∈P|v is not fixed
+9 count←0
+10 foreachv∈P|v is not fixeddo
+/* Assign v =⊤and call the propagation algorithm. Returns the
+residual formula F ′ and the unconstrained probability of F
+given F ′. */
+11 (F ′, UF |F ′)←Propagate(F,P, v)
+12 proba←UF |F ′
+13 if F ′is not UNSATthen
+14 Components←all connected components ofF ′
+15 foreachComp∈Components do
+16 P ′←Preduced to the variables inComp
+17 probaComp←PWMCr (Comp,P ′, C)
+18 C[Comp]←probaComp
+19 proba←proba∗probaComp
+20 end
+21 count←count +proba
+22 end
+23 end
+24 return count
+There are a few differences between our solver and other model counters that need to be
+pointed out. First, let us note that the variables in a distribution are mutually exclusive.
+Indeed, if a distribution does not have exactly one variable set to⊤in an assignment, then
+its weight is0 and∏
+iwPi(S) = 0, which does not contribute to the count.
+A consequence of this is that, unlike classical DPLL-based counters, the branching decision
+is made on distributions and not variables. Indeed, since the distributions partition of the
+probabilistic variables (i.e., the variables on which the number of weighted models must be
+counted), assigning one variable to⊤in each distribution means that all other probabilistic
+variables are set to⊥. Moreover, when fixing a variablev in the selected distribution, only the
+case of fixing to⊤needs to be explored. The casev =⊥is explored when the other variables
+in the distribution are selected for branching. Notice that when there is no distribution
+left inF, then 1 is returned as the remaining formula is SAT (line 6). Indeed, there are
+no unit clauses (they are removed during the propagation) and all that remains inF are
+
+PDF PAGE 9
+A. Dubray, P. Schaus, and S. Nijssen 15:9
+Horn clauses with deterministic variables. By setting all remaining variables to⊥we obtain
+a model of this formula, as the implicant of all clauses evaluates to⊥. This would not be
+possible ifF was not solely composed of Horn clauses. In this case, the SAT problem needs
+to be solved onF, which is NP-hard.
+The computation of independent components is also slightly different. In traditional
+model counters, when the input formulaF can be decomposed into multiple sub-formulas
+that do not share any variable, each sub-formula is solved independently and the count of
+F is the product of the sub-formulas’ count. However, since the probabilistic variables are
+linked in partitions, we must add as condition that two independent sub-formulas cannot
+share any variable in the same distribution.
+Finally, we also devised a new propagation algorithm, explained in the next section. It
+returns (line 11) a residual formulaF ′as well as what we call theunconstrained probability of
+F givenF ′: UF |F ′. This probability accounts for the distributions ofF that are unconstrained
+in F ′. Indeed, if for a distributionPi ={p1
+i,...,pm
+i}occurring inF, there are no clause in
+F ′that contains any of thepk
+i ∈Pi, Pi will never be selected by the branching heuristic.
+Moreover, branching on it will not impactF ′. Hence, the probability obtained by branching
+of Pi can be precomputed and is given by∑
+p∈Pi|p is not fixedw(p). Note that this sum may
+not be 1 if propagation fixed one of thepk
+i variables to⊥earlier, and|Pi|> 2. More generally,
+for l such distributionsPu1,...,Pul we haveUF =∏l
+i=1
+∑
+p∈Pui |p is not fixedw(p).
+4.2 Propagation
+In this section, we describe the propagation algorithm used by our solver, summarized in
+Algorithm 2. In brief, we first apply the classicalBoolean Unit Propagation(BUP), in which
+the links between probabilistic variables in partitions are also enforced, until a fixed point is
+reached. Then we remove from the remaining formula the clauses that do not constrain the
+count anymore. First, let us detail what the BUP does when a variablev is fixed inF:
+If v =⊤then
+If v is a probabilistic variable in a distributionP, apply the BUP on allv′∈P,v ′̸=v
+with v′=⊥.
+Every clause C = (I,h ) such that h = v is removed fromF. Indeed, for every
+assignment on its remaining variables, it evaluates to⊤.
+For every clauseC = (I,h ) such thatv∈I, replaceI byI ′=I\{v}.
+If v =⊥then
+If v is a probabilistic variable in a distributionP and only one variablev′remains
+unfixed inP, apply BUP withv′=⊤.
+Every clauseC = (I,h ) such thatv∈I is removed fromF for the same reason as
+above.
+The head of every clauseC = (I,h ) such thath =v is replaced by⊥.
+There are two cases in which, after a call to the BUP, a variable is forced to take a value,
+and the BUP algorithm needs to be called again. First, when the last variable of an implicant
+is removed from it, then the head of the clause must be⊤. Secondly, when a clause(I,h )
+has its head set to⊥and there is only one variable left inI, then this variable must be set to
+⊥. In Algorithm 2, the call to BUP at line 2 is executed until no such clauses can be found.
+However, in the context ofprojected model counting, a key insight for our work is that
+further propagation can be done that is not entailed by BUP. The intuition is that the
+deterministic variables can be used to remove additional clauses fromF. For example, if
+our formula includes a clause¬a∨¬b∨¬c with a,b being probabilistic variables andc a
+CP 2023
+
+PDF PAGE 10
+15:10 Probabilistic Inference by Projected Weighted Model Counting on Horn Clauses
+A B
+D
+C E
+F G
+H
+Figure 2On the left: an instance of a reliability problem on probabilistic networks. In the center:
+the associated clauses for the queryP ( ¯Rs
+t). On the right: the graph of clauses implication: there is
+one node per clause and a link betweenCi and Cj if hi ∈ Ij.
+deterministic variable that does not appear in any other clauses, then settingc to⊥makes
+the clause evaluate to⊤, regardless of the choice fora and b. Since we are only interested in
+finding an assignment to the deterministic variables, this assignment does not impact the
+final count.
+Let us show how this works on the clauses in Figure 2, taken from a reliability query in a
+probabilistic networks, in which we want to computeP ( ¯Rs
+t), the probability thats and t
+are not connected in the graph on the left. Applying BUP givesvs =⊤and vt =⊥, which
+removes these variables fromC1,C 3 and C6. No further propagation can be done with BUP.
+However, when looking at the graph on the left, it is clear that only the nodesB,C and D
+impact the connectivity betweens andt, but this is not detected by BPU. For instance, let us
+look at nodesA and the associated clauseC0, which contains the distribution{eAB, ¯eAB}. It
+can be seen that for both choices for the edgeeAB, settingvA =⊥(a deterministic variable)
+reduces the clauseC0 to⊤. Since there are no clauses that havevA in their head, settingvA
+to⊥has no impact on the other variables inF. Moreover, since it is a deterministic variable,
+it does not impact the projected weighted model count. A similar reasoning can be made for
+H and C11 by settingvH =⊤, sincevh does not appear in any implicant inF.
+The intuition behind our propagation is the following. In order for an assignment to not
+be a model of the input formula, it must generate a clause⊤⇒⊥. Some clauses cannot
+contribute to such a contradiction, by setting a deterministic variable to⊥in its implicant
+or its head to⊤. We formalize this intuition next.
+First, let us define in which case we cannot know if a clause will have its head set to⊥or
+its implicant set to⊤.
+▶ Definition 5 ({⊤,⊥}-reachability). A clauseCi = (Ii,hi)∈F is⊥-reachable if one of the
+two following conditions is met:
+1. Ci is of the formIi⇒⊥or Ii⇒p with p∈P
+2. There exists a clauseCj = (Ij,hj)∈F such thatCj is⊥-reachable andhi∈Ij.
+Similarly, Ci is⊤-reachable if one of the two following conditions is met:
+1. There exists no deterministic variables inIi
+2. There exists a clauseCj = (Ij,hj)∈F such thatCj is⊤-reachable andhj∈Ii.
+We say that a clause isconstrained if it is⊥-reachable and⊤-reachable. The{⊥,⊤}-
+reachability can be seen for the clauses in Figure 2 on the right, on the implication graph
+of the clauses. The implication graph of a set of Horn clauses is a graphG = (V,E ) such
+that there is one node per clause and an edge from a clauseCi = (Ii,hi) to Cj = (Ij,hj) if
+hi∈Ij. If a clause is⊤-reachable (⊥-reachable), so are all its descendants (ancestors) in the
+implication graph.
+
+PDF PAGE 11
+A. Dubray, P. Schaus, and S. Nijssen 15:11
+Algorithm 2 Propagation algorithm of Schlandals.
+1 F unctionPropagate(F,P, v)
+input : A boolean formulaF with probabilistic variablesP
+input : A variablev set to⊤
+output :The residual formulaF ′and a propagation probabilitypprog
+/* Call the BUP procedure with the initial assignment of ⊤to v
+until fix point is reached */
+2 F ′←BUP(F, v,⊤)
+3 foreachC = (I,h )∈F ′do
+4 if h =⊥or h∈Pthen SetFReachable(F ′,C )
+5 if ∄v∈I|v /∈Pthen SetTReachable(F ′,C )
+6 end
+7 foreachC∈F ′do
+8 if C is not⊤-reachable or C is not⊥-reachable then
+9 F ′←F ′−C
+10 end
+11 end
+12 UF |F ′←1
+13 foreach distribution P such thatP∈F∧P /∈F ′do
+14 UF←UF∗∑
+p∈P |p is not fixedw(p)
+15 end
+16 return (F ′,UF |F ′)
+We have the following theorem, which states that if a clause is not constrained, then it
+can be removed safely (without impacting the count) fromF.
+▶ Theorem 6. LetF =C1∧...∧Cn be a formula withn Horn clauses over the variablesV,
+P⊆Vthe set of probabilistic variables andD =V\P the set of deterministic variables. Let
+Cu1,...,Cuk bek unconstrained clauses ofF with Cui = (Iui,hui).
+There exists a subset ofk deterministic variables X = {x1,...xk} ⊆ Dwith xi ∈
+Iui∪{hui}and an assignmentSX on X such that
+SF =SF [SX ]
+whereSF denotes the set of models ofF, projected onP, andF [SX] the formula obtained by
+applying the BUP algorithm onF with the assignmentSX.
+We now prove this theorem and give the procedure to find the assignment on the deterministic
+variables.
+Proof. LetG = (V,E ) be the graph of the implications ofF andCi an unconstrained clause
+in F. We prove that an assignment can be found for one of the deterministic variables ofCi
+such that it does not impact the count ofF.
+First, let us assume thatCi is not⊥-reachable. We denoteGd
+Ci = (Vd
+Ci,Ed
+Ci)the sub-graph
+ofG that containsCi and all its descendants. By definition there is no clauseCj∈Vd
+Ci that is
+⊥-reachable, otherwiseCi would be⊥-reachable. Hence, all clauses inVd
+Ci are unconstrained.
+Let Xd =∪Cj ∈V d
+Ci
+{hj}be the set of (deterministic) heads inGd
+Ci. We define the assignment
+SX d such thatSX d[x] =⊤, ∀x∈Xd. This removes all the clauses inVd
+Ci from F without
+impacting the values of the other variables in the clauses.
+CP 2023
+
+PDF PAGE 12
+15:12 Probabilistic Inference by Projected Weighted Model Counting on Horn Clauses
+Next, ifCi is⊥-reachable but unconstrained, then it is not⊤-reachable. Let Gp
+Ci =
+(Vp
+Ci,Ep
+Ci) be the sub-graph ofG that containsCi and all its parents. SinceCi is⊥-reachable,
+so is every clause inVp
+Ci. Thus we have that every clause Cj ∈Vp
+Ci has at least one
+deterministic nodedj∈Ij, otherwise they would be⊤-reachable. LetXp =∪Cj ∈V p
+Ci
+{dj}
+be the set of such nodes. We setSX p such thatSX p[dj] =⊥for all clausedj∈Xp which
+removes all clauses inVp
+Ci from F without constraining the other variables. ◀
+Algorithm 3 Procedure to mark the clauses of a formulaF as ⊥-reachable.
+1 F unctionSetFReachable(F,C )
+input : A boolean formulaF, a clauseC = (I,h ) of F
+2 if C is not marked as⊥-reachable then
+3 Mark C as⊥-reachable
+4 foreachC ′= (I ′,h ′)∈F|h′∈I do SetFReachable(F,C ′)
+5 end
+This additional propagation is shown in lines 3-11 of Algorithm 2. After the application
+of BUP until a fix point is reached, the remaining clauses are iterated over. If a clause
+is of the formC = (I,⊥) or has a head with an unfixed probabilistic variable, then the
+procedure SetFReachable is called, for which the code is shown in Algorithm 3. This
+algorithm basically traverses the implication graph ofF, starting fromC and marks every
+clause it encounters as⊥-reachable. Notice that it does not mark multiple times the same
+clause. Hence, the cost of marking all the⊥-reachable clauses isO(n) with n the number of
+clauses inF ′. A similar procedure is defined for the⊤-reachability, but we do not include it
+for conciseness. After marking the clauses (lines 3-5), every unconstrained clause is removed
+from the formula obtained after BUP (lines 7-11). Finally, the algorithm computes the
+unconstrained probabilityUF |F ′ (lines 12-15).
+It can be noted that in some cases our propagation is similar toPure Literal Elimination
+(PLE) on the deterministic variables. For instance, in Figure 2,vA never appears in the head
+of any clause. Hence, it can be set as⊥, which is also the value found by our procedure.
+However, PLE cannot detect that the nodes E, F and G are not useful for the query. It
+should also be noted that although our propagation implies that PLE is performed, the
+procedure only reasons about the clauses, which makes it more efficient.
+4.3 Branching Heuristic
+At line 8 of Algorithm 1, a distribution is selected within the set of distributions for which
+no element is set to⊤. In this section we explain the heuristics implemented in our solver
+to choose the distribution. We must note that our solver is not a conflict-driven clause
+learning (CDCL) solver, making it impossible to use the heuristics of such solvers [19, 22].
+Instead, we implemented some easy to understand, fast to evaluate, but effective heuristics
+based on the implication graph of a formulaF. We provide three heuristics related to the
+degree of a clause in the implication graph. These heuristics select a clause with i) the lowest
+in-degree ii) the lowest out-degree and iii) the maximum degree, and then a distribution
+in this clause. Each time they are called, they re-evaluate the score of each clause in the
+current sub-formula.
+
+PDF PAGE 13
+A. Dubray, P. Schaus, and S. Nijssen 15:13
+5 Results
+In order to evaluate the effectiveness of our approach, we compare our solver3 with GPMC [25]
+and ProjMC [17] on Bayesian networks and reliability queries in probabilistic networks. We
+chose these solvers as they were the best performing on the Projected Model Counting and
+Projected Weighted Model Counting tracks of the 2022 model counting competition. We did
+not include theproCount solver [11] as it is a knowledge compilation based solver.Ganak
+[22] also was not used as we found it was the worst performing on the projected tasks (as
+also observed in the 2022 competition). For the reliability queries, we also ranApproxMC
+[3, 23, 24] as it is known to perform well on this problem, although it should be stressed
+ApproxMC solves anapproximate model counting problem, while we solve an exact model
+counting problem. For each of the two problems we first present the methodology used to
+generate the instances and then present the results4. For each instance, a timeout of 600
+seconds and a memory limit of 15 GB were set.
+5.1 Baysian Networks
+The Bayesian networks come from the bnlearn R package [21] repository and range from
+small networks (fewer than 20 nodes) to large (up to hundreds of nodes). We selected all the
+networks in the repository for which at least one solver did not time out. For each of these
+networks, the queries are done on the leaves of the networks without any evidence. Hence,
+for a leafL of the network that takes valuesl1,...,ln, we createn instances for the queries
+P (L =l1),...,P (L =ln).
+The goal of this experiment is to answer the following questions: i) how do the evaluated
+PWMC solvers perform using our simple encoding? ii) How does our encoding perform
+compared to other state-of-the-art, but more complex encodings for BNs, designed for
+weighted model counters? For i) we use a CNF formula in other PWMC solvers similar to
+our model, where we add additional clauses to enforce the distribution constraints that we
+have in our weighting scheme. For ii), we follow the nomenclature in [6], and we compare
+our encoding with ENC1 [7], ENC3 [4], and ENC4 [5]. We also add the encoding recently
+presented in [2], which we denote ENC4linp. Briefly, ENC1 is the simplest encoding: there
+is one indicator variableλx for each valuex of nodeX and one parameter variableθx
+u per
+parameter P (x|u) of the network. For the clauses, the indicator variables of the same
+node are mutually exclusive; a clauseλu1∧...∧λun∧λx⇔θx
+u is created for each parameter
+P (x|u). The main addition of ENC3 is that, for a given CPT in the network, the same
+variableθx
+u is reused for all the entries having the same probability. In ENC4, The CPTs
+are simplified using a modified version of Quine/McCluskey algorithm for finding prime
+implicants, resulting in a better decomposition of the input CNF. Finally, in ENC4linp, the
+authors propose two novelties for encoding BNs in a CNF: the use of log-encoding for the
+elementary assignment of a variable and one parameter variable per CPT is kept implicit.
+For these encodings,GPMC and projMC are run in WMC mode (which is thed4 [16] model
+counter for the latter).
+Figure 3 shows the percentage of instances solved within the time limit.
+First, it can be seen that if we use our model in other PWMC solvers, their performance
+is much worse; these solvers solve a few instances.
+3 Available athttps://github.com/aia-uclouvain/schlandals
+4 The instances can be found herehttps://github.com/AlexandreDubray/pwmc_benchmarks
+CP 2023
+
+PDF PAGE 14
+15:14 Probabilistic Inference by Projected Weighted Model Counting on Horn Clauses
+0 100 200 300 400 500 600
+Run time in seconds
+0%
+20%
+40%
+60%
+80%
+100%Percentage of instance solved
+gpmc/enc4linp
+gpmc/enc4
+gpmc/enc3
+d4/enc4linp
+d4/enc4
+d4/enc3
+Schlandals/min. in deg.
+gpmc/enc1
+Schlandals/max. deg.
+Schlandals/min. out deg.
+d4/enc1
+projMC/pwmc
+gpmc/pwmc
+Figure 3Percentage of instances solved in 600 seconds for the Bayesian Network data sets.
+Compared to the ENC1 model used in traditional WMC, which is arguably the model for
+traditional WMC most similar to our model, we can still observe that our approach performs
+significantly better, solving80% of the instances for the minimum in degree heuristic. We
+believe it is highly encouraging that our approach works so well for such a simple model.
+When evaluating the more complex, optimized models ENC3, ENC4 and ENC4linp
+developed for WMC, we can see that these have increasingly better results. This confirms
+the benefit of the various improvements made, over the years, to the encodings. Overall, the
+GPMC solver is the best performing of all, even when using only the ENC3 encoding. The
+biggest gap between the ENC encodings is between ENC1 and ENC3. Indeed, using the
+same parameter variables for multiple parameters of a CPT gives a huge drop in the number
+of variables, especially for the hardest instances, which contain large CPTs. The benefits of
+the Quine/McCluskey reduction are clearly visible for thed4 solver.
+The nature of our modeling language is such that the optimizations of ENC3, ENC4
+and ENC4linp cannot be directly applied to our models. Unlike the ENC encodings, we
+require that one variable per distribution is set to⊤. However, we hypothesize that similar
+optimizations can also be developed for our solver in future work.
+5.2 Connectivity in Probabilistic Networks
+For this problem, the data sets used come from two sources. First, we used the power grid
+network of Europe and USA as extracted by the GridKit tool [18, 28]. The extracted graphs
+represent the electric power system in these geographical areas. In order to have various
+sizes of instances, both networks are divided by country (Europe) or by state (USA). Then
+for each subnetwork, five random pairs of nodes are selected and the probability that they
+are connected is computed. Notice that since the edges in the power-grid network have no
+orientation (the graph is undirected), we transformed it into a directed graph by replacing
+each edge betweenu and v by one edge fromu to v and one edge fromv to u. We assume
+that each edge has a probability of0.125 to be down, as done in [12].
+Secondly, we used (oriented) graphs representing water distribution systems from the
+WNTR Python package [14]. We considered as sources (sinks) nodes having no parents
+(children). Then, we computeP( ¯Rs
+t) between each source-target pair(s,t ) such that there
+exists a path betweens and t. As for the power grid network data set, we assume a fix
+probability of0.125 that each link is down.
+Unlike for Bayesian Networks, our encoding and the one proposed in [12] are almost
+identical and can be reused for all the evaluated solvers. The only difference is that we do not
+create two variables per edge for the encoding passed toGPMC and projMC. Figure 4 shows
+the percentage of instances solved in the given amount of time for both of these data sets.
+
+PDF PAGE 15
+A. Dubray, P. Schaus, and S. Nijssen 15:15
+0 100 200 300 400 500 600
+Run time in seconds
+0%
+20%
+40%
+60%Percentage of instance solved
+0 100 200 300 400 500 600
+Run time in seconds
+0%
+20%
+40%
+60%
+projMC
+Schlandals/min. in deg.
+Schlandals/min. out deg.
+Schlandals/max. deg.
+gpmc
+aproxMC (e=0.1, d=0.05)
+Figure 4Percentage of instances solved in 600 seconds for the power-grid networks (left) and the
+water networks (right).
+First, let us note thatGPMC performs the least well on both data sets. While it is able to
+solve up to25% of the instances for the power grid network, it is unable to solve the largest
+instances of the water networks. For the latter data set, it quickly reaches the memory limit
+(15 GB) and stagnates until the time-out. On the other hand, it can be seen thatprojMC
+and Schlandals solve roughly the same number of instances on the power grid networks,
+while Schlandals solves 10% more instances on the water networks. On these types of data
+sets, the min-in degree and min-out degree heuristics work best for our solver. It can be seen
+that for the water networks,Schlandals outperforms projMC.
+Interestingly, on the power grid data sets, our solver is still able to match the performance
+of projMC even though our propagation is not used to its full capacity. Indeed, since the
+original graphs are not directed, they were transformed by adding two directed edges for
+each undirected edge. As a result, either all clauses in a component are constrained, or no
+clause is constrained. Indeed, by doubling the edges in the original graph, the edges in the
+implication graph of the resulting CNF are also doubled. Hence, every clause which is a
+descendant of a⊥-reachable clause is also one of its ancestors and a similar argument can
+be made for⊤-reachable clauses. Hence, our propagation algorithm has less pruning power.
+On the other hand, for the water network data set, our solver uses the full strength of our
+propagation and is more efficient thanprojMC.
+Let us briefly comment on the performance ofapproxMC [12]. Again, it should be noted
+that approxMC is an approximate model counter that provides provides(δ−ϵ)-guarantees
+and does not consider weights on the literals. Hence, the problem it solves is quite different
+from the other solvers compared in this work: if the count returned byapproxMC is C,
+and the exact countC⋆, it ensures thatC⋆
+1+ϵ< C < C⋆(1 +ϵ) with a confidence of1−δ
+(δ,ϵ∈[0, 1]). In Figure 4 the results are shown forϵ= 0.1 and δ= 0.05. This is an example
+of configuration in which the solver is quite confident in its solution, and hence the results
+are more comparable to that of the other solvers. It can be seen that it performs very well
+on the power grid network instances, but poorly on the water supply network ones. Using
+ϵ= 0.8 and δ= 0.2, as reported in [12], the solver is able to solve all instances on both
+data sets, but it is much less confident in its solution. Overall the performance ofapproxMC
+heavily depends on the acceptable margin of error.
+CP 2023
+
+PDF PAGE 16
+15:16 Probabilistic Inference by Projected Weighted Model Counting on Horn Clauses
+6 Conclusion
+Weighted model counters have become an essential tool in probabilistic reasoning, but the
+CNF models have grown more and more complex. A step towards simplicity for some
+problems has been taken by the introduction of projected weighted model counting. In this
+work, we propose the Projected Probabilistic Horn model counting (PPHMC) problem, in
+which only Horn clauses are allowed, making the modeling language simpler. We have shown
+that with an appropriate weighting scheme it is possible to model important probabilistic
+problems as PPHMC problems. In particular, we provide an encoding for Bayesian networks,
+probabilistic networks and probabilistic logic programs. We also introduced a new tool, the
+Schlandals solver, specifically designed for our language. Our experiments show that our
+solver is competitive with state-of-the-art solvers and opens the path to further work on
+PPHMC.
+As we have seen for the Bayesian Networks, the encoding can have a great impact on
+the performance. An interesting line of work would be to investigate how the optimizations
+developed during the past twenty years, for the encoding of Bayesian Networks into a logical
+formula, can be applied with our weighting schema, and how our solver can be integrated in
+probabilistic logic programming systems. On the other hand, a lot of work has been done
+to make model counters efficient. In the future, integrating such techniques (probabilistic
+caching, tree decomposition, symmetry breaking, advanced branching heuristics, etc.) with
+the specificity of PPHMC can also increase the performance of our solver. Finally, this paper
+has been focused on PWMC within bounded memory. However, the core of our solver can
+be reused in a knowledge compiler or an approximate solver.
+References
+1 Rehan Abdul Aziz, Geoffrey Chu, Christian Muise, and Peter Stuckey. #∃SAT: Projected
+model counting. In International Conference on Theory and Applications of Satisfiability
+Testing 2015. Springer, 2015.
+2 Anicet Bart, Frédéric Koriche, Jean-Marie Lagniez, and Pierre Marquis. An improved CNF
+encoding scheme for probabilistic inference. InProceedings of the Twenty-second European
+Conference on Artificial Intelligence, 2016.
+3 Supratik Chakraborty, Kuldeep S. Meel, and Moshe Y. Vardi. Algorithmic improvements
+in approximate counting for probabilistic inference: From linear to logarithmic sat calls. In
+IJCAI, 2016.
+4 Mark Chavira and Adnan Darwiche. Compiling Bayesian networks with local structure. In
+IJCAI, volume 5, 2005.
+5 Mark Chavira and Adnan Darwiche. Encoding CNFs to empower component analysis. In
+Theory and Applications of Satisfiability Testing-SAT 2006: 9th International Conference,
+Seattle, WA, USA, August 12-15, 2006. Proceedings 9. Springer, 2006.
+6 Mark Chavira and Adnan Darwiche. On probabilistic inference by weighted model counting.
+Artificial Intelligence, 172(6-7), 2008.
+7 Adnan Darwiche. A logical approach to factoring belief networks.KR, 2, 2002.
+8 Luc De Raedt, Angelika Kimmig, and Hannu Toivonen. Problog: A probabilistic prolog and
+its application in link discovery. InIJCAI, volume 7. Hyderabad, 2007.
+9 Paulius Dilkas and Vaishak Belle. Weighted model counting with conditional weights for
+Bayesian networks. InUncertainty in Artificial Intelligence. PMLR, 2021.
+10 William F. Dowling and Jean H. Gallier. Linear-time algorithms for testing the satisfiability
+of propositional Horn formulae.The Journal of Logic Programming, 1(3), 1984.
+11 Jeffrey M. Dudek, Vu H. N. Phan, and Moshe Y. Vardi. ProCount: Weighted Projected Model
+Counting with Graded Project-Join Trees. In Chu-Min Li and Felip Manyà, editors,Theory
+
+PDF PAGE 17
+A. Dubray, P. Schaus, and S. Nijssen 15:17
+and Applications of Satisfiability Testing – SAT 2021, Lecture Notes in Computer Science,
+Cham, 2021. Springer International Publishing.doi:10.1007/978-3-030-80223-3_11.
+12 Leonardo Duenas-Osorio, Kuldeep Meel, Roger Paredes, and Moshe Vardi. Counting-based
+reliability estimation for power-transmission grids. InProceedings of the AAAI Conference on
+Artificial Intelligence, volume 31, 2017.
+13 Daan Fierens, Guy Van den Broeck, Joris Renkens, Dimitar Shterionov, Bernd Gutmann,
+Ingo Thon, Gerda Janssens, and Luc De Raedt. Inference and learning in probabilistic logic
+programs using weighted Boolean formulas.Theory and Practice of Logic Programming, 15(3),
+2015.
+14 Katherine A. Klise, Michael Bynum, Dylan Moriarty, and Regan Murray. A software framework
+for assessing the resilience of drinking water systems to disasters with an example earthquake
+case study.Environmental modelling & software, 95, 2017.
+15 Tuukka Korhonen and Matti Järvisalo. Integrating tree decompositions into decision heuristics
+of propositional model counters. In27th International Conference on Principles and Practice
+of Constraint Programming (CP 2021). Schloss Dagstuhl-Leibniz-Zentrum für Informatik,
+2021.
+16 Jean-Marie Lagniez and Pierre Marquis. An Improved Decision-DNNF Compiler. InIJCAI,
+volume 17, 2017.
+17 Jean-Marie Lagniez and Pierre Marquis. A recursive algorithm for projected model counting.
+In Proceedings of the AAAI Conference on Artificial Intelligence, volume 33, 2019.
+18 Wided Medjroubi, Ulf Philipp Müller, Malte Scharf, Carsten Matke, and David Kleinhans.
+Open data in power grid modelling: New approaches towards transparent grid models.Energy
+Reports, 3, 2017.
+19 Tian Sang, Paul Beame, and Henry Kautz. Heuristics for fast exact model counting. In
+Theory and Applications of Satisfiability Testing: 8th International Conference, SAT 2005, St
+Andrews, UK, June 19-23, 2005. Proceedings 8. Springer, 2005.
+20 Tian Sang, Paul Beame, and Henry Kautz. Solving Bayesian networks by weighted model
+counting. In Proceedings of the Twentieth National Conference on Artificial Intelligence
+(AAAI-05), volume 1. AAAI Press, 2005.
+21 Marco Scutari. Learning Bayesian networks with the bnlearn R package.arXiv preprint
+arXiv:0908.3817, 2009. arXiv:0908.3817.
+22 Shubham Sharma, Subhajit Roy, Mate Soos, and Kuldeep S. Meel. GANAK: A Scalable
+Probabilistic Exact Model Counter. InIJCAI, volume 19, 2019.
+23 Mate Soos, Stephan Gocht, and Kuldeep S. Meel. Tinted, detached, and lazy cnf-xor solving
+and its applications to counting and sampling. InInternational Conference on Computer
+Aided Verification, 2020.
+24 Mate Soos and Kuldeep S. Meel. Bird: engineering an efficient cnf-xor sat solver and its
+applications to approximate model counting. InAAAI, 2019.
+25 Ryosuke Suzuki, Kenji Hashimoto, and Masahiko Sakai. Improvement of projected model-
+counting solver with component decomposition using SAT solving in components. Technical
+report, JSAI Technical Report, SIG-FPAI-506-07, 2017.
+26 Marc Thurley. sharpSAT-counting models with advanced component caching and implicit
+BCP. SAT, 4121, 2006.
+27 JonasVlasselaer, AngelikaKimmig, AntonDries, WannesMeert, andLucDeRaedt. Knowledge
+compilation and weighted model counting for inference in probabilistic logic programs. In
+Proceedings of the First Workshop on Beyond NP. AAAI Press, 2016.
+28 Bart Wiegmans. Gridkit: European And North-American Extracts, March 2016. doi:
+10.5281/ZENODO.47317.
+CP 2023

@@ -1,0 +1,14 @@
+{
+  "jobs": [
+    "23062750",
+    "23062769"
+  ],
+  "source_sha256": {
+    "experiments/scripts/wmc_inference.py": "616bf3233167d792a6f7192268c1bba28f69401afb5ef7009dc05f1df8387cc2",
+    "experiments/scripts/learned_constrained.py": "a52b7b03c81061fe5a70e7d464f90be72c51f5d731fe751b4cd21818360ad927",
+    "experiments/scripts/p4_7_c2_exact_vs_bp_inference.py": "5f3df21e233af529217f597aeca41a408f1f45302f23a9b555eafac9c7ee96d3",
+    "journal_comparison/p4_7_bp_audit_2026_10_22.py": "d16b4c483b61e2e72e858223ce507d74187b357a64563fff9648e7290e33ae99",
+    "journal_comparison/p4_7_bp_full_sample_2026_10_22.py": "3f061d19b2b3e6346355f286054c2d2096e0c01d09aa36a14244026645d0b3af"
+  },
+  "replication": "Original 100-protein BP metrics and max-error quantiles match exactly in both namespaces."
+}

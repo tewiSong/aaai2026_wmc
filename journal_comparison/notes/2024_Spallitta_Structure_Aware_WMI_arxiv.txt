@@ -1,0 +1,2938 @@
+===== PDF PAGE 1 =====
+Enhancing SMT-based Weighted Model Integration
+by Structure Awareness
+Giuseppe Spallittaa, Gabriele Masinaa, Paolo Morettina, Andrea Passerinia,
+Roberto Sebastiania
+aDISI, University of Trento
+Abstract
+The development of efficient exact and approximate algorithms for prob-
+abilistic inference is a long-standing goal of artificial intelligence research.
+Whereas substantial progress has been made in dealing with purely discrete or
+purely continuous domains, adapting the developed solutions to tackle hybrid
+domains, characterized by discrete and continuous variables and their rela-
+tionships, is highly non-trivial. Weighted Model Integration (WMI) recently
+emerged as a unifying formalism for probabilistic inference in hybrid domains.
+Despite a considerable amount of recent work, allowing WMI algorithms to
+scale with the complexity of the hybrid problem is still a challenge. In this
+paper we highlight some substantial limitations of existing state-of-the-art
+solutions, and develop an algorithm that combines SMT-based enumeration,
+an efficient technique in formal verification, with an effective encoding of the
+problem structure. This allows our algorithm to avoid generating redundant
+models, resulting in drastic computational savings. Additionally, we show
+how SMT-based approaches can seamlessly deal with different integration
+techniques, both exact and approximate, significantly expanding the set of
+problems that can be tackled by WMI technology. An extensive experimental
+evaluation on both synthetic and real-world datasets confirms the substantial
+advantage of the proposed solution over existing alternatives. The application
+potential of this technology is further showcased on a prototypical task aimed
+at verifying the fairness of probabilistic programs.
+Keywords: Hybrid Probabilistic Inference, Weighted Model Integration,
+Satisfiability Modulo Theories
+⋆A preliminary version of this work was presented at UAI 2022 [1].
+Preprint submitted to Journal of L ATEX Templates Wednesday 10 th January, 2024
+arXiv:2302.06188v2  [cs.AI]  9 Jan 2024
+
+===== PDF PAGE 2 =====
+1. Introduction
+There is a growing interest in the artificial intelligence community in
+extending probabilistic reasoning approaches to deal with hybrid domains,
+characterized by both continuous and discrete variables and their relation-
+ships. Indeed, hybrid domains are extremely common in real-world scenarios,
+from transport modelling [2] to probabilistic robotics [3] and cyber-physical
+systems [4].
+Early approaches to hybrid probabilistic modelling relied on discretization
+of the continuous variables [5, 6] or made strong distributional assumptions,
+not allowing to condition discrete variables on continuous ones [7]. Later
+approaches, like hybrid Markov random fields [8] and hybrid sum-product
+networks [9, 10], were still unable to support deterministic relations, i.e., hard
+constraints, between variables, severely limiting their usability in real-world
+applications.
+Weighted Model Integration (WMI) [11, 12, 13] recently emerged as a
+unifying formalism for probabilistic inference in hybrid domains, thanks to
+its expressivity, flexibility and its natural support for both deterministic and
+probabilistic relations. The paradigm extends Weighted Model Counting
+(WMC) [14], which is the task of computing the weighted sum of the set of
+satisfying assignments of a propositional formula, to deal with SMT formu-
+las (e.g., [15]) consisting of combinations of Boolean atoms and connectives
+with symbols from a background theory, like linear arithmetic over rationals
+(LRA).
+Although WMC can be made extremely efficient by leveraging component
+caching techniques [16, 17], these strategies are difficult to apply for WMI
+due to the tight coupling induced by arithmetic constraints. Indeed, existing
+component caching approaches for WMI are restricted to fully factorized
+densities with few dependencies among continuous variables [18]. Another
+direction specifically targets acyclic [19, 20] or loopy [21] pairwise models.
+Approximations with guarantees can be computed for problems in disjunctive
+normal form [22] or, in restricted cases, conjunctive normal form [23].
+Exact solutions for more general classes of densities and constraints mainly
+take advantage of advances in SMT technology [15] or knowledge compilation
+(KC) [24]. WMI-PA [12, 25] relies on SMT-based Predicate Abstraction
+(PA) [26] to both reduce the number of models to be generated and integrated
+2
+
+===== PDF PAGE 3 =====
+over and efficiently enumerate them, and was shown to achieve substantial
+improvements over previous solutions. Nevertheless, in this paper we show
+how WMI-PAhas the major drawback of ignoring the conditional structure
+of the weight function, which prevents from pruning away lots of redundant
+models. The use of KC for hybrid probabilistic inference was pioneered by [27]
+and further refined in a series of later works [28, 29, 30, 31]. By compiling
+a formula into an algebraic circuit, KC techniques can exploit the structure
+of the problem to reduce the size of the resulting circuit, and are at the
+core of many state-of-the-art approaches for WMC [14]. Nevertheless, in this
+paper we show that even the most recent KC solutions for WMI [29, 30]
+have serious troubles in dealing with densely coupled problems, resulting
+in exponentially large circuits that are impossible to store or prohibitively
+expensive to evaluate.
+To address these problems, in this paper we introduce Structure-Aware
+Enumeration for WMI (SAE4WMI), a novel algorithm for WMI that aims
+to combine the best of both worlds, by introducing weight-structure aware-
+ness into PA-based WMI. The main idea is to build a formula, which we
+call theconditional skeleton, which mimics the conditional structure of the
+weight function, to drive the SMT-based enumeration algorithm preventing it
+from generating redundant models. An extensive experimental evaluation of
+synthetic and real-world datasets show substantial computational advantages
+of the proposed solution over existing alternatives for the most challenging
+settings.
+Parallel to the introduction of weight-structure awareness, we highlight
+how PA-based algorithms areagnostic to the integration algorithm chosen to
+compute the volume of each enumerated assignment. To this extent, we extend
+SAE4WMI to support bothexact numerical integration(the one implicitly
+embedded in [12, 25]) andapproximate integration. The advantages of using
+approximate integration are twofold: it positively affects the scalability of
+SAE4WMI with complex instances when integration is the major bottleneck;
+(ii) it allows applyingSAE4WMI to problems with non-polynomial weight
+functions (e.g., Gaussian densities), increasing the applicability of WMI to
+real-world scenarios.
+Our main contributions can be summarized as follows:
+• We analyse existing state-of-the-art of WMI and we identify major
+efficiency issues for both PA and KC-based approaches.
+• We introduceSAE4WMI, a novel WMI algorithm that combines PA
+3
+
+===== PDF PAGE 4 =====
+with weight-structure awareness by generating explicitly aconditional
+skeleton of the weight function to drive the search of assignments.
+• We show how SAE4WMI achieves substantial improvements over
+existing solutions in both synthetic and real-world settings.
+• We demonstrate how PA-based approaches can deal with different integ-
+ration techniques, both exact and approximate, substantially expanding
+the set of problems that can be tackled by WMI technology.
+• We present a prototypical application ofSAE4WMI to verifying the
+fairness of probabilistic programs.
+The rest of the paper is organized as follows. We start by presenting
+the related work in §2. In §3 we introduce the background, focusing on
+the formulation of Weighted Model Integration. In §4 we analyse the WMI
+approaches based on knowledge compilation and on Predicate Abstraction,
+identifying some weaknesses for either of them. In §5 we address the gaps
+mentioned in the previous section, showing theoretical ideas to makeWMI-
+PA structure aware and their implementation into our novel algorithm,
+SAE4WMI. §6 is devoted to an empirical evaluation ofSAE4WMI with
+respect to the other existing approaches, considering both synthetic and
+real-world settings. In §7, we highlight how PA-based approaches are agnostic
+to the integrator chosen to compute the volume of the polytopes and propose
+an adaptation of the algorithm to deal with approximate integration. Our
+conclusion and final considerations are presented in §8.
+2. Related work
+Traditionally, inference algorithms in hybrid graphical models either dis-
+allowed complex algebraic and logical constraints [32, 33, 34], or solved the
+problem approximately [35, 36]. The use of piecewise polynomial densities
+when dealing with algebraic constraints was pioneered by Sanner and Ab-
+basnejad [27]. The algorithm, called Symbolic Variable Elimination (SVE),
+first used a compact representation called eXtended Algebraic Decision Dia-
+grams (XADD) [37] in probabilistic inference tasks. As described in detail
+in §4, these representations lie at the core of modern compilation-based WMI
+techniques. In broad terms, knowledge compilation refers to a family of
+approaches that seek to convert problem instances in a target representation
+4
+
+===== PDF PAGE 5 =====
+that, thanks to certain structural properties, guarantees efficient solving of a
+specific task. An offline, expensive compilation phase searches in the space of
+target representations for the most compact encoding of a problem instance.
+Then, the compiled representation of the problem instance can be queried
+efficiently with respect to its size, typically amortizing the computational
+cost of the compilation over multiple queries. This approach is quite popular
+in WMC, where propositional logic formulas are compiled indeterministic,
+decomposable normal negation form(d-DNNF) circuits. Thanks to these
+properties, WMC tasks can be computed in linear time in the size of the
+d-DNNF. Since the problem structure has to be explicitly encoded in a target
+representation, KC techniques fail by running out of memory on instances
+where this compact representation does not exist.
+Probabilistic inference modulo theories [38] used representations similar
+to XADDs together with a modified DPLL procedure. The resulting al-
+gorithm, called PRAiSE, showed superior performance with respect to both
+SVE and the original WMI [11] solver, which didn’t exploit any SMT enu-
+meration technique. Follow-up works on SMT-based WMI capitalized on the
+advanced features of SMT solvers, obtaining state-of-the-art results in many
+benchmarks [12, 25].
+The substantial efficiency gains obtained by caching partial results in
+WMC [16, 17] motivated their applications in the hybrid case. When the
+dependencies induced by the algebraic constraints are limited, similar ideas
+can be applied to WMI [18]. Alternatively to SMT- or compilation-based
+approaches, WMI can be reduced to Belief Propagation when the algebraic
+dependencies involve at most two variables. Then, an efficient message
+passing algorithm on an acyclic pairwise factor graph can solve the problem
+exactly [20]. This idea was later extended for approximating problems with
+circular dependencies [21]. In contrast with the work above, this paper
+focuses on the general WMI problem, where the above assumptions cannot
+be leveraged.
+Approximate WMI algorithms exploit both SMT-based [23] and knowledge
+compilation-based [29] approaches. While generally applicable, the latter does
+not provide any guarantee on the approximation error. The former provides
+practical statistical guarantees in limited scenarios when constraints are
+expressed in conjunctive form. Instead, if the constraints can be expressed in
+disjunctive form, WMI admits a fully polynomial randomized approximation
+scheme (FPRAS) under mild assumptions [22].
+The quantitative evaluation of programs by counting SMT solutions (see
+5
+
+===== PDF PAGE 6 =====
+e.g. [39, 40]) is equivalent to the notion ofunweighted model integration. This
+approach was later extended to fairness verification of decision procedures
+based on small ML models. This approach, dubbed FairSquare [41], encodes
+the verification problem in SMT(LRA) and reduces probabilistic inference to
+axis-aligned volume computations. FairSquare ultimately addresses a decision
+problem, answering whether the fairness measure is above a user-defined
+threshold or not. This is achieved by iteratively computing tighter lower
+and upper bounds using increasingly accurate approximations of the measure
+until convergence. Moreover, the distribution considered in FairSquare are
+probabilistic programs where random variables have univariate Gaussian or
+piecewise constant distributions. The notion of weight function considered
+in this work is more general, including multivariate piecewise polynomials of
+arbitrary degree and Gaussians.
+3. Background
+In this section, we introduce the theoretical background which is needed
+for the comprehension of this paper. For the sake of readability, we have
+reduced the technical details to the minimum. A more detailed description
+with several SMT-related technicalities is reported in Appendix A.
+3.1. SMT Notation, Syntax and Semantics
+We assume the reader is familiar with the basic syntax, semantics, and
+results of propositional and first-order logic. We adopt the notation and defin-
+itions in [25] —including some terminology and concepts from Satisfiability
+Modulo Theories (SMT)— which we summarize below.
+Notation and terminology.Satisfiability Modulo Theories (SMT) (see [15]
+for details) consists in deciding the satisfiability of quantifier-free first-order
+formulas over some given background theoryT . For the context of this paper,
+we restrict to the theory of linear real arithmetic (LRA). Thus, “|=” denotes
+entailment inLRA (e.g., (x≥2)|= (x≥1)) and we say thatφ1, φ2 are
+equivalent iff they areLRA-equivalent (e.g.,(x−y≤3) and (y≥x−3)).
+We useB
+def
+={⊤,⊥}to indicate the set of Boolean values andR to indicate
+the set of real values. We use the setsA
+def
+={Ai}i, B
+def
+={Bi}i to denote
+Boolean atoms and the setsx
+def
+={xi}i, y
+def
+={yi}i to denote real variables.
+SMT(LRA) formulas combine Boolean atomsAi∈B andLRA atoms in
+the form (∑
+icixi ▷◁c) (where ci, c are rational values,xi are real variables
+6
+
+===== PDF PAGE 7 =====
+in R and ▷◁is one of the standard arithmetic operators{=,̸=,<,>,≤,≥})
+by using standard Boolean operators{¬,∧,∨,→,↔}. Atoms(φ) denotes the
+set of atoms occurring inφ, both Boolean andLRA ones.
+A literal is either an atom (apositive literal) or its negation (anegative
+literal). Aclause⋁K
+j=1lj is a disjunction of literals. A formula is inConjunctive
+Normal Form (CNF)if it is written as a conjunction of clauses⋀L
+i=1
+⋁Ki
+ji=1lji.
+Some shortcuts of frequently-used expressions (marked as “J...K”) are provided
+to simplify the reading: the formula(xi≥l)∧(xi≤u) is shortened into
+Jxi∈[l,u ]K; ifϕ
+def
+=⋀
+iCi is a CNF formula andC
+def
+=⋁
+jlj is a clause, then the
+formula⋀
+i(C∨Ci) is shortened intoJC∨ϕK.
+Semantics. Given a set of Boolean andLRA atoms Ψ
+def
+={ψ1,...,ψK}, we
+call atotal [resp. partial] truth assignmentµfor Ψ any total [resp. partial]
+map fromΨ to B. (These definitions can be used also for setsΨ of non-atomic
+LRAformulas.) Wedenoteby BK thesetofalltotaltruthassignmentsover Ψ .
+Withalittleabuseofnotation, werepresent µeitherasasetorasaconjunction
+of literals: µ
+def
+={ψ|ψ∈Ψ, µ(ψ) =⊤}∪{¬ψ|ψ∈Ψ, µ(ψ) =⊥}, or
+µ
+def
+=
+⋀
+ψ∈Ψ,µ(ψ)=⊤ψ∧
+⋀
+ψ∈Ψ,µ(ψ)=⊥¬ψ, and we write “ψi∈µ1” and “µ1⊆µ2”
+as ifµ1,µ2 were represented as sets (i.e., we write “ψ1∧¬ψ2⊆ψ1∧¬ψ2∧ψ3”
+meaning “{ψ1,¬ψ2}⊆{ψ1,¬ψ2,ψ3}”). We denote byµA and µLRA its two
+components on the Boolean atoms inA and on theLRA atoms, respectively,
+so thatµ
+def
+=µA∧µLRA.
+Example 1.If µ
+def
+={A1 =⊤,A 2 =⊥, (x≥1) =⊤, (x≥3) =⊥}, then we
+represent it as the setµ
+def
+={A1,¬A2, (x≥1),¬(x≥3)}or as the formula
+µ
+def
+=A1∧¬A2∧(x≥1)∧¬(x≥3). Henceµ=µA∧µLRA whereµA def
+=A1∧¬A2
+and µLRA def
+= (x≥1)∧¬(x≥3). ⋄
+Given a (partial) truth assignmentµto Atoms(φ), we call theresidual
+of φw.r.t. µ, written “φ[µ]”, the formula obtained fromφby substituting all
+the atoms assigned inµwith their respective truth value, and by recursively
+propagating truth values through Boolean operators in the usual way.1 We
+say thatµpropositionally satisfiesφiffφ[µ] reduces to⊤.2 Thus, ifµpropos-
+itionally satisfiesφ, then all total assignmentsηs.t. µ⊆ηpropositionally
+1I.e.,¬⊤↦→⊥,¬⊥↦→⊤, φ∧⊤↦→φ, φ∧⊥↦→⊥, φ↔⊤↦→φ, φ↔⊥↦→¬φ, ...
+2The definition of satisfiability by partial assignment may present some ambiguities for
+non-CNF and existentially-quantified formulas [42, 43]. Here we adopt the above definition
+because it is the one typically used by state-of-the-art solvers.
+7
+
+===== PDF PAGE 8 =====
+satisfyφ. Sinceµcan beLRA-unsatisfiable due to itsLRA component (e.g.,
+µ
+def
+=¬A1∧(x≥2)∧¬(x≥1)), SMT(LRA) checks the existence of an
+LRA-satisfiable assignmentµpropositionally satisfyingφ.
+Example 2.Let φ
+def
+= (A1∨(x≤1))∧(¬A1∨(x≥2)), µ
+def
+= A1∧(x≥2)
+so thatµA def
+=A1 and µLRA def
+= (x≥2). Then φ[µA] = (x≥2) and φ[µ] =⊤,
+s.t. µpropositionally satisfiesφ. SinceµLRA isLRA-satisfiable, thenφis
+LRA-satisfiable. ⋄
+Givenφ(x, A∪B), wesaythataBoolean(partial)assignment µA on Apro-
+positionally satisfies∃x.∃B.φiffµ
+def
+=µA∧µB∧µLRA propositionally satisfiesφ
+for some total assignmentµB on B and some totalLRA-satisfiable assignment
+µLRA on theLRA atoms ofφ. To this extent, notice that∃x.∃B.φ(x, A∪B)
+is equivalent to some purely-Boolean formula onA only, that is, the depend-
+ence on x and B is existentially-quantified away. (The definition of “µA
+propositionally satisfies∃x.φ(x, A)” follows withB =∅,µB =⊤.) We say
+that µA∧µLRA propositionally satisfies∃B.φ(x, A∪B) iffµA∧µB∧µLRA
+propositionally satisfiesφfor some total assignmentµB in B.
+Example 3.Letφ
+def
+= (A1∨(x≤1))∧B1∧(B1↔(x≥2)). ThenµA
+1
+def
+=A1
+propositionally satisfies∃x.∃B1.φbecause there existµB
+1
+def
+=B1 and µLRA
+1
+def
+=
+¬(x≤1)∧(x≥2) s.t. µ1
+def
+= µA
+1 ∧µLRA
+1 ∧µB
+1 propositionally satisfiesφ
+and µLRA
+1 isLRA-satisfiable. Instead,µA
+2
+def
+=¬A1 does not satisfy∃x.∃B1.φ,
+because no suchµB and µLRA exist. Indeed,∃x.∃B1.φis equivalent to the
+Boolean formulaA1. Also,µA
+1 ∧µLRA
+1 propositionally satisfies∃B1.φ. ⋄
+3.2. Weighted Model Integration (WMI)
+Let x
+def
+= {x1,...,xN} ∈RN and A
+def
+= {A1,...,AM} ∈BM for some
+integersN andM, letφ(x, A) denote anLRA formula overx and A, and let
+w(x, A) denote a non-negative weight function s.t.w(x, A) : RN×BM↦−→R+.
+Intuitively,w encodes a (possibly unnormalized) density function overA∪x.
+Given a total assignmentµA over A, w[µA](x)
+def
+=w(x,µA) is w restricted to
+the truth values ofµA.
+TheWeighted Model Integralofw(x, A) overφ(x, A) is defined as [25]:
+WMI(φ,w|x, A)
+def
+=
+∑
+µA∈BM
+WMInb(φ[µA],w [µA]|x), (1)
+WMInb(φ,w|x)
+def
+=
+∫
+φ(x)
+w(x) dx (2)
+8
+
+===== PDF PAGE 9 =====
+where theµAs are all the total truth assignments onA, WMInb(φ,w|x) is the
+integral ofw(x) over the set{x|φ(x) is true}(“nb” means “no-Booleans”).
+We call asupport of a weight functionw(x, A) any subset ofRN×BM
+outside whichw(x, A) = 0 and we represent it as aLRA formulaχ(x, A).
+We recall that, consequently,WMI(φ∧χ,w|x, A) = WMI(φ,w|x, A).
+We consider the class offeasibly integrable onLRA (FILRA) functions
+w(x), which contain no conditional component and for which there exists
+some procedure able to computeWMInb(µLRA,w|x) for every set ofLRA
+literals on x. (E.g., polynomials areFILRA.) Then we call a weight function
+w(x, A), feasibly integrable underLRA conditions (FIUCLRA) iff it can be
+described in terms of a supportLRA formula χ(x, A) (⊤if not provided)
+and a setΨ
+def
+={ψi(x, A)}K
+i=1 ofLRA conditions, in such a way that, for every
+total truth assignmentµΨ to Ψ , w[µΨ ] (x) is total andFILRA in the domain
+given by the values of⟨x, A⟩which satisfy (χ∧µΨ ).3 Intuitively, eachµΨ
+describes a portion of the domain ofw inside whichw[µΨ ] (x) is FILRA, and
+we say thatµΨ identifiesw[µΨ ] in w.
+In practice, we assume w.l.o.g. thatFIUCLRA functions are described as
+combinations of constants, variables, standard arithmetic operators+,−,·,
+condition-less real-valued functions (e.g.,exp(.),...), conditional expressions
+in the form(If ψi Then t1i Else t2i) whose conditionsψi areLRA formulas
+and termst1i,t 2i are FIUCLRA.(E.g., piecewise polynomials areFIUCLRA.)
+3.3. WMI via Projected AllSMT
+Assignment Enumeration.TTA(φ)
+def
+={µ1,...,µj}denotes the set ofLRA-
+satisfiable total truth assignments overAtoms(φ) that propositionally satisfy
+φ;TA(φ)
+def
+={µ1,...,µj}represents one set ofLRA-satisfiable partial truth
+assignments overAtoms(φ) that propositionally satisfyφ, s.t. (i) for every
+total assignmentηinTTA(φ) there is some partial oneµinTA(φ) s.t.µ⊆η
+and (ii) every pairµi,µj∈TA(φ) assigns opposite truth values to at least
+one atom. We remark thatTTA(φ) is unique (modulo reordering), whereas
+multipleTA(φ)s are admissible for the same formulaφ(includingTTA(φ)).
+The disjunction of the truth assignments inTTA(φ), and that ofTA(φ), are
+equivalent toφ. Thus, givenφ(x, A∪B),TTA(∃x.∃B.φ) denotes the set of
+all total truth assignmentµA on A s.t. µA propositionally satisfies∃x.∃B.φ,
+andTA(∃x.∃B.φ) denotes one set of partial assignmentsµA on A s.t. µA
+3Notice that the conditions inΨ can be non-atomic, and can contain atoms inA.
+9
+
+===== PDF PAGE 10 =====
+propositionally satisfies∃x.∃B.φcomplying with conditions (i) and (ii) above.
+(The definition ofTTA(∃x.φ(x, A)) orTA(∃x.φ(x, A)) follows withB =∅.)
+Similarly,TTA(∃B.φ(x, A∪B)) denotes the set of allLRA-satisfiable total
+truth assignmentsµA∧µLRA that propositionally satisfy∃B.φ(x, A∪B),
+andTA(∃B.φ(x, A∪B)) denotes one set ofLRA-satisfiable partial truth
+assignmentsµA∧µLRA that propositionally satisfy∃B.φ(x, A∪B) complying
+with conditions (i) and (ii) above.
+Example 4.Letφ
+def
+= (A1∨(x≤1))∧(¬A1∨B1)∧(B1↔(x≥2)). Then:
+TTA(φ) ={A1∧B1∧¬(x≤1)∧(x≥2),¬A1∧¬B1∧(x≤1)∧¬(x≥2)},
+TA(φ) = {A1∧B1∧ (x≥2),¬A1∧¬B1∧(x≤1)∧¬(x≥2)}.
+All other total assignments propositionally satisfyingφassign both (x≤1)
+and (x≥2) to true, and are thusLRA-unsatisfiable.
+We also have thatTTA(∃x.∃B1.φ) =TA(∃x.∃B1.φ) ={A1,¬A1}. In fact,
+for µA = A1, letµB = B1 and µLRA =¬(x≤1)∧(x≥2);
+for µA =¬A1, letµB =¬B1 and µLRA = (x≤1)∧¬(x≥2);
+in both cases, which correspond to the two elements inTTA(φ), we have that
+µA∧µB∧µLRA propositionally satisfiesφandµLRA isLRA-satisfiable. Also:
+TTA(∃B1.φ) ={A1∧¬(x≤1)∧(x≥2),¬A1∧(x≤1)∧¬(x≥2)},
+TA(∃B1.φ) = {A1∧ (x≥2),¬A1∧(x≤1)∧¬(x≥2)}. ⋄
+TTA(...)/TA(...) can be computed efficiently by means of Projected
+AllSMT, a technique used in formal verification to computePredicate Ab-
+straction [26]. All these functionalities are provided by the SMT solver
+MathSAT[44]. (A brief description about how MathSATworks when
+computingTTA(...)/TA(...) is described in Appendix A.)
+WMI-PA. WMI-PA is an efficient WMI algorithm presented in [12, 25]
+which exploits SMT-based projected enumeration. Letw(x, A) be a FIUCLRA
+function as above.WMI-PAis based on the fact that [25]:
+WMI(φ,w|x, A) =
+∑
+µA∗∈TTA(∃x.φ∗)
+WMInb(φ∗
+[µA∗],w∗
+[µA∗]|x) (3)
+φ∗def
+= φ∧χ∧
+K⋀
+k=1
+(Bk↔ψk) (4)
+WMInb(φ,w|x) =
+∑
+µLRA∈TA(φ)
+∫
+µLRA
+w(x) dx. (5)
+10
+
+===== PDF PAGE 11 =====
+s.t. A∗def
+= A∪B s.t. B
+def
+={B1,...,BK}are fresh propositional atoms and
+w∗(x, A∪B) is the weight function obtained by substituting inw(x, A) each
+conditionψk in Ψ withBk (except for these which are Boolean literals onA).
+The pseudocode of WMI-PA is reported in Algorithm 1. First, the
+problem is transformed by labelling all conditions inΨ occurring inw(x, A)
+with fresh Boolean atomsB, as above. After this preprocessing stage, the
+setMA∗def
+= TTA(∃x.φ∗) is computed by projected AllSMT [26]. Then,
+the algorithm iterates over each Boolean assignmentµA∗
+inMA∗
+. φ∗
+[µA∗]
+is simplified by theSimplify procedure, which propagates truth values and
+applies logical and arithmetical simplifications. Then, ifφ∗
+[µA∗] is already
+a conjunction of literals, the algorithm directly computes its contribution
+to the volume by callingWMInb(φ∗
+[µA∗],w∗
+[µA∗]|x). Otherwise,TA(φ∗
+[µA∗]) is
+computed by AllSMT to produce partial assignments, and the algorithm
+iteratively computes contributions to the volume for eachµLRA. See [25] for
+more details.
+Remark 1. Importantly, in the implementation ofWMI-PAthe potentially
+large setsMA∗
+andMLRA are not generated explicitly; rather, their elements
+are generated, integrated, and then dropped one-by-one, so as to avoid space
+blow-up. For example, steps like “MA∗
+←TTA(...); for µA∗
+∈MA∗
+...” in
+Algorithm 1 should be read as “for µA∗
+∈TTA(...)...”. (We keep the first
+representation for readability.) The same applies to all our novel algorithms
+in this paper.
+3.4. Hybrid Probabilistic Inference via WMI
+The main application of WMI is marginal inference on weighted SMT
+theories. Similarly to WMC, inference can be reduced to the computation of
+two weighted model integrals:
+Pr(∆|χ,w) = WMI(∆∧χ,w)
+WMI(χ,w) (6)
+The denominator above is akin to computing the partition function on prob-
+abilistic models with unnormalized factors. Crucially, the formulas∆ and χ
+are arbitrary, possibly encoding complex non-convex regions of a hybrid space.
+This goes beyond the kind of queries that are supported by more traditional
+algorithms like Belief Propagation, being particularly beneficial in contexts
+where it is necessary to compute probabilities of complex properties, like those
+11
+
+===== PDF PAGE 12 =====
+Algorithm 1 WMI-PA(φ, w ,x, A)
+1:⟨φ∗,w∗, A∗⟩←LabelConditions(φ,w,x, A)
+2:MA∗
+←TTA(∃x.φ∗)
+3: vol←0
+4: for µA∗
+∈MA∗
+do
+5: Simplify(φ∗
+[µA∗])
+6: if LiteralConjunction(φ∗
+[µA∗]) then
+7: vol←vol + WMInb(φ∗
+[µA∗],w∗
+[µA∗]|x)
+8: else
+9: MLRA←TA(φ∗
+[µA∗])
+10: for µLRA∈MLRA do
+11: vol←vol + WMInb(µLRA,w∗
+[µA∗]|x)
+12: return vol
+arising in (probabilistic) formal verification domains. Furthermore, the use of
+specialized software to deal with constraints yields state-of-the-art results on
+standard queries when the support of the distribution is highly structured, as
+shown by the competitive results obtained by reducing inference on discrete
+models to WMC [45].
+4. Analysis of State-Of-The-Art WMI Techniques
+We start by presenting an analysis of the KC andWMI-PAapproaches,
+which represent the current state-of-the-art in WMI.
+4.1. Knowledge Compilation
+We start our analysis by noticing a major problem with existing KC
+approaches for WMI [29, 30], in that they can easily blow up in space even
+with simple weight functions. Consider, e.g., the case in which
+w(x, A)
+def
+=
+N∏
+i=1
+(If ψi Then wi1(x) Else wi2(x)) (7)
+where theψis areLRA conditions on{x, A}and thewi1,wi2 are generic
+functions on x. First, the decision diagrams do not interleave arithmetic and
+conditional operators; rather, they push all the arithmetic operators below
+the conditional ones. Thus, with(7) the resulting decision diagrams consist
+12
+
+===== PDF PAGE 13 =====
+w(x, A)
+def
+=
+3Y
+i=1
+(if Ai then wi1(x) else wi2(x))
+a
+cc
+b
+A1u
+= >)
+>
+= ?)
+v
+A2
+ A2
+A3
+A3
+A3
+A3
+w ¯A1, ¯A2, ¯A3 (x)=
+ w ¯A1,A2, ¯A3 (x)=
+ wA1, ¯A2, ¯A3 (x)=
+ wA1,A2, ¯A3 (x)=
+w ¯A1, ¯A2,A3 (x)=
+ w ¯A1,A2,A3 (x)=
+ wA1, ¯A2,A3 (x)=
+ wA1,A2,A3 (x)=
+?
+w ¯A1, ¯A2, ¯A3 (x)= w12(x)w22(x)w32(x)
+w ¯A1, ¯A2,A3 (x)= w12(x)w22(x)w31(x)
+w ¯A1,A2, ¯A3 (x)= w12(x)w21(x)w32(x)
+w ¯A1,A2,A3 (x)= w12(x)w21(x)w31(x)
+wA1, ¯A2, ¯A3 (x)= w11(x)w22(x)w32(x)
+wA1, ¯A2,A3 (x)= w11(x)w22(x)w31(x)
+wA1,A2, ¯A3 (x)= w11(x)w21(x)w32(x)
+wA1,A2,A3 (x)= w11(x)w21(x)w31(x)
+>
+= ?) = >)
+>
+= ?) = >)
+>
+= ?) = >)
+>
+= ?) = >)
+>
+= ?) = >)
+>
+= ?) = >)
+Figure1: Examplehighlightingtheefficiencyissuesoftheknowledgecompilationalgorithms
+for WMI. (a) definition of a weight function consisting of a product of conditional statements.
+(b) decision diagram generated by knowledge compilation approaches over the weight
+function. Round nodes indicate if-then-else conditions, with true and false cases on the
+right and left outgoing edges respectively. Squared nodes indicateFILRA weight functions.
+Note how the diagram has a number of branches which is exponential in the number
+of conditions, and no compression is achieved. (c) definition of the weight functions at
+the leaves of the diagram. In naming weight functions, we use¯A for¬A for the sake of
+compactness.
+0 2 4 6 8 10 12 14
+101
+102
+103
+104
+Problem size
+Encoding size
+WMI-PA
+XADD
+Figure 2: Size of XADD diagram (number of nodes) andWMI-PAformula as the problem
+size increases, in logarithmic scale. Whereas the size of the diagram grows exponentially,
+WMI-PAencodes the problem into a formula of linear size.
+13
+
+===== PDF PAGE 14 =====
+of 2N branches on theψis, each corresponding to a distinct unconditioned
+weight function of the form∏N
+i=1wiji(x) s.t. ji∈{1, 2}. See Figure 1 for an
+example forN = 3 and ψi
+def
+=Ai, i∈{1, 2, 3}. Second, the decision diagrams
+are built on the Boolean abstraction ofw(x, A), s.t. they do not eliminate a
+priori the useless branches consisting ofLRA-unsatisfiable combinations of
+ψis, which can be up to exponentially many.
+With WMI-PA, instead, the representation of(7) does not grow in size,
+because FIUCLRA functions allow for interleaving arithmetic and conditional
+operators. Also, the SMT-based enumeration algorithm does not generate
+LRA-unsatisfiable assignments on theψis.
+This fact has been empirically confirmed and is shown in Figure 2, where
+we plot in logarithmic scale the number of nodes of a KC-based encoding
+of (7) using XADD for problems of increasing size, compared with the size of
+the encoding used byWMI-PA. This graph clearly shows the exponential
+blow-up of XADD size, whereas the size of the encoding used byWMI-PA
+grows linearly. We stress the fact that(7) is not an artificial scenario: rather,
+e.g., this is the case of the real-world logistics problems in [25].
+4.2. WMI-PA
+We continue our analysis by noticing a major problem also for theWMI-
+PAalgorithm: unlike with the KC approaches,it fails to leverage the condi-
+tional structure of the weight function to prune the set of models to integrate
+over. We illustrate the issue by means of a simple example (see Figure 3).
+Example 5. Let φ
+def
+=⊤, χ
+def
+= Jx1∈[0, 2]K∧Jx2∈[0, 3]K (Figure 3(a)) and
+let w(x, A) be a tree-structured weight function defined as in Figure 3(b). To
+compute WMI(φ∧χ,w|x, A), only six integrals need to be computed:
+x2
+1x2 on Jx1∈[1, 2]K∧Jx2∈[1, 3]K (if A1 =⊤)
+x3
+1x2 on Jx1∈[1, 2]K∧Jx2∈[0, 1]K (if A1 =⊤)
+x1x2
+2 on Jx1∈[0, 1]K∧Jx2∈[2, 3]K (if A1 =⊤)
+x1x3
+2 on Jx1∈[0, 1]K∧Jx2∈[0, 2]K (if A1 =⊤)
+2x1x2 on Jx1∈[0, 2]K∧Jx2∈[0, 3]K (if A1 =⊥,A 2 =⊤)
+3x1x2 on Jx1∈[0, 2]K∧Jx2∈[0, 3]K (if A1 =⊥,A 2 =⊥)
+When WMI-PA is used (Algorithm 1), by applyingLabelConditions(...) we
+obtainφ∗(x, A∪B)
+def
+=φ∧χ∧B1↔(x1≥1)∧B2↔(x2≥1)∧B3↔(x2≥2)
+(Figure 3(c)), and the weight functionw∗(x, A∪B) shown in Figure 3(d).
+Then, by applyingTTA(∃x.φ∗) (line 2) we obtain 24 total assignmentsMA∗
+on A∪B, as shown in Figure 3(e). (Notice that all assignments containing
+14
+
+===== PDF PAGE 15 =====
+Let ϕ
+def
+= >, χ
+def
+= Jx1 2 [0, 2]K ^ Jx2 2 [0, 3]K ϕ∗(x, A [ B)
+def
+= ϕ ^ χ ^ B1 $ (x1   1) ^
+B2 $ (x2   1) ^ B3 $ (x2   2)u
+w∗(x, A [ B)w(x, A)
+b
+a cc
+cd
+ce
+(x1   1)u
+A1u
+v
+A2
+(x2   2) (x2   1)
+= >)
+>
+= ?)
+x2
+1
+x2
+3
+1 2
+x1x2
+2
+3
+2
+x1x3
+2
+2
+2x1x23x1x2
+Notice 
+1
+x3
+1
+x2
+2
+B1u
+B2B3
+A1u
+v
+A2
+= >)
+>
+= ?)
+x2
+1
+x2
+3
+1 2
+x1x2
+2
+3
+2
+x1x3
+2
+2
+2x1x23x1x2
+Notice 
+1
+x3
+1
+x2
+2
+Assignment Range w
+{ A1,A 2,B 1,B 2,B 3} Jx1 2 [1, 2]K, Jx2 2 [2, 3]K x2
+1
+x2
+{ A1,A 2,B 1,B 2, ¬B3} Jx1 2 [1, 2]K, Jx2 2 [1, 2]K x2
+1
+x2
+{ A1,A 2,B 1, ¬B2, ¬B3} Jx1 2 [1, 2]K, Jx2 2 [0, 1]K x3
+1
+x2
+{ A1,A 2, ¬B1,B 2,B 3} Jx1 2 [0, 1]K, Jx2 2 [2, 3]K x1x2
+2{ A1,A 2, ¬B1,B 2, ¬B3} Jx1 2 [0, 1]K, Jx2 2 [1, 2]K x1x3
+2{ A1,A 2, ¬B1, ¬B2, ¬B3} Jx1 2 [0, 1]K, Jx2 2 [0, 1]K x1x3
+2{ A1, ¬A2,B 1,B 2,B 3} Jx1 2 [1, 2]K, Jx2 2 [2, 3]K x2
+1
+x2
+.
+.
+. [same as with {A
+1,A 2}]
+.
+.
+.
+.
+.
+.
+{ A
+1, ¬A2, ¬B1, ¬B2, ¬B3} Jx1 2 [0, 1]K, Jx2 2 [0, 1]K x1x3
+2
+Assignment Range w
+{¬A1,A 2,B 1,B 2,B 3} Jx1 2 [1, 2]K, Jx2 2 [2, 3]K 2x1x2
+{¬A1,A 2,B 1,B 2, ¬B3} Jx1 2 [1, 2]K, Jx2 2 [1, 2]K 2x1x2
+{¬A1,A 2,B 1, ¬B2, ¬B3} Jx1 2 [1, 2]K, Jx2 2 [0, 1]K 2x1x2
+{¬A1,A 2, ¬B1,B 2,B 3} Jx1 2 [0, 1]K, Jx2 2 [2, 3]K 2x1x2
+{¬A1,A 2, ¬B1,B 2, ¬B3} Jx1 2 [0, 1]K, Jx2 2 [1, 2]K 2x1x2
+{¬A1,A 2, ¬B1, ¬B2, ¬B3} Jx1 2 [0, 1]K, Jx2 2 [0, 1]K 2x1x2
+{¬A1, ¬A2,B 1,B 2,B 3} Jx1 2 [1, 2]K, Jx2 2 [2, 3]K 3x1x2
+.
+.
+. [same as with {¬A1,A 2}] .
+.
+. .
+.
+.
+{¬A1, ¬A2, ¬B1, ¬B2, ¬B3} Jx1 2 [0, 1]K, Jx2 2 [0, 1]K 3x1x2
+>
+>
+? >
+>
+?
+>
+>
+?
+>
+>
+?
+>
+>
+? >
+>
+?
+>
+>
+?
+>
+>
+?
+Figure 3: Example highlighting the efficiency issues of the WMI-PA algorithm. ( a)
+definition of formulaφ(trivially true) and supportχ. (b) definition of the weight function
+w(x, A). Round nodes indicate if-then-else conditions, with true and false cases on the right
+and left outgoing edges respectively. Squared nodes indicateFILRA weight functions. (c)
+novel version of the formulaφ∗(x, A∪B) after the application of theLabelConditions(...)
+step of WMI-PA. (d) novel version of the weight functionw∗(x, A∪B), where allLRA
+conditions have been replaced with the fresh Boolean atoms introduced inφ∗(x, A∪B).
+(e) List of assignments obtained byWMI-PA on A∪B (split on two columns for the
+sake of compactness). Notice the amount of assignments sharing the sameFILRA weight
+function.
+{¬B2,B 3}, and hence{¬(x2≥1), (x2≥2)}, are missing because they are
+LRA-unsatisfiable.) As a result,WMI-PA computes 24 integrals instead of
+6. In particular,WMI-PA computes twice each of the first 6 integrals, for
+{A1,A 2,...}and{A1,¬A2,...}; also, it splits into 2 parts each the integrals
+of x2
+1x2 and x1x3
+2 (on the irrelevant truth values ofB3 and B2 respectively)
+and into 6 parts each the integrals of2x1x2 and 3x1x2 (on the 8 irrelevant
+truth values ofB1,B 2,B 3 minus the 2LRA-unsatisfiable ones containing
+{¬B2,B 3}). ⋄
+15
+
+===== PDF PAGE 16 =====
+The key issue aboutWMI-PA is that the enumeration ofTTA(∃x.φ∗)
+in (3) (line 2 in Algorithm 1)is not aware of the conditional structure of the
+weight functionw∗, in particular, it is not aware of the fact that oftenpartial
+assignments to the set of conditions inw∗(both inA and B, i.e., both original
+Boolean andLRA conditions inw) are sufficient to identify the value ofw∗, so
+that it is forced to enumerate allLRA-satisfiable total assignments extending
+them. (E.g., in Example 5,{A1,B 1,B 2}suffices to identifyx2
+1x2, regardless
+the values ofA2 and B3, but WMI-PA enumerates{A1,A 2,B 1,B 2,B 3},
+{A1,A 2,B 1,B 2,¬B3},{A1,¬A2,B 1,B 2,B 3},{A1,¬A2,B 1,B 2,¬B3}.) This
+has two consequences.
+First, to make the enumerator split also on the conditions inΨ , WMI-PA
+renames them with fresh Boolean atomsB, conjoining
+⋀K
+k=1(Bk↔ψk) to
+φ∧χ(line 1). Unfortunately, the above equivalences force the enumerator to
+assign a truth value toall the Bis in B (hence, to allLRA-conditions ψis in
+Ψ\A) in every assignment, even when the conditional structure ofw does
+not need it. This is what forces the unnecessary partitioning of integrals into
+subregions. (E.g., in Example 5, the integral ofx2
+1x2 is unnecessarily split
+into two integrals for(x2≥2) and¬(x2≥2) due to the unnecessary branch
+on{B3,¬B3}.)
+Second, not knowingw∗, the enumerator is forced to always assign also
+all original Boolean atoms inA, even when the combinationµA∪µB of a
+partial assignmentµA on A and a total assignmentµB on B suffices to satisfy
+φ∗and to makew∗FILRA, that is,TTA(∃x.φ∗) is used instead ofTA(∃x.φ∗)
+in (3) and in line 2 of Algorithm 1. This is what causes the unnecessary
+duplication of integrals. (E.g., in Example 5, each of the first 6 integrals is
+computed twice, for{A1,A 2,...}and{A1,¬A2,...}, due to the unnecessary
+branching on{A2,¬A2}.) Although the latter problem could in principle be
+fixed by caching all the values of the integrals, this could be expensive in
+terms of both time and memory.
+To cope with these issue, we need to modifyWMI-PAto make it aware
+of the conditional structure ofw. (One further issue, dealing with the fact
+that the conditions inΨ could not be literals, will be addressed in §5.2.2.)
+5. Making WMI-PA Weight-Structure Aware
+In order to address the issues described in §4, we aim to combine the
+best of KC approaches —i.e., weight-structure awareness— with the best of
+16
+
+===== PDF PAGE 17 =====
+PA-based approaches —i.e., SMT-based enumeration— by introducing weight-
+structure awareness into PA-based WMI. In §5.1 we present the general idea
+for making WMI-PAweight-structure aware, by introducing and exploiting
+the notion ofconditional skeletonfor w. A first preliminary approach and
+algorithm (namely “SA-WMI-PA”), based on an implicit enumeration of a
+skeleton, was proposed in [1]. For the sake of compactness, we do not report
+it here; a detailed description is reported in Appendix B. In §5.2 we propose
+our novel and current best approach and algorithm (namely “Structure-Aware
+Enumeration for WMI”, in short “SAE4WMI”), which is both much simpler
+and more effective than that from [1], in which the skeleton is generated
+explicitly.
+5.1. General Idea: Exploiting a Conditional Skeleton ofw
+We start by introducing the following concept.
+Definition 1 (Conditional skeleton ofw, sk(w)). Letφ,χbe as in §3.2;
+let w(x, A) be FIUCLRA on the set of conditionsΨ. We call aConditional
+Skeleton ofw, written sk(w), anyLRA formula s.t.:
+(a) its atoms are all and only those occurring in the conditions inΨ ;
+(b) sk(w) is valid, so thatφ∧χis equivalent toφ∧χ∧sk(w);
+(c) every partial truth value assignmentµto (the atoms occurring in) the
+conditions Ψ which makes sk(w) true is such thatw[µ] is FILRA.
+Example 6. Consider the problem in Example 5. Then the following formula
+is a conditional skeletonsk(w) for w(x, A):
+( A1∨¬A1) ∧split onA1(
+¬A1∨(x1≥1)∨¬(x1≥1)
+)
+∧if A1 split on (x1≥1)(
+¬A1∨¬(x1≥1)∨(x2≥1)∨¬(x2≥1)
+)
+∧if A1, (x1≥1) split on (x2≥1)(
+¬A1∨(x1≥1)∨(x2≥2)∨¬(x2≥2)
+)
+∧if A1,¬(x1≥1) split on (x2≥2)
+( A1∨A2∨¬A2) ∧if¬A1 split onA2
+E.g., the partial assignmentµ
+def
+={A1, (x1≥1), (x2≥1)}propositionally sat-
+isfies sk(w), and is such that, in Example 5,w[µ] = x2
+1x2, which is FILRA.
+⋄
+17
+
+===== PDF PAGE 18 =====
+Assume we have produced one such formulask(w). Unlike withWMI-PA,
+we donot rename withB the conditionsΨ inw(x, A), and we conjoin toφ∧χ
+the skeleton sk(w) instead of⋀K
+k=1(Bk↔ψk). Unlike with⋀K
+k=1(Bk↔ψk),
+which needstotal assignments toΨ (i.e., to B) to be satisfied, forsk(w) it
+suffices to producepartial assignments toΨ which verify condition (c), i.e.,
+those assignmentsµs.t. w[µ] is FILRA. Thus, we can rewrite (3)–(4) into:
+WMI(φ,w|x, A) =
+∑
+µ∈TA(φsk)
+2|A\µ|·WMInb(φsk
+[µ],w [µ]|x) (8)
+φsk def
+= φ∧χ∧sk(w) (9)
+(Notice that in (8) µis inTA(φsk), notTTA(φsk), that is, we enumerate
+partial assignmentsµfor φsk and, in particular,partial assignments forΨ .)
+Condition (c) in Definition 1 guarantees thatWMInb(φsk
+[µ],w [µ]|x) in (8) can
+be directly computed even thoughµis partial, without further partitioning
+due to irrelevant conditions. The2|A\µ|factor in (8), where|A\µ|is the
+number of Boolean atoms inA that are not assigned byµ, resembles the fact
+that, ifAi∈A is not assigned inµ, then WMInb(φsk
+[µ],w [µ]|x) must be counted
+twice, becauseµrepresents two assignmentsµ∪{Ai}and µ∪{¬Ai}which
+would produce two identical integrals, because theirLRA component and the
+branch of the weight function they identify are identical. When|A\µ|> 0,
+this allows to compute only one integral rather than2|A\µ|ones (!).
+Notice that the latter is only one of the computational advantages of(8)-
+(9) w.r.t. (3)-(4): even more importantly,(8)-(9) allow for enumerating partial
+assignments also on theLRA-conditions inΨ\A, reducing the number of
+integrals to compute for each partial assignmentµby up to a2j factor,j being
+the number of unassignedLRA atoms inµ. (In this case, no multiplication
+factor should be considered, because an unassignedLRA condition ψi in µ
+causes the merging of the two integration domains ofµ∪{ψi}andµ∪{¬ψi}.)
+Example 7. Consider the problem in Example 5 and the correspondingsk(w)
+formula in Example 6. Letφsk def
+=φ∧χ∧sk(w), as in(9). We show howTA(φsk)
+in (8) can be produced by the SMT solver. Assume nondeterministic choices
+are picked following the orderA1,A 2, (x1≥1), (x2≥1), (x2≥2), assigning
+positive values first. Then in the first branch the following satisfyingtotal
+truth assignment is generated:
+{(x1≥0), (x1≤2), (x2≥0), (x2≤3)}∪{A1,A 2, (x1≥1), (x2≥1), (x2≥2)}
+18
+
+===== PDF PAGE 19 =====
+(where{(x1≥0), (x1≤2), (x2≥0), (x2≤3)}is assigned deterministically to
+satisfy theφ∧χpart) from which the solver extracts the minimal partial truth
+assignment which evaluatessk(w) to true:
+µ1
+def
+={(x1≥0), (x1≤2), (x2≥0), (x2≤3)}∪{A1, (x1≥1), (x2≥1)}.
+In the next branch, the following minimal partial assignment is produced:
+µ2
+def
+={(x1≥0), (x1≤2), (x2≥0), (x2≤3)}∪{A1, (x1≥1),¬(x2≥1)}.
+s.t. µ1,µ2 assign opposite truth value to (at least) one atom. Overall, the
+algorithm enumerates the following collection of minimal partial assignments:
+{(x1≥0), (x1≤2), (x2≥0), (x2≤3)}∪{A1, (x1≥1), (x2≥1)},
+{(x1≥0), (x1≤2), (x2≥0), (x2≤3)}∪{A1, (x1≥1),¬(x2≥1)},
+{(x1≥0), (x1≤2), (x2≥0), (x2≤3)}∪{A1,¬(x1≥1), (x2≥2)},
+{(x1≥0), (x1≤2), (x2≥0), (x2≤3)}∪{A1,¬(x1≥1),¬(x2≥2)},
+{(x1≥0), (x1≤2), (x2≥0), (x2≤3)}∪{¬A1, A 2},
+{(x1≥0), (x1≤2), (x2≥0), (x2≤3)}∪{¬A1,¬A2}
+which correspond to the six integrals of Example 5. Notice that according
+to (8) the first four integrals have to be multiplied by 2, because the partial
+assignment{A1}covers two total assignments{A1,A 2}and{A1,¬A2}. ⋄
+Notice that logic-wisesk(w) is non-informative because it is a valid formula
+(condition (b) in Definition 1). Nevertheless, the role ofsk(w) is not only to
+“make the enumerator aware of the presence of the conditionsΨ ” —like the⋀K
+k=1(Bk↔ψk) in WMI-PA— but also to mimic the conditional structure
+of w, forcing every assignmentµto assign truth values to all and only those
+conditions in Ψ which are necessary to makew[µ] FILRA, and hence make
+WMInb(φsk
+[µ],w [µ]|x) directly computable, without further partitioning.
+In principle, we could use assk(w) (aLRA formula encoding the condi-
+tional structure of) an XADD or (F)XSDD, which do not suffer from the lack
+of structure awareness ofWMI-PA. However, this would cause a blow-up in
+size, as discussed in §4.1. To this extent, avoidingsk(w) blow up in size is a
+key issue in our approach, which we will discuss in the following steps.
+5.2. Encoding a Conditional Skeleton Explicitly
+5.2.1. Encoding
+Algorithm 2 shows the procedure for building explicitly a formulask(w).
+Intuitively, the output consists of a conjunction of formulas, each stating
+19
+
+===== PDF PAGE 20 =====
+Algorithm 2 ConvertSK(w, conds) // conds is a set of literal conditions
+1: if ({w is a constant or a polynomial})then
+2: return ⊤
+3: if (w == (w1 ▷◁w2), ▷◁∈{+,−,·}) then
+4: return ConvertSK(w1, conds)∧ConvertSK(w2, conds)
+5: if (w ==g(w1,...,wk), g unconditioned) then
+6: return ⋀k
+i=1 ConvertSK(wi, conds)
+7: if (w == (If ψThen w1 Else w2)) then
+8: if ψis a literalthen
+9: branch←⋁
+ψi∈conds¬ψi∨ψ∨¬ψ
+10: defs1←ConvertSK(w1, conds∪{ψ})
+11: defs2←ConvertSK(w2, conds∪{¬ψ})
+12: return branch∧defs1∧defs2
+13: else
+14: let B be a fresh Boolean atom
+15: branch←(⋁
+ψi∈conds¬ψi∨B∨¬B)∧
+J⋁
+ψi∈conds¬ψi∨CNFpg(B↔ψ)K
+16: defs1←ConvertSK(w1, conds∪{B})
+17: defs2←ConvertSK(w2, conds∪{¬B})
+18: return branch∧defs1∧defs2
+“if all the conditionsψ1,..,ψi of the current sub-branch inw hold, then split
+on the next conditionψi+1 in the branch”. For example, for the problem in
+Example 5, Algorithm 2 produces assk(w) the formula reported in Example 6,
+whose satisfying partial assignments can be enumerated as in Example 7.
+The recursive procedureConvertSK(wi, conds) takes as input the current
+subtree wi of the weight functionw and the set of literalsconds representing
+the conditions under whose scopewi occurs, and returns the CNF repres-
+entation of⋀
+ψi∈condsψi→sk(wi) (i.e., it returnsJ(⋁
+ψi∈conds¬ψi)∨sk(wi)K).
+Hence, ConvertSK(w,∅) returns sk(w). Notice that the setconds contains the
+conditions that need to be true in order to activate the current branch.
+We first focus on lines 1-12, in which we assume that the weight conditions
+ψi are literals (the behaviour in case of non-literal conditions, lines 14-18, will
+be explained in §5.2.2). The recursive encoding ofsk(w) works as follows:
+(Lines 1-2): A constant or a polynomial does not contain weight conditions.
+Thus, we can simply encode it with⊤. Notice that hereconds has no
+role, because (⋀
+ψi∈condsψi)→⊤reduces to⊤.
+20
+
+===== PDF PAGE 21 =====
+(Lines 3-4): A term representing an arithmetic operator w1 ▷◁ w2, with
+▷◁∈{+,−,·}must ensure that the conditions in both branchesw1,w 2
+are enumerated. Thus, we encode it by conjoining the results of the
+conversion procedure onw1 and w2.
+(Lines 5-6): Similarly, a term representing an unconditioned function in the
+form g(w1,...,wk), must ensure that the conditions in all the branches
+w1...wk are enumerated. Thus, we encode it by conjoining the results
+of the conversion procedure onw1,...,wk.
+(Lines 7-12): Whenencodingaconditionaltermintheform (IfψThenw1 Elsew2),
+if ψis a literal, we have the following:
+(Line 9): When all conds are true, thenψmust be split upon. This fact
+is encoded by the valid clause:
+⋁
+ψi∈conds¬ψi∨ψ∨¬ψ. (10)
+(Line 10): When (all conds and are true and)ψis true, all the branches
+of w1 must be enumerated. This is encoded by recursively calling
+the conversion procedure onw1 adding ψto the conditionsconds
+that need to be true to activate the branch ofw1, which returns
+J⋁
+ψi∈conds¬ψi∨¬ψ∨sk(w1)K.
+(Line 11): Similarly, when (allconds are true and)ψis false, all the
+branches ofw2 must be enumerated. This is encoded by recursively
+calling the conversion procedure onw2 adding¬ψto conds, which
+returns J⋁
+ψi∈conds¬ψi∨ψ∨sk(w2)K.
+Unlike with KC approaches, it is easy to see thatsk(w) grows linearly in size
+w.r.t. w. E.g., with (7), sk(w) is ⋀N
+i=1(ψi∨¬ψi), whose size grows linearly
+rather than exponentially w.r.t.N.
+5.2.2. Dealing with non-literal conditions
+State-of-the-art SMT solvers, e.g.,MathSAT[44], deal very efficiently
+with formulas expressed in CNF. Hence, if the input formula is not in CNF,
+a CNF-ization step is typically performed before the solving process.
+We first recall some basic notions about CNF-ization (see Appendix A.3
+for details.) A formula φ(x, A) can be converted into an equivalent one
+(“CNF(φ)”) by recursively applying some rewriting rules; unfortunately the
+21
+
+===== PDF PAGE 22 =====
+size ofCNF(φ) can be exponential w.r.t. that ofφ. A typically better choice is
+Tseitin CNF-ization[46] (“CNFts(φ)”), which consists in applying recursively
+the “labelling” rewrite ruleφ=⇒φ[ψ|B]∧(B↔ψ) —φ[ψ|B] being the
+results of substituting all occurrences of a subformulaψwith a fresh Boolean
+atom B— until all conjuncts can be CNF-ized classically without space blow-
+up. Alternatively, one can apply the ruleφ=⇒φ[ψ|B]∧(B→ψ) under
+some restrictions (“CNFpg(φ)”) [47]. With both cases, the resulting formula
+ϕ(x, A∪B) is s.t.φ(x, A) is equivalent to∃B.ϕ(x, A∪B), B being the set
+of fresh atoms introduced, and the size ofϕis linear w.r.t. that ofφ. Thus
+TTA(φ),TA(φ),TTA(∃x.φ) andTA(∃x.φ) can be computed asTTA(∃B.ϕ),
+TA(∃B.ϕ),TTA(∃x.∃B.ϕ) andTA(∃x.∃B.ϕ), respectively.
+Algorithm 2 in §5.2.1 assumes that the conditions inΨ are single literals,
+either Boolean orLRA ones. In general, this is not necessarily the case, for
+instance it is common to haverange conditionsin the form(xi≥l)∧(xi≤u)
+or even more complex conditions. In these cases, the skeleton formula is not in
+CNF form. In fact,CNF(⋀
+iψi→φ) can be straightforwardly computed out
+of CNF(φ) only if theψis are literals, because this reduces to augment each
+clause in CNF(φ) with
+⋁
+i¬ψi. If this is not the case, then the CNF-ization
+either may cause a blow-up in size if equivalence-preserving CNF-ization is
+applied, or it may require some variant of Tseitin CNF-ization [46]. SMT
+solvers typically rely on the second option for satisfiability checks. For what
+enumeration is concerned, however, introducing new atomic labels that define
+complex subformulas can force the enumeration procedure to produce more
+partial assignments than necessary [48]. This is what happens withWMI-PA,
+and also withSA-WMI-PA[1], when conditions inΨ are non-literals.
+We illustrate this problem in Example 8. Our proposed solution will be
+eventually illustrated in Example 9.
+Example 8. Consider the following WMI problem:
+φ=⊤
+χ= (x1≥0)∧(x1≤6)∧(x2≥0)∧(x2≤3)
+w = If (x1≤4) Then
+(If (x1≤2)∨((x1≤3)∧(x2 > 1)) Then f1(x) Else f2(x)) Else
+(If (x2 > 2)∨((x1 > 5)∧(x2 > 3
+2)) Then f3(x) Else f4(x))
+s.t. thefi(x)s are condition-less functions, which is graphically represented in
+Figure 4a. Notice that some conditions of the weight function are not literals.
+22
+
+===== PDF PAGE 23 =====
+x1
+x2
+1 2 3 4 5 6
+1
+2
+3
+f1(x)
+f2(x) f4(x)
+f3(x)
+(a) WMI problem.
+x1
+x2
+1 2 3 4 5 6
+1
+2
+3
+f1(x) f2(x) f4(x)
+f3(x) (b) WMI-PA
+x1
+x2
+1 2 3 4 5 6
+1
+2
+3
+f1(x) f2(x) f4(x)
+f3(x)
+(c) SA-WMI-PA
+x1
+x2
+1 2 3 4 5 6
+1
+2
+3
+f1(x) f2(x) f4(x)
+f3(x) (d) SAE4WMI
+Figure 4: Graphical representation of the effectiveness ofSAE4WMI as compared to the
+alternatives: (a) WMI problem from Example 8, with 4 non-convex areas ofFILRA weights.
+Notice that the weight function includes non-literal conditions; (b)WMI-PA computes 20
+distinct integrals; (c) SA-WMI-PA, using both the implicit and explicit non-CNF skeleton
+versions, computes11 distinct integrals; (d) SAE4WMI, that uses the “local” CNF explicit
+skeleton, computes 8 distinct integrals, the minimum number of integrals that is needed to
+retain convexity of their areas (i.e.,FILRA weights).
+23
+
+===== PDF PAGE 24 =====
+Thus, if we wroteφsk def
+=φ∧χ∧sk(w) without concerning about this fact, then
+we would obtain the following non-CNF formula to feed to the SMT solver:
+(x1≥0)∧(x1≤6)∧(x2≥0)∧(x2≤3)∧
+((x1≤4)∨¬(x1≤4)) ∧
+(¬(x1≤4)∨ψ1∨¬ψ1) ∧
+( ( x1≤4)∨ψ2∨¬ψ2)
+where
+ψ1
+def
+=
+B1
+  
+(x1≤2)∨((x1≤3)∧(x2 > 1))  
+B3
+, ψ2
+def
+=
+B2
+  
+(x2 > 2)∨((x1 > 5)∧(x2 > 3
+2))
+  
+B4
+The solver would apply Tseitin CNF-ization, labelling the subformulas by fresh
+Boolean atoms{B1,B 2,B 3,B 4}as above, producing the CNF formulaϕ4:
+(x1≥0)∧(x1≤6)∧(x2≥0)∧(x2≤3) ∧φ∧χ(
+(x1≤4)∨¬(x1≤4)
+)
+∧ (x1≤4)∨¬(x1≤4)(
+¬(x1≤4)∨B1∨¬B1
+)
+∧¬(x1≤4)∨B1∨¬B1(
+¬B1∨(x1≤2)∨B3
+)
+∧ CNFts(B1→ψ1)(
+¬B3∨(x1≤3)
+)
+∧
+(
+¬B3∨(x2 > 1)
+)
+∧(
+B3∨¬(x1≤3)∨¬(x2 > 1)
+)
+∧(
+B1∨¬(x1≤2)
+)
+∧
+(
+B1∨¬B3
+)
+∧ CNFts(B1←ψ1)(
+(x1≤4)∨B2∨¬B2
+)
+∧ (x1≤4)∨B2∨¬B2(
+¬B2∨(x2 > 2)∨B4
+)
+∧ CNFts(B2→ψ2)(
+¬B4∨(x1 > 5)
+)
+∧
+(
+¬B4∨(x2 > 3
+2)
+)
+∧(
+B4∨¬(x1 > 5)∨¬(x2 > 3
+2)
+)
+∧(
+B2∨¬(x2 > 2)
+)
+∧
+(
+B2∨¬B4
+)
+CNFts(B2←ψ2)
+(11)
+and then computeTA(φsk) in (8) asTA(∃B.ϕ), s.t. theBis will not occur in
+the enumerated models (see §3.1).
+Consider, e.g., the partial truth assignment:
+µ
+def
+= {(x1≥0), (x1≤6), (x2≥0), (x2≤3)} ∪ (12)
+{(x1≤4),¬(x1≤2),¬(x1≤3),¬B1,¬B3}
+4Here we colour the labelling clauses introduced byCNFts(...) as the corresponding
+regions in Figure 4. We recall thatCNFts(Bi↔ψi) is CNFts(Bi→ψi)∧CNFts(Bi←ψi).
+24
+
+===== PDF PAGE 25 =====
+which would be sufficient to makew[µ] FILRA because it suffices to identify
+f2(x). Unfortunately,µdoes not suffice to evaluate(11) to true because of
+the last six clauses, which representB2↔((x2 > 2)∨((x1 > 5)∧(x2 > 3
+2))).
+Thus, when computingTA(∃B.ϕ), the solver is forced to assign truth values
+also to other atoms, in particular toB2 andB4. WhereasB4 can be consistently
+assigned only to false due to the clause(¬B4∨(x1 > 5)) and the fact that
+(x1≤4) is true,B2 can assume consistently both truth values, so that the
+solver is forced to branch onB2 and¬B2, which respectively force(x2 > 2)
+and¬(x2 > 2), causing the unnecessary generation of two distinct integrals on
+f2(x), forx1∈[3, 4],x 2∈[0, 2] and x1∈[3, 4],x 2∈]2, 3] respectively, instead
+of only one onx1∈[3, 4],x 2∈[0, 3].(Notice that the atom(x2 > 2) belongs
+to a condition in the “(x1≤4) =⊥” branch ofw, whereas withµwe are
+actually considering the “(x1≤4) =⊤” branch.)
+This issue is graphically represented in Figure 4c, where we show the
+regions enumerated bySA-WMI-PA[1] on the above problem, by using either
+the implicit version ofsk(w) as in the original algorithm or the non-CNF
+explicit version ofsk(w): 11 convex regions are enumerated. Notice that the
+brown, red and grey areas are each split into tree regions, whereas it is possible
+to split each into two convex regions only. ⋄
+The source of the problem is that, with Tseitin CNF-ization, each “labelling
+definition”CNFts(Bi↔ψi) is conjoined to the rest of the formula, so that the
+SMT solver is forced to enumerate the different ways to satisfy iteven when
+the rest of the assignment selects a branch which does not involve the condition
+ψi. Notice that the fact thatBi is implicitly treated as existentially-quantified,
+so that it does not occur in the enumerated models (see §3.1) does not help,
+because ψi and the atoms in it instead do occur in the enumerated models,
+s.t. the enumerator is forced to split on their truth values anyway. (E.g., in
+Example 8, althoughB2 is implicitly existentially quantified, the enumerator
+is forced to split on(x2 > 2) anyway.)
+To cope with this problem, we propose a variant of the Tseitin CNF-
+ization for the skeleton where each “labelling definition”CNFts(B↔ψ) and
+all occurrences ofB are “local”, that is, they occur in the formula only implied
+by the conditions inconds, so that the definitions are simplified to true unless
+the assignment selects a branch which propositionally satisfies all conditions
+in conds. Thus, in Algorithm 2, lines 14-18, we substitute each non-literal
+condition ψin branch and defsi from lines 9-12 with a fresh Boolean atomB
+25
+
+===== PDF PAGE 26 =====
+and we addJ⋁
+ψi∈conds¬ψi∨CNFpg(B↔ψ)K5 instead ofCNFts(B↔ψ) to the
+main formula, whereCNFpg(...) is the CNF-ization in [47]6, so thatbranch is
+equivalent to(⋀
+ψi∈condsψi)→((B∨¬B)∧CNFpg(B↔ψ)). (We recall that
+all ψis in conds are literals by construction, see Algorithm 2.)
+Example 9. With the problem of Example 8,φsk def
+=φ∧χ∧sk(w) is7:
+(x1≥0)∧(x1≤6)∧(x2≥0)∧(x2≤3) ∧φ∧χ(
+(x1≤4)∨¬(x1≤4)
+)
+∧ (x1≤4)∨¬(x1≤4)(
+¬(x1≤4)∨B1∨¬B1
+)
+∧¬(x1≤4)∨B1∨¬B1(
+¬(x1≤4)∨¬B1∨(x1≤2)∨B3
+)
+∧J¬(x1≤4)∨CNFpg(B1→ψ1)K(
+¬(x1≤4)∨¬B1∨¬B3∨(x1≤3)
+)
+∧(
+¬(x1≤4)∨¬B1∨¬B3∨(x2 > 1)
+)
+∧(
+¬(x1≤4)∨B1∨¬(x1≤2)
+)
+∧J¬(x1≤4)∨CNFpg(B1←ψ1)K(
+¬(x1≤4)∨B1∨¬(x1≤3)∨¬(x2 > 1)
+)
+∧(
+(x1≤4)∨B2∨¬B2
+)
+∧ (x1≤4)∨B2∨¬B2(
+(x1≤4)∨¬B2∨(x2 > 2)∨B4
+)
+∧J (x1≤4)∨CNFpg(B2→ψ2)K(
+(x1≤4)∨¬B2∨¬B4∨(x1 > 5)
+)
+∧(
+(x1≤4)∨¬B2∨¬B4∨(x2 > 3
+2)
+)
+∧(
+(x1≤4)∨B2∨¬(x2 > 2)
+)
+∧J (x1≤4)∨CNFpg(B2←ψ2)K(
+(x1≤4)∨B2∨¬(x1 > 5)∨¬(x2 > 3
+2)
+)
+(HereB1,B 2 are labels for conditionsψ1
+def
+= (x1≤2)∨((x1≤3)∧(x2 > 1)),
+ψ2
+def
+= (x2 > 2)∨((x1 > 5)∧(x2 > 3
+2)) respectively, as in Example 8, whereas
+B3,B 4 are labels introduced byCNFpg(...), which do not produce valid clauses
+in the form(...∨Bi∨¬Bi).) For instance, the assignmentµin (12) evaluates
+to true all the clauses ofφsk, so that the solver considers it as satisfying
+assignment for the formula.
+5recall from §3.1 thatJC∨⋀
+iCiK
+def
+= ⋀
+i(C∨Ci).
+6Here we useCNFpg instead of CNFts because the former generates fewer clauses and
+behaves generally better, although we could useCNFts without affecting correctness.
+7Here we colour the literals deriving from the labelling clauses introduced by
+CNFpg(...) as the corresponding regions in Figure 4. We recall that CNFpg(Bi↔ψi)
+is CNFpg(Bi→ψi)∧CNFpg(Bi←ψi).
+26
+
+===== PDF PAGE 27 =====
+Algorithm 3 SAE4WMI(φ,w,x, A)
+1: sk(w)←ConvertSK(w,∅)
+2: φsk←φ∧χ∧sk(w)
+3:MA←TA(∃x.φsk)
+4: vol←0
+5: for µA∈MA do
+6: k←|A\µA|
+7: Simplify(φsk
+[µA])
+8: if LiteralConjuction(φsk
+[µA]) then
+9: vol←vol + 2k·WMInb(φsk
+[µA],w [µA]|x)
+10: else
+11: M←TA(φsk
+[µA])
+12: for (µ
+def
+=µA′∧µLRA)∈Mdo
+13: k′←k−|µA′|
+14: vol←vol + 2k′
+·WMInb(µLRA,w [µA∧µ]|x)
+15: return vol
+In Figure 4d we show the regions enumerated by theSAE4WMI procedure
+(§5.2.3), using as skeleton the “local” CNF version ofsk(w). We see that the
+regions enumerated are 8, instead of the 11 of Figure 4c. In this case 8 is also
+the minimum number of convex areas into which we can split the problem,
+because the 4 distinct coloured areas in Figure 4a are non-convex, and as such
+their integral cannot be computed with single integrations. ⋄
+We stress the importance of the locality of labelling clauses in the enu-
+meration of truth assignments: the SMT enumerator needs branching onB
+(hence, onψ) only in those branches in which allconds are true, that is, only
+in those branches where a truth value for conditionψis needed to define a
+branch ofw. Notice that, ifCNFpg introduces some labelling definitions, then
+also the latter are active only when allconds are true.
+5.2.3. The SAE4WMI Procedure
+We devised a new algorithm,SAE4WMI, that explicitly encodes the
+weight function assk(w) (§5.2.1), handles non-literal conditions effectively
+(§5.2.2), and introduces some further improvements in the enumeration, which
+we describe below. The outline of the procedure is shown in Algorithm 3.
+(To simplify the narration, here we assume that the encoding ofsk(w) did
+27
+
+===== PDF PAGE 28 =====
+not cause the introduction of fresh Boolean variablesB, see §5.2.2; if not
+so, thenTA(∃x.φsk) andTA(φsk
+[µA]) in Algorithm 3 should be replaced with
+TA(∃x.∃B.φsk) andTA(∃B.φsk
+[µA]) respectively.)
+• (Lines 1-3) After producingsk(w) by Algorithm 2, we first enumerate
+by projected AllSMT a setMA of partial truth assignmentsµA over
+A, s.t.MA def
+=TA(∃x.φsk), whereφsk def
+=φ∧χ∧sk(w).
+• (Lines 5-14) For eachµA∈MA we compute and simplify the residual
+formulaφsk
+[µA]. As withWMI-PAand SA-WMI-PA, ifφsk
+[µA] is already
+a conjunction of literals, then we can simply compute and return its
+integral, which is multiplied by a2k factor, k being the number of
+unassigned Boolean atoms inµA.8 If this is not the case, we proceed
+by enumerating a setM of partial truth assignmentsµ=µA′∧µLRA
+over the remaining atoms of the formula, s.t.M
+def
+=TA(φsk
+[µA]). Notice
+that, sinceµA is partial,φsk
+[µA] could still contain Boolean atoms (see
+Examples 10 and 15), so thatµcould contain some non-empty Boolean
+component µA′. We then compute the integral of theFILRA function
+w[µA∧µ] over the convex areaµLRA. As above, we need to multiply this
+integral by a2k′
+factor, k′def
+=k−|µA′|being the number of unassigned
+Boolean atoms inµA∧µ.
+As with WMI-PA and SA-WMI-PA, in the implementation (Lines 3-5
+and 10-12) the setsMA andM are not generated explicitly; rather, their
+elements are generated, integrated and then dropped one-by-one, so as to
+avoid space blow-up (see Remark 1).
+We remark that producing smaller partial assignments over the Boolean
+atoms, as done with SAE4WMI, has a positive effect regardless of the
+structure of the weight function. In Example 10 we give an intuition of
+the benefits introduced by the improvements of the enumeration phase in
+SAE4WMI.
+8Notice that in this case the conjunction of literalsφsk
+[µA] does not contain Boolean
+literals, because they would have already been assigned byµA.
+28
+
+===== PDF PAGE 29 =====
+µA µA
+residual µLRA
+¬A1 ¬A2 A3 (x≥0) ( x≤3)
+A1 ¬A2 A3 (x≥1) ( x≤3)
+A1 ¬A2 ¬A3 (x≥1) ( x≤4)
+A2 A1 A3 (x≥2) ( x≤3)
+A2 A1 ¬A3 (x≥2) ( x≤4)
+A2 ¬A1 A3 (x≥2) ( x≤3)
+A2 ¬A1 ¬A3 (x≥2) ( x≤4)
+(a) Assignments enumerated by WMI-PA and SA-WMI-PA
+µA µ
+def
+=µA′∧µLRA
+¬A1 ¬A2 A3 (x≥0) ( x≤3)
+A1 ¬A2 A3 (x≥1) ( x≤3)
+A1 ¬A2 ¬A3 (x≥1) ( x≤4)
+A2 A3 (x≥2) ( x≤3)
+A2 ¬A3 (x≥2) ( x≤4)
+(b) Assignments enumerated by SAE4WMI.
+Table 1: Assignments enumerated by WMI-PA and SA-WMI-PA (a) and by
+SAE4WMI (b) for the problem in Example 10. (We omit theLRA-literals which are
+implied by the others and do not contribute to the integral —e.g.,(x≥0) when (x≥2) is
+true.)
+Example 10. Consider the following WMI problem:
+φ= (A1∨A2∨A3)∧(¬A1∨(x≥1))∧(¬A2∨(x≥2))∧(¬A3∨(x≤3))
+χ= (x≥0)∧(x≤4)
+w = 1.0
+(w is constant andΨ =∅, thus⋀
+iBi↔ψi and sk(w) reduce to⊤and is
+thus irrelevant, andφ∗= φsk def
+= φ∧χ.) WMI-PA and SA-WMI-PA [1]
+enumerate the 7 assignments listed in Table 1a, whereas withSAE4WMI the
+number of assignments enumerated shrinks to 5, as shown in Table 1b.
+With WMI-PA,TTA(∃x.φ∗) directly generates in one step the 7 total
+truth assignmentsµA∧µA
+residual in Table 1a.
+With bothSA-WMI-PAand SAE4WMI,TA(∃x.φsk) produces the partial
+assignmentµA ={A2}, so thatφsk
+[µA] reduces to(x≥0)∧(x≤4)∧(¬A1∨(x≥
+1))∧(x≥2)∧(¬A3∨(x≤3)). Then:
+with SA-WMI-PA,TTA(∃x.φsk
+[µA]) enumerates all 4 total residual assign-
+29
+
+===== PDF PAGE 30 =====
+ments onA1,A 3,9 duplicating the two integrals onx∈[2, 3] and x∈[2, 4] by
+uselessly case-splitting onA1 and¬A1, as in the last four rows in Table 1a;
+with SAE4WMI, TA(φsk
+[µA]) enumerates only the two partial assign-
+ments:10{A3, (x≥0), (x≤4), (x≥1), (x≥2), (x≤3)},
+{¬A3, (x≥0), (x≤4), (x≥1), (x≥2)},
+as reported in the last two rows in Table 1b. The two corresponding integrals
+are multiplied by2(3−|{A2}|−|{A3}|) = 2 and 2(3−|{A2}|−|{¬A3}|) = 2 respectively.⋄
+The benefit becomes more evident as the number of Boolean atoms increases,
+since if we avoid computing theTTA(∃x.φsk
+[µA]) over the residual Boolean
+atoms, then we are potentially largely cutting the number of integrals.
+6. Experimental Evaluation
+Inthefollowingexperiments, weevaluatetheperformancegainof SAE4WMI
+over the current state of the art in WMI. Specifically, we explore the effect of
+the novel structure encoding using the same setting of our recent conference
+paper [1]. To this extent, we compare the proposed algorithmSAE4WMI,
+and its previous versionSA-WMI-PA [1], with the previous SMT-based
+approach WMI-PA[25], and with the state-of-the-art KC-based approaches:
+XADD [28], XSDD and FXSDD [30]. For WMI-PA, SA-WMI-PA and
+SAE4WMI, we use a slightly-modified version ofMathSAT[44]11 for SMT
+enumeration.12
+Convex integration is handled byLattE Integrale [49] in the SMT-
+based approaches, whereas KC-based solvers use PSI Algebra for both integ-
+ration and inconsistency checking [50]. This difference is not penalizing the
+KC-based approaches, which were shown to achieve worse results when using
+LattE [30].
+9Here∃x.φsk
+[µA] corresponds to valid Boolean formula on{A1,A 3}.
+10Here the truth value ofA1 is irrelevant because(x≥1) is forced to be true by(x≥2).
+11We have added one option toMathSATallowing to disable the simplification of valid
+clauses, which would otherwise eliminate all the clauses “(...∨ψi∨¬ψi)” fromsk(w). The
+binary file integrating these modifications is attached to the code ofSAE4WMI.
+12To computeTA(...), MathSATis invoked with the options:
+-dpll.allsat_allow_duplicates=false (all assignments differ for at least one truth
+value), -dpll.allsat_minimize_model=true (assignments are partial and are minimized),
+-preprocessor.simplification=0 and -preprocessor.toplevel_propagation=false
+(disable several non-validity-preserving preprocessing steps). To computeTTA(...), the
+second option is set tofalse.
+30
+
+===== PDF PAGE 31 =====
+Timeout XSDD FXSDD XADD WMI-PA SA-WMI-PASAE4WMI
+0 10 20 30 40
+0
+1000
+2000
+3000
+Problem instance
+Query execution time (seconds)
+0 10 20 30 40
+0
+50
+100
+150
+Problem instance
+Number of integrations
+Figure 5: Cactus plots of the synthetic experiments reporting execution time (left) for all
+the methods; number of integrals (right) forWMI-PA, SA-WMI-PAand SAE4WMI.
+All experiments are performed on an Intel Xeon Gold 6238R @ 2.20GHz 28
+Core machine with 128 GB of RAM and running Ubuntu Linux 20.04. The
+code of bothSA-WMI-PAand SAE4WMIis freely available athttps://
+github.com/unitn-sml/wmi-pa, and the benchmarks are available athttps:
+//github.com/unitn-sml/wmi-benchmarks.
+We report our findings using cactus plots. Each tick on the x-axis corresponds
+to a single instance, and results on the y-axis are sorted independently for
+each method. Steeper slopes mean lower efficiency.
+6.1. Synthetic experiments
+Dataset description. As in our previous paper, random formulas are obtained
+using the generator introduced by Morettin et al.[25]. In contrast with
+other recent works [28, 30], these synthetic benchmarks do not contain strong
+structural regularities, offering a more neutral perspective on how the different
+techniques are expected to perform on average. We fix to 3 the number of
+Boolean and real variables, while varying the depth of the weights in the
+range [4, 7]. Timeout is set to 3600 seconds.
+Results. Consistently with previous papers, in this setting SMT-based solvers
+obtain superior performance with respect to KC-based ones (Figure 5 left),
+which suffer from the complex algebraic dependencies between continuous
+variables. Our structure-aware algorithms,SA-WMI-PAand SAE4WMI,
+further drastically improve overWMI-PAin terms of time and number of
+31
+
+===== PDF PAGE 32 =====
+computed integrals (Figure 5). These results are aligned with our expectations.
+Indeed, the advantage of structure-awareness given by the introduction of
+either form of skeleton is eye-catching.
+Additionally, SAE4WMI is able to gain some advantage over its previous
+version SA-WMI-PA, although the order of magnitude remains quite the
+same. Notice that in this setting, the number of Boolean atoms is limited
+to 3, so that the revised enumeration technique of §5.2.3 for the Boolean
+component of the formula does not show its full potential. The benefits of the
+novel algorithm SAE4WMI with respect toSA-WMI-PA(and WMI-PA)
+will be evident in the next experiment, where more-complex logical structures
+are involved.
+6.2. Inference on Density Estimation Trees
+Dataset description. We then consider the problem of computing arbitrary
+algebraic queries overDensity Estimation Trees(DETs) [51]. DETs are the
+densityestimationequivalentofdecisionorregressiontrees, encodingpiecewise
+constant distributions over mixed continuous/discrete domains. Having only
+univariate conditions in the internal nodes, DETs support efficient density
+estimation and marginal inference over single variables. Answering algebraic
+queries over multiple variables, likePr(X≤Y ), requires instead marginalizing
+over an oblique constraint, which is reduced to:
+Pr(X≤Y ) = WMI((X≤Y )∧χDET,w DET)
+WMI(χDET,w DET) . (13)
+This type of query commonly arises when applying WMI-based inference
+to probabilistic formal verification tasks, when properties involve multiple
+continuous variables. The supportχDET is obtained by conjoining the lower
+and upper bounds of each continuous variable, whilewDET encodes the density
+estimate by means of nested if-then-elses and non-negative constant leaves.
+Consistently with our previous conference paper [1], we train DETs on a
+selection of hybrid datasets from the UCI repository [52]. The datasets and
+resulting models are summarized in §Appendix C. Following the approach
+of [53], discrete numerical features are relaxed into continuous variables, while
+n-ary categorical features are one-hot encoded withn binary variables.
+DETs are trained on each dataset using the standard greedy procedure [51]
+with bounds on the number of instances for each leaf set to[100, 200]. We
+investigate the effect of algebraic dependencies by generating increasingly
+32
+
+===== PDF PAGE 33 =====
+Timeout XSDD FXSDD XADD WMI-PA SA-WMI-PASAE4WMI
+0 20 40 60 80
+0
+200
+400
+600
+800
+1000
+1200
+Problem instance
+Query execution time (seconds)
+(a) H = 0.25
+0 20 40 60 80
+0
+200
+400
+600
+800
+1000
+1200
+Problem instance
+Query execution time (seconds) (b) H = 0.5
+0 20 40 60 80
+0
+200
+400
+600
+800
+1000
+1200
+Problem instance
+Query execution time (seconds)
+(c) H = 0.75
+0 20 40 60 80
+0
+200
+400
+600
+800
+1000
+1200
+Problem instance
+Query execution time (seconds) (d) H = 1.0
+Figure 6: Cactus plots representing average query execution times in seconds on a set of
+DET problems withH∈{0.25, 0.5, 0.75, 1}.
+complex queries involving a number of variablesk = max(1,⌊H·|x|⌋), where
+H∈[0, 1] is the ratio of continuous variables appearing in the inequality. For
+each value ofH, 5 random inequalities involvingk variables are generated,
+for a total of20 problem instances for each dataset. Given the larger number
+of problems in this setting, the timeout has been decreased to 1200 seconds.
+Results. Figure6depictstheruntimeofthealgorithmsfor H∈{0.25, 0.5, 0.75, 1}.
+Thanks to the absence of arithmetic operations in the internal nodes, DETs
+are more suited for KC compared to the weight functions used in §6.1. While
+33
+
+===== PDF PAGE 34 =====
+WMI-PA SA-WMI-PASAE4WMI
+0 20 40 60 80
+0
+5000
+10000
+15000
+20000
+25000
+30000
+Problem instance
+Number of integrations
+(a) H = 0.25
+0 20 40 60 80
+0
+5000
+10000
+15000
+20000
+Problem instance
+Number of integrations (b) H = 0.5
+0 20 40 60 80
+0
+5000
+10000
+15000
+20000
+25000
+Problem instance
+Number of integrations
+(c) H = 0.75
+0 20 40 60 80
+0
+2000
+4000
+6000
+8000
+10000
+12000
+Problem instance
+Number of integrations (d) H = 1.0
+Figure 7: Cactus plots representing the number of computed integrals on a set of DET
+problems withH∈{0.25, 0.5, 0.75, 1}.
+in the simplest inference cases (H≤0.5) substantial factorization of the integ-
+rals is possible, when the coupling between variables increases this advantage
+is overweighted by the combinatorial reasoning capabilities of SMT-based
+approaches.
+The efficacy of SAE4WMI with respect to both SA-WMI-PA and
+WMI-PAis particularly evident on this batch of problems. Analysing the
+number of integrals computed by PA-based algorithms (Figure 7) we notice a
+drastic reduction in the number of integrals generated bySAE4WMI. This
+behaviour is expected: the number of Boolean atoms is typically very high,
+34
+
+===== PDF PAGE 35 =====
+so that we are able to drastically reduce the number of partial assignment
+over the Boolean component with respect toSA-WMI-PA thanks to the
+revised enumeration strategy.
+Crucially, in contrast with the recentSA-WMI-PA, the novel algorithm is
+able to compete or even outperform KC-based solvers even when the oblique
+queries involve a low number of variables.
+7. Extending WMI-PAwith different integration approaches
+A key feature of PA-based solvers likeWMI-PA, which has been inherited
+by our structure-aware procedures, is that ofbeing agnostic of the integration
+procedure used as backend. Besides developing a novel structure encoding, we
+implemented a modular approach to PA-based solvers, allowing the use of
+different integration strategies, including approximate ones. This provides
+multiple advantages. First, the general integration procedure can be sub-
+stituted with a specialized one, targeting specific weight families such as
+piecewise-constants or leveraging structural properties like full factorizability.
+Second, approximate integration procedures can be applied when the number
+of continuous variables makes exact integration ofFIUCLRA functions infeas-
+ible. Third, it broadens the use of these solvers beyond theFIUCLRA family,
+to functions whose integral over convex polytopes can be approximated with
+a finite sample, like multivariate Gaussian distributions or even the output of
+a simulation or any other black-box function.
+We explored the practical benefits of this approach with a variant of
+SAE4WMI using Monte Carlo (MC) approximate integration [54]:
+∫
+µLRA
+w(x) dx≈
+Vol(µLRA)
+  ∫
+µLRA
+1 dx·Ex∼U(µLRA)[w(x)] (14)
+In practice, our MC integration procedure is implemented viaVolEsti[55], a
+library for volume approximation and sampling in convex polytopes.VolEsti
+is used for both approximating Vol(µLRA) and for samplingw. In stark
+contrast with fully approximate WMI algorithms [23, 22], in our case the
+combinatorial reasoning is exact. This feature can be crucial in contexts
+where it is acceptable to compute approximate probabilities but the hard
+constraints cannot be violated. Considering the difficulties of sampling in
+combinatorial spaces, this approach is also preferable in problems where the
+discrete reasoning is feasible but the integration is not.
+35
+
+===== PDF PAGE 36 =====
+We evaluated the resulting solver, dubbedSAE4WMI(VolEsti), on
+the problems described in §6.1. We compare it with theSAE4WMI ver-
+sion using exact numerical integration, i.e., the one we used in §6, which
+we refer to here asSAE4WMI(LattE) to avoid any ambiguity. Figure 8
+displays the computational gain and the approximation error obtained with
+the aboveapproximate MC integrator with respect toLattE’s exactnumer-
+ical approach. We show that by increasingN, i.e., the number of samples
+to estimate Ex∼U(µLRA)[w(x)], we can trade the approximation error with
+the execution time. From Figure 8 (top-left) we notice that the approxim-
+ate method, SAE4WMI(VolEsti) with N ∈{100, 1000, 10000, 100000},
+drastically outperforms the numerical one,SAE4WMI(LattE). By zooming
+into these plots, in Figure 8 (bottom-left), we notice that the execution time of
+SAE4WMI(VolEsti) grows very little withN. This is due to the fact that
+sampling is very cheap, so that withinSAE4WMI(VolEsti) the time for
+enumeration and for computing the integration volumes dominates over the
+time for sampling. In Figure 8 (right) we notice that the relative error reduces
+significantly by increasingN. Thus we have obtained relatively accurate
+results with very limited computational costs.
+We additionally equippedSAE4WMI with an exactsymbolic integrator
+based on a XADD. Noticeably, whereas symbolic approaches were shown to
+be preferable in conjunction with KC-based algorithms (see Figure 3 in [30])
+and do not assume convex integration bounds, numerical integration performs
+substantially better with our approach (Figure 8 (top-left)).
+We additionally showcase a prototypical application of the modified integ-
+ration routine with Gaussian weights, borrowing the setting and examples
+from FairSquare [41]. In their setting, a (deterministic)decision program
+dec has to decide whether to hire a candidate or not, according to some
+features. The input ofdec is distributed according to a Gaussian probabilistic
+program, called thepopulation modelpop, which additionally models sensitive
+conditions that are not accessed bydec, such as whether an individual belongs
+to a minority group. The goal is quantifying the demographic parity ofdec
+under the distributionpop, i.e., the ratio:
+Pr(hire|minority)
+Pr(hire|¬minority) (15)
+For motivational purposes, we report our results on the same introductory
+examples used in the Fairsquare paper, whose detailed description is reported
+in Appendix D.
+36
+
+===== PDF PAGE 37 =====
+Timeout Symbolic Numerical Approx(N=100) Approx(N=1000) Approx(N=10000) Approx(N=100000)
+0 10 20 30 40
+0
+1000
+2000
+3000
+Problem instance
+Query execution time (seconds)
+0 10 20 30 40
+0
+20
+40
+60
+80
+100
+120
+Problem instance
+Query execution time (seconds)
+0 5 10 15 20 25 30 35
+0
+0.1
+0.2
+0.3
+0.4
+Problem instance
+Relative error
+Figure 8: Cactus plots comparingSAE4WMI using different integration strategies on the
+synthetic datasets. For SAE4WMI(VolEsti), we plot a line representing the median,
+and we color the range between the 1st and 3rd quartiles of the outcomes obtained over
+10 runs with different random seeds. Top-left: comparison of the execution time of
+SAE4WMI when equipped with different integration strategies, i.e., symbolic, based on a
+XADD, numerical, based onLattE, and approximate, based onVolEsti, with increasing
+number of samplesN∈{100, 1000, 10000, 100000}. Bottom-left: zoom on the previous
+plot, showing only the results forSAE4WMI(VolEsti). Right: relative error of the
+approximate result computed bySAE4WMI(VolEsti) w.r.t. the exact result computed
+by SAE4WMI(LattE), for the problems where the latter does not time out.
+37
+
+===== PDF PAGE 38 =====
+unfair fair0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+Fairness ratio
+1 −ϵ
+1
+Figure 9: The ratio in(15) computed for the initial (unfair)dec and the modified one.
+Average and standard deviation over5 runs are reported, confirming the results reported
+in the FairSquare paper with high confidence.
+In contrast with our approach, FairSquare only certifies whether the ratio
+in (15) is greater than a user-defined threshold1−ε. With SAE4WMI
+(VolEsti), we could indeed observe that the initialdec does not respect
+the fairness criterion withε= 0.1. This problem was addressed by making
+dec less sensitive to a feature that was directly influenced by the sensitive
+condition. This second version of the program is fair with high probability,
+as reported in Figure 9.
+A current limitation of this approach is thatVolEsti does not directly
+offer statistical guarantees on the relative error. In problems like volume
+approximation [56] and sampling [57], practical statistical bounds on the
+error were obtained using diagnostics like the empirical sample size (ESS)
+or the potential scale reduction factor (PSRF) [58]. The adoption of similar
+mechanisms in our MC integrator, a fundamental step towards the application
+of WMI in formal verification, and the evaluation of WMI-based verifiers on
+more realistic programs, is left for future work.
+8. Conclusion
+The difficulty of dealing with densely coupled problems has been a major
+obstacle to a wider adoption of hybrid probabilistic inference technology
+beyond academia. In this paper, we made a significant step towards removing
+38
+
+===== PDF PAGE 39 =====
+this obstacle. Starting from the identification of the limitations of existing
+solutions for WMI, we proposed a novel algorithm combining predicate
+abstraction with weight-structure awareness, thus unleashing the full potential
+of SMT-based technology. An extensive experimental evaluation showed the
+advantage of the proposed algorithm over current state-of-the-art solutions
+on both synthetic and real-world problems. These include inference tasks
+over constrained density functions learned from data, which highlight the
+potential of the approach as a flexible solution for probabilistic inference in
+hybrid domains.
+Whereas the improvements described in this work drastically reduce
+the number of integrals required to perform WMI, the integration itself
+can be a bottleneck for scalability. To deal with this issue, we showed
+how SMT-based approaches can seamlessly incorporate multiple integration
+strategies, including symbolic, numeric and approximate ones, allowing to
+choose the most appropriate strategy for the problem at hand. In particular,
+e.g., using approximate MC integration techniques could drastically improve
+performances at the cost of limited losses in terms of precision.
+We further showcased the potential utility of our approach on a prototyp-
+ical application aimed at verifying the fairness of probabilistic programs, as
+a first step towards the application of WMI technology to the probabilistic
+verification of hybrid systems and machine learning models.
+Acknowledgments
+This research was supported by TAILOR, a project funded by the EU
+Horizon 2020 research and innovation program under GA No 952215. We
+acknowledge the support of the MUR PNRR project FAIR – Future AI
+Research (PE00000013) , under the NRRP MUR program funded by the
+NextGenerationEU. The work was also partially supported by the project
+“AI@TN” funded by the Autonomous Province of Trento.
+References
+[1] G. Spallitta, G. Masina, P. Morettin, A. Passerini, R. Sebastiani, SMT-
+based Weighted Model Integration with Structure Awareness, in: Pro-
+ceedings of the 38th Conference on Uncertainty in Artificial Intelligence,
+volume 180, 2022, pp. 1876–1885.
+[2] D. A. Hensher, K. J. Button, Handbook of Transport Modelling, 2 ed.,
+Emerald Group Publishing Limited, 2007.
+39
+
+===== PDF PAGE 40 =====
+[3] S. Thrun, W. Burgard, D. Fox, Probabilistic Robotics, Intelligent Robot-
+ics and Autonomous Agents, MIT Press, 2005.
+[4] E. A. Lee, Cyber Physical Systems: Design Challenges, in: The 11th
+IEEE International Symposium on Object and Component-Oriented
+Real-Time Distributed Computing, 2008, pp. 363–369.
+[5] N. Friedman, M. Goldszmidt, Discretizing continuous attributes while
+learning bayesian networks, in: ICML, 1996.
+[6] A. Kozlov, D. Koller, Nonuniform dynamic discretization in hy-
+brid networks, in: UAI, 1997. URL: https://dslpitt.org/uai/
+displayArticleDetails.jsp?mmnu=1&smnu=2&article_id=325&
+proceeding_id=13.
+[7] S. Lauritzen, Propagation of probabilities, means, and variances in
+mixed graphical association models, Journal of the American Statistical
+Association 87 (1992).
+[8] E. Yang, Y. Baker, P. Ravikumar, G. Allen, Z. Liu, Mixed graphical
+models via exponential families, in: AISTATS, 2014. URL: http://
+proceedings.mlr.press/v33/yang14a.html.
+[9] A. Molina, A. Vergari, N. Di Mauro, S. Natarajan, F. Esposito, K. Ker-
+sting, Mixed sum-product networks: A deep architecture for hybrid
+domains, in: AAAI, 2018. URL: https://www.aaai.org/ocs/index.
+php/AAAI/AAAI18/paper/view/16865.
+[10] A. Bueff, S. Speichert, V. Belle, Tractable querying and learning in
+hybrid domains via sum-product networks, in: KR Workshop on Hybrid
+Reasoning and Learning, 2018.
+[11] V. Belle, A. Passerini, G. Van Den Broeck, Probabilistic Inference in
+Hybrid Domains by Weighted Model Integration, in: Proceedings of the
+24th International Joint Conference on Artificial Intelligence, 2015, pp.
+2770–2776.
+[12] P. Morettin, A. Passerini, R. Sebastiani, Efficient Weighted Model
+Integration via SMT-Based Predicate Abstraction, in: Proceedings of
+the 26th International Joint Conference on Artificial Intelligence, 2017,
+pp. 720–728.
+40
+
+===== PDF PAGE 41 =====
+[13] P. Morettin, P. Zuidberg Dos Martires, S. Kolb, A. Passerini, Hybrid
+Probabilistic Inference with Logical and Algebraic Constraints: A Survey,
+in: Proceedings of the 30th International Joint Conference on Artificial
+Intelligence, 2021, pp. 4533–4542.
+[14] M. Chavira, A. Darwiche, On Probabilistic Inference by Weighted Model
+Counting, Artificial Intelligence 172 (2008) 772–799.
+[15] C. W. Barrett, R. Sebastiani, S. A. Seshia, C. Tinelli, Satisfiability
+Modulo Theories, in: Handbook of Satisfiability, volume 336, 2 ed., 2021,
+pp. 1267–1329.
+[16] T. Sang, F. Bacchus, P. Beame, H. A. Kautz, T. Pitassi, Combining
+Component Caching and Clause Learning for Effective Model Counting,
+in: International Conference on Theory and Applications of Satisfiability
+Testing, 2004, pp. 20–28.
+[17] F. Bacchus, S. Dalmao, T. Pitassi, Solving #SAT and Bayesian Inference
+with Backtracking Search, Journal of Artificial Intelligence Research 34
+(2009) 391–442.
+[18] V. Belle, G. V. den Broeck, A. Passerini, Component Caching in Hybrid
+Domains with Piecewise Polynomial Densities, Proceedings of the AAAI
+Conference on Artificial Intelligence 30 (2016).
+[19] Z. Zeng, G. V. den Broeck, Efficient Search-Based Weighted Model
+Integration, in: Proceedings of the 35th Conference on Uncertainty in
+Artificial Intelligence, 2020, pp. 175–185.
+[20] Z. Zeng, P. Morettin, F. Yan, A. Vergari, G. V. D. Broeck, Scaling up
+Hybrid Probabilistic Inference with Logical and Arithmetic Constraints
+via Message Passing, in: Proceedings of the 37th International Conference
+on Machine Learning, 2020, pp. 10990–11000.
+[21] Z.Zeng, P.Morettin, F.Yan, A.Vergari, G.VandenBroeck, Probabilistic
+Inference with Algebraic Constraints: Theoretical Limits and Practical
+Approximations, in: Advances in Neural Information Processing Systems,
+volume 33, 2020, pp. 11564–11575.
+[22] R. Abboud, İ. İ. Ceylan, R. Dimitrov, On the Approximability of
+Weighted Model Integration on DNF Structures, Proceedings of the
+41
+
+===== PDF PAGE 42 =====
+International Conference on Principles of Knowledge Representation and
+Reasoning 17 (2020) 828–837.
+[23] V. Belle, G. Van den Broeck, A. Passerini, M. Meila, T. Heskes, Hashing-
+based approximate probabilistic inference in hybrid domains, in: Pro-
+ceedings of the 31st Conference on Uncertainty in Artificial Intelligence,
+2015, pp. 141–150.
+[24] A. Darwiche, P. Marquis, A Knowledge Compilation Map, Journal of
+Artificial Intelligence Research 17 (2002) 229–264.
+[25] P. Morettin, A. Passerini, R. Sebastiani, Advanced SMT Techniques for
+Weighted Model Integration, Artificial Intelligence 275 (2019) 1–27.
+[26] S. K. Lahiri, R. Nieuwenhuis, A. Oliveras, SMT Techniques for Fast
+Predicate Abstraction, in: Computer Aided Verification, 2006, pp. 424–
+437.
+[27] S. Sanner, E. Abbasnejad, Symbolic Variable Elimination for Discrete and
+Continuous Graphical Models, in: 26th AAAI Conference on Artificial
+Intelligence, 2012, pp. 1954–1960.
+[28] S. Kolb, M. Mladenov, S. Sanner, V. Belle, K. Kersting, Efficient
+Symbolic Integration for Probabilistic Inference, in: Proceedings of the
+27th International Joint Conference on Artificial Intelligence, 2018, pp.
+5031–5037.
+[29] P. Z. Dos Martires, A. Dries, L. D. Raedt, Exact and Approximate
+Weighted Model Integration with Probability Density Functions Us-
+ing Knowledge Compilation, Proceedings of the AAAI Conference on
+Artificial Intelligence 33 (2019) 7825–7833.
+[30] S. Kolb, P. Z. D. Martires, L. D. Raedt, How to Exploit Structure
+while Solving Weighted Model Integration Problems, in: Proceedings of
+The 35th Conference on Uncertainty in Artificial Intelligence, 2020, pp.
+744–754.
+[31] J. Feldstein, V. Belle, Lifted Reasoning Meets Weighted Model Integra-
+tion, in: Proceedings of the 37th Conference on Uncertainty in Artificial
+Intelligence, 2021, pp. 322–332.
+42
+
+===== PDF PAGE 43 =====
+[32] S. L. Lauritzen, F. Jensen, Stable Local Computation with Conditional
+Gaussian Distributions, Statistics and Computing 11 (2001) 191–203.
+[33] E. Yang, Y. Baker, P. Ravikumar, G. Allen, Z. Liu, Mixed Graphical
+Models via Exponential Families, in: Proceedings of the 17th Inter-
+national Conference on Artificial Intelligence and Statistics, 2014, pp.
+1042–1050.
+[34] A. Molina, A. Vergari, N. Di Mauro, S. Natarajan, F. Esposito, K. Ker-
+sting, Mixed Sum-Product Networks: A Deep Architecture for Hybrid
+Domains, Proceedings of the AAAI Conference on Artificial Intelligence
+32 (2018) 3828–3835.
+[35] H. M. Afshar, S. Sanner, C. Webers, Closed-Form Gibbs Sampling for
+Graphical Models with Algebraic Constraints, in: 30th AAAI Conference
+on Artificial Intelligence, 2016, pp. 3287–3293.
+[36] V. Gogate, R. Dechter, Approximate inference algorithms for Hybrid
+Bayesian Networks with discrete constraints, in: Proceedings of the 21st
+Conference on Uncertainty in Artificial Intelligence, 2005, pp. 209–216.
+[37] S. Sanner, K. V. Delgado, L. N. de Barros, Symbolic Dynamic Pro-
+gramming for Discrete and Continuous State MDPs, in: Proceedings of
+the 17th Conference on Uncertainty in Artificial Intelligence, 2011, pp.
+643–652.
+[38] R. De Salvo Braz, C. O’Reilly, V. Gogate, R. Dechter, Probabilistic
+Inference Modulo Theories, in: Proceedings of the 25th International
+Joint Conference on Artificial Intelligence, 2016, pp. 3591–3599.
+[39] M. Fredrikson, S. Jha, Satisfiability modulo counting: A new approach
+for analyzing privacy properties, in: Proceedings of the Joint Meeting
+of the Twenty-Third EACSL Annual Conference on Computer Science
+Logic (CSL) and the Twenty-Ninth Annual ACM/IEEE Symposium on
+Logic in Computer Science (LICS), 2014, pp. 1–10.
+[40] D. Chistikov, R. Dimitrova, R. Majumdar, Approximate counting in
+smt and value estimation for probabilistic programs, in: International
+Conference on Tools and Algorithms for the Construction and Analysis
+of Systems, Springer, 2015, pp. 320–334.
+43
+
+===== PDF PAGE 44 =====
+[41] A. Albarghouthi, L. D’Antoni, S. Drews, A. V. Nori, FairSquare: Prob-
+abilistic Verification of Program Fairness, Proceedings of the ACM on
+Programming Languages 1 (2017) 1–30.
+[42] R. Sebastiani, Are You Satisfied by This Partial Assignment?, CoRR
+abs/2003.04225 (2020). arXiv:2003.04225.
+[43] S. Möhle, R. Sebastiani, A. Biere, Four Flavors of Entailment, in: Theory
+and Applications of Satisfiability Testing, volume 12178, 2020, pp. 62–71.
+[44] A. Cimatti, A. Griggio, B. J. Schaafsma, R. Sebastiani, The MathSAT5
+SMT Solver, in: Tools and Algorithms for the Construction and Analysis
+of Systems, 2013, pp. 93–107.
+[45] T.Sang, P.Bearne, H.Kautz, PerformingBayesianInferencebyWeighted
+Model Counting, in: Proceedings of the 20th National Conference on
+Artificial Intelligence, 2005, pp. 475–481.
+[46] G. S. Tseitin, On the Complexity of Derivation in Propositional Calculus,
+in: Automation of Reasoning, 1983, pp. 466–483.
+[47] D. A. Plaisted, S. Greenbaum, A Structure-preserving Clause Form
+Translation, Journal of Symbolic Computation 2 (1986) 293–304.
+[48] G. Masina, G. Spallitta, R. Sebastiani, On CNF conversion for disjoint
+SAT enumeration, in: 26th International Conference on Theory and
+Applications of Satisfiability Testing, SAT 2023, volume 271 ofLIPIcs,
+Schloss Dagstuhl - Leibniz-Zentrum für Informatik, 2023, pp. 15:1–15:16.
+[49] J. A. De Loera, R. Hemmecke, J. Tauzer, R. Yoshida, Effective Lattice
+Point Counting in Rational Convex Polytopes, Journal of Symbolic
+Computation 38 (2004) 1273–1302.
+[50] T. Gehr, S. Misailovic, M. Vechev, PSI: Exact Symbolic Inference for
+Probabilistic Programs, in: Computer Aided Verification, Lecture Notes
+in Computer Science, 2016, pp. 62–83.
+[51] P. Ram, A. G. Gray, Density Estimation Trees, in: Proceedings of the
+17th ACM SIGKDD International Conference on Knowledge Discovery
+and Data Mining, 2011, pp. 627–635.
+44
+
+===== PDF PAGE 45 =====
+[52] D. Dua, C. Graff, UCI Machine Learning Repository, 2017. URL:http:
+//archive.ics.uci.edu/ml.
+[53] P. Morettin, S. Kolb, S. Teso, A. Passerini, Learning Weighted Model
+Integration Distributions, Proceedings of the AAAI Conference on
+Artificial Intelligence 34 (2020) 5224–5231.
+[54] M. E. J. Newman, G. T. Barkema, Monte Carlo Methods in Statistical
+Physics, Clarendon Press, 1999.
+[55] A. Chalkis, V. Fisikopoulos, Volesti: Volume Approximation and
+Sampling for Convex Polytopes in R, The R Journal 13 (2021) 561.
+[56] A. Chalkis, I. Z. Emiris, V. Fisikopoulos, Practical Volume Estima-
+tion by a New Annealing Schedule for Cooling Convex Bodies, CoRR
+abs/1905.05494 (2019). arXiv:1905.05494.
+[57] A. Chalkis, V. Fisikopoulos, E. Tsigaridas, H. Zafeiropoulos, Geometric
+Algorithms for Sampling the Flux Space of Metabolic Networks, arXiv
+(2021). arXiv:2012.05503.
+[58] A. Gelman, D. B. Rubin, Inference from Iterative Simulation Using
+Multiple Sequences, Statistical Science 7 (1992) 457–472.
+45
+
+===== PDF PAGE 46 =====
+Appendix A. Detailed Technical Background
+Appendix A.1. SMT: Notation, Syntax, and Semantics
+We assume the reader is familiar with the basic syntax, semantics, and
+results of propositional and first-order logic. We adopt the notation and defin-
+itions in [25] —including some terminology and concepts from Satisfiability
+Modulo Theories (SMT)— which we summarize below.
+Notation and terminology.Satisfiability Modulo Theories (SMT) (see [15]
+for details) consists in deciding the satisfiability of quantifier-free first-order
+formulas over some given background theoryT . For the context of this
+paper, we restrict to the theory of linear real arithmetic (LRA), possibly
+combined with uninterpreted function symbols (LRA∪EUF), s.t. hereafter
+we assumeT ∈{LRA,LRA∪EUF}. We use B
+def
+={⊤,⊥}to indicate the
+set of Boolean values andR to indicate the set of real values. We use the
+sets A
+def
+={Ai}i, B
+def
+={Bi}i to denote Boolean atoms and the setsx
+def
+={xi}i,
+y
+def
+={yi}i to denote real variables. SMT(LRA) formulas combines Boolean
+atoms Ai ∈B andLRA atoms in the form (
+∑
+icixi ▷◁ c) (where ci, c
+are rational values,xi are real variables inR and ▷◁is one of the standard
+arithmetic operators{=,̸=,<,>,≤,≥}) by using standard Boolean operators
+{¬,∧,∨,→,↔}. In SMT (LRA∪EUF),LRA terms can be interleaved
+with uninterpreted function symbols.Atoms(φ) denotes the set of atomic
+formulas occurring inφ, both Boolean andT -atoms.
+A literal is either an atom (apositive literal) or its negation (anegative
+literal). Aclause⋁K
+j=1lj is a disjunction of literals. A formula is inConjunctive
+Normal Form (CNF)if it is written as a conjunction of clauses⋀L
+i=1
+⋁Ki
+ji=1lji.
+Some shortcuts of frequently-used expressions (marked as “J...K”) are provided
+to simplify the reading: the formula(xi≥l)∧(xi≤u) is shortened into
+Jxi∈[l,u ]K; ifϕ
+def
+=⋀
+iCi is a CNF formula andC
+def
+=⋁
+jlj is a clause, then the
+formula⋀
+i(C∨Ci) is shortened intoJC∨ϕK.
+Semantics. “|=T” denotes entailment inT (e.g., (x≥2)|=LRA (x≥1)), and
+“|=B” denotes tautological entailment, i.e., purely-Boolean entailment treating
+T atoms as Boolean propositions (e.g.A1∧(x≥2)|=B (A1∨(x≤1))∧
+(¬A1∨(x≥2)), sinceA1∧A2|= (A1∨A3)∧(¬A1∨A2).) Notice that|=B
+is strictly stronger than|=T, that is, ifφ1|=B φ2 then φ1|=T φ2, but not
+vice versa. We say thatφ1,φ2 areT -equivalent writtenφ1⇔T φ2, iff both
+φ1|=T φ2 and φ2|=T φ1, andtautologically equivalent, writtenφ1⇔B φ2,
+46
+
+===== PDF PAGE 47 =====
+iff bothφ1|=B φ2 and φ2|=B φ1. (We use “|=” rather than “|=B” and “|=T”
+when the distinction is clear from the context or is irrelevant.)
+Given a set of Boolean andT -atoms Ψ
+def
+={ψ1,...,ψK}, we call atotal
+[resp. partial] truth assignmentµfor Ψ any total [resp. partial] map from
+Ψ to B. (These definitions can be used also for setsΨ of non-atomicT -
+formulas.) We denote byBK the set of all total truth assignments overΨ .
+With a little abuse of notation, we representµeither as a set or a conjunction
+of literals: µ
+def
+={ψ|ψ∈Ψ, µ(ψ) =⊤}∪{¬ψ|ψ∈Ψ, µ(ψ) =⊥}, or
+µ
+def
+=⋀
+ψ∈Ψ,µ(ψ)=⊤ψ∧⋀
+ψ∈Ψ,µ(ψ)=⊥¬ψ, and we write “ψi∈µ1” and “µ1⊆µ2”
+as ifµ1,µ2 were represented as sets (i.e., we write “ψ1∧¬ψ2⊆ψ1∧¬ψ2∧ψ3”
+meaning “{ψ1,¬ψ2}⊆{ψ1,¬ψ2,ψ3}”). In the latter case, we say thatµ1 is a
+sub-assignment of µ2, and thatµ2 is asuper-assignment of µ1. We denote
+byµA and µT its two components on the Boolean atoms inA and on theT
+atoms, respectively, so thatµ
+def
+=µA∧µT.
+Example 11.If µ
+def
+={A1 =⊤,A 2 =⊥, (x≥1) =⊤, (x≥3) =⊥}then we
+represent it as the setµ
+def
+={A1,¬A2, (x≥1),¬(x≥3)}or as the formula
+µ
+def
+= A1∧¬A2∧(x≥1)∧¬(x≥3). Hence, µA def
+= A1∧¬A2 and µLRA def
+=
+(x≥1)∧¬(x≥3). ⋄
+Given a (partial) truth assignmentµto Atoms(φ), we call theresidual
+of φw.r.t. µ, written “φ[µ]”, the formula obtained fromφby substituting all
+the atoms assigned inµwith their respective truth value, and by recursively
+propagating truth values through Boolean operators in the usual way.13
+We say that µpropositionally satisfies φiff φ[µ] reduces to⊤.14 Thus,
+if µpropositionally satisfies φ, then all total assignments ηs.t. µ⊆η
+propositionally satisfyφ. (Notice that if φ[µ] =⊤, thenµ|=B φ, but not
+vice versa, see [42, 43] for details.) Sinceµcan beT -unsatisfiable due to
+itsT component (e.g.,µ
+def
+=¬A1∧(x1 +x2 = 3)∧¬(x1 +x2≥2) isLRA-
+unsatisfiable), SMT(T ) checks the existence of anT -satisfiable assignmentµ
+propositionally satisfyingφ.
+Example 12.Let φ
+def
+= (A1∨(x≤1))∧(¬A1∨(x≥2)), µ
+def
+= µA∧µLRA
+where µA def
+= A1 and µLRA def
+= (x≥2). Then φ[µA] = (x≥2) and φ[µ] =⊤,
+13E.g.,¬⊤=⇒⊥, φ∧⊤=⇒φ, φ∨⊤=⇒⊤, φ↔⊤=⇒φ, φ↔⊥=⇒¬φ, ...
+14The definition of satisfiability by partial assignment may present some ambiguities for
+non-CNF and existentially-quantified formulas [42, 43]. Here we adopt the above definition
+because it is the one typically used by state-of-the-art solvers.
+47
+
+===== PDF PAGE 48 =====
+s.t. µpropositionally satisfiesφ. SinceµLRA isLRA-satisfiable, thenφis
+LRA-satisfiable. ⋄
+Given φ(x, A∪B), we say that a Boolean (partial) assignmentµA on
+A propositionally satisfies∃x.∃B.φiffµ
+def
+=µA∧µB∧µLRA propositionally
+satisfiesφfor some total assignmentµB on B and some totalLRA-satisfiable
+assignmentµLRA on theLRAatoms ofφ. To this extent, notice that∃x.∃B.φ
+is equivalent to some purely-Boolean formula onA only. The definition of “µA
+propositionally satisfies∃x.φ(x, A)” follows withB =∅,µB =⊤. Similarly,
+we also say that µA∧µLRA propositionally satisfies∃B.φ(x, A∪B) iff
+µA∧µB∧µLRA propositionally satisfiesφfor some total assignmentµB in B.
+Finally, givenφ(x∪y, A) and a (partial) truth assignmentµy on the y-free
+atoms inφ, we say thatµy propositionally satisfies∃y.φiff there exists a total
+truth assignmentµy on the remaining atoms ofφs.t µy∧µy isT -satisfiable
+and it propositionally satisfiesφ.
+Example 13.Let φ
+def
+= (A1∨(x ≤1))∧B1∧(B1 ↔(x ≥2)). Then
+µA
+1
+def
+=A1 propositionally satisfies∃x.∃B1.φbecause there existµB
+1
+def
+=B1 and
+µLRA
+1
+def
+=¬(x≤1)∧(x≥2) s.t. µ1
+def
+= µA
+1 ∧µLRA
+1 ∧µB
+1 propositionally
+satisfiesφand µLRA
+1 isLRA-satisfiable. Instead,µA
+2
+def
+=¬A1 does not satisfy
+∃x.∃B1.φ, because no suchµB andµLRA exist. Indeed,∃x.∃B1.φis equivalent
+to the Boolean formulaA1. Also,µA
+1 ∧µLRA
+1 propositionally satisfies∃B1.φ.
+⋄
+Appendix A.2. Assignment Enumeration
+TTA(φ)
+def
+={µ1,...,µj}denotes the set ofT -satisfiable total truth assign-
+ments overAtoms(φ) that propositionally satisfyφ;TA(φ)
+def
+={µ1,...,µj}
+represents one set ofT -satisfiable partial truth assignments overAtoms(φ)
+that propositionally satisfyφ, s.t.:
+(i) for every total assignmentηinTTA(φ) there is some partial oneµin
+TA(φ) s.t. µ⊆ηand
+(ii) every pairµi,µj∈TA(φ) assigns opposite truth values to at least one
+atom.
+We remark thatTTA(φ) is unique (modulo reordering), whereas multiple
+TA(φ)s are admissible for the same formulaφ(includingTTA(φ)). The
+48
+
+===== PDF PAGE 49 =====
+disjunction of the truth assignments inTTA(φ), and that ofTA(φ), are
+T -equivalent toφ. Thus, given φ(x, A∪B),TTA(∃x.∃B.φ) denotes the
+set of all total truth assignmentµA on A s.t. µA propositionally satisfies
+∃x.∃B.φ, andTA(∃x.∃B.φ) denotes one set of partial assignmentsµA on A
+s.t.µA propositionally satisfies∃x.∃B.φcomplying with conditions (i) and (ii)
+above whereφis replaced by∃x.∃B.φ. The disjunction of the assignments
+inTTA(∃x.∃B.φ) and that ofTA(∃x.∃B.φ) areT -equivalent to∃x.∃B.φ.
+(As above, the definition ofTTA(∃x.φ(x, A))/TA(∃x.φ(x, A)) follows with
+B =∅.) Similarly,TTA(∃B.φ(x, A∪B)) denotes the set of allT -satisfiable
+total truth assignmentsµA∧µLRA that propositionally satisfy∃B.φ(x, A∪
+B), andTA(∃B.φ(x, A∪B)) denotes one set ofT -satisfiable partial truth
+assignmentsµA∧µLRA that propositionally satisfy∃B.φ(x, A∪B) complying
+with conditions (i) and (ii) above. FinallyTTA(∃y.φ(x∪y, A)) denotes the set
+of all total truth assignmentsµy on they-free atoms inφwhich propositionally
+satisfy∃y.φ(x∪y, A), andTA(∃y.φ(x∪y, A)) denotes a set of partial such
+assignments complying with conditions (i) and (ii) above. The disjunction of
+the assignments inTTA(∃y.φ(x∪y, A)) and that ofTA(∃y.φ(x∪y, A)) are
+T -equivalent to∃y.φ(x∪y, A).
+TTA(...)/TA(...) can be computed efficiently by means of Projected
+AllSMT, a technique used in formal verification to computePredicate Ab-
+straction [26]. All these functionalities are provided by the SMT solver
+MathSAT[44]. In a nutshell,MathSATworks as follows. Givenφand
+a subset of “relevant” atomsΨ ⊆Atoms(φ),TA(...) generates one-by-one
+T -satisfiable partial assignmentsµi
+def
+=µΨ
+i ∧µΨ
+i , s.t.µΨ
+i is a total assignment
+on Atoms(φ)\Ψ and µΨ
+i is aminimal 15 partial assignment onΨ s.t.:
+(i) φ[µi] =⊤, and
+(ii) for everyj∈{1,...,i−1}, µΨ
+j ,µΨ
+i assign opposite truth values to at
+least one atom inΨ .
+Finally, the set{µΨ
+i}i is returned. (We say that the enumeration isprojected
+over Ψ .) Thus:
+•TA(φ) can be computed by settingΨ
+def
+=Atoms(φ);
+•TA(∃B.φ(x, A∪B)) can be computed by settingΨ
+def
+=Atoms(φ)\B;
+15i.e., no literal can be further dropped fromµΨ
+i without losing properties (i) and (ii).
+49
+
+===== PDF PAGE 50 =====
+•TA(∃x.∃B.φ(x, A∪B)), possibly with B =∅, can be computed by
+setting Ψ
+def
+= A;
+•TA(∃y.φ(x∪y, A)) can be computed by settingΨ
+def
+=Atoms(φ)\Ψ y,
+Ψ y being the set of atoms containingy’s.
+TTA(...) works in the same way, but forcing theµis to be total.
+Appendix A.3. CNF-ization
+A formulaφ(x, A) can be converted into CNF as follows: implications
+and bi-implications are rewritten by applying the rewrite rules(α→β) =⇒
+(¬α∨β)and (α↔β) =⇒(¬α∨β)∧(¬β∨α); negationsarepusheddowntothe
+literal level by recursively applying the rewrite rules¬(α∧β) =⇒(¬α∨¬β),
+¬(α∨β) =⇒(¬α∧¬β), and¬¬α=⇒α. Then we have a few alternatives:
+Classic CNF-ization(“CNF(φ)”) consists in applying recursively the DeMor-
+gan rewrite ruleα∨(β∧γ) =⇒(α∨γ)∧(β∨γ) until the result is in CNF.
+The resulting formulaϕ(x, A) is tautologically equivalent toφ, but its size
+can be exponential w.r.t. that ofφ;
+Tseitin CNF-ization [46] (“CNFts(φ)”) consists in applying recursively the
+“labelling” rewrite ruleφ=⇒φ[ψ|B]∧(B↔ψ) —φ[ψ|B] being the results of
+substituting all occurrences of a subformulaψwith a fresh Boolean atomB—
+until all conjuncts can be CNF-ized classically without space blow-up. Altern-
+atively, one can apply the ruleφ=⇒φ[ψ|B]∧(B→ψ) [47] (“CNFpg(φ)”).
+With both cases, the resulting formulaϕ(x, A∪B) is s.t.φ(x, A) is tautolo-
+gically equivalent to∃B.ϕ(x, A∪B)—that is,µ|=φiff there exists a total
+truth assignmentηon B s.t. µ∪η|= ϕ— B being the set of fresh atoms
+introduced, and the size ofϕis linear w.r.t. that ofφ.
+Notice that, if φ(x, A∪B) is the result of applying one of the “la-
+belling” CNF-izations [46, 47] toϕ(x, A), thenTTA(ϕ),TA(ϕ),TTA(∃x.ϕ)
+andTA(∃x.ϕ) can be computed asTTA(∃B.φ),TA(∃B.φ),TTA(∃x.∃B.φ)
+andTA(∃x.∃B.φ) respectively.
+Appendix B. Implicit Enumeration of a Conditional Skeleton
+Here we report in detail the first preliminary approach we proposed in [1].
+50
+
+===== PDF PAGE 51 =====
+Appendix B.1. Encoding
+We describe the encoding of a conditional skeleton that we proposed in [1].
+In the paper, the conditional skeletonsk(w) is not built explicitly, rather it is
+generated implicitly as a disjunction of partial assignments overΨ , which we
+enumerate progressively. To this extent, we first definesk(w)
+def
+=∃y.Jy =wK
+where Jy = wK is a formula onA, x, y s.t. y
+def
+={y,y 1,...,yk}is a set of
+freshLRA variables. Thus,TA(∃x.(φ∧χ∧∃y.Jy =wK)) can be computed
+asTA(∃xy.φ∗∗), where φ∗∗def
+= (φ∧χ∧Jy = wK), because the ys do not
+occur inφ∧χ, with no need to generatesk(w) explicitly. The enumeration
+ofTA(∃xy.φ∗∗) is performed by the very same SMT-based procedure used
+in [25].
+Jy =wK is obtained by taking(y =w), s.t.y∈y is fresh, and recursively
+substitutingbottom-upeveryconditionalterm (Ifψi Thenti1 Elseti2)initwith
+a fresh variableyi∈y, adding the definition of(yi = (If ψi Thenti1 Elseti2)):
+(¬ψi∨yi =ti1)∧(ψi∨yi =ti2). (B.1)
+This labelling&rewriting process, which is inspired to Tseitin’s labelling CNF-
+ization [46], guarantees that the size ofJy =wK is linear w.r.t. that ofw. E.g.,
+with (7), Jy = wK is (y =
+∏N
+i=1yi)∧
+⋀N
+i=1((¬ψi∨yi = wi1(x))∧(ψi∨yi =
+wi2(x))).
+One problem with the above definition ofJy = wK is that it is not a
+LRA formula, becausew may include multiplications or even transcendental
+functions out of the conditionsΨ 16, which makes SMT reasoning over it
+dramatically hard or even undecidable. We notice, however, that when
+computingTA(∃xy.φ∗∗) the arithmetic functions and operators occurring
+in w out of the conditionsΨ have no role, since the only aspect we need
+to guarantee for the validity ofsk(w) is that they are indeed functions, so
+that∃y.(y =f(...)) is always valid.17 (In substance, during the enumeration
+we are interested only in the truth values of the conditionsΨ in µwhich
+makew[µ] FILRA, regardless of the actual values ofw[µ]). Therefore, we can
+safely substitute condition-less arithmetic functions and operators with fresh
+16The conditions in Ψ contain only Boolean atoms or linear terms by definition of
+FIUCLRA.
+17This propagates down to the recursive structure ofJy =wK because φis equivalent to
+∃y.(φ[t|y]∧(y =t)), and, ify does not occur inψ, then∃y.(y = (If ψThen t1 Else t2)) is
+equivalent to((If ψThen∃y.(y =t1) Else∃y.(y =t2))).
+51
+
+===== PDF PAGE 52 =====
+Algorithm 4 Convert(w, conds)
+returns⟨w′, defs, y⟩
+w’: the termw is rewritten into
+conds: the current partial assignment to conditionsΨ ,
+representing the set of conditions whichw depends on
+defs: a conjunction of definitions in the formyi =wi needed to rewritew into
+w’
+y: newly-introduced variables labelling if-then-else terms
+fg,f ▷◁: uninterpreted function naming the function (operator)g (▷◁)
+called as⟨w′, Jy =wKEUF, y⟩←Convert(w,∅)
+1: if ({w constant or variable})then
+2: return ⟨w,⊤,∅⟩
+3: if (w == (w1 ▷◁w2), ▷◁∈{+,−,·}) then
+4: ⟨w′
+i, defsi, yi⟩= Convert(wi, conds), i∈{1, 2}
+5: return ⟨f▷◁(w′
+1,w′
+2), defs1∧defs2, y1∪y2⟩
+6: if (w ==g(w1,...,wk), g unconditioned) then
+7: ⟨w′
+i, defsi, yi⟩= Convert(wi, conds), i∈1,...,k
+8: return ⟨fg(w′
+1,...,w′
+k),⋀k
+i=1 defsi,∪k
+i=1yi⟩
+9: if (w == (If ψThen w1 Else w2)) then
+10: ⟨w′
+1, defs1, y1⟩= Convert(w1, conds∪{ψ})
+11: ⟨w′
+2, defs2, y2⟩= Convert(w2, conds∪{¬ψ})
+12: let y be a fresh variable
+13: defs = defs1∧defs2∧
+14: (⋁
+ψi∈conds¬ψi∨¬ψ∨(y =w′
+1))∧
+15: (⋁
+ψi∈conds¬ψi∨ψ∨(y =w′
+2))∧
+16: (⋁
+ψi∈conds¬ψi∨¬(y =w′
+1)∨¬(y =w′
+2))
+17: y = y1∪y2∪{y}
+18: return ⟨y, defs, y⟩
+uninterpreted function symbols, obtaining aLRA∪EUF-formula Jy =wKEUF,
+which is relatively easy to solve by standard SMT solvers [15]. It is easy to
+see that a partial assignmentµevaluating Jy =wK to true is satisfiable in
+the theory iff its corresponding assignmentµEUF isLRA∪EUF-satisfiable.18
+18This boils down to the fact thaty occurs only in the top equation and as such it is free
+to assume arbitrary values, and that all arithmetic functions are total in the domain so
+52
+
+===== PDF PAGE 53 =====
+Thus, we can safely defineφ∗∗def
+= (φ∧χ∧Jy =wKEUF ), without affecting the
+correctness of the procedure, but making it much more efficient.
+Finally, we enforce the fact that the two branches of an if-then-else are
+alternative by adding a mutual-exclusion constraint¬(yi =ti1)∨¬(yi =ti2)
+to (B.1), so that the choice of the function is univocally associated to the set
+of decisions on theψis. The procedure generatingJy =wKEUF is described in
+detail in Algorithm 4.
+Example 14. Consider the problem in Example 5. Figure B.10 shows the
+relabelling process applied to the weight functionw. The resultingJy =wKEUF
+formula is:
+Jy =wK(x∪y, A)
+def
+=
+(¬A1∨¬(x1≥1)∨¬(x2≥1) ∨(y1 =f11(x)))
+∧(¬A1∨¬(x1≥1)∨(x2≥1) ∨(y1 =f12(x)))
+∧(¬A1∨¬(x1≥1)∨¬(y1 =f11(x))∨¬(y1 =f12(x)))
+∧(¬A1∨(x1≥1)∨¬(x2≥2) ∨(y2 =f21(x)))
+∧(¬A1∨(x1≥1)∨(x2≥2) ∨(y2 =f22(x)))
+∧(¬A1∨(x1≥1)∨¬(y2 =f21(x))∨¬(y2 =f22(x)))
+∧(¬A1∨¬(x1≥1) ∨(y3 =y1))
+∧(¬A1∨(x1≥1) ∨(y3 =y2))
+∧(¬A1∨¬(y3 =y1)∨¬(y3 =y2))
+∧( A1∨¬A2 ∨(y4 =f3(x)))
+∧( A1∨A2 ∨(y4 =f4(x)))
+∧( A1∨¬(y4 =f3(x))∨¬(y4 =f4(x)))
+∧(¬A1 ∨(y5 =y3))
+∧( A1 ∨(y5 =y4))
+∧(¬(y5 =y3)∨¬(y5 =y4))
+∧( ( y =y5))
+Figure B.11 illustrates a possible enumeration process. The algorithm
+enumerates partial assignments satisfyingφ∗∗def
+=φ∧χ∧Jy =wKEUF, restricted
+to the atomsΨ
+def
+={A1,A 2, (x1≥1), (x2≥1), (x2≥2)}, which is equivalent
+to enumerateTA(∃y.φ∗∗). Assuming that the enumeration procedure picks
+nondeterministic choices following the order of the above set19 and assigning
+positive values first, then in the first branch the following satisfying partial
+that, for every possible values ofx a value fory always exists iff there exists in theEUF
+version.
+19Like in Algorithm 5, we pick Boolean conditions first.
+53
+
+===== PDF PAGE 54 =====
+(y = y5)
+y5
+(x1   1)u
+A1u
+v
+A2
+(x2   2) (x2   1)
+f
+f22f3 f21 f12 f11f4
+= >)
+>
+= ?)
+w(x, A)
+a
+cf
+g(x1   1)u
+A1u
+v
+A2
+(x2   2)
+f22f3 f21f4
+y1
+b
+(¬A1 → ¬(x1 ≥ 1) → ¬(x2 ≥ 1) → (y1 = f11))
+∧(¬A1 → ¬(x1 ≥ 1) → (x2 ≥ 1) → (y1 = f12))
+∧(¬A1 → ¬(x1 ≥ 1) → ¬(y1 = f11) → ¬(y1 = f12))
+y2
+(x1   1)u
+A1u
+v
+A2
+f3f4
+y1
+c
+(¬A1 → (x1 ≥ 1) → ¬(x2 ≥ 2) → (y2 = f21))
+∧(¬A1 → (x1 ≥ 1) → (x2 ≥ 2) → (y2 = f22))
+∧(¬A1 → (x1 ≥ 1) → ¬(y2 = f21) → ¬(y2 = f22))
+y3
+A1u
+v
+A2
+v
+f3f4
+cd
+(¬A1 → ¬(x1 ≥ 1) → (y3 = y1))
+∧(¬A1 → (x1 ≥ 1) → (y3 = y2))
+∧(¬A1 → ¬(y3 = y1) → ¬(y3 = y2))
+y4 y3
+A1u
+e
+(A1 → ¬A2 → (y4 = f3))
+∧(A1 → A2 → (y4 = f4))
+∧(A1 → ¬(y4 = f3) → ¬(y4 = f4))
+(¬A1 → (y5 = y3)) ∧ (A1 → (y5 = y4))
+∧(¬(y5 = y3) → ¬(y5 = y4))
+Figure B.10: Example of bottom-up procedure for computing the relabelling function
+Jy =wKEUF . (a) Replacement ofFILRA weight functions (the leaves of the tree, highlighted
+in red) withEUF function symbols (we dropped the dependency onx for compactness).
+(b-g) Sequence of relabelling steps. At each step, a conditional term is replaced by a fresh
+LRA variable yi. The encoding of the variable in shown in the upper part, while the
+lower part shows the weight function with the branch of the conditional term replaced
+with yi (highlighted in red). The last step consists in renaming the top variable asy, so
+that y =w(x, A). The relabelling functionJy =wKEUF is simply the conjunction of the
+encodings in the different steps.
+assignment is generated, in order:20
+χ∪{(y =y5),A 1, (y5 =y3),¬(y5 =y4), (x1≥1),
+(y3 =y1),¬(y3 =y2), (x2≥1), (y1 =f11(x)),
+¬(y1 =f12(x))}.
+(Notice that, following the chains of true equalities, we havey = y5 =
+20Here nondeterministic choices areunderlined. The atoms inχare assigned determin-
+istically.
+54
+
+===== PDF PAGE 55 =====
+→ {¬ ¬ }
+Assignment Labeling
+χ → { A1, (x1 ≥ 1), (x2 ≥ 1)} y = y5 = y3 = y1 = f11
+χ → { A1, (x1 ≥ 1), ¬(x2 ≥ 1)} y = y5 = y3 = y1 = f12
+χ → { A1, ¬(x1 ≥ 1), (x2 ≥ 2)} y = y5 = y3 = y2 = f21
+χ → { A1, ¬(x1 ≥ 1), ¬(x2 ≥ 2)} y = y5 = y3 = y2 = f22
+χ → {¬A1,A 2} y = y5 = y4 = f3
+χ → {¬A1, ¬A2} y = y5 = y4 = f4
+J K
+-satisﬁable. Therefore, we can modify the enu-
+into TA(→xy.(ϕ ∧ χ ∧ Jy = wKEUF )).
+cc
+¬ ¬ → ¬ }
+(¬A1 ∨ ¬(x1 → 1) ∨ ¬(x2 → 1) ∨ (y1 = f11))
+∧(¬A1 ∨ ¬(x1 → 1) ∨ (x2 → 1) ∨ (y1 = f12))
+∧(¬A1 ∨ ¬(x1 → 1) ∨ ¬(y1 = f11) ∨ ¬(y1 = f12))
+∧(¬A1 ∨ (x1 → 1) ∨ ¬(x2 → 2) ∨ (y2 = f21))
+∧(¬A1 ∨ (x1 → 1) ∨ (x2 → 2) ∨ (y2 = f22))
+∧(¬A1 ∨ (x1 → 1) ∨ ¬(y2 = f21) ∨ ¬(y2 = f22))
+∧(¬A1 ∨ ¬(x1 → 1) ∨ (y3 = y1))
+∧(¬A1 ∨ (x1 → 1) ∨ (y3 = y2))
+∧(¬A1 ∨ ¬(y3 = y1) ∨ ¬(y3 = y2))
+∧( A ∨ ¬A ∨ (y = f ))
+∧ ¬ ∨ ¬ ∨ ¬
+∧( A1 ∨ ¬A2 ∨ (y4 = f3))
+∧( A1 ∨ A2 ∨ (y4 = f4))
+∧( A1 ∨ ¬(y4 = f3) ∨ ¬(y4 = f4))
+∧(¬A1 ∨ (y5 = y3))
+∧( A1 ∨ (y5 = y4))
+∧(¬(y5 = y3) ∨ ¬(y5 = y4))
+∧( (y = y5))
+∧(¬A1 ∨ ¬(x1 → 1) ∨ ¬(x2 → 1))
+b
+∧
+{(y = y5),A 1, (y5 = y3), ¬(y5 = y4), (x1 ≥ 1), (y3 = y1),
+¬(y3 = y2), ¬(x2 ≥ 1), (y1 = f12), ¬(y1 = f11)}
+(¬A1 ∨ ¬(x1 → 1) ∨ ¬(x2 → 1) ∨ (y1 = f11))
+∧(¬A1 ∨ ¬(x1 → 1) ∨ (x2 → 1) ∨ (y1 = f12))
+∧(¬A1 ∨ ¬(x1 → 1) ∨ ¬(y1 = f11) ∨ ¬(y1 = f12))
+∧(¬A1 ∨ (x1 → 1) ∨ ¬(x2 → 2) ∨ (y2 = f21))
+∧(¬A1 ∨ (x1 → 1) ∨ (x2 → 2) ∨ (y2 = f22))
+∧(¬A1 ∨ (x1 → 1) ∨ ¬(y2 = f21) ∨ ¬(y2 = f22))
+∧(¬A1 ∨ ¬(x1 → 1) ∨ (y3 = y1))
+∧(¬A1 ∨ (x1 → 1) ∨ (y3 = y2))
+∧(¬A1 ∨ ¬(y3 = y1) ∨ ¬(y3 = y2))
+∧ ¬ ∨ ¬ ∨ ¬
+∧( A1 ∨ ¬A2 ∨ (y4 = f3))
+∧( A1 ∨ A2 ∨ (y4 = f4))
+∧( A1 ∨ ¬(y4 = f3) ∨ ¬(y4 = f4))
+∧(¬A1 ∨ (y5 = y3))
+∧( A1 ∨ (y5 = y4))
+∧(¬(y5 = y3) ∨ ¬(y5 = y4))
+∧( (y = y5))
+a
+{(y = y5),A 1, (y5 = y3), ¬(y5 = y4), (x1 ≥ 1), (y3 = y1),
+¬(y3 = y2), (x2 ≥ 1), ((y1 = f11), ¬(y1 = f12)}
+Figure B.11: Example of structure-aware enumeration performed bySA-WMI-PA on
+the problem in Example 5. ( a) Generation of the first assignment. The assignment
+is on top, while the bottom part shows theJy = wKEUF formula. Colors indicate the
+progression of the generation, in terms of atoms added (top) and parts of the formula to
+be removed as a consequence (bottom). For the sake of simplicity, all atoms until the next
+atom in Ψ
+def
+={A1,A 2, (x1≥1), (x2≥1), (x2≥2)}(if any) are given the same colour. (b)
+Generation of the second assignment. Note how theJy =wKEUF formula is enriched with
+the blocking clause¬A1∨¬(x1≥1)∨¬(x2≥1) preventing the first assignment to be
+generated again. (c) Final result of the enumeration (which contains six assignments in
+total). The partial assignments are obtained by restricting the generated assignments on
+the conditions inΨ (and combining them with the atoms ofχ, which here are assigned
+deterministically.). For each assignment, the corresponding chain of equivalences of theys
+with the identified leafFILRA function is displayed.
+y3 = y1 = f11(x).) Then the SMT solver extracts from it the subset
+{A1, (x1≥1), (x2≥1)}restricted to the atoms inΨ. Then the blocking clause
+¬A1∨¬(x1≥1)∨¬(x2≥1) is added to the formula, which prevents to enu-
+merate the same subset again. This forces the algorithm to backtrack and
+generate:
+χ∪{(y =y5),A 1, (y5 =y3),¬(y5 =y4), (x1≥1),
+(y3 =y1),¬(y3 =y2),¬(x2≥1), (y1 =f12(x)),
+¬(y1 =f11(x))}.
+55
+
+===== PDF PAGE 56 =====
+producing the assignment:{A1, (x1≥1),¬(x2≥1)}.21
+Overall, the algorithm enumerates the following ordered collection of partial
+assignments restricted toAtoms(φ∧χ)∪Ψ :
+χ∪{A1, (x1≥1), (x2≥1)}, //y =...=f11(x)
+χ∪{A1, (x1≥1),¬(x2≥1)}, //y =...=f12(x)
+χ∪{A1,¬(x1≥1), (x2≥2)}, //y =...=f21(x)
+χ∪{A1,¬(x1≥1),¬(x2≥2)}, //y =...=f22(x)
+χ∪{¬A1, A 2}, //y =...=f3(x)
+χ∪{¬A1,¬A2} //y =...=f4(x)
+which correspond to the six integrals of Example 5. Note that according to(8)
+the first four integrals have to be multiplied by 2, because the partial assignment
+{A1}covers two total assignments{A1,A 2}and{A1,¬A2}. Notice also that
+the disjunction of the six partial assignments:
+(A1∧(x1≥1)∧(x2≥1))∨...∨(¬A1∧¬A2),
+matches the definition of sk(w), which we have computed by progressive
+enumeration rather than encoded a priori. ⋄
+Based on previous ideas, we proposedSA-WMI-PA, a novel “weight-
+structure aware” variant ofWMI-PA. The pseudocode ofSA-WMI-PAis
+reported in Algorithm 5.
+As with WMI-PA, we enumerate the assignments in two main steps: in the
+first loop (lines 4-8) we generate a setMA∗
+of partial assignmentsµA∗
+over
+the Boolean atomsA, s.t.φ∗∗
+[µA∗] isLRA-satisfiable and does not anymore con-
+tain Boolean atoms. In Example 14MA∗def
+={{A1},{¬A1,A 2},{¬A1,¬A2}}.
+In the second loop (lines 12-20), for eachµA∗
+inMA∗
+we enumerate the
+setMLRA ofLRA-satisfiable partial assignments satisfyingφ∗∗
+[µA∗] (that is, on
+LRAatomsin Atoms(φ∧χ)∪Ψ ), wecomputetheintegral WMInb(µLRA,w [µA∗]|x),
+multiply it by the2|A\µA∗
+|factor and add it to the result. In Example 14,
+if e.g.µA∗
+={A1},TA(∃xy.φ∗∗
+[µA∗]) computes the four partial assignments
+{χ∪{(x1≥1), (x2≥1)},...,χ∪{¬(x1≥1),¬(x2≥2)}}.
+In detail, in line 3 we extendφ∧χwith Jy =wKEUF to provide structural
+awareness. (We recall that, unlike withWMI-PA, we do not labelLRA con-
+ditions with fresh Boolean atomsB.) Next, in line 4 we performTA(∃xy.φ∗∗)
+21We refer the reader to [26] for more details on the SMT-based enumeration algorithm.
+56
+
+===== PDF PAGE 57 =====
+Algorithm 5 SA-WMI-PA(φ,w,x, A)
+1:MA∗
+←∅; vol←0
+2:⟨w′, Jy =wKEUF, y⟩←Convert(w,∅)
+3: φ∗∗←φ∧χ∧Jy =wKEUF
+4:MA←TA(∃xy.φ∗∗)
+5: for µA∈MA do
+6: Simplify(φ∗∗
+[µA])
+7: if φ∗∗
+[µA] does not contain Boolean atomsthen
+8: MA∗
+←MA∗
+∪{µA}
+9: else
+10: for µA
+residual∈TTA(∃xy.φ∗∗
+[µA]) do
+11: MA∗
+←MA∗
+∪{µA∧µA
+residual}
+12: for µA∗
+∈MA∗
+do
+13: k←|A\µA∗
+|
+14: Simplify(φ∗∗
+[µA∗])
+15: if LiteralConjunction(φ∗∗
+[µA∗]) then
+16: vol←vol + 2k·WMInb(φ∗∗
+[µA∗],w [µA∗]|x)
+17: else
+18: MLRA←TA(∃y.φ∗∗
+[µA∗])
+19: for µLRA∈MLRA do
+20: vol←vol + 2k·WMInb(µLRA,w [µA∗]|x)
+21: return vol
+to obtain a setMA of partial assignments restricted to Boolean atomsA.
+Then, for each assignmentµA∈MA we build the (simplified) residualφ∗∗
+[µA].
+Since µA is partial,φ∗∗
+[µA] is not guaranteed to be free of Boolean atomsA, as
+shown in Example 15. If this is the case, we simply addµA toMA∗
+, otherwise,
+we invokeTTA(∃xy.φ∗∗
+[µA]) to assign the remaining atoms and conjoin each
+assignmentµA
+residual toµA, ensuring that the residual now contains onlyLRA
+atoms (lines 5- 11). The second loop (lines 12-20) resembles the main loop
+in WMI-PA, with the only relevant difference that, sinceµA∗
+is partial, the
+integral is multiplied by a2|A\µA∗
+|factor, as in (8).
+Notice that in general the assignmentsµA∗
+are partial even if the steps
+in lines 10-11 are executed; the set of residual Boolean atoms inφ∗∗
+[µA] are a
+(possibly much smaller) subset ofA\µA because some of them do not occur
+57
+
+===== PDF PAGE 58 =====
+anymore inφ∗∗
+[µA] after the simplification, as shown in the following example.
+Example 15. Letφ
+def
+= (A1∨A2∨A3)∧(¬A1∨A2∨(x≥1))∧(¬A2∨(x≥
+2))∧(¬A3∨(x≤3)), χ
+def
+= (x1≥0)∧(x1≤4) and w(x, A)
+def
+= 1.0.
+SupposeTA(∃x.φ∗∗) finds the partial assignment{(x≥0), (x≤4),A 2, (x≥1), (x≥2), (x≤3)},
+whose projected version is µA def
+= {A2}(line 4). Then φ∗∗
+[µA] reduces to
+(¬A3∨(x≤3)), so thatMA∗
+is{{A2,A 3},{A2,¬A3}}, avoiding branching
+on A1. ⋄
+We stress the fact that in our actual implementation, like with that of
+WMI-PA, the potentially-large setsMA∗
+andMLRA are not generated
+explicitly. Rather, their elements are generated, integrated and then dropped
+one-by-one, so that to avoid space blow-up.
+We highlight two main differences w.r.t.WMI-PA. First, unlike withWMI-
+PA, the generated assignmentsµA on A are partial, each representing2|A\µA|
+total ones. Second, the assignments on (non-Boolean) conditionsΨ inside
+the µLRAs are also partial, whereas withWMI-PAthe assignments to the
+Bs are total. This may drastically reduce the number of integrals to compute,
+as empirically demonstrated in §6.
+Appendix C. Description of the datasets for the DET experiments
+Table C.2 describes the datasets used to train the DETs considered in 6.2.
+For each dataset, we report the number of Boolean and continuous variables,
+the size of the training/validation splits and the size of the resulting DET in
+terms of number of internal nodes (conditions).
+Appendix D. Details on the program fairness verification task
+The population model pop (Algorithm 6) is a probabilistic program
+with Gaussian priors, modelling a distribution over real-valued variables:
+(i) ethnicity; colRank (rank of the college attended by the person, the lower,
+the better); (iii)yExp (years of work experience). In this population model,
+colRank is influenced byethnicity. The decision programdec (Algorithm 7)
+takes as inputcolRank and yExp and outputs hire. Notice that, while dec
+doesn’t have access to the sensitive conditionminority = ethnicity > 10, the
+program is still unfair (Figure 9) due to the high importance attributed
+to colRank. This can be amended by modifying the second condition to
+58
+
+===== PDF PAGE 59 =====
+Dataset |A||x|# Train # Valid Size
+balance-scale 3 4 1875 205 5
+iris 3 4 450 50 3
+cars 33 7 2115 234 14
+diabetes 1 8 4149 459 28
+breast-cancer 12 4 1650 180 13
+glass2 1 9 970 100 7
+glass 7 9 1280 140 7
+breast 1 10 4521 495 31
+solar 25 3 2522 273 13
+cleve 17 6 2492 266 18
+hepatitis 14 6 940 100 5
+heart 3 11 2268 252 16
+australian 34 6 6210 690 46
+crx 38 6 6688 736 46
+german 41 10 12600 1386 93
+german-org 13 12 15000 1650 108
+auto 56 16 2522 260 18
+anneal-U 74 9 21021 2301 144
+Table C.2: UCI datasets considered in our experiments. For each dataset, we report the
+number of Boolean and continuous variables, number of training/validation instances and
+the size of the resulting Density Estimation Tree in terms of number of conditions.
+(5·yExp−colRank >−5), putting more emphasis on the years of work
+experience. This modification indeed makes the program pass the fairness
+criterion withε= 0.1 given pop.
+Algorithm 6 pop
+ethnicity←N(0, 10)
+colRank←N(25, 10)
+yExp←N(10, 5)
+if ethnicity > 10 then
+colRank←colRank + 5
+59
+
+===== PDF PAGE 60 =====
+Algorithm 7 dec
+1: if (colRank≤5) then
+2: hire←True
+3: else if (yExp−colRank>−5) then
+4: hire←True
+5: else
+6: hire←False
+60

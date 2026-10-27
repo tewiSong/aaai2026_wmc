@@ -1,0 +1,34 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7d_bp_at_exact_theta_star.py
+# sha256 : 015f88e3668b338a1ca06f87b008f55acb1274642c636f67912b5cbc55db215e
+# args   : 
+# host   : uan04   slurm_job: none
+# start  : 2026-10-21T23:17:48+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+{"theory": "dgp2_go_cc", "proteins": 100, "bp_converged_frac": 1.0, "max_err_quantiles": [0.20802752974390193, 0.3653167546371686, 0.678258431853226], "mae_median": 0.005440501592975932, "frac_max_err_gt_0_1": 0.92, "theta_star_abs_max_median": 16.772043542519036, "metrics": {"exact_at_theta_star": {"fmax": 0.6899593223105976, "micro_ap": 0.6328529593927492, "brier": 0.010530411102884824, "logloss": 0.04112879183679823, "ece": 0.0029153739787807923}, "bp_at_theta_star": {"fmax": 0.6418982218324544, "micro_ap": 0.539247467611586, "brier": 0.011722698470814254, "logloss": 0.06229114595752765, "ece": 0.0038220433005050018}}}
+{"theory": "dgp2_go_mf", "proteins": 100, "bp_converged_frac": 1.0, "max_err_quantiles": [0.24241922786869272, 0.9979597493546103, 0.9988114852157687], "mae_median": 0.006021521455826094, "frac_max_err_gt_0_1": 0.67, "theta_star_abs_max_median": 16.765559296714635, "metrics": {"exact_at_theta_star": {"fmax": 0.4695547320903114, "micro_ap": 0.3592585565368551, "brier": 0.01038025569126789, "logloss": 0.043473831436140885, "ece": 0.004413153716894646}, "bp_at_theta_star": {"fmax": 0.4203407119684632, "micro_ap": 0.09544728471650525, "brier": 0.036316679278295766, "logloss": 0.22693450950025942, "ece": 0.041570322740628406}}}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_7d_bp_at_exact_theta_star.py"
+	User time (seconds): 33.47
+	System time (seconds): 2.53
+	Percent of CPU this job got: 108%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:33.15
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 97324
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 326
+	Minor (reclaiming a frame) page faults: 48508
+	Voluntary context switches: 7430
+	Involuntary context switches: 1063
+	Swaps: 0
+	File system inputs: 183550
+	File system outputs: 464
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-21T23:18:27+03:00   exit: 0

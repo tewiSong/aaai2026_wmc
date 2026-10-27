@@ -1,0 +1,14 @@
+{
+  "log_literal_buffer_capacity": 4292870145,
+  "literal_bytes": 4,
+  "reported_bytes": 17171480580,
+  "capacity_type": "unsigned int",
+  "index_type": "int",
+  "growth_block": 1048576,
+  "uint32_next_capacity": 4293918721,
+  "uint32_capacity_after_two_growths": 1,
+  "crash_return_code": -11,
+  "elapsed_logged": "32:56:11",
+  "peak_children_rss_gib": 131.62,
+  "conclusion": "Concrete 32-bit buffer/index risk supports overflow as a hypothesis; no core dump/backtrace available to establish the exact crash cause. This capacity is not a model count."
+}

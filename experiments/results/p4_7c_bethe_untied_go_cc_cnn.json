@@ -1,0 +1,10 @@
+{
+ "theory": "dgp2_go_cc",
+ "proteins": 2,
+ "skipped_float_ties": 28,
+ "bp_recovers_frac": 0.5,
+ "bp_err_median": 0.5000000000000009,
+ "exact_at_bethe_err_median": 0.9922098039423514,
+ "theta_bethe_minus_true_median_max": Infinity,
+ "min_gap_median": 3.0109374624588885e-22
+}

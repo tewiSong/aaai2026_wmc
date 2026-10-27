@@ -1,0 +1,34 @@
+{
+  "ontology": "chebi",
+  "terms": 205592,
+  "clauses": 285589,
+  "timeout_hours": 46.0,
+  "compile": {
+    "failed": "TimeoutExpired(['/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4', '-dDNNF', '/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/data/theories/chebi.cnf', '-out=/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/data/compiled/chebi.nnf'], 165600.0)"
+  },
+  "compile_peak_rss_gb_children": 114.25
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_1_d4_compile_full_ontology_exact_gate.py --ontology chebi --timeout-hours 46"
+	User time (seconds): 163449.84
+	System time (seconds): 453.56
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 46:00:12
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 119795556
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2317749
+	Minor (reclaiming a frame) page faults: 16628184
+	Voluntary context switches: 2337929
+	Involuntary context switches: 1235289
+	Swaps: 0
+	File system inputs: 19058878
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p1_1_d4_compile_full_ontology_exact_gate_chebi_20261019-104816.log

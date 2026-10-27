@@ -1,0 +1,9 @@
+{
+ "n_long": 54,
+ "n_short_checked": 300,
+ "long_chunk_maxdiff": 0.8050478100776672,
+ "long_trunc_maxdiff": 3.2782554626464844e-07,
+ "short_chunk_maxdiff": 3.2782554626464844e-07,
+ "short_trunc_maxdiff": 2.980232238769531e-07,
+ "frac_long_with_diff_gt_1e4_chunk": 1.0
+}

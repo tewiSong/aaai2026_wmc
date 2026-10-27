@@ -1,0 +1,34 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_1_selftest_isotonic_projection.py
+# sha256 : b145b1515fbc0e70dc5523b6003df797078678f501186bb71479144e045c36af
+# args   : 
+# host   : uan04   slurm_job: none
+# start  : 2026-10-20T16:32:08+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+max abs differences: {'pav': '5.74e-10', 'slsqp': '1.61e-10', 'kl': '4.56e-10'}
+P4.1 isotonic self-test passed
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p4_1_selftest_isotonic_projection.py"
+	User time (seconds): 7.06
+	System time (seconds): 2.44
+	Percent of CPU this job got: 167%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:05.66
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 56204
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 367
+	Minor (reclaiming a frame) page faults: 26168
+	Voluntary context switches: 7124
+	Involuntary context switches: 469
+	Swaps: 0
+	File system inputs: 132416
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-20T16:32:19+03:00   exit: 0

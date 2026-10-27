@@ -1,0 +1,57 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_4a_exact_compile_once_bp_error_deepgoplus.py
+# sha256 : 5d10c2c4ec45dd88e1f400ae4bb22d124d61959f1ad47bea3ea785974bf3f210
+# args   : --ns go_mf --compile-timeout-hours 46
+# host   : nid002337   slurm_job: 22969418
+# start  : 2026-10-19T19:13:56+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+0 {"protein": "Q07622", "exact_seconds": 0.0041, "bp_seconds": 0.015, "bp_converged": true, "bp_max_abs_err": 0.0006105775987884944, "bp_mae": 4.443135519707891e-06, "bp_terms_err_gt_1e2": 0, "bp_violations": 0, "n_intermediate": 13, "max_shift_from_scores": 0.21924070670172502}
+500 {"protein": "Q08352", "exact_seconds": 0.0036, "bp_seconds": 0.016, "bp_converged": true, "bp_max_abs_err": 0.000349032720965578, "bp_mae": 1.9142118035534627e-06, "bp_terms_err_gt_1e2": 0, "bp_violations": 0, "n_intermediate": 36, "max_shift_from_scores": 0.24658497392504353}
+1000 {"protein": "Q9SVC4", "exact_seconds": 0.0036, "bp_seconds": 0.015, "bp_converged": true, "bp_max_abs_err": 0.00016300828044810665, "bp_mae": 1.3116442491142971e-06, "bp_terms_err_gt_1e2": 0, "bp_violations": 0, "n_intermediate": 15, "max_shift_from_scores": 0.19908694914797442}
+1500 {"protein": "Q9BWE0", "exact_seconds": 0.0036, "bp_seconds": 0.019, "bp_converged": true, "bp_max_abs_err": 0.012299348953142344, "bp_mae": 5.1538274431066956e-05, "bp_terms_err_gt_1e2": 1, "bp_violations": 0, "n_intermediate": 19, "max_shift_from_scores": 0.29591727160176573}
+2000 {"protein": "Q12001", "exact_seconds": 0.0036, "bp_seconds": 0.015, "bp_converged": true, "bp_max_abs_err": 2.2800394845589288e-05, "bp_mae": 2.143658754185301e-07, "bp_terms_err_gt_1e2": 0, "bp_violations": 0, "n_intermediate": 16, "max_shift_from_scores": 0.20002377237866908}
+2500 {"protein": "P23738", "exact_seconds": 0.0036, "bp_seconds": 0.015, "bp_converged": true, "bp_max_abs_err": 0.0001303907103184232, "bp_mae": 1.1311233296889557e-06, "bp_terms_err_gt_1e2": 0, "bp_violations": 0, "n_intermediate": 19, "max_shift_from_scores": 0.23907545046941503}
+3000 {"protein": "Q9UGF5", "exact_seconds": 0.0036, "bp_seconds": 0.013, "bp_converged": true, "bp_max_abs_err": 3.812493656074633e-11, "bp_mae": 3.7157328977294816e-13, "bp_terms_err_gt_1e2": 0, "bp_violations": 0, "n_intermediate": 4, "max_shift_from_scores": 0.19573421474361996}
+3500 {"protein": "P55849", "exact_seconds": 0.0036, "bp_seconds": 0.015, "bp_converged": true, "bp_max_abs_err": 7.603822485043641e-05, "bp_mae": 5.077561277676649e-07, "bp_terms_err_gt_1e2": 0, "bp_violations": 0, "n_intermediate": 12, "max_shift_from_scores": 0.22197531839972073}
+{
+ "bp_max_err_quantiles": [
+  0.00021248063135308683,
+  0.008996497252002697,
+  0.05785224006556971,
+  0.2186427700612683
+ ],
+ "frac_proteins_bp_err_gt_1e3": 0.2816210635002581,
+ "frac_proteins_bp_err_gt_1e2": 0.09344346928239546,
+ "exact_seconds_median": 0.0036,
+ "bp_seconds_median": 0.015,
+ "conditioning_shift_quantiles": [
+  0.2846267872309809,
+  0.4237429977576934,
+  0.8766134105992806
+ ]
+}
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_4a_exact_compile_once_bp_error_deepgoplus.py --ns go_mf --compile-timeout-hours 46"
+	User time (seconds): 78.58
+	System time (seconds): 1.00
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:20.22
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 86308
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 496
+	Minor (reclaiming a frame) page faults: 33949
+	Voluntary context switches: 6123
+	Involuntary context switches: 117
+	Swaps: 0
+	File system inputs: 156426
+	File system outputs: 2712
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-19T19:15:21+03:00   exit: 0

@@ -1,0 +1,258 @@
+% ============================================================
+%  REWRITTEN: Abstract + Introduction
+%  Target: JAIR (Journal of Artificial Intelligence Research)
+%  Changes from AAAI version:
+%   - Abstract starts from application problem, not WMC terminology
+%   - Introduction has 7-paragraph arc accessible to ML readers
+%   - All technical terms defined on first use
+%   - Paper organization paragraph added
+% ============================================================
+
+% ────────────────────────────────────────────────────────────
+\begin{abstract}
+% ────────────────────────────────────────────────────────────
+Neural networks that assign scores to concepts governed by a symbolic
+ontology face a consistency problem at inference time: a protein may
+receive a higher predicted probability of belonging to a specialized
+cellular-component term than to the broader term containing it, even
+though the ontology mandates that any member of the narrower class must
+also be a member of the broader one. Weighted model counting (WMC)
+addresses this by treating predictor scores as Bernoulli parameters,
+summing the weights of all assignments that satisfy the ontology, and
+renormalizing. The result is a principled posterior distribution whose
+support is confined to logically valid labelings, computed entirely from
+fixed predictor scores without any retraining.
+
+The computational bottleneck is structural width: exact WMC is
+exponential in the treewidth of the constraint graph, and large
+biomedical ontologies contain thousands of reconvergent regions where
+independent messages from different paths double-count shared evidence,
+making exact inference intractable for monolithic solvers and path-wise
+approximations inaccurate.
+
+We introduce \emph{modular separator WMC}, a framework that
+decomposes the constraint graph into a small core and peripheral
+modules, eliminates each module into a joint boundary factor (separator),
+and contracts a reduced core. Exact separators provably recover the
+global WMC posterior. For wide boundaries, we construct nonnegative
+tensor-train (TT) separators by querying a boundary-conditioned
+oracle directly, project logical support separately, and inject the
+factorized TT into reduced-core inference without materializing dense
+tables. Recursive core contraction handles ontologies whose reduced
+core remains intractable at the first level.
+
+We prove that exact separators preserve the monolithic WMC posterior
+(Proposition~\ref{prop:exact-modular}) and that module marginal error
+is bounded by boundary posterior error under TV distance
+(Proposition~\ref{prop:boundary-error}). Experiments on five complete
+biomedical ontologies---Gene Ontology cellular component, molecular
+function, and biological process; UBERON anatomy; and ChEBI chemistry,
+comprising up to 205,592 terms---show exact marginal recovery on
+instances where monolithic references are available, completion of
+all-term inference beyond the 300\,GB memory limit of monolithic
+junction-tree inference, and systematic reduction in recovered-marginal
+error as separator rank increases. On the CAFA Critical Assessment of
+Function Annotation benchmark, ontology-conditioned posterior correction
+eliminates true-path violations and improves calibration over raw
+predictor scores.
+\end{abstract}
+
+
+% ────────────────────────────────────────────────────────────
+\section{Introduction}
+\label{sec:intro}
+% ────────────────────────────────────────────────────────────
+
+% ── ¶1  Application context: the consistency problem ──────
+Neuro-symbolic prediction tasks pair a neural scorer with a symbolic
+knowledge base that restricts which output configurations are valid.
+In hierarchical multi-label classification, for example, a classifier
+assigns independent scores to labels arranged in a taxonomy, but the
+taxonomy itself demands that any positive prediction at a specific
+concept implies positive predictions at all of its ancestors
+\citep{silla2011survey}. In protein-function prediction, the Gene
+Ontology (GO) encodes is-a relations among hundreds of thousands of
+molecular-function, biological-process, and cellular-component terms:
+a protein predicted to perform a highly specialized enzymatic activity
+must also be predicted to perform the general biochemical processes
+containing it \citep{ashburner2000go,geneontology2023}. More broadly,
+ontology-based classification---across anatomy \citep{mungall2012uberon},
+chemistry \citep{hastings2016chebi}, phenotype, and disease---always faces
+the same issue: a vector of local predictor scores is inconsistent with
+probability one, because independent scoring ignores the implication
+structure encoded in the ontology. We call any complete assignment that
+satisfies all ontology constraints a \emph{valid labeling}; raw
+predictor scores typically assign nonzero probability to millions of
+invalid labelings.
+
+% ── ¶2  WMC as the principled fix ─────────────────────────
+\emph{Weighted model counting} (WMC) provides a principled, training-free
+mechanism to correct this inconsistency. Given a Boolean formula $T$
+(encoding the ontology constraints) and nonnegative literal weights
+(derived from predictor scores), WMC sums the weights of all satisfying
+assignments of $T$ \citep{chavira2008wmc}. Interpreting the predictor
+output $p_i \in (0,1)$ for ontology term $i$ as the Bernoulli parameter
+of $y_i \in \{0,1\}$, the product reference distribution
+$q_p(y) = \prod_i p_i^{y_i}(1-p_i)^{1-y_i}$ has support over all $2^m$
+assignments. Normalizing the restriction of $q_p$ to valid labelings
+defines the \emph{WMC posterior}
+\[
+  p_T(y) = \frac{\mathbf{1}[y \models T]\,q_p(y)}{Z_T(p)},
+  \qquad
+  Z_T(p) = \mathrm{WMC}(T,p) = \sum_{y \models T} q_p(y).
+\]
+Every marginal $\mu_i = p_T(y_i=1)$ and every Boolean query uses the
+same normalizer $Z_T(p)$, so the corrected scores are globally
+consistent by construction. This \emph{inference-time} correction
+requires no modification to the predictor architecture, training
+procedure, or loss function: it is a plug-in posterior layer applied
+to fixed scores at test time.
+
+% ── ¶3  The scalability gap ────────────────────────────────
+Despite its conceptual appeal, exact WMC is \#P-hard in general
+\citep{valiant1979counting}, and practical solvers based on knowledge
+compilation or variable elimination can require time and memory
+exponential in the \emph{treewidth} of the constraint graph
+$G_T$---the graph whose nodes are propositional variables and whose
+edges connect variables that co-occur in a clause
+\citep{bodlaender1993treewidth,darwiche2002kcmap,darwiche2011sdd}.
+State-of-the-art WMC solvers such as ADDMC, DPMC, and d4
+\citep{dudek2020addmc,dudek2020dpmc,lagniez2017improved} achieve
+remarkable scalability on random or industrial instances, but biomedical
+ontologies expose a different structural regime: the number of variables
+is orders of magnitude larger than in benchmark suites, while the
+logical structure---is-a implications forming a directed acyclic
+graph---is comparatively simple. GO biological process, for example,
+encodes 25,950 terms with thousands of reconvergent paths where
+multiple specialized terms share a common ancestor through different
+routes. On such inputs, the junction-tree backend exhausts a 300\,GB
+memory budget before completing even a single ontology.
+
+The cheaper alternative---\emph{path-wise propagation} or loopy belief
+propagation (BP) \citep{pearl1988probabilistic}---passes messages along
+individual paths through the ontology graph and merges them
+independently at each variable. This is computationally efficient but
+formally incorrect on reconvergent structures. When two paths from
+a common ancestor $d$ arrive at a shared descendant $a$ through
+intermediate variables $b$ and $c$, messages along $d \to b \to a$
+and $d \to c \to a$ both carry evidence from $d$; treating them as
+independent double-counts that evidence and changes the posterior
+defined by global WMC. We make this failure mode precise in
+Section~\ref{sec:local-reconvergence} with a four-variable example
+that shows the path-wise estimate and the exact WMC marginal diverging
+by more than a relative error of $10\%$. The scalability challenge is
+therefore twofold: avoid the exponential cost of monolithic exact
+inference, while retaining the dependence structure required by the
+conditioned-WMC posterior.
+
+% ── ¶4  Why existing approaches are insufficient ──────────
+Compositional WMC methods \citep{dal2017partitioned,dal2021compositional}
+reduce cost by partitioning a formula into components that communicate
+through separator variables. These methods were designed for static
+formula decomposition and do not address the regime where boundary sizes
+routinely reach hundreds or thousands of variables, as observed in GO
+biological process (max $|B_j| = 624$) and ChEBI ($|B_j| = 1{,}082$)
+in our experiments. Dense separator tables are infeasible at these
+widths, and no practical compact representation for the joint boundary
+factor has been proposed in the WMC setting.
+Low-rank tensor representations have been applied to graphical model
+inference \citep{novikov2014mrf,wrigley2017tensorbp} and knowledge
+compilation \citep{goral2024semiring,onaka2025ttkc}, but direct
+construction of a TT separator from boundary-conditioned oracle queries---
+without compiling the full dense table first---is not covered by
+existing frameworks.
+
+% ── ¶5  Our approach ──────────────────────────────────────
+We introduce \emph{modular separator WMC} to address both requirements
+simultaneously. Our framework proceeds in three stages.
+
+\textbf{Boundary-aware decomposition.}
+A core-selection algorithm identifies a small set of variables $C$ such
+that the remaining variables partition into \emph{modules}---connected
+components of $G_T \setminus C$---each with a boundary-constrained
+width within a prescribed cap. The algorithm is greedy, adding
+high-degree variables to $C$ in batches until all module widths are
+manageable, and terminates with a recursive fallback when the reduced
+core itself is too wide.
+
+\textbf{Module elimination and separator construction.}
+Each module $M_j$ is eliminated by summing out its interior while
+holding boundary variables $B_j$ fixed, producing a \emph{separator
+factor} $F_j(y_{B_j})$---a single joint function that captures all
+dependence the module induces on the rest of the ontology. Crucially,
+$F_j$ is defined over the full joint assignment to $B_j$: when
+$|B_j| > 1$, it retains correlations among boundary variables that a
+factored representation would lose, exactly as required by the
+reconvergence analysis. For boundaries of manageable size, $F_j$ is
+stored as a dense table. For wide boundaries, we build a
+\emph{nonnegative tensor-train separator} by querying the factor at
+sampled boundary assignments and fitting a rank-$r$ TT using
+alternating nonnegative least squares. Logical support---which boundary
+assignments are reachable---is maintained separately and injected as
+Boolean constraints, ensuring that no probability mass is placed on
+logically unsatisfiable interfaces regardless of approximation error.
+
+\textbf{Core contraction and marginal recovery.}
+The original normalizer is recovered by contracting the reduced core with
+one separator factor per eliminated module. When every separator is
+exact, this equals monolithic WMC (Proposition~\ref{prop:exact-modular}).
+A calibrated module junction tree then reuses its messages to recover
+every eliminated variable's marginal through backward substitution.
+When TT separators are used, the TT cores are injected as local factors
+into the reduced-core factor graph, so contraction operates directly on
+the factorized representation without materializing the dense table.
+
+% ── ¶6  Contributions ─────────────────────────────────────
+\paragraph{Contributions.}
+\begin{enumerate}
+  \item We introduce modular separator WMC, which decomposes the
+  constraint graph into a small core and peripheral modules, eliminates
+  each module into a joint separator factor, and recovers every
+  ontology-term marginal through backward calibration. The framework
+  handles exact and approximate separators through a common interface.
+
+  \item We construct wide-boundary separators directly from
+  boundary-conditioned module-WMC queries using a nonnegative
+  tensor-train fit, projecting logical support separately to preserve
+  constraint correctness independent of approximation rank.
+
+  \item We prove exact modular contraction
+  (Proposition~\ref{prop:exact-modular}) and stability of module
+  recovery under approximate boundary posteriors
+  (Proposition~\ref{prop:boundary-error}).
+
+  \item We validate the framework on five complete biomedical ontologies
+  with up to 205,592 terms. On instances where the decomposition is
+  non-trivial (recursion depth $> 0$, boundary size $> 0$), exact
+  separators recover all reference marginals to machine precision. On
+  instances where monolithic inference is infeasible, rank-controlled
+  TT separators complete all-term inference within practical time and
+  memory budgets, and rank self-consistency confirms accuracy stability.
+  On the CAFA protein-function benchmark, posterior correction
+  eliminates constraint violations and improves calibration.
+\end{enumerate}
+
+% ── ¶7  Paper organization ─────────────────────────────────
+\paragraph{Paper organization.}
+Section~\ref{sec:related-work} reviews related work in constrained
+prediction, exact WMC, compositional and tensor-based model counting,
+and ontology-based prediction.
+Section~\ref{sec:preliminaries} establishes notation and formally
+defines the WMC posterior, constraint graphs, treewidth, and the
+core-module-boundary decomposition.
+Section~\ref{sec:local-reconvergence} motivates joint separators
+with a four-variable reconvergence example.
+Section~\ref{sec:method} presents the full modular separator WMC
+framework, including the core-selection algorithm, exact and TT
+separator construction, core contraction, and marginal recovery.
+Section~\ref{sec:theory} states and proves the exactness and stability
+guarantees.
+Section~\ref{sec:experiments} reports experiments covering correctness
+validation on non-trivial decompositions, scalability, separator
+approximation quality, comparison with WMC solvers and loopy BP, and
+downstream protein-function prediction on GO cellular component and
+molecular function.
+Section~\ref{sec:discussion} discusses the role of ontology structure
+in enabling effective decomposition, limitations of the framework, and
+directions for future work.
+Section~\ref{sec:conclusion} concludes.

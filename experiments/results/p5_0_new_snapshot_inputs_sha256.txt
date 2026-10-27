@@ -1,0 +1,6 @@
+20bcb2366317e6571aed9f5a91255a6eb8de4e5e21e9730f2cc041fa31b54ac4  data/raw/uniprot_2024_01/uniprot_sprot-only2024_01.tar.gz
+58249c8c4fcfb6a6f3f293c5b29525494868abbfcc2c94fd8a45a15e73d5e7d3  data/raw/uniprot_2024_01/uniprot_sprot.dat.gz
+148b0f730e207beef58e3d7ab09324bfd5be2f735977ecef63603f717cf84d30  data/raw/uniprot_2024_01/uniprot_sprot.fasta.gz
+e078d5406cc78976941578e984e0e3809bc6f4642f8fce404990f5f7c19b0c07  data/raw/go-basic_2024-01-17.obo
+098542e9e1b07873d14596f01062a7b127683e418ad42ffb91980b76815cc532  deepgoplus_1.0.6/data/model.h5
+1d502542eed04892754e61dddfb9949b863d3c71c13a8a545088256f6a298e19  deepgoplus_1.0.6/data/train_data.dmnd

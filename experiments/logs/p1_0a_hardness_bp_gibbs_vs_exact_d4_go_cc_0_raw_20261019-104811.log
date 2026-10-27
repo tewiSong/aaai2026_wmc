@@ -1,0 +1,45 @@
+# script : /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_0a_hardness_bp_gibbs_vs_exact_d4.py
+# sha256 : d36c6aae604b315d59243be5f7e49c40344d1099575f349e1b59d64956191b2a
+# args   : --ontology go_cc --subgraph-size 0 --n-subgraphs 4 --diamond /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/data/scores/diamondscore_go_cc.npz --diamond-key raw --proteins 12 --gibbs-sweeps 3000 --d4-timeout 3600 --seed 1 --tag diamond_raw
+# host   : nid002526   slurm_job: 22955062
+# start  : 2026-10-19T10:48:11+03:00
+# sif    : 6b6e8a4c4dd7cefe
+
+inst 0 n=4183 raw:8345     BP mae=2.94e-14 max=6.25e-11 conv=True | Gibbs mae=2.68e-10 max=1.06e-06 | exact 0.01s
+inst 0 n=4183 raw:910      BP mae=1.93e-14 max=6.10e-11 conv=True | Gibbs mae=2.34e-09 max=8.92e-06 | exact 0.01s
+inst 0 n=4183 raw:2687     BP mae=1.67e-14 max=4.83e-11 conv=True | Gibbs mae=9.44e-06 max=5.23e-03 | exact 0.01s
+inst 0 n=4183 raw:2851     BP mae=2.35e-14 max=5.02e-11 conv=True | Gibbs mae=2.80e-10 max=1.08e-06 | exact 0.01s
+inst 0 n=4183 raw:4257     BP mae=2.35e-14 max=5.03e-11 conv=True | Gibbs mae=2.79e-10 max=1.08e-06 | exact 0.01s
+inst 0 n=4183 raw:4685     BP mae=1.97e-14 max=6.08e-11 conv=True | Gibbs mae=5.11e-10 max=1.42e-06 | exact 0.01s
+inst 0 n=4183 raw:7706     BP mae=9.35e-15 max=1.61e-11 conv=True | Gibbs mae=2.25e-09 max=9.42e-06 | exact 0.01s
+inst 0 n=4183 raw:5230     BP mae=6.64e-15 max=2.78e-11 conv=True | Gibbs mae=9.07e-04 max=5.00e-01 | exact 0.01s
+inst 0 n=4183 raw:9681     BP mae=1.35e-14 max=1.67e-11 conv=True | Gibbs mae=2.39e-10 max=1.00e-06 | exact 0.01s
+inst 0 n=4183 raw:4844     BP mae=2.30e-14 max=2.79e-11 conv=True | Gibbs mae=2.25e-09 max=9.42e-06 | exact 0.01s
+inst 0 n=4183 raw:1471     BP mae=4.47e-14 max=7.44e-11 conv=True | Gibbs mae=2.42e-10 max=1.01e-06 | exact 0.01s
+inst 0 n=4183 raw:378      BP mae=7.89e-15 max=2.65e-11 conv=True | Gibbs mae=2.39e-10 max=1.00e-06 | exact 0.01s
+written /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/results/p1_0a_go_cc_0_diamond_raw.json
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_0a_hardness_bp_gibbs_vs_exact_d4.py --ontology go_cc --subgraph-size 0 --n-subgraphs 4 --diamond /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/data/scores/diamondscore_go_cc.npz --diamond-key raw --proteins 12 --gibbs-sweeps 3000 --d4-timeout 3600 --seed 1 --tag diamond_raw"
+	User time (seconds): 64.21
+	System time (seconds): 1.27
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:06.87
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 66308
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 5944
+	Minor (reclaiming a frame) page faults: 50899
+	Voluntary context switches: 11535
+	Involuntary context switches: 131
+	Swaps: 0
+	File system inputs: 170636
+	File system outputs: 32
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+# end    : 2026-10-19T10:49:22+03:00   exit: 0

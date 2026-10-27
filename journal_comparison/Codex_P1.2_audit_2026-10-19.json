@@ -1,0 +1,384 @@
+{
+  "author": "OpenAI Codex",
+  "date": "2026-10-19",
+  "scope": "Independent review; summaries recomputed from saved results. BP diagnostics are limited additional checks, not reruns of the full experiments.",
+  "summaries": {
+    "p1_2_certified_go_bp_prop_clip1e-09.json": {
+      "source": "experiments/results/p1_2_certified_go_bp_prop_clip1e-09.json",
+      "source_sha256": "b48eb3fafc68eabfffbbcdc13260d671d09477800b7c7f48019ed83890059bad",
+      "args": {
+        "ontology": "go_bp",
+        "diamond_key": "prop",
+        "proteins": 100,
+        "clip": 1e-09,
+        "delta_target": 0.001,
+        "d4_timeout": 600.0,
+        "seed": 0,
+        "tag": ""
+      },
+      "groups": {
+        "random": {
+          "attempted": 50,
+          "successful": 48,
+          "failed_proteins": [
+            "Q14451",
+            "Q63768"
+          ],
+          "median_core_size_successful": 292.0,
+          "median_core_seconds_successful": 0.2505,
+          "sum_core_seconds_successful": 682.504,
+          "median_bp_seconds_successful": 0.75,
+          "bp_lb_gt_0.01_count": 34,
+          "bp_lb_gt_0.001_count": 44,
+          "median_terms_outside": 224.0,
+          "mean_terms_outside": 251.29166666666666,
+          "tau_values": [
+            1e-09
+          ],
+          "delta_max": 2.8430595857164808e-05,
+          "core_size_equals_original_nnz_count": 48
+        },
+        "most_intermediate": {
+          "attempted": 50,
+          "successful": 45,
+          "failed_proteins": [
+            "P27090",
+            "P32600",
+            "Q07257",
+            "Q9JLN9",
+            "P49001"
+          ],
+          "median_core_size_successful": 713,
+          "median_core_seconds_successful": 14.598,
+          "sum_core_seconds_successful": 1529.515,
+          "median_bp_seconds_successful": 1.08,
+          "bp_lb_gt_0.01_count": 44,
+          "bp_lb_gt_0.001_count": 45,
+          "median_terms_outside": 624,
+          "mean_terms_outside": 624.0888888888888,
+          "tau_values": [
+            1e-09
+          ],
+          "delta_max": 2.7846612289817613e-05,
+          "core_size_equals_original_nnz_count": 45
+        },
+        "all": {
+          "attempted": 100,
+          "successful": 93,
+          "failed_proteins": [
+            "P27090",
+            "P32600",
+            "Q07257",
+            "Q9JLN9",
+            "P49001",
+            "Q14451",
+            "Q63768"
+          ],
+          "median_core_size_successful": 609,
+          "median_core_seconds_successful": 3.629,
+          "sum_core_seconds_successful": 2212.019,
+          "median_bp_seconds_successful": 0.94,
+          "bp_lb_gt_0.01_count": 78,
+          "bp_lb_gt_0.001_count": 89,
+          "median_terms_outside": 480,
+          "mean_terms_outside": 431.6774193548387,
+          "tau_values": [
+            1e-09
+          ],
+          "delta_max": 2.8430595857164808e-05,
+          "core_size_equals_original_nnz_count": 93
+        }
+      }
+    },
+    "p1_2_certified_go_bp_raw_clip1e-09.json": {
+      "source": "experiments/results/p1_2_certified_go_bp_raw_clip1e-09.json",
+      "source_sha256": "346e23a6788f004e143001fcaee60d1299eeaf439ffb04efc834db39df460544",
+      "args": {
+        "ontology": "go_bp",
+        "diamond_key": "raw",
+        "proteins": 100,
+        "clip": 1e-09,
+        "delta_target": 0.001,
+        "d4_timeout": 600.0,
+        "seed": 0,
+        "tag": ""
+      },
+      "groups": {
+        "random": {
+          "attempted": 50,
+          "successful": 49,
+          "failed_proteins": [
+            "Q9C9M7"
+          ],
+          "median_core_size_successful": 107,
+          "median_core_seconds_successful": 0.141,
+          "sum_core_seconds_successful": 1087.9439999999997,
+          "median_bp_seconds_successful": 0.47,
+          "bp_lb_gt_0.01_count": 0,
+          "bp_lb_gt_0.001_count": 0,
+          "median_terms_outside": 0,
+          "mean_terms_outside": 0,
+          "tau_values": [
+            1e-09
+          ],
+          "delta_max": 2.843359577187002e-05,
+          "core_size_equals_original_nnz_count": 0
+        },
+        "most_intermediate": {
+          "attempted": 50,
+          "successful": 45,
+          "failed_proteins": [
+            "P49001",
+            "P32600",
+            "Q9JLN9",
+            "P27090",
+            "Q07257"
+          ],
+          "median_core_size_successful": 714,
+          "median_core_seconds_successful": 14.49,
+          "sum_core_seconds_successful": 1507.9249999999997,
+          "median_bp_seconds_successful": 0.52,
+          "bp_lb_gt_0.01_count": 0,
+          "bp_lb_gt_0.001_count": 0,
+          "median_terms_outside": 0,
+          "mean_terms_outside": 0,
+          "tau_values": [
+            1e-09
+          ],
+          "delta_max": 2.7949609416363693e-05,
+          "core_size_equals_original_nnz_count": 0
+        },
+        "all": {
+          "attempted": 100,
+          "successful": 94,
+          "failed_proteins": [
+            "P49001",
+            "P32600",
+            "Q9JLN9",
+            "P27090",
+            "Q07257",
+            "Q9C9M7"
+          ],
+          "median_core_size_successful": 615.5,
+          "median_core_seconds_successful": 1.7845,
+          "sum_core_seconds_successful": 2595.8689999999997,
+          "median_bp_seconds_successful": 0.5,
+          "bp_lb_gt_0.01_count": 0,
+          "bp_lb_gt_0.001_count": 0,
+          "median_terms_outside": 0.0,
+          "mean_terms_outside": 0,
+          "tau_values": [
+            1e-09
+          ],
+          "delta_max": 2.843359577187002e-05,
+          "core_size_equals_original_nnz_count": 0
+        }
+      }
+    },
+    "p1_2_certified_go_mf_prop_clip1e-09.json": {
+      "source": "experiments/results/p1_2_certified_go_mf_prop_clip1e-09.json",
+      "source_sha256": "37e3eeb98ceb720a379f26fc87069f4d39b3a2b05da3b88745904f191fd565a7",
+      "args": {
+        "ontology": "go_mf",
+        "diamond_key": "prop",
+        "proteins": 100,
+        "clip": 1e-09,
+        "delta_target": 0.001,
+        "d4_timeout": 600.0,
+        "seed": 0,
+        "tag": ""
+      },
+      "groups": {
+        "random": {
+          "attempted": 50,
+          "successful": 50,
+          "failed_proteins": [],
+          "median_core_size_successful": 32.5,
+          "median_core_seconds_successful": 0.11,
+          "sum_core_seconds_successful": 5.573000000000001,
+          "median_bp_seconds_successful": 0.13,
+          "bp_lb_gt_0.01_count": 4,
+          "bp_lb_gt_0.001_count": 13,
+          "median_terms_outside": 10.5,
+          "mean_terms_outside": 17.1,
+          "tau_values": [
+            1e-09
+          ],
+          "delta_max": 1.1165937666036967e-05,
+          "core_size_equals_original_nnz_count": 50
+        },
+        "most_intermediate": {
+          "attempted": 50,
+          "successful": 50,
+          "failed_proteins": [],
+          "median_core_size_successful": 106.0,
+          "median_core_seconds_successful": 0.1165,
+          "sum_core_seconds_successful": 5.918,
+          "median_bp_seconds_successful": 0.16,
+          "bp_lb_gt_0.01_count": 9,
+          "bp_lb_gt_0.001_count": 40,
+          "median_terms_outside": 65.0,
+          "mean_terms_outside": 66.8,
+          "tau_values": [
+            1e-09
+          ],
+          "delta_max": 1.1098938411876817e-05,
+          "core_size_equals_original_nnz_count": 50
+        },
+        "all": {
+          "attempted": 100,
+          "successful": 100,
+          "failed_proteins": [],
+          "median_core_size_successful": 79.0,
+          "median_core_seconds_successful": 0.1125,
+          "sum_core_seconds_successful": 11.490999999999998,
+          "median_bp_seconds_successful": 0.14,
+          "bp_lb_gt_0.01_count": 13,
+          "bp_lb_gt_0.001_count": 53,
+          "median_terms_outside": 41.0,
+          "mean_terms_outside": 41.95,
+          "tau_values": [
+            1e-09
+          ],
+          "delta_max": 1.1165937666036967e-05,
+          "core_size_equals_original_nnz_count": 100
+        }
+      }
+    },
+    "p1_2_certified_go_mf_raw_clip1e-09.json": {
+      "source": "experiments/results/p1_2_certified_go_mf_raw_clip1e-09.json",
+      "source_sha256": "649c029d7c83ac1b7ddd1083f728e5746a59f795f781414f3480956b9d06066e",
+      "args": {
+        "ontology": "go_mf",
+        "diamond_key": "raw",
+        "proteins": 100,
+        "clip": 1e-09,
+        "delta_target": 0.001,
+        "d4_timeout": 600.0,
+        "seed": 0,
+        "tag": ""
+      },
+      "groups": {
+        "random": {
+          "attempted": 50,
+          "successful": 50,
+          "failed_proteins": [],
+          "median_core_size_successful": 28.0,
+          "median_core_seconds_successful": 0.1155,
+          "sum_core_seconds_successful": 5.874000000000002,
+          "median_bp_seconds_successful": 0.14,
+          "bp_lb_gt_0.01_count": 1,
+          "bp_lb_gt_0.001_count": 1,
+          "median_terms_outside": 0.0,
+          "mean_terms_outside": 0.02,
+          "tau_values": [
+            1e-09
+          ],
+          "delta_max": 1.1163937688365842e-05,
+          "core_size_equals_original_nnz_count": 0
+        },
+        "most_intermediate": {
+          "attempted": 50,
+          "successful": 50,
+          "failed_proteins": [],
+          "median_core_size_successful": 88.0,
+          "median_core_seconds_successful": 0.119,
+          "sum_core_seconds_successful": 6.107,
+          "median_bp_seconds_successful": 0.13,
+          "bp_lb_gt_0.01_count": 0,
+          "bp_lb_gt_0.001_count": 0,
+          "median_terms_outside": 0.0,
+          "mean_terms_outside": 0,
+          "tau_values": [
+            1e-09
+          ],
+          "delta_max": 1.112393813410336e-05,
+          "core_size_equals_original_nnz_count": 0
+        },
+        "all": {
+          "attempted": 100,
+          "successful": 100,
+          "failed_proteins": [],
+          "median_core_size_successful": 67.0,
+          "median_core_seconds_successful": 0.1175,
+          "sum_core_seconds_successful": 11.981000000000002,
+          "median_bp_seconds_successful": 0.135,
+          "bp_lb_gt_0.01_count": 1,
+          "bp_lb_gt_0.001_count": 1,
+          "median_terms_outside": 0.0,
+          "mean_terms_outside": 0.01,
+          "tau_values": [
+            1e-09
+          ],
+          "delta_max": 1.1163937688365842e-05,
+          "core_size_equals_original_nnz_count": 0
+        }
+      }
+    }
+  },
+  "bp_diagnostics": {
+    "method": "Existing loopy_bp function source executed with its type annotations removed for Python 3.6 and a mathematically equivalent stable sigmoid replacing scipy.special.expit; all message update and termination logic unchanged. Scores loaded from saved npz, clipped at 1e-9.",
+    "raw_go_mf_P24387": {
+      "reference": "7-variable core brute force; full model also has pruning error bounded by approximately 1.1163e-5",
+      "checks": [
+        {
+          "tol": 1e-09,
+          "iterations": 34,
+          "max_difference_from_core_exact": 0.02828075310129265
+        },
+        {
+          "tol": 1e-11,
+          "iterations": 42,
+          "max_difference_from_core_exact": 0.00011367391805937487
+        },
+        {
+          "tol": 1e-13,
+          "iterations": 50,
+          "max_difference_from_core_exact": 4.4408902656626637e-07
+        },
+        {
+          "tol": 1e-15,
+          "iterations": 57,
+          "max_difference_from_core_exact": 3.4694470487552166e-09
+        }
+      ]
+    },
+    "go_bp_prop_checks": [
+      {
+        "protein": "Q9C5Q2",
+        "original_certified_lb": 0.06397372410343466,
+        "iterations_old_new": [
+          107,
+          163
+        ],
+        "max_shift_tol_1e9_to_1e13": 7.2387191241141124e-09
+      },
+      {
+        "protein": "Q09167",
+        "original_certified_lb": 0.015005323814371918,
+        "iterations_old_new": [
+          71,
+          109
+        ],
+        "max_shift_tol_1e9_to_1e13": 2.9013423885615452e-09
+      },
+      {
+        "protein": "Q80VI1",
+        "original_certified_lb": 0.008584793026706665,
+        "iterations_old_new": [
+          52,
+          78
+        ],
+        "max_shift_tol_1e9_to_1e13": 1.4789053315311662e-09
+      }
+    ]
+  },
+  "module_diagnostic": {
+    "scope": "Input-only diagnostic, no new solver experiment. Nonzero prop scores <=0.05 and their induced undirected connected components. Per-module relative tail budget 0.001, which is optimistic compared with a shared global budget.",
+    "protein": "Q14451",
+    "module_size": 463,
+    "sum_odds_rounded": 7.259,
+    "minimum_k_for_stated_tail_bound_at_local_budget": 29,
+    "limitation": "Legal pattern enumeration may reduce cost; this is not proof that P1.3 fails."
+  }
+}

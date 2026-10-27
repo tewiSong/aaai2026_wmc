@@ -1,0 +1,842 @@
+{
+  "ns": "go_mf",
+  "proteins": 16,
+  "edges": 923,
+  "reduced_edges": 923,
+  "toy_exact": [
+    0.5,
+    0.5
+  ],
+  "toy": {
+    "production_1e-10": {
+      "mu": [
+        7.298615969498997e-08,
+        0.9999999270138402
+      ],
+      "err": 0.4999999270138394,
+      "iterations": 33,
+      "converged": true
+    },
+    "production_1e-13": {
+      "mu": [
+        7.472666862229805e-05,
+        0.9999252733313776
+      ],
+      "err": 0.49992527333137676,
+      "iterations": 43,
+      "converged": true
+    },
+    "production_no_early_stop": {
+      "mu": [
+        0.4999999999999982,
+        0.5000000000000018
+      ],
+      "err": 8.881784197001252e-16,
+      "iterations": 200,
+      "converged": false
+    },
+    "logratio": {
+      "mu": [
+        0.49999999999090505,
+        0.500000000009095
+      ],
+      "err": 9.094058839309582e-12,
+      "iterations": 40,
+      "converged": true
+    }
+  },
+  "tree_max_error": 6.850769951327607e-14,
+  "max_exact_difference_after_transitive_reduction": 2.883804306463844e-13,
+  "summary": {
+    "production_1e-12": {
+      "median_error": 0.938843440160547,
+      "max_error": 0.9988114852157687,
+      "converged_fraction": 1.0,
+      "seconds": 1.675337314605713
+    },
+    "production_1e-15": {
+      "median_error": 0.9388434401605472,
+      "max_error": 0.9988114852157776,
+      "converged_fraction": 1.0,
+      "seconds": 2.023545265197754
+    },
+    "logratio_step05": {
+      "median_error": 0.0818795037236782,
+      "max_error": 0.4579813528272991,
+      "converged_fraction": 1.0,
+      "seconds": 0.18828463554382324
+    },
+    "logratio_step01": {
+      "median_error": 0.08187950372366735,
+      "max_error": 0.45798135282729513,
+      "converged_fraction": 1.0,
+      "seconds": 0.9632401466369629
+    },
+    "reduced_production": {
+      "median_error": 0.9388434401605472,
+      "max_error": 0.9988114852157776,
+      "converged_fraction": 1.0,
+      "seconds": 2.0203371047973633
+    },
+    "reduced_logratio": {
+      "median_error": 0.0818795037236782,
+      "max_error": 0.4579813528272991,
+      "converged_fraction": 1.0,
+      "seconds": 0.18773317337036133
+    }
+  },
+  "records": [
+    {
+      "row": 1060,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.09036805825579508,
+          "mae": 0.004043782561302387,
+          "converged": true,
+          "iterations": 253,
+          "seconds": 0.07563614845275879
+        },
+        "production_1e-15": {
+          "error": 0.09036805825699618,
+          "mae": 0.0040437825613505,
+          "converged": true,
+          "iterations": 290,
+          "seconds": 0.08672404289245605
+        },
+        "logratio_step05": {
+          "error": 0.09036805825695993,
+          "mae": 0.004043782561349064,
+          "converged": true,
+          "iterations": 174,
+          "seconds": 0.011045694351196289
+        },
+        "logratio_step01": {
+          "error": 0.09036805825694721,
+          "mae": 0.004043782561348526,
+          "converged": true,
+          "iterations": 905,
+          "seconds": 0.05657219886779785
+        },
+        "reduced_production": {
+          "error": 0.09036805825699618,
+          "mae": 0.0040437825613505,
+          "converged": true,
+          "iterations": 290,
+          "seconds": 0.08610701560974121
+        },
+        "reduced_logratio": {
+          "error": 0.09036805825695993,
+          "mae": 0.004043782561349064,
+          "converged": true,
+          "iterations": 174,
+          "seconds": 0.011018991470336914
+        }
+      }
+    },
+    {
+      "row": 838,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.9035026333486968,
+          "mae": 0.02751679500352934,
+          "converged": true,
+          "iterations": 189,
+          "seconds": 0.05704188346862793
+        },
+        "production_1e-15": {
+          "error": 0.9035026333486968,
+          "mae": 0.027516795003536893,
+          "converged": true,
+          "iterations": 212,
+          "seconds": 0.06238150596618652
+        },
+        "logratio_step05": {
+          "error": 0.09626454244162352,
+          "mae": 0.005027623354246308,
+          "converged": true,
+          "iterations": 146,
+          "seconds": 0.009287357330322266
+        },
+        "logratio_step01": {
+          "error": 0.09626454244162354,
+          "mae": 0.005027623354246471,
+          "converged": true,
+          "iterations": 767,
+          "seconds": 0.04768776893615723
+        },
+        "reduced_production": {
+          "error": 0.9035026333486968,
+          "mae": 0.027516795003536893,
+          "converged": true,
+          "iterations": 212,
+          "seconds": 0.06368780136108398
+        },
+        "reduced_logratio": {
+          "error": 0.09626454244162352,
+          "mae": 0.005027623354246308,
+          "converged": true,
+          "iterations": 146,
+          "seconds": 0.009260416030883789
+        }
+      }
+    },
+    {
+      "row": 627,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.9973444171574747,
+          "mae": 0.08850777292916485,
+          "converged": true,
+          "iterations": 267,
+          "seconds": 0.07856082916259766
+        },
+        "production_1e-15": {
+          "error": 0.9973444171574747,
+          "mae": 0.08850777292920652,
+          "converged": true,
+          "iterations": 330,
+          "seconds": 0.09654664993286133
+        },
+        "logratio_step05": {
+          "error": 0.05038739996265537,
+          "mae": 0.001767015407263227,
+          "converged": true,
+          "iterations": 160,
+          "seconds": 0.010312080383300781
+        },
+        "logratio_step01": {
+          "error": 0.05038739996264596,
+          "mae": 0.0017670154072631278,
+          "converged": true,
+          "iterations": 834,
+          "seconds": 0.05264616012573242
+        },
+        "reduced_production": {
+          "error": 0.9973444171574747,
+          "mae": 0.08850777292920652,
+          "converged": true,
+          "iterations": 330,
+          "seconds": 0.09702253341674805
+        },
+        "reduced_logratio": {
+          "error": 0.05038739996265537,
+          "mae": 0.001767015407263227,
+          "converged": true,
+          "iterations": 160,
+          "seconds": 0.010224580764770508
+        }
+      }
+    },
+    {
+      "row": 2054,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.14481902262822033,
+          "mae": 0.004915311997616221,
+          "converged": true,
+          "iterations": 248,
+          "seconds": 0.07211518287658691
+        },
+        "production_1e-15": {
+          "error": 0.14481902262906587,
+          "mae": 0.004915311997688739,
+          "converged": true,
+          "iterations": 300,
+          "seconds": 0.08808350563049316
+        },
+        "logratio_step05": {
+          "error": 0.1448190226289599,
+          "mae": 0.004915311997679636,
+          "converged": true,
+          "iterations": 231,
+          "seconds": 0.014759063720703125
+        },
+        "logratio_step01": {
+          "error": 0.1448190226289477,
+          "mae": 0.00491531199767857,
+          "converged": true,
+          "iterations": 1202,
+          "seconds": 0.07618212699890137
+        },
+        "reduced_production": {
+          "error": 0.1448190226290659,
+          "mae": 0.004915311997688736,
+          "converged": true,
+          "iterations": 299,
+          "seconds": 0.08642458915710449
+        },
+        "reduced_logratio": {
+          "error": 0.1448190226289599,
+          "mae": 0.004915311997679636,
+          "converged": true,
+          "iterations": 231,
+          "seconds": 0.014659404754638672
+        }
+      }
+    },
+    {
+      "row": 1444,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.08539370169323751,
+          "mae": 0.0029752636917696937,
+          "converged": true,
+          "iterations": 181,
+          "seconds": 0.05332374572753906
+        },
+        "production_1e-15": {
+          "error": 0.08539370169384172,
+          "mae": 0.002975263691783553,
+          "converged": true,
+          "iterations": 216,
+          "seconds": 0.06279683113098145
+        },
+        "logratio_step05": {
+          "error": 0.08539370169381616,
+          "mae": 0.0029752636917829787,
+          "converged": true,
+          "iterations": 166,
+          "seconds": 0.010691404342651367
+        },
+        "logratio_step01": {
+          "error": 0.08539370169381058,
+          "mae": 0.002975263691782869,
+          "converged": true,
+          "iterations": 874,
+          "seconds": 0.05487990379333496
+        },
+        "reduced_production": {
+          "error": 0.08539370169384172,
+          "mae": 0.0029752636917835494,
+          "converged": true,
+          "iterations": 214,
+          "seconds": 0.0625143051147461
+        },
+        "reduced_logratio": {
+          "error": 0.08539370169381616,
+          "mae": 0.0029752636917829787,
+          "converged": true,
+          "iterations": 166,
+          "seconds": 0.01058340072631836
+        }
+      }
+    },
+    {
+      "row": 802,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.060892049511494364,
+          "mae": 0.0031396983006937236,
+          "converged": true,
+          "iterations": 235,
+          "seconds": 0.0687859058380127
+        },
+        "production_1e-15": {
+          "error": 0.06089204951166959,
+          "mae": 0.003139698300709953,
+          "converged": true,
+          "iterations": 264,
+          "seconds": 0.07784175872802734
+        },
+        "logratio_step05": {
+          "error": 0.06089204951166927,
+          "mae": 0.003139698300709909,
+          "converged": true,
+          "iterations": 157,
+          "seconds": 0.01012873649597168
+        },
+        "logratio_step01": {
+          "error": 0.0608920495116686,
+          "mae": 0.003139698300709868,
+          "converged": true,
+          "iterations": 833,
+          "seconds": 0.05256509780883789
+        },
+        "reduced_production": {
+          "error": 0.06089204951166959,
+          "mae": 0.003139698300709953,
+          "converged": true,
+          "iterations": 264,
+          "seconds": 0.07710671424865723
+        },
+        "reduced_logratio": {
+          "error": 0.06089204951166927,
+          "mae": 0.003139698300709909,
+          "converged": true,
+          "iterations": 157,
+          "seconds": 0.010054588317871094
+        }
+      }
+    },
+    {
+      "row": 1736,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.9985120123283475,
+          "mae": 0.0883751523995809,
+          "converged": true,
+          "iterations": 918,
+          "seconds": 0.26911282539367676
+        },
+        "production_1e-15": {
+          "error": 0.9985120123283475,
+          "mae": 0.08837515239971232,
+          "converged": true,
+          "iterations": 1170,
+          "seconds": 0.3404262065887451
+        },
+        "logratio_step05": {
+          "error": 0.4579813528272991,
+          "mae": 0.023771890320629627,
+          "converged": true,
+          "iterations": 314,
+          "seconds": 0.019864797592163086
+        },
+        "logratio_step01": {
+          "error": 0.45798135282729513,
+          "mae": 0.023771890320628562,
+          "converged": true,
+          "iterations": 1596,
+          "seconds": 0.09932065010070801
+        },
+        "reduced_production": {
+          "error": 0.9985120123283475,
+          "mae": 0.08837515239971229,
+          "converged": true,
+          "iterations": 1172,
+          "seconds": 0.3429081439971924
+        },
+        "reduced_logratio": {
+          "error": 0.4579813528272991,
+          "mae": 0.023771890320629627,
+          "converged": true,
+          "iterations": 314,
+          "seconds": 0.019824981689453125
+        }
+      }
+    },
+    {
+      "row": 818,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.9972287892835979,
+          "mae": 0.044235195563097594,
+          "converged": true,
+          "iterations": 651,
+          "seconds": 0.18921637535095215
+        },
+        "production_1e-15": {
+          "error": 0.997228789283336,
+          "mae": 0.0442351955626648,
+          "converged": true,
+          "iterations": 842,
+          "seconds": 0.2462763786315918
+        },
+        "logratio_step05": {
+          "error": 0.0747738344592786,
+          "mae": 0.004292289006352163,
+          "converged": true,
+          "iterations": 203,
+          "seconds": 0.012939929962158203
+        },
+        "logratio_step01": {
+          "error": 0.07477383445924138,
+          "mae": 0.004292289006350743,
+          "converged": true,
+          "iterations": 1057,
+          "seconds": 0.06639695167541504
+        },
+        "reduced_production": {
+          "error": 0.997228789283336,
+          "mae": 0.04423519556266482,
+          "converged": true,
+          "iterations": 840,
+          "seconds": 0.24372005462646484
+        },
+        "reduced_logratio": {
+          "error": 0.0747738344592786,
+          "mae": 0.004292289006352163,
+          "converged": true,
+          "iterations": 203,
+          "seconds": 0.012940168380737305
+        }
+      }
+    },
+    {
+      "row": 782,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.9978065894228857,
+          "mae": 0.1579679941555516,
+          "converged": true,
+          "iterations": 333,
+          "seconds": 0.09832882881164551
+        },
+        "production_1e-15": {
+          "error": 0.9978065894228859,
+          "mae": 0.15796799415574828,
+          "converged": true,
+          "iterations": 410,
+          "seconds": 0.12032651901245117
+        },
+        "logratio_step05": {
+          "error": 0.06456661289903359,
+          "mae": 0.002727793164448558,
+          "converged": true,
+          "iterations": 163,
+          "seconds": 0.010438919067382812
+        },
+        "logratio_step01": {
+          "error": 0.06456661289902993,
+          "mae": 0.0027277931644484102,
+          "converged": true,
+          "iterations": 858,
+          "seconds": 0.05438971519470215
+        },
+        "reduced_production": {
+          "error": 0.9978065894228859,
+          "mae": 0.15796799415574828,
+          "converged": true,
+          "iterations": 410,
+          "seconds": 0.12069487571716309
+        },
+        "reduced_logratio": {
+          "error": 0.06456661289903359,
+          "mae": 0.002727793164448558,
+          "converged": true,
+          "iterations": 163,
+          "seconds": 0.010511398315429688
+        }
+      }
+    },
+    {
+      "row": 690,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.091618332596275,
+          "mae": 0.004315559218850581,
+          "converged": true,
+          "iterations": 235,
+          "seconds": 0.06873083114624023
+        },
+        "production_1e-15": {
+          "error": 0.091618332596828,
+          "mae": 0.00431555921887298,
+          "converged": true,
+          "iterations": 268,
+          "seconds": 0.07898998260498047
+        },
+        "logratio_step05": {
+          "error": 0.09161833259679039,
+          "mae": 0.004315559218871431,
+          "converged": true,
+          "iterations": 169,
+          "seconds": 0.010865211486816406
+        },
+        "logratio_step01": {
+          "error": 0.09161833259678023,
+          "mae": 0.004315559218871023,
+          "converged": true,
+          "iterations": 896,
+          "seconds": 0.05670595169067383
+        },
+        "reduced_production": {
+          "error": 0.091618332596828,
+          "mae": 0.004315559218872979,
+          "converged": true,
+          "iterations": 268,
+          "seconds": 0.07895970344543457
+        },
+        "reduced_logratio": {
+          "error": 0.09161833259679039,
+          "mae": 0.004315559218871431,
+          "converged": true,
+          "iterations": 169,
+          "seconds": 0.010879039764404297
+        }
+      }
+    },
+    {
+      "row": 1185,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.9741842469723971,
+          "mae": 0.038859306201833456,
+          "converged": true,
+          "iterations": 155,
+          "seconds": 0.045794010162353516
+        },
+        "production_1e-15": {
+          "error": 0.9741842469723976,
+          "mae": 0.038859306201832866,
+          "converged": true,
+          "iterations": 182,
+          "seconds": 0.05333757400512695
+        },
+        "logratio_step05": {
+          "error": 0.10501037520769846,
+          "mae": 0.0042492180168634975,
+          "converged": true,
+          "iterations": 185,
+          "seconds": 0.011803388595581055
+        },
+        "logratio_step01": {
+          "error": 0.10501037520769285,
+          "mae": 0.004249218016863323,
+          "converged": true,
+          "iterations": 962,
+          "seconds": 0.06037545204162598
+        },
+        "reduced_production": {
+          "error": 0.9741842469723976,
+          "mae": 0.038859306201832866,
+          "converged": true,
+          "iterations": 182,
+          "seconds": 0.05327916145324707
+        },
+        "reduced_logratio": {
+          "error": 0.10501037520769846,
+          "mae": 0.0042492180168634975,
+          "converged": true,
+          "iterations": 185,
+          "seconds": 0.011847496032714844
+        }
+      }
+    },
+    {
+      "row": 159,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.0570886305743936,
+          "mae": 0.002763496982216133,
+          "converged": true,
+          "iterations": 390,
+          "seconds": 0.11353111267089844
+        },
+        "production_1e-15": {
+          "error": 0.05708863057503087,
+          "mae": 0.002763496982251214,
+          "converged": true,
+          "iterations": 436,
+          "seconds": 0.12836503982543945
+        },
+        "logratio_step05": {
+          "error": 0.0570886305749288,
+          "mae": 0.0027634969822455864,
+          "converged": true,
+          "iterations": 198,
+          "seconds": 0.012670755386352539
+        },
+        "logratio_step01": {
+          "error": 0.057088630574903085,
+          "mae": 0.00276349698224417,
+          "converged": true,
+          "iterations": 1011,
+          "seconds": 0.0633401870727539
+        },
+        "reduced_production": {
+          "error": 0.05708863057503087,
+          "mae": 0.002763496982251212,
+          "converged": true,
+          "iterations": 436,
+          "seconds": 0.12678766250610352
+        },
+        "reduced_logratio": {
+          "error": 0.0570886305749288,
+          "mae": 0.0027634969822455864,
+          "converged": true,
+          "iterations": 198,
+          "seconds": 0.012536287307739258
+        }
+      }
+    },
+    {
+      "row": 1943,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.10247835024081792,
+          "mae": 0.005460396399218185,
+          "converged": true,
+          "iterations": 449,
+          "seconds": 0.13248252868652344
+        },
+        "production_1e-15": {
+          "error": 0.10247835024151447,
+          "mae": 0.005460396399245276,
+          "converged": true,
+          "iterations": 486,
+          "seconds": 0.14197969436645508
+        },
+        "logratio_step05": {
+          "error": 0.10247835024145635,
+          "mae": 0.005460396399242983,
+          "converged": true,
+          "iterations": 183,
+          "seconds": 0.011747598648071289
+        },
+        "logratio_step01": {
+          "error": 0.10247835024143953,
+          "mae": 0.005460396399242309,
+          "converged": true,
+          "iterations": 944,
+          "seconds": 0.059453487396240234
+        },
+        "reduced_production": {
+          "error": 0.10247835024151447,
+          "mae": 0.005460396399245275,
+          "converged": true,
+          "iterations": 486,
+          "seconds": 0.142625093460083
+        },
+        "reduced_logratio": {
+          "error": 0.10247835024145635,
+          "mae": 0.005460396399242983,
+          "converged": true,
+          "iterations": 183,
+          "seconds": 0.011741399765014648
+        }
+      }
+    },
+    {
+      "row": 1558,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.9979564490597104,
+          "mae": 0.09369769800045388,
+          "converged": true,
+          "iterations": 355,
+          "seconds": 0.10395526885986328
+        },
+        "production_1e-15": {
+          "error": 0.997956449059603,
+          "mae": 0.09369769800018968,
+          "converged": true,
+          "iterations": 442,
+          "seconds": 0.12865304946899414
+        },
+        "logratio_step05": {
+          "error": 0.04313131549914237,
+          "mae": 0.0032361098306479216,
+          "converged": true,
+          "iterations": 163,
+          "seconds": 0.010538339614868164
+        },
+        "logratio_step01": {
+          "error": 0.04313131549913794,
+          "mae": 0.0032361098306476228,
+          "converged": true,
+          "iterations": 859,
+          "seconds": 0.054769277572631836
+        },
+        "reduced_production": {
+          "error": 0.997956449059603,
+          "mae": 0.09369769800018969,
+          "converged": true,
+          "iterations": 442,
+          "seconds": 0.128892183303833
+        },
+        "reduced_logratio": {
+          "error": 0.04313131549914237,
+          "mae": 0.0032361098306479216,
+          "converged": true,
+          "iterations": 163,
+          "seconds": 0.010497570037841797
+        }
+      }
+    },
+    {
+      "row": 1957,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.9976630370001174,
+          "mae": 0.14438089499809717,
+          "converged": true,
+          "iterations": 445,
+          "seconds": 0.13205528259277344
+        },
+        "production_1e-15": {
+          "error": 0.997663037000118,
+          "mae": 0.14438089499878454,
+          "converged": true,
+          "iterations": 572,
+          "seconds": 0.17218708992004395
+        },
+        "logratio_step05": {
+          "error": 0.05324524358479166,
+          "mae": 0.0026161432695947133,
+          "converged": true,
+          "iterations": 146,
+          "seconds": 0.00941324234008789
+        },
+        "logratio_step01": {
+          "error": 0.05324524358478866,
+          "mae": 0.002616143269594616,
+          "converged": true,
+          "iterations": 757,
+          "seconds": 0.04789614677429199
+        },
+        "reduced_production": {
+          "error": 0.997663037000118,
+          "mae": 0.1443808949987846,
+          "converged": true,
+          "iterations": 574,
+          "seconds": 0.17005538940429688
+        },
+        "reduced_logratio": {
+          "error": 0.05324524358479166,
+          "mae": 0.0026161432695947133,
+          "converged": true,
+          "iterations": 146,
+          "seconds": 0.009435653686523438
+        }
+      }
+    },
+    {
+      "row": 1807,
+      "methods": {
+        "production_1e-12": {
+          "error": 0.9988114852157687,
+          "mae": 0.16159695725118772,
+          "converged": true,
+          "iterations": 397,
+          "seconds": 0.11666655540466309
+        },
+        "production_1e-15": {
+          "error": 0.9988114852157776,
+          "mae": 0.16159695725173207,
+          "converged": true,
+          "iterations": 477,
+          "seconds": 0.13862943649291992
+        },
+        "logratio_step05": {
+          "error": 0.07836530575354023,
+          "mae": 0.0029408255388230845,
+          "converged": true,
+          "iterations": 185,
+          "seconds": 0.011778116226196289
+        },
+        "logratio_step01": {
+          "error": 0.07836530575352413,
+          "mae": 0.0029408255388228047,
+          "converged": true,
+          "iterations": 958,
+          "seconds": 0.0600590705871582
+        },
+        "reduced_production": {
+          "error": 0.9988114852157776,
+          "mae": 0.161596957251732,
+          "converged": true,
+          "iterations": 476,
+          "seconds": 0.13955187797546387
+        },
+        "reduced_logratio": {
+          "error": 0.07836530575354023,
+          "mae": 0.0029408255388230845,
+          "converged": true,
+          "iterations": 185,
+          "seconds": 0.011717796325683594
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "scope": "New feasibility prototypes on synthetic implication DAGs, not GO/ChEBI replications and not a novelty proof.",
+  "sampling_recovery": {
+    "approximate_population_MAE": 0.04814338893061723,
+    "corrected_population_max_error": 2.220446049250313e-16,
+    "Monte_Carlo": [
+      {
+        "samples": 100,
+        "replications": 30,
+        "median_MAE": 0.06318250803064639,
+        "maximum_MAE": 0.10793370351246595
+      },
+      {
+        "samples": 1000,
+        "replications": 30,
+        "median_MAE": 0.01880592835169267,
+        "maximum_MAE": 0.03977861237378738
+      },
+      {
+        "samples": 10000,
+        "replications": 30,
+        "median_MAE": 0.005353844510889421,
+        "maximum_MAE": 0.010556596762089684
+      }
+    ],
+    "caveat": "Self-normalized finite-sample marginals are consistent, not unbiased; no mixing or runtime guarantee is claimed."
+  },
+  "ordering_rank_obstruction": [
+    {
+      "pairs": 2,
+      "boundary_size": 4,
+      "clamped_internal_treewidth": 1,
+      "full_graph_treewidth": 1,
+      "grouped_max_TT_rank": 4,
+      "interleaved_max_TT_rank": 2
+    },
+    {
+      "pairs": 3,
+      "boundary_size": 6,
+      "clamped_internal_treewidth": 1,
+      "full_graph_treewidth": 1,
+      "grouped_max_TT_rank": 8,
+      "interleaved_max_TT_rank": 3
+    },
+    {
+      "pairs": 4,
+      "boundary_size": 8,
+      "clamped_internal_treewidth": 1,
+      "full_graph_treewidth": 1,
+      "grouped_max_TT_rank": 16,
+      "interleaved_max_TT_rank": 3
+    },
+    {
+      "pairs": 5,
+      "boundary_size": 10,
+      "clamped_internal_treewidth": 1,
+      "full_graph_treewidth": 1,
+      "grouped_max_TT_rank": 32,
+      "interleaved_max_TT_rank": 3
+    },
+    {
+      "pairs": 6,
+      "boundary_size": 12,
+      "clamped_internal_treewidth": 1,
+      "full_graph_treewidth": 1,
+      "grouped_max_TT_rank": 64,
+      "interleaved_max_TT_rank": 3
+    },
+    {
+      "pairs": 7,
+      "boundary_size": 14,
+      "clamped_internal_treewidth": 1,
+      "full_graph_treewidth": 1,
+      "grouped_max_TT_rank": 128,
+      "interleaved_max_TT_rank": 3
+    },
+    {
+      "pairs": 8,
+      "boundary_size": 16,
+      "clamped_internal_treewidth": 1,
+      "full_graph_treewidth": 1,
+      "grouped_max_TT_rank": 256,
+      "interleaved_max_TT_rank": 3
+    }
+  ],
+  "wide_boundary_analytic_case": {
+    "boundary_size": 1082,
+    "latent_states": 2,
+    "exact_nonnegative_TT_rank": 2,
+    "dense_boundary_entries": "2^1082",
+    "exact_Z": 0.7354934346218502,
+    "exact_child_marginal": 0.18422113406289412,
+    "exact_parent_marginal_min": 0.999184221134063,
+    "exact_parent_marginal_max": 0.999184221134063,
+    "root_certificate": 0.6612664134453743,
+    "after_one_split_certificate": 0.0,
+    "computation": "Analytic contraction of two rank-one cubes; no boundary table allocated. This is a tree and also easy for standard exact inference."
+  },
+  "derivative_counterexample": {
+    "separator_value_error_at_evaluation_point": 0.0,
+    "true_marginal": 0.3333333333333333,
+    "naive_differentiation_marginal": 2.333333333589593,
+    "failure": "Exact separator values at one weight vector do not imply correct weight derivatives of a fitted surrogate."
+  },
+  "factor_error_counterexample": {
+    "uniform_factor_NMAE": 5e-09,
+    "posterior_absolute_error": 0.16666666666666663,
+    "exact_event_probability": 0.5,
+    "approximate_event_probability": 0.6666666666666666
+  },
+  "uniform_query_obstruction": [
+    {
+      "boundary_size": 24,
+      "supported_assignments": 25,
+      "uniform_query_support_probability": "1.4901161194E-6",
+      "expected_supported_queries_from_5000": "7.4505805969E-3",
+      "probability_at_least_one_supported_query_upper_bound": "7.4505805969E-3"
+    },
+    {
+      "boundary_size": 176,
+      "supported_assignments": 177,
+      "uniform_query_support_probability": "1.8479662253E-51",
+      "expected_supported_queries_from_5000": "9.2398311267E-48",
+      "probability_at_least_one_supported_query_upper_bound": "9.2398311267E-48"
+    },
+    {
+      "boundary_size": 1082,
+      "supported_assignments": 1083,
+      "uniform_query_support_probability": "2.0901292752E-323",
+      "expected_supported_queries_from_5000": "1.0450646376E-319",
+      "probability_at_least_one_supported_query_upper_bound": "1.0450646376E-319"
+    }
+  ]
+}
+CERTIFICATE CHECKS: 100 models, 503 configurations; max recovery discrepancy 5.551115123125783e-16

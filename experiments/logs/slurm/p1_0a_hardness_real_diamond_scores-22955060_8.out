@@ -1,0 +1,29 @@
+{"instance": 0, "terms": 2009, "edges": 3477, "pct_multiparent": 53.26, "d4": {"failed": "TimeoutExpired(['/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4', '-dDNNF', '/tmp/tmp4t01_9ul/i0.cnf', '-out=/tmp/tmp4t01_9ul/i0.nnf'], 3600.0)"}}
+{"instance": 1, "terms": 2022, "edges": 3550, "pct_multiparent": 54.85, "d4": {"failed": "TimeoutExpired(['/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4', '-dDNNF', '/tmp/tmp4t01_9ul/i1.cnf', '-out=/tmp/tmp4t01_9ul/i1.nnf'], 3600.0)"}}
+{"instance": 2, "terms": 2001, "edges": 3493, "pct_multiparent": 53.52, "d4": {"failed": "TimeoutExpired(['/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4', '-dDNNF', '/tmp/tmp4t01_9ul/i2.cnf', '-out=/tmp/tmp4t01_9ul/i2.nnf'], 3600.0)"}}
+{"instance": 3, "terms": 2003, "edges": 3611, "pct_multiparent": 56.52, "d4": {"failed": "TimeoutExpired(['/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/tools/bin/d4', '-dDNNF', '/tmp/tmp4t01_9ul/i3.cnf', '-out=/tmp/tmp4t01_9ul/i3.nnf'], 3600.0)"}}
+written /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/results/p1_0a_go_bp_2000_diamond_prop.json
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p1_0a_hardness_bp_gibbs_vs_exact_d4.py --ontology go_bp --subgraph-size 2000 --n-subgraphs 4 --diamond /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/data/scores/diamondscore_go_bp.npz --diamond-key prop --proteins 12 --gibbs-sweeps 3000 --d4-timeout 3600 --seed 8 --tag diamond_prop"
+	User time (seconds): 14360.04
+	System time (seconds): 15.58
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 4:00:03
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 6901280
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 71272
+	Minor (reclaiming a frame) page faults: 3355797
+	Voluntary context switches: 81912
+	Involuntary context switches: 22006
+	Swaps: 0
+	File system inputs: 552102
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p1_0a_hardness_bp_gibbs_vs_exact_d4_go_bp_2000_prop_20261019-104811.log

@@ -1,0 +1,35 @@
+isotonic 0.5s {'iterations': 90, 'max_violation': 3.3242841812608503e-10}
+tau 0.3    core q10/50/90/max [5.0, 11.0, 19.100000000000023, 52.0]  Lambda [3.509, 5.558, 8.637, 19.599]
+tau 0.1    core q10/50/90/max [13.0, 21.0, 36.0, 97.0]  Lambda [2.062, 3.311, 4.793, 10.463]
+tau 0.03   core q10/50/90/max [27.900000000000006, 46.0, 76.0, 173.0]  Lambda [1.241, 1.863, 2.652, 3.821]
+tau 0.01   core q10/50/90/max [58.900000000000006, 96.5, 153.0, 324.0]  Lambda [0.689, 0.989, 1.304, 1.695]
+tau 0.003  core q10/50/90/max [137.8, 210.5, 303.1, 455.0]  Lambda [0.275, 0.378, 0.465, 0.571]
+tau 0.001  core q10/50/90/max [247.9, 367.5, 477.20000000000005, 565.0]  Lambda [0.074, 0.105, 0.139, 0.159]
+compile tau 0.03: solved 20/20, median 0.106 s, core sizes [41, 59, 48, 52, 130, 52, 59, 57, 39, 35, 55, 42, 40, 45, 50, 36, 29, 17, 28, 53]
+compile tau 0.01: solved 20/20, median 0.111 s, core sizes [84, 92, 104, 126, 227, 93, 120, 125, 76, 88, 113, 81, 75, 93, 104, 57, 69, 48, 53, 121]
+compile tau 0.003: solved 20/20, median 0.114 s, core sizes [164, 190, 240, 267, 362, 205, 221, 264, 153, 195, 226, 164, 172, 205, 209, 91, 171, 111, 134, 264]
+compile tau 0.001: solved 20/20, median 0.131 s, core sizes [323, 338, 444, 420, 505, 384, 367, 425, 241, 363, 381, 306, 345, 320, 391, 159, 333, 243, 343, 406]
+	Command being timed: "/pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/env/run_in_wmc_env.sh python3 -u /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/scripts/p6_0_hot_core_regime_diagnostic.py --ns go_cc --input cnn"
+	User time (seconds): 9.76
+	System time (seconds): 1.81
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:11.83
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 82768
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 414
+	Minor (reclaiming a frame) page faults: 276681
+	Voluntary context switches: 6425
+	Involuntary context switches: 151
+	Swaps: 0
+	File system inputs: 154070
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+log written to /pfs/lustrep1/projappl/project_462001792/WMC_aaai_rejected/experiments/logs/p6_0_hot_core_regime_diagnostic_go_cc_cnn_20261023-101932.log

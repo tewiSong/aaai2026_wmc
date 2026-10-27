@@ -1,0 +1,932 @@
+PDF PAGE 1
+Anytime Weighted Model Counting with
+Approximation Guarantees for Probabilistic
+Inference
+Alexandre Dubray /envel⌢pe
+Institute of Information and Communication Technologies, Electonics and Applied Mathematics
+(ICTEAM), UCLouvain, Belgium
+Pierre Schaus /envel⌢pe
+Institute of Information and Communication Technologies, Electonics and Applied Mathematics
+(ICTEAM), UCLouvain, Belgium
+Siegfried Nijssen /envel⌢pe
+Institute of Information and Communication Technologies, Electonics and Applied Mathematics
+(ICTEAM), UCLouvain, Belgium
+Abstract
+Weighted model counting (WMC) plays a central role in probabilistic reasoning. Given that this
+problem is#P−hard, harder instances can generally only be addressed using approximate techniques
+based on sampling, which provide statistical convergence guarantees: the longer a sampling process
+runs, the more accurate the WMC is likely to be. In this work, we propose a deterministic search-
+based approach that can also be stopped at any time and provides hard lower- and upper-bound
+guarantees on the true WMC. This approach uses a value heuristic that guides exploration first
+towards models with a high weight and leveragesLimited Discrepancy Searchto make the bounds
+converge faster. The validity, scalability, and convergence of our approach are tested and compared
+with state-of-the-art baseline methods on the problem of computing marginal probabilities in
+Bayesian networks and reliability estimation in probabilistic graphs.
+2012 ACM Subject ClassificationMathematics of computing→Probabilistic inference problems;
+Theory of computation→Probabilistic computation; Mathematics of computing→Approximation
+Keywords and phrasesProjected Weighted Model Counting, Limited Discrepancy Search, Approx-
+imate Method, Probabilistic Inference
+Digital Object Identifier10.4230/LIPIcs.CP.2024.10
+Supplementary Material
+Software (Source Code): https://github.com/aia-uclouvain/schlandals [8]
+archived at swh:1:dir:3ffca0d07dbd88cffbbdfda6e3f0ae09a9e77ac0
+Dataset: https://github.com/AlexandreDubray/bn-benchmarks
+archived at swh:1:dir:e4644057447aa2f4b9579b41744a6dede462da6a
+Dataset: https://github.com/AlexandreDubray/probabilistic-graph-benchmarks
+archived at swh:1:dir:fc1586f609a54f32b09e4d71eda2eb6457f00d20
+1 Introduction
+Model counting, the problem of counting the number of satisfying assignments of a propos-
+itional formula, is a canonical#P−hard problem with many applications. In particular,
+(projected) weighted model counting ((P)WMC) has been extensively used for probabilistic
+reasoning problems, such as computing the marginals in Bayesian Networks [4, 5, 20, 9]
+or reliability estimation in probabilistic graphs [10, 9]. While model counters are becom-
+ing increasingly efficient, computing an exact probability is not always possible for large
+probabilistic models. Methods computing an approximation of the probability offer better
+© Alexandre Dubray, Pierre Schaus, and Siegfried Nijssen;
+licensed under Creative Commons License CC-BY 4.0
+30th International Conference on Principles and Practice of Constraint Programming (CP 2024).
+Editor: Paul Shaw; Article No.10; pp.10:1–10:16
+Leibniz International Proceedings in Informatics
+Schloss Dagstuhl – Leibniz-Zentrum für Informatik, Dagstuhl Publishing, Germany
+
+PDF PAGE 2
+10:2 Anytime WMC with Approximation Guarantees for Probabilistic Inference
+scalability, but their guarantees are often statistical [3, 1, 12, 11, 13, 18]. Such methods
+are often based on sampling, meaning they can be stopped anytime. Moreover, the more
+the sampling process runs, the more accurate the estimated probability will likely be. For
+example, model counters providing so-called(ε,δ)−guarantees return an approximation
+whose relative error is bounded by a parameterεwith probability1−δ[3, 1]. Some methods
+offer weaker guarantees; they ensure that the probability of returning a wrong lower bound
+on the probability decreases with the number of iterations [13, 18].
+This work proposes a new search-based method for solving PWMC problems. It can be
+stopped at any time and returns hard bounds on the true count. We show that a DPLL-style
+model counter can maintain a lower and an upper bound on the true count at each search
+tree node. This modified version of the classical DPLL-style algorithm can be stopped at
+any time during its execution, providing deterministic guarantees on the true count. Then,
+we observe that in the specific context ofweighted model counting, Limited Discrepancy
+Search [14] (LDS) offers advantages compared to classical depth-first-search methods. Based
+on this observation, we propose a simple value-selection heuristic that favors the most likely
+model and use it in an LDS-based search. Our final contribution is to link the lower and
+upper bound on the true count to the well-knownε-guarantee. We show that bounds can be
+used to compute an approximate probability that satisfies anεrequirement and to determine
+the quality of an approximate model count returned by our algorithm when interrupted by a
+time-out. Using this theoretical result and the LDS-based search, we provide the first anytime
+method that can return, during its execution, approximate weighted counts with minimal
+ε-guarantees. We implemented this method, namedSchlandals-LDS-ε, in Schlandals [9],
+a recently proposed projected weighted model counter specialized for probabilistic inference.
+We compare our method against state-of-the-art solvers on two major probabilistic reasoning
+tasks: computing marginal probabilities in Bayesian networks and reliability estimation in
+probabilistic graphs. Our experiments show thatSchlandals-LDS-εperforms better on both
+tasks when looking at the number of solved instances and bound convergence, validating the
+effectiveness of our bound calculation and LDS-based weighted model counting.
+The rest of this paper is organized as follows. We review the technical background for
+model counting andSchlandals in Section 2, followed by a review of the related work in
+Section 3. In Section 4, we presentSchlandals-LDS-εWe first introduce how to compute
+bounds in Section 4.1 and then the search based on Limited Discrepancy Search in Section 4.2.
+We show the link between the bounds andε-guarantees in Section 4.3. We compare our
+work with existing methods and evaluate the convergence of our bounds in Section 5 before
+concluding in Section 6.
+2 Technical Background
+Let F be a boolean formula over a set of variablesV. An interpretationI for a formulaF is
+a complete assignment to all variables inF, and apartial interpretation is an interpretation
+on a subset of all the variables inF. We useI ={a =⊤,b =⊥}to denote an interpretation
+in whicha is true (⊤) andb is false (⊥). By F [I], we denote the evaluation ofF under
+I, using the standard way of interpreting logical formulas. IfF [I] = ⊤, I is a model of
+F. LetMF ={I∈{0, 1}|V||F [I] =⊤}be the set of models ofF. The goal of a model
+counter is to compute|MF|, the number of models ofF. In weighted model counting,
+each variablev∈Vhas two weightsω(v+) and ω(v−); the weight of an interpretation is
+defined asω(I) = ∏
+v∈I|v=⊤ω(v+) ∏
+v∈I|v=⊥ω(v−). A weighted model counter computes∑
+I∈MF
+ω(I), the weighted sum ofF’s models. LetP ⊆Vbe a subset of the variables
+
+PDF PAGE 3
+A. Dubray, P. Schaus, and S. Nijssen 10:3
+and πP :{0, 1}|V|↦→{0, 1}|P|the function that keeps, from an assignment to all variables
+of F, only the assignment to the variables inP. A projected model counter computes the
+number of projected models, defined by|πP (MF )|=|{π(I)|I∈MF}|. For example, let
+F = (a∨¬b)∧(b∨c∨d)∧(¬a∨d). This formula has7 models, but if restricted toP ={a,b},
+then it only has3 models. The interpretations I1 ={a =⊤,b =⊤,c =⊤,d =⊤}and
+I2 ={a =⊤,b =⊤,c =⊥,d =⊤}are both models ofF but, when restricted on the variables
+{a,b}, they are both equal:πP (I1) = πP (I2) ={a =⊤,b =⊤}. A projected weighted model
+counter computesPWMC (F ) = ∑
+I∈πP (MF )ω(I). Notice that in such a case, a weight only
+needs to be defined for an interpretation projected on the variablesP.
+An approximate model counter returns anε-approximation (ε>0) if, given a true count
+c⋆, it returns a countˆc and the following inequality holds:
+c⋆
+1 +ε≤ˆc≤c⋆(1 +ε), (1)
+that is, the relative error of the approximation is bounded by a factor1 +ε, and we say
+that such model counters provideε-guarantees. Approximate model counters providing
+(ε,δ)-guarantees return an approximation that respects Equation(1) with a probability1−δ.
+Schlandals is a search-based projected weighted model counter specialized for probab-
+ilistic inference problems [9]. Its input language has some specific features. It requires, in
+particular, that the projected variables are partitioned into discrete probability distributions
+D1,...,Dn.
+▶ Example 1 (Example of an input for Schlandals) . Below is an example of a formulaF in
+Schlandals, where all variablesv are inP:
+d1
+2∧d2
+2⇒d1
+1 d1
+1∧d1
+2⇒d1
+4 d1
+1∧d2
+3∧d3
+3⇒d2
+5
+d1
+4⇒d2
+2 d1
+1∧d1
+3⇒d1
+5 d1
+1∧d1
+5⇒d2
+3
+with distributions D1 = {d1
+1,d 2
+1},D 2 = {d1
+2,d 2
+2},D 3 = {d1
+3,d 2
+3,d 3
+3},D 4 = {d1
+4,d 2
+4}, and
+D5 ={d1
+5,d 2
+5}.
+We denote bydomF (Di) the domain of a distributionDi (i.e., the set of probabilistic
+variables in its partition). For each variablev ∈domF (Di), one weight P (v) needs to
+be specified, in such a manner that ∑
+v∈domF (Di)P (v) = 1 . When determining which
+interpretations are models inSchlandals, an implicit constraint is added: if an interpretation
+I does not fixexactly one variablev∈domF (Di) to⊤in each distributionDi, then we have
+F [I] =⊥.
+▶ Example 2. Continuing our example, an interpretationI setting d1
+1 =⊤and d2
+1 =⊤
+is not a model as two variables of the same distribution are set to⊤. On the contrary,
+I ={d2
+1,d 2
+2,d 1
+3,d 1
+4,d 1
+5}is a model of the formula. The weight of this model is obtained by
+calculatingP (d2
+1)×P (d2
+2)×P (d1
+3)×P (d1
+4)×P (d1
+5), reflecting the probabilities of the choices
+made for each of the distributions in the interpretation. For conciseness, we describe a
+partial interpretationI over the weighted variables by the choices (variables set to⊤) in the
+distributions.
+The importance of theSchlandalslanguage is that it allows several probabilistic inference
+problems to be modeled in a concise manner, among which inference problems in Bayesian
+Networks and probabilistic graphs; here, the ability to performprojectedmodel counting is
+critical for efficient encoding of inference problems on probabilistic graphs [27, 10]. The fact
+that weighted variables are part ofdistributions ensures that weighted model counts always
+correspond to probabilities.
+CP 2024
+
+PDF PAGE 4
+10:4 Anytime WMC with Approximation Guarantees for Probabilistic Inference
+Algorithm 1 PWMC as done inSchlandals [9].
+1 F unctionPWMCr(F )
+input : A boolean formulaF with distributionsDF
+output :P [F ] the weighted model count ofF
+2 if|DF|= 0 then return 1 // F is SAT, return 1. See [9]
+3 if F in cache with value p then return p
+4 P [F ]←0
+5 Di←choose_distribution() // For heuristics, see [9]
+6 foreachv∈domF (Di) do
+7 if TIMEOUT then break
+8 if F [v] =⊥then continue // Applies propagation
+// prop(F [v]) are the choices, for some distributions, forced by
+propagation
+9 p←∏
+v′∈prop(F [v])P (v′)
+10 C←components ofF [v] // Independent components
+11 foreachFc∈C do pc←PWMCr(Fc)
+12 P [F ] += p×∏
+cpc
+13 end
+14 AddsF↦→p in cache andreturn p
+15 return PWMCr(F )
+The Schlandals language, as presented in [9], also requires that all clauses are Horn.
+This allows Schlandals to solve satisfaction problems involving only non-weighted variables
+in polynomial time by means of propagation. While this restriction may seem limiting, it
+was shown that many problems can be modeled even under this restriction; moreover, the
+ideas presented below can also be extended to solvers for formulas without this restriction.
+The Schlandals solver implements a variant of component caching DPLL search, presen-
+ted in Algorithm 1. Given how a model’s weight is defined,Schlandals does not branch
+like classical model counters. It starts from a formulaF and selects a distribution not yet
+assigned (line 5). The variable selection heuristic is replaced by adistribution selection
+heuristic, and the value selection heuristic selects which variable in the distribution must
+be set to true. Then, for each value of its domain (lines 6-13), it sets it to true, applies
+propagation, and gets the residual formulaF [v] (line 8). HereSchlandals performs tradi-
+tional forms of propagation, such as unit propagation, but also a specific form of propagation
+for Horn clauses. If a formula remains after propagation, it is decomposed into independent
+components (line 9) that are solved independently (line 11). The counts of the independent
+components are multiplied with each other and added to the count of the formula (line 12),
+multiplied by the probability of the distributions assigned during propagation (computed at
+line 9).
+3 Related Work
+Most other approximate model counters are sampling-based; these model counters provide
+statistical guarantees at best.Hashing-basedapproximate model counters use special classes
+of hash functions to sample partitions of the search space. They count the models in
+these small parts and estimate the overall count from these parts. Usually, such solvers
+provide (ε,δ)−guarantees: they return an approximation whose relative (to the true count)
+
+PDF PAGE 5
+A. Dubray, P. Schaus, and S. Nijssen 10:5
+error is bounded by a factorε, as specified by Equation(1), with a probability of1−δ.
+ApproxMC [3, 24, 23] is one such solver, designed for unweighted (projected) model counting.
+Based on the same idea,WeightMC [1] targets weighted model counting and sampling.
+Another class of methods is that of the bounding counters.SampleCount [13] uses a
+sampler to estimate which variables, after being assigned, divide the solution space in half.
+When the formula is small enough, it counts exactly its number of models and multiplies the
+result by a constant factor to obtain an estimated count. This procedure obtains a lower
+bound with probabilistic guarantees when repeated multiple times.PartialKC [18] is another
+sampling-based model counter based on partial compilation. Both of these approaches are
+designed for unweighted model counting. Note that such sampling-based model counters can
+usually be turned into anytime model counters by estimating model counts even before the
+predefined approximation guarantee is ensured. In particular, the partial representations
+produced by PartialKC can be used to compute lower and upper bounds on the true count.
+However, given thatPartialKC works on unweighted formulas, their computations differ
+from ours. Moreover,PartialKC’s compilation process does not aim to fasten the bounds
+convergence.
+Model counting problems are related to several other problems. One such problem is
+calculating the partition function,Z, of discrete stochastic graphical models, such as Markov
+Random Fields, Markov Networks, or Cost Function Networks. An algorithm, calledZ∗
+ε,
+for calculating an estimate of ˆZ with Z
+1+ε≤ˆZ≤Z guarantees was proposed by Viricel
+et al. [26] and is implemented in theToulbar2 [21] system. AlsoZ∗
+εcalculates upper and
+lower bounds on the final model count, pruning the search based onε. However, there are
+several differences between our algorithm and this algorithm: 1) our algorithm is defined
+over a different form of model that includes projected variables; 2) our algorithm is any
+time and operates such that an upper-bound on the final model count can be calculated
+during the search; 3) our upper-bound calculation is optimized for the type of model we work
+with: it relies on the fact that only variables have weights, integrates the bound calculation
+with domain propagation, and can be integrated into any DPLL-style algorithm with little
+overhead; 4) it does not have the behavior stated by Viricel et al. [26] that a largerεcan
+lead to less pruning; 5) we combine our method with LDS. We will demonstrate the benefits
+of our approach experimentally.
+Finally, weighted model counting has been used as a probabilistic inference mechanism in
+probabilistic programming languages such asProblog [7, 27]. In particular, anytime methods
+have been developed specifically forProblog [28], where a TP-compilation incrementally
+calculates model counts by combining SDD diagrams [6].
+4 Anytime Projected Weighted Model Counting with Bounds
+This section describesSchlandals-LDS-ε, our anytime search-based approach for computing
+bounds onP [F ]. First, we describe how a simple modification of a DPLL search can compute
+bounds at each search tree node. Then, we present how Limited Discrepancy Search (LDS)
+can be applied to weighted model counting. Finally, we show the relationship between the
+computed bounds andε-approximations, and we show that LDS-based search can be used to
+compute approximate weighted model counts with deterministic guarantees.
+4.1 Computing Bounds During the Search
+Our lower and upper bounds are based on calculating which interpretations are (not) models,
+accounting for how propagation reduces the domain of the distributions. LetF be the
+(sub-)formula being solved andDF ={D1,...,Dn}the distributions inF. We denote by
+CP 2024
+
+PDF PAGE 6
+10:6 Anytime WMC with Approximation Guarantees for Probabilistic Inference
+domF (Di) = {d1
+i,...,dki
+i }the domain ofDi. During the search propagation might have
+previously removed some variables fromdomF (Di); hence, ∑
+v∈domF (Di)P (v)≤1 generally
+for subformulas considered during the search.
+Lower bound
+Our lower bound is relatively simple and amounts to maintaining a sum for models seen till
+a certain moment. Without loss of generality, let us assume that the solver decides to branch
+on D1. We denote byF [v] the formula that remains fromF after deciding that, forD1,
+variablev∈domF (Di) is true, and after propagation has been performed. Letprop(F [v]) be
+the set of probabilistic variables that are set to true during this propagation. Essentially
+our algorithm calculates the probabilityP [F ] recursively by exploring all possibilities forD1,
+using:
+P [F ] =
+∑
+v∈domF (D1)
+
+P [F [v]]×
+∏
+v′∈prop(F [v])
+P (v′)
+
+
+A lower bound is obtained by executing this sum over a subset ofdomF (D1); hence, we can
+incrementally maintain a lower bound while considering the possibilities indomF (D1).
+Upper bound
+Maintaining an upper bound is conceptually more complex, but we propose an upper bound
+that can be calculated with relatively little overhead in a DPLL-based solver. A first naïve
+upper bound, which we will improve afterwards, isP (DF ), defined as follows:
+P (DF ) =
+∏
+Di∈DF
+
+ ∑
+v∈domF (Di)
+P (v)
+
+ (2)
+i.e., P (DF ) represents the maximum probability thatF can obtain if all remaining interpret-
+ations are models. The intuition behind this formula is that an upper bound can be obtained
+by calculating a weighted sum over the interpretations that are in the cartesian product
+of the remaining domains of the remaining distributions. The product calculates this sum
+efficiently. As illustrated in the following example, this upper bound can be tightened during
+the search when the domains of the distributions are pruned by propagation.
+▶ Example 3. Continuing Example 1, let us consider the case when, at the root, the solver
+decides to branch onD4 and assignsd1
+4 =⊤. In that case, the claused1
+4 =⇒d2
+2 becomes
+⊤=⇒d2
+2, forcingd2
+2 =⊤. Since exactly one variable must be true in each distribution, we
+have thatd1
+2 =⊥. This means that no interpretation containingd1
+4 =⊤andd1
+2 =⊤can be a
+model ofF, and the upper bound for the formulaF can be improved. Assuming that no other
+variable is set to⊥during that propagation, the weight of the removed interpretations is
+equal toP (d1
+4)×P (d1
+2), and the upper bound forF can be decreased to1.0−P (d1
+4)×P (d1
+2).
+This improved upper bound calculation is formalized in Algorithm 2, which is an adapta-
+tion of Algorithm 1 to compute bounds onP [F ]. Intuitively, this algorithm computes, for
+any search tree node with sub-formulaF′, a sum of probabilities of models ofF′, denotedpin,
+and a sum of probabilities of interpretations that are not models, denotedpout. From these
+two values, the lower and upper bounds can be inferred. The structure of Algorithm 2 is the
+same as Algorithm 1. The search stops when there are no more distributions inF (line 2) or
+
+PDF PAGE 7
+A. Dubray, P. Schaus, and S. Nijssen 10:7
+Algorithm 2 PWMC with Bounds Computaton.
+1 F unctionPWMC-Bounds(F )
+input : A boolean formulaF with distributionsDF
+output :The probability of the considered models (pin) and non-models (pout)
+2 if|DF|= 0 then return (1, 0)
+3 if F in cache with values (p′
+in,p′
+out) then return (p′
+in,p′
+out)
+4 pin←0; pout←0
+5 Di←choose_distribution() // For heuristics, see [9]
+6 foreachv∈domF (Di) do
+7 if TIMEOUT then break
+8 if F [v] =⊥then
+9 pout +=P (v)×P (DF\{Di}) // Uses Equation (2)
+10 else
+11 p←∏
+v′∈prop(F [v])P (v′)
+12 pout +=P (v)×(P (DF\{Di})−P (DF [v])) // Uses Equation (2)
+13 C←components ofF [v] // Independent components
+14 foreachFc∈C do
+15 (pc
+in,pc
+out)←PWMC-Bounds(Fc)
+16 end
+17 pin +=p×∏
+cpc
+in
+18 pout +=p×(P (DF [v])−∏
+c(P (DFc)−pc
+out)) // Uses Equation (2)
+19 end
+20 end
+21 AddF↦→(pin,pout) in cache andreturn (pin,pout)
+22 (pin,pout)←PWMC-Bounds(F , ε)
+23 return (pin, 1−pout)
+the formula is in the cache (line 3). Otherwise, it selects a distribution to branch on (line 5).
+Then, it iterates over its domain (lines 6-20), appliesSchlandals’ propagation (line 8), and
+recursively explores the independent components (lines 13-16). Moreover, the computation
+of pin, the sum ofF models’ probability (line 17), is the same as the computation ofP [F ] in
+Algorithm 1.
+Hence, the main difference between Algorithm 2 and Algorithm 1 is the computation of
+pout. When exploring sub-problems ofF (i.e., branching for some valuev of a distribution),
+F [v], the formula obtained after applyingSchlandals’ propagation, might turn out to be
+unsatisfiable. Then, all interpretations containingv =⊤cannot be models ofF, andpout
+is increased (line 8). This rule also applies after propagation: propagation may remove
+some variables from a distribution’s domain, making some interpretations non-models. The
+probability of the interpretations setting one of these variables to⊤can be added topout
+(line 10). This computation is based on the difference in the maximum probability of the
+distributions before (P (DF\{Di})) and after the propagation (P (DF [V ])). Finally, the
+probabilities of the non-models of each independent component are combined and added to
+pout (line 18). The intuition for this formula is that if one partial interpretation in one of the
+components evaluates to false, then the whole interpretation evaluates to false regardless
+of the partial interpretation in the other components. Hence, ifUc represents the random
+event that thec-th component evaluates to⊥(with probabilitypc
+out), we wish to compute
+P (∨|C|
+i=1Ui) = P (¬(∧|C|
+i=1¬Ui)); this gives the indicated formula as for each component the
+probability that it is satisfiable is given byP (DFc)−pc
+out.
+CP 2024
+
+PDF PAGE 8
+10:8 Anytime WMC with Approximation Guarantees for Probabilistic Inference
+Figure 1Example of iterative (from left to right) exploration of the search space with Limited
+Discrepancy Search. At each iteration,d is the current discrepancy, starting from 0. The white
+nodes represent newly explored nodes, while the grey ones represent nodes explored in previous
+iterations.
+4.2 Limited Discrepancy Search for Weighted Model Counting
+Limited Discrepancy Search [14] is a search procedure initially designed to solve constraint
+satisfaction problems in situations where it is reasonable to assume that a branching heuristic
+will often be correct. An essential intuition behind LDS is that if a branching heuristic is
+always correct, a solution can be found by following the leftmost branch of the search tree,
+that is, the branch preferred by the heuristic. If the number of times the heuristic is wrong
+is limited, and the lefthand branch of a node does not provide a solution, then the heuristic
+should be incorrect less often in the righthand subtree. Limited Discrepancy Search builds
+on this intuition; it iteratively explores the search space, deviating more and more from
+the heuristic, as illustrated in Figure 1. Initially, it follows exactly the branching heuristic,
+exploring the leftmost branch of the search tree. If no solution is found, it allows deviating
+from the heuristic at one node per branch: the discrepancy is1. This process continues,
+incrementing the maximum number of discrepancies each time until a solution is found or the
+whole search space is explored. This intuition naturally extends to optimization problems: a
+good heuristic will guide the search toward a good solution and provide tight bounds. Hence,
+large parts of the search space can be pruned in subsequent iterations of the LDS. However,
+it is not obvious that counting problems benefit from such a search scheme; the whole search
+space must be explored to calculate the exact model count.
+However, we argue that LDS offers advantages compared to Algorithm 2 in the specific
+setting of anytime weighted model counting, where the interest is to converge the bounds as
+rapidly as possible. Indeed, the interpretations of a formulaF are unlikely to have uniform
+weights. If LDS’ assumptions are true, then the most likely interpretations can be found using
+a small discrepancy, which is very fast for LDS, as it ignores large parts of the search space.
+On the other hand, methods based on depth-first-search, as presented in Algorithm 1 must
+explore the whole sub-tree, including unlikely interpretations, before switching to a more
+promising part of the search space; moreover, when decomposing a formula in components,
+DFS-based algorithms face the problem that they cannot raise the lower-bound before all
+components have been considered. Hence, for the hardest problems, DFS-based methods
+might even time out before exploring likely interpretations and considering all components.
+Limited Discrepancy Search has the potential not to suffer from these problems, if the
+branching heuristic is reasonable.
+Algorithm 3 gives the modified procedure to perform an LDS-based DPLL search in
+Schlandals. The structure of the algorithm is the same as Algorithm 2: a recursive procedure
+(lines 1-18) explores the search space by selecting a distribution (line 5), exploring its values
+(lines 6-17) and recursively solving the sub-problems (line 12-14) while maintaining thepin
+and pout counts (lines 11,15-16). However, there are some key differences, which we will
+describe next.
+
+PDF PAGE 9
+A. Dubray, P. Schaus, and S. Nijssen 10:9
+Algorithm 3 PWMC with Bounds Computation and Limited Discrepancy Search.
+1 F unctionSchlandals-LDS(F , d)
+input : A boolean formulaF with distributionsDF and a discrepancy budgetd
+output :The probability of the considered models (pin) and non-models (pout)
+2 if|DF|= 0 then return (1, 0)
+3 if F in cache with values (pin,pout,d′) with d′≤d or pin +pout =P (DF ) then
+return (pin,pout)
+4 pin←0; pout←0
+5 Di←choose_distribution() // For heuristics, see [9]
+6 for k←1 to min(d + 1,|domF (Di)|) do
+7 if TIMEOUT then break
+8 v←k−th values ofdomF (Di) // Has the k−th highest weight
+9 if F [v] =⊥then pout +=P (v)×P (DF\{Di}); continue // Equation (2)
+10 p←∏
+v′∈prop(F [v])P (v′)
+11 pout +=P (v)×(P (DF\{Di})−P (DF [v]))
+12 C←components ofF [v]
+13 foreachFc∈C do
+// Discrepancy not decrement for first child
+(pc
+in,pc
+out)←Schlandals-LDS(Fc,d−(k−1))
+14 end
+15 pin +=p×∏
+cpc
+in
+16 pout +=p×(P (DF )−∏
+c(P (DFc)−pc
+out))
+17 end
+18 Add (pin,pout,d ) in cache andreturn (pin,pout)
+19 d←0; lb←0; ub←0
+20 while not TIMEOUT do
+21 (pin,pout)←Schlandals-LDS(F , d)
+22 lb←max(pin,lb ), ub←min(1−pout,ub )
+23 output (lb,ub )
+24 d += 1
+25 end
+26 return (lb,ub )
+First, when a formula is found in the cache (line 3), its result is not automatically returned.
+Indeed, if a node in the search tree is only partially explored when first encountered, its
+bounds are not tight, andpin +pout̸=P (DF ). Such a formula must still be explored, but
+only if the discrepancy budget is higher than the one stored in the cache; otherwise, no new
+interpretation can be found.
+Then, when a distributionDi is selected for branching, the iteration on its domain (line 6)
+differs from classical DPLL-search: it is limited by the discrepancy budget. Moreover, the
+effectiveness of LDS heavily depends on the value selection heuristic. We propose a simple
+heuristic that favors the most likely interpretation first. LetdomF (Di) ={v1,...,vn}be the
+domain ofDi. Let us assume that the domain is iterated fromv1 to vn; given a discrepancy
+budget d, the valuesv1,...,vd are explored. We propose to order the values of the domain
+such thatP (v1)≥P (v2)≥...≥P (vn). The rationale behind this heuristic is the following.
+The weight of an interpretation ofF is computed as ∏
+Di∈DF
+P (v⊤
+i ) with v⊤
+i being the
+variable set to⊤for distributionDi. Hence, selecting the most likely variable first aims to
+favor the most likely interpretations.
+CP 2024
+
+PDF PAGE 10
+10:10 Anytime WMC with Approximation Guarantees for Probabilistic Inference
+Finally, the outer loop calling the recursive function (lines 20-25) is specific to LDS. The
+bounds are initialized (line 19), and while the time limit is not reached, an iteration of LDS
+is done (line 21). The bounds are updated (line 22), output to the user (line 23), and the
+discrepancy is incremented (line 24). Notice that the bounds are updated if they are better
+than the previously found bounds. Indeed, if the time limit is reached, the last iteration of
+LDS may explore only a small part of the search space, leading to worse bounds than in
+the previous iteration. When the whole search space has been explored or the time limit is
+reached, the bounds are returned to the user (line 26).
+4.3 From Bounds to an Epsilon Guarantee
+We have shown that it is possible to modify a DPLL-style search algorithm to compute a
+lower and upper bound on the true probability. We now show a relationship between these
+bounds and anε-guarantee. Remember that a model counter computes an approximate
+probability ˆp of p with ε-guarantee on its error ifp
+1+ε≤ˆp≤p(1 +ε).
+▶ Theorem 4. LetF be a formula with true probability P [F ], ε≥0 an error factor. If Pl[F ]
+is a lower bound on P [F ], Pu[F ] an upper bound on F , and Pu[F ]≤Pl[F ]×(1 +ε)2 then
+we have that
+P [F ]
+1 +ε≤
+√
+Pl[F ]×Pu[F ]≤P [F ](1 +ε).
+Proof. Let us first prove the left part of the inequality. By definition, we have thatP [F ]≤
+Pu[F ] and, by assumption, Pu[F ]
+(1+ε)2≤Pl[F ], hence
+P [F ]2≤Pu[F ]2⇔P [F ]2
+(1 +ε)2≤Pu[F ]2
+(1 +ε)2 = Pu[F ]Pu[F ]
+(1 +ε)2 ≤Pl[F ]×Pu[F ]
+⇔
+√
+P [F ]2
+(1 +ϵ)2 = P [F ]
+(1 +ε)≤
+√
+Pl[F ]×Pu[F ]
+We prove the second inequality in a similar manner.
+P [F ]≥Pl[F ]⇔P [F ]2(1 +ε)2≥Pl[F ]2(1 +ε)2 =Pl[F ]Pl[F ](1 +ε)2≥Pl[F ]Pu[F ]
+⇔
+√
+P [F ]2(1 +ε)2 =P [F ](1 +ε)≥
+√
+Pl[F ]×Pu[F ] ◀
+This theorem tells us two things. First, if the bounds on a probabilityP [F ] are close
+enough, with respect to an allowedεerror factor, the search can be stopped before a time-out
+is reached and we can return a probability that respects a requiredε-guarantee. Second,
+however, if a time-out is reached, we can also still estimate the quality of the model count
+at that moment, with respect to anε−guarantee: given a lower boundPl[F ] and an upper
+bound Pu[F ], Theorem(4) allows us to compute theminimum requiredεthat would stop the
+search at that moment. Algorithm 4 shows an adaptation of the outer loop of Algorithm 3
+to perform LDS with an optional error factorε. The algorithm runs until the condition
+of Theorem 4 is met or until the time limit is reached. At each iteration, it outputs an
+approximate probability with theεerror factor that would stop the search at that moment.
+We believe that this setting can be useful for instance in experiments where a large
+number of probabilities need to be calculated; using our solver this can be done with a time
+out limit on each query, while at the end of the experiment statistics can be calculated on
+the approximation quality of the probabilities calculated in the experiment.
+
+PDF PAGE 11
+A. Dubray, P. Schaus, and S. Nijssen 10:11
+Algorithm 4 Approximate PWMC with LDS.
+1 d←0; lb←0; ub←0
+2 while not TIMEOUT and not ub≤lb(1 +ε)2 do
+3 (pin,pout)←Schlandals-LDS(F , d)
+4 lb←max(pin,lb ), ub←min(1−pout,ub )
+5 εd←
+√
+ub
+lb−1
+6 output (
+√
+lb×ub,εd)
+7 d += 1
+8 end
+9 return (
+√
+lb×ub,
+√
+ub
+lb−1)
+5 Experimental Results
+In this section, we evaluate the effectiveness of our LDS-based1 search method against
+state-of-the-art methods. All methods are evaluated on two axes: i) How many instances
+they can solve and ii) how fast they converge toward the true probability. Moreover, we
+evaluate the effectiveness of our value-selection heuristic.
+We evaluate our methods against the following state-of-the-art methods. We com-
+pare against PartialKC [18], a recently proposed anytime unweighted model counter2
+and ApproxMC [3, 24, 23], which is a popular hashing-based model counter providing
+(ε,δ)−guarantees. We omit WeightMC [1] in our experiments as the available code was
+not updated recently and did not scale on our instances. We also compare our LDS search
+against the TP-compilation algorithm ofProblog[7, 28], which provides a lower and an
+upper bound on the probability in an anytime fashion. Unfortunately, the upper bound is not
+available to users, and there is no easy way to extract it3. The Toulbar2 [21] solver was also
+run with the algorithm presented in [26]. Finally, using Theorem 4, we evaluate an anytime
+version of Algorithm 2, which can be seen as the DFS alternative to our LDS-based search.
+To do so, we ran Algorithm 2 with increasingly high timeouts, storing for each timeout the
+returned bounds. In the rest of this section, we denote byDFS this approach, and byLDS
+the approach presented in Algorithm 4. To better evaluate these approaches, we also ran
+D4 [15, 16], GPMC [25] and ExactMC [17] on our benchmarks. All methods ran with a timeout
+of 600 seconds and a memory limit of15Gb when the option was available with the solver.
+Except for parameters related to approximations, all methods have been executed with their
+default parameters. We evaluated these methods on two problems: computing the marginals
+in Bayesian networks without evidence and computing reachability queries in probabilistic
+graphs.
+The Bayesian networks have various sizes, ranging from a few parameters to tens of
+thousands, and originated from the bnlearn R package [22]. For each network, we use one
+query per value of the leaves: if a leaf node in the network has four values, we create four
+instances that compute the marginal probability of each value. Overall, there are2749
+1 The source code is available athttps://github.com/aia-uclouvain/schlandals.
+2 At the time of the writing of this work, there exists a parameter inPartialKC to perform weighted
+model counting. Unfortunately, the feature is not yet implemented
+3 We checked this with the maintainers of the Problog implementation.
+CP 2024
+
+PDF PAGE 12
+10:12 Anytime WMC with Approximation Guarantees for Probabilistic Inference
+0 100 200 300 400 500 600
+Runtime (s)
+0.0
+0.2
+0.4
+0.6
+0.8Proportion of solved instance
+0 100 200 300 400 500 600
+Runtime (s)
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6Proportion of solved instance
+DFS (  = 0.0)
+DFS (  = 0.8)
+LDS (  = 0.0)
+LDS (  = 0.01)
+LDS (  = 0.05)
+Problog
+ApproxMC ( =0.8, =0.2)
+D4
+GPMC
+ExactMC
+PartialKC
+T oulbar2
+Figure 2Proportion of solved instances over time, with a timeout of 600 seconds, for Bayesian
+networks (left) and reliability estimation (right) problems.
+instances4. For Schlandals, we use the encoding presented in [9], and forPartialKC and
+ApproxMC, we use the encoding from [4]. Since these solvers work on unweighted formulas, we
+transformed the weighted instances into unweighted ones using the approach proposed in [2],
+which encodes the weight with additional variables and clauses. Then, the unweighted count
+can be divided by a normalization factor to obtain the weighted model count. A precision
+parameter can adjust the number of clauses and variables added at the cost of a less precise
+weighted model count. We chose a precision of10 so that the result after normalization is
+similar to the true probability up to five decimals. However, using a lower precision did not
+change the results significantly. ForToulbar2, we used the UAI format with, as evidence, the
+pair node-value to query. SinceProblog is not designed to work directly on CNF formulas,
+implementing the various optimizations for encoding Bayesian networks is impossible. Hence,
+we decided not to run it on these benchmarks as it would only scale to the easiest instances.
+For the reachability queries, we took the graphs representing power grid networks in
+Europe and the USA extracted by the GridKit tool [19, 29]. For each of these graphs,
+sub-graphs were created by splitting the nodes and edges by country (for Europe) and state
+(for the USA). Following the description in [10], we assign each edge a probability of0.125
+of being down. Finally, five queries are created for each sub-graph by taking random pairs
+of nodes and computing their connection probability5. For Schlandals, we again used the
+encoding presented in [9], which is based on the ones presented in [10] and used for the
+other solvers. Unfortunately,PartialKC and Toulbar2 are not projected model counters and
+cannot be launched on these instances. ForApproxMC, the instances were made unweighted
+using the same approach as for the Bayesian networks but with a precision of3.
+Evaluation of Solving Instances
+First, we analyze how many instances each method can solve. Here, we consider an instance
+solved if it respects the approximation contract, if any, or finds the true probability. For
+example, an instance with a probability of0.5 would be solved by a solver returning0.55
+4 The scripts to generate the instances can be found at https://github.com/AlexandreDubray/
+bn-benchmarks
+5 The scripts to generate the instances can be found at https://github.com/AlexandreDubray/
+probabilistic-graph-benchmarks
+
+PDF PAGE 13
+A. Dubray, P. Schaus, and S. Nijssen 10:13
+0 100 200 300 400 500 600
+Runtime (s)
+0
+1
+2
+3
+4
+5p/p*
+100 101 102
+Runtime (s) in log scale
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5p/p*
+DFS anytime ( =0)
+Easy instances
+LDS ( =0)
+Hard instances
+Problog ApproxMC PartialKC T oulbar2
+Figure 3Average convergence of the estimated probability (ˆp) towards the true probability (p⋆) for
+Bayesian networks (left) and reliability estimation (right) problems. ForSchlandals, the estimated
+probability is given by
+√
+lb×ub; the other methods directly output an estimated probability. The
+continuous lines represent the average over all instances, the dotted lines are the average over the
+easy instances (can be solved bySchlandals in less than 60 seconds), and the dashed lines are the
+average over the hard instances.
+when required to produce anε-approximation withε= 0.2. Figure 2 shows the proportion
+of solved instances within the time limit for Bayesian networks (left) and reachability queries
+(right). It can be seen thatSchlandals performs the best regardless of the problem and
+the type of solver (exact, approximate, or anytime). The unweighted model counters are
+performing less well. Adding variables and clauses for the weights heavily impacts their
+performance, particularly for large probabilistic models with thousands of weights. In our
+experiments, on most instances,Toulbar2 was not able to improve its performance when
+calculating anε-approximation using the algorithm presented in [26]. Hence, this graph only
+includes the result forε= 0.
+It can be seen that when solving the problems exactly (ε= 0), the LDS version of
+Schlandals performs less well than its DFS version; this is to be expected as parts of the
+search space are traversed multiple times. However, when a small error (ε) is acceptable, then
+LDS performs roughly the same asDFS on Bayesian networks and surpasses it on reachability
+queries (withε= 0.01, the DFS does not solve more instances within the time limit, so we
+did not include this curve in the graph). Even more striking,LDS can solve at least as many
+instances, in the same amount of time, asDFS and produce probabilities under much stronger
+guarantee requirements (ε= 0.05 instead ofε= 0.8). Although LDS has some overhead by
+exploring some parts of the search space, and it can be seen when the whole search space
+must be explored, when computingε-approximation, it seems that it allows to converge
+much faster towards the true probability. We confirm this intuition in the next section by
+analyzing the convergence of the various methods.
+Convergence of the Anytime Methods
+Figure 3 shows the average convergence of the methods towards the true probability when
+computing it exactly (i.e., withε= 0). For the two versions ofSchlandals, we use Theorem 4
+and the bounds to produce an approximation. We modified the outer loop ofApproxMC
+(see Algorithm 1 in [3]) to output the estimated probability at each iteration. While these
+intermediate solutions have weaker guarantees, consideringApproxMC as an anytime model
+CP 2024
+
+PDF PAGE 14
+10:14 Anytime WMC with Approximation Guarantees for Probabilistic Inference
+0 100 200 300 400 500 600
+Runtime (s)
+0.2
+0.4
+0.6
+0.8Bounds convergence
+0 100 200 300 400 500 600
+Runtime (s)
+0.70
+0.75
+0.80
+0.85
+0.90
+0.95
+1.00Bounds convergence
+DFS anytime lb LDS lb DFS anytime ub LDS ub
+Figure 4 Lower and upper bound convergence towards the true probabilityp⋆ on Bayesian
+networks (left) and reachability queries (right) for the two versions ofSchlandals.
+counter is possible. All other methods provide a lower bound on the probability during their
+execution, which is used as a comparison in the figure. Figure 3 shows the average convergence
+on all instances (solid lines), but also on easy (dotted lines) and hard instances (dashed
+lines). We use a simple threshold to consider an instance difficult or not: ifSchlandals can
+solve the instance in less than a minute, we consider the instance as easy. For the Bayesian
+networks, the true probability is known for each instance, but this is not true for reachability
+queries. Hence, for the later problem, we only consider, in this graph, the instances for which
+at least one solver can produce an exact solution. Such instances are mainly the easiest ones,
+explaining why the methods converge faster than for Bayesian networks.
+As previously noted,Schlandals is the best-performing method. Hence, its estimated
+probability converges, on average, to the true probability. However, the gap between the
+convergence of the easy and hard instances is much larger for the DFS version ofSchlandals
+than for any other method. Due to its depth-first nature, it stays in parts of the search
+space containing small-weight interpretations. On the other hand,LDS suffers much less from
+this problem, and the convergence gap between the easy and the hard instances is smaller.
+Due to its inability to solve the hardest instances,Toulbar2 does not converge, on average,
+toward the true probability. We hypothesize that it gets trapped in part of the search space
+where it accumulates little probability mass before being timed out. Finally, due to their
+poor scalability on weighted problems,PartialKC and ApproxMC converge poorly. Indeed,
+they can not produce a first solution for many hard instances. Hence, the default lower
+bound on these instances is0, pulling their average convergence towards that value.
+Finally, we evaluate if limited discrepancy search effectively allows finding likely models
+first. To do so, we analyze how the lower and upper bounds converge toward the true
+probability. If our search-based methods find the most likely model first, the bounds should
+converge quickly towards the probability, then plateau until the final convergence or timeout.
+To assess the convergence of a lower boundPl[F ], we use the metricPl[F ]/P [F ]∈[0, 1]; when
+no solution has been found, it is0 and when all solutions have been found it is1. For the
+upper boundPu[F ], we use(1−Pu[F ])/(1−P [F ]), which exhibits the same characteristics.
+Figure 4 shows, for both problems, the average convergence, using the metrics defined above,
+for DFS and LDS. It can be seen that both methods quickly accumulate probability mass for
+models and non-models of F, validating that our value-selection heuristic favors the most
+likely models. Moreover,LDS performs significantly better thanDFS, reaching an average of
+more than 0.9 for both metrics in less than 100 seconds.
+
+PDF PAGE 15
+A. Dubray, P. Schaus, and S. Nijssen 10:15
+6 Conclusion
+In this work, we proposed a new method for performing (projected) weighted model counting
+that can be stopped at any time during its execution. Unlike other anytime methods, the
+proposed approach provides deterministic lowerand upper bounds on the true count. We
+have shown that the propagators of DPLL-style weighted model counters can be leveraged
+to maintain such an upper bound during exploration. We proposed a simple heuristic that
+favors exploring the highly weighted interpretations first, fastening the convergence of the
+bounds. We enhanced this convergence further usingLimited Discrepancy Search (LDS).
+Finally, we have shown that these lower and upper bounds can be linked to the well-known
+notion ofε-approximations; hence, the proposed method can be used seamlessly to perform
+an interruptable computation for either the true weighted model count or anε-approximation.
+We implemented this method in theSchlandals solver, specialized for probabilistic inference,
+and evaluated it against state-of-the-art methods on probabilistic reasoning tasks. Our
+experiments show thatSchlandals is the best-performing solver on the studied tasks and
+that the LDS-based search outperforms classical DFS when computingε-approximations.
+The method presented in this work uses a simple strategy for the discrepancy, and more
+work could be done to enhance the performance of the LDS-based search. Moreover, the
+method presented here could be applied to other weighted model counters, including those
+that support arbitrary CNF formulas, such as provided in model counting competitions;
+moreover, an interesting research direction is to apply LDS to unweighted model counting.
+In this case, our simple heuristic can not be applied since all interpretations have the same
+weight, and another heuristic would be necessary.
+References
+1 Supratik Chakraborty, Daniel Fremont, Kuldeep Meel, Sanjit Seshia, and Moshe Vardi.
+Distribution-aware sampling and weighted model counting for SAT. InAAAI, 2014.
+2 Supratik Chakraborty, Dror Fried, Kuldeep S. Meel, and Moshe Y. Vardi. From Weighted to
+Unweighted Model Counting. InIJCAI, 2015.
+3 Supratik Chakraborty, Kuldeep S. Meel, and Moshe Y. Vardi. Algorithmic improvements in
+approximate counting for probabilistic inference: From linear to logarithmic SAT calls. In
+IJCAI, 2016.
+4 Mark Chavira and Adnan Darwiche. Encoding CNFs to empower component analysis. In
+Theory and Applications of Satisfiability Testing-SAT 2006: 9th International Conference,
+Seattle, WA, USA, August 12-15, 2006. Proceedings 9. Springer, 2006.
+5 Mark Chavira and Adnan Darwiche. On probabilistic inference by weighted model counting.
+Artificial Intelligence, 172(6-7), 2008.
+6 Adnan Darwiche. SDD: A new canonical representation of propositional knowledge bases. In
+Twenty-Second International Joint Conference on Artificial Intelligence, 2011.
+7 Luc De Raedt, Angelika Kimmig, and Hannu Toivonen. Problog: A probabilistic prolog and
+its application in link discovery. InIJCAI, volume 7. Hyderabad, 2007.
+8 Alexandre Dubray. Schlandals. Software, version 1.0.3., swhId: swh:1:dir:3ffca0d07
+dbd88cffbbdfda6e3f0ae09a9e77ac0 (visited on 2024-08-19). URL: https://github.com/
+aia-uclouvain/schlandals.
+9 Alexandre Dubray, Pierre Schaus, and Siegfried Nijssen. Probabilistic Infer-
+ence by Projected Weighted Model Counting on Horn Clauses. In DROPS-
+IDN/v2/Document/10.4230/LIPIcs.CP.2023.15. Schloss Dagstuhl – Leibniz-Zentrum für
+Informatik, 2023. doi:10.4230/LIPIcs.CP.2023.15.
+CP 2024
+
+PDF PAGE 16
+10:16 Anytime WMC with Approximation Guarantees for Probabilistic Inference
+10 Leonardo Duenas-Osorio, Kuldeep Meel, Roger Paredes, and Moshe Vardi. Counting-based
+reliability estimation for power-transmission grids. InProceedings of the AAAI Conference on
+Artificial Intelligence, volume 31, 2017.
+11 Vibhav Gogate and Rina Dechter. SampleSearch: Importance sampling in presence of
+determinism. Artificial Intelligence, 175(2), 2011.
+12 Vibhav Gogate and Rina Dechter. Importance sampling-based estimation over and/or search
+spaces for graphical models.Artificial Intelligence, 184, 2012.
+13 Carla P. Gomes, Jörg Hoffmann, Ashish Sabharwal, and Bart Selman. From Sampling to
+Model Counting. InIJCAI, volume 2007, 2007.
+14 William D. Harvey and Matthew L. Ginsberg. Limited discrepancy search. InIJCAI (1),
+1995.
+15 Jean-Marie Lagniez and Pierre Marquis. An Improved Decision-DNNF Compiler. InIJCAI,
+volume 17, 2017.
+16 Jean-Marie Lagniez and Pierre Marquis. A recursive algorithm for projected model counting.
+In Proceedings of the AAAI Conference on Artificial Intelligence, volume 33, 2019.
+17 Yong Lai, Kuldeep S. Meel, and Roland HC Yap. The power of literal equivalence in model
+counting. InProceedings of the AAAI Conference on Artificial Intelligence, volume 35, 2021.
+18 Yong Lai, Kuldeep S. Meel, and Roland HC Yap. Fast Converging Anytime Model Counting.
+In Proceedings of the AAAI Conference on Artificial Intelligence, volume 37, 2023.
+19 Wided Medjroubi, Ulf Philipp Müller, Malte Scharf, Carsten Matke, and David Kleinhans.
+Open data in power grid modelling: New approaches towards transparent grid models.Energy
+Reports, 3, 2017.
+20 Tian Sang, Paul Beame, and Henry Kautz. Solving Bayesian networks by weighted model
+counting. In Proceedings of the Twentieth National Conference on Artificial Intelligence
+(AAAI-05), volume 1. AAAI Press, 2005.
+21 T. Schiex, S. de Givry, and M. Sanchez. Toulbar2—an open source weighted constraint
+satisfaction solver.URL http://mulcyber. toulouse. inra. fr/projects/toulbar2, 2006.
+22 Marco Scutari. Learning Bayesian networks with the bnlearn R package.arXiv preprint
+arXiv:0908.3817, 2009. arXiv:0908.3817.
+23 Mate Soos, Stephan Gocht, and Kuldeep S. Meel. Tinted, Detached, and Lazy CNF-XOR
+solving and its Applications to Counting and Sampling. InCCAV, 2020.
+24 Mate Soos and Kuldeep S. Meel. BIRD: Engineering an efficient CNF-XOR SAT solver and
+its applications to approximate model counting. InProceedings of the AAAI Conference on
+Artificial Intelligence, volume 33, 2019.
+25 Ryosuke Suzuki, Kenji Hashimoto, and Masahiko Sakai. Improvement of projected model-
+counting solver with component decomposition using SAT solving in components. Technical
+report, JSAI Technical Report, SIG-FPAI-506-07, 2017.
+26 Clément Viricel, David Simoncini, Sophie Barbe, and Thomas Schiex. Guaranteed Weighted
+Counting for Affinity Computation: Beyond Determinism and Structure. In Michel Rueher,
+editor, CP, 2016.
+27 JonasVlasselaer, AngelikaKimmig, AntonDries, WannesMeert, andLucDeRaedt. Knowledge
+compilation and weighted model counting for inference in probabilistic logic programs. In
+Proceedings of the First Workshop on Beyond NP. AAAI Press, 2016.
+28 Jonas Vlasselaer, Guy Van den Broeck, Angelika Kimmig, Wannes Meert, and Luc De Raedt.
+Anytime inference in probabilistic logic programs with Tp-compilation. InIJCAI, 2015.
+29 Bart Wiegmans. Gridkit: European And North-American Extracts, March 2016. doi:
+10.5281/ZENODO.47317.
